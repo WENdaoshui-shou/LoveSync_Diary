@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse, reverse
 
-# Create your views here.
+
+# 首页
+async def user_index(requeust):
+    return HttpResponse(requeust, 'index.html')

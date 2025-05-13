@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoveSync - 双人日记</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B8B', // 爱情粉色作为主色调
+                        secondary: '#722ED1', // 紫色作为辅助色
+                        neutral: {
+                            100: '#F9F9F9',
+                            200: '#F0F0F0',
+                            300: '#E0E0E0',
+                            400: '#BDBDBD',
+                            500: '#9E9E9E',
+                            600: '#757575',
+                            700: '#616161',
+                            800: '#424242',
+                            900: '#212121',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .bg-gradient-love {
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            }
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.03);
+            }
+            .typing-indicator {
+                display: inline-block;
+                width: 3px;
+                height: 1.2em;
+                background-color: currentColor;
+                animation: blink 1s infinite;
+            }
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
+                    <i class="fa-solid fa-heart text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-neutral-800">LoveSync</span>
+            </a>
+
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#index" class="text-neutral-600 hover:text-primary transition-custom font-medium">首页</a>
+                <a href="#features" class="text-neutral-600 hover:text-primary transition-custom font-medium">功能</a>
+                <a href="#gallery" class="text-neutral-600 hover:text-primary transition-custom font-medium">日记展示</a>
+                <a href="#download" class="text-neutral-600 hover:text-primary transition-custom font-medium">下载</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <button class="hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
+                    登录
+                </button>
+                <button class="px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-custom">
+                    注册
+                </button>
+                <button class="md:hidden text-neutral-700" id="menu-toggle">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#home" class="text-neutral-600 hover:text-primary py-2 transition-custom">首页</a>
+                <a href="#features" class="text-neutral-600 hover:text-primary py-2 transition-custom">功能</a>
+                <a href="#gallery" class="text-neutral-600 hover:text-primary py-2 transition-custom">日记展示</a>
+                <a href="#download" class="text-neutral-600 hover:text-primary py-2 transition-custom">下载</a>
+                <a href="#" class="text-primary py-2 transition-custom">登录</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section id="home" class="pt-32 pb-20 bg-gradient-to-b from-neutral-100 to-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight text-neutral-900 mb-6">
+                        记录属于你们的<span class="text-primary">爱情故事</span>
+                    </h1>
+                    <p class="text-lg text-neutral-600 mb-8 max-w-xl">
+                        LoveSync是一款专为情侣设计的私密日记应用，让你们随时随地记录生活中的每一个美好瞬间，共同创造永恒的回忆。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom flex items-center">
+                            <i class="fa-solid fa-heart mr-2"></i> 立即开始
+                        </button>
+                        <button class="px-8 py-3 border border-neutral-300 rounded-full text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-play-circle mr-2"></i> 观看演示
+                        </button>
+                    </div>
+                    <div class="mt-10 flex items-center space-x-6">
+                        <div class="flex -space-x-2">
+                            <img src="https://picsum.photos/seed/user1/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src="https://picsum.photos/seed/user2/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src="https://picsum.photos/seed/user3/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
+                            <div class="w-10 h-10 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-neutral-600 text-xs">
+                                10k+
+                            </div>
+                        </div>
+                        <div class="text-sm text-neutral-600">
+                            <span class="font-semibold">10,000+</span> 对情侣正在使用
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2 relative">
+                    <div class="relative z-10 bg-white rounded-3xl shadow-2xl overflow-hidden hover-scale">
+                        <img src=".././static/images/1.jpg" alt="情侣日记应用截图" class="w-full h-auto">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end">
+                            <div class="p-6 text-white">
+                                <h3 class="text-xl font-semibold mb-2">我们的一周年纪念</h3>
+                                <p class="text-sm mb-4">今天是我们在一起一周年的日子，时间过得真快...</p>
+                                <div class="flex items-center">
+                                    <img src=".././static/images/9.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
+                                    <img src="https://picsum.photos/seed/girl/40/40" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                                    <span class="ml-2 text-xs">2025年5月1日</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 装饰元素 -->
+                    <div class="absolute -bottom-6 -left-6 w-24 h-24 bg-primary/20 rounded-full blur-2xl"></div>
+                    <div class="absolute -top-6 -right-6 w-32 h-32 bg-secondary/20 rounded-full blur-3xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 统计数据 -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-neutral-50 p-8 rounded-2xl shadow-sm hover:shadow-md transition-custom">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-book text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-neutral-800 mb-2">150万+</h3>
+                    <p class="text-neutral-600">爱情故事被记录</p>
+                </div>
+                <div class="bg-neutral-50 p-8 rounded-2xl shadow-sm hover:shadow-md transition-custom">
+                    <div class="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-users text-secondary text-2xl"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-neutral-800 mb-2">300万+</h3>
+                    <p class="text-neutral-600">情侣用户</p>
+                </div>
+                <div class="bg-neutral-50 p-8 rounded-2xl shadow-sm hover:shadow-md transition-custom">
+                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-heart text-green-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-neutral-800 mb-2">98%</h3>
+                    <p class="text-neutral-600">用户满意度</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能介绍 -->
+    <section id="features" class="py-20 bg-neutral-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
+                    专为情侣打造的私密空间
+                </h2>
+                <p class="text-neutral-600 text-lg">
+                    我们提供丰富的功能，帮助情侣记录、分享和珍藏每一刻的美好
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 功能卡片1 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/3.jpg" alt="实时共同编辑" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-pencil text-primary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">实时共同编辑</h3>
+                        <p class="text-neutral-600 mb-4">
+                            两个人可以同时编辑同一篇日记，共同创作属于你们的故事，实时看到对方的输入内容。
+                        </p>
+                        <a href="#" class="text-primary font-medium flex items-center">
+                            了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 功能卡片2 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/4.jpg" alt="纪念日提醒" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-calendar-check text-secondary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">纪念日提醒</h3>
+                        <p class="text-neutral-600 mb-4">
+                            设置重要的纪念日，系统会提前提醒，让你不会错过任何一个重要的日子，为TA准备惊喜。
+                        </p>
+                        <a href="#" class="text-secondary font-medium flex items-center">
+                            了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 功能卡片3 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/5.jpg" alt="情侣相册" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-images text-green-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">情侣相册</h3>
+                        <p class="text-neutral-600 mb-4">
+                            上传和整理你们的照片，添加文字描述，创建专属的回忆相册，随时回味美好瞬间。
+                        </p>
+                        <a href="#" class="text-green-600 font-medium flex items-center">
+                            了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 功能卡片4 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/6.jpg" alt="情侣社区" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-comments text-blue-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">情侣社区</h3>
+                        <p class="text-neutral-600 mb-4">
+                            加入我们的情侣社区，分享你们的爱情故事，获取恋爱建议，结交志同道合的情侣朋友。
+                        </p>
+                        <a href="#" class="text-blue-600 font-medium flex items-center">
+                            了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 功能卡片5 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/7.jpg" alt="私密安全" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-lock text-purple-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">私密安全</h3>
+                        <p class="text-neutral-600 mb-4">
+                            采用银行级加密技术，确保你们的日记内容只有彼此可见，保护你们的私密空间不被外界打扰。
+                        </p>
+                        <a href="#" class="text-purple-600 font-medium flex items-center">
+                            了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 功能卡片6 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/8.jpg" alt="数据统计" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-chart-line text-amber-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">爱情数据统计</h3>
+                        <p class="text-neutral-600 mb-4">
+                            分析你们的互动数据，生成爱情报告，了解你们的相处模式，发现爱情中的小确幸。
+                        </p>
+                        <a href="#" class="text-amber-600 font-medium flex items-center">
+                            了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 实时编辑演示 -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-6">
+                        实时共同编辑，<br>
+                        创造专属回忆
+                    </h2>
+                    <p class="text-lg text-neutral-600 mb-8">
+                        两个人可以同时编辑同一篇日记，实时看到对方的输入内容，就像两个人面对面交流一样自然。
+                    </p>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
+                                <i class="fa-solid fa-check text-green-500 text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-neutral-800">实时同步</h4>
+                                <p class="text-neutral-600 text-sm">输入内容立即同步到对方设备，无需等待</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
+                                <i class="fa-solid fa-check text-green-500 text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-neutral-800">编辑状态显示</h4>
+                                <p class="text-neutral-600 text-sm">清晰看到对方正在编辑的位置</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
+                                <i class="fa-solid fa-check text-green-500 text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-neutral-800">冲突自动合并</h4>
+                                <p class="text-neutral-600 text-sm">智能处理编辑冲突，确保内容完整保存</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <button class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom">
+                        体验实时编辑
+                    </button>
+                </div>
+                <div class="lg:w-1/2 relative">
+                    <div class="relative z-10 bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale">
+                        <div class="bg-neutral-800 p-3 flex items-center">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="ml-auto text-white text-sm">实时共同编辑演示</div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center mb-4">
+                                <img src=".././static/images/9.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
+                                <span class="ml-2 font-medium">小明</span>
+                                <div class="ml-auto flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></div>
+                                    <span class="text-sm text-green-500">正在输入...</span>
+                                </div>
+                            </div>
+                            <div class="border border-neutral-200 rounded-lg p-4 min-h-[300px]">
+                                <p>今天是我们在一起的第365天，时间过得真快啊！还记得去年的今天，我们在那家咖啡馆第一次约会，你穿着白色的连衣裙，笑起来特别好看。</p>
+                                <div class="mt-4">
+                                    <div class="flex items-center">
+                                        <span>小明：</span>
+                                        <div class="ml-2 relative">
+                                            <span>这一年里，我们一起经历了很多美好的事情，也有过一些小争吵，但每一次</span>
+                                            <span class="bg-primary/20 typing-indicator"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <textarea class="w-full border border-neutral-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50" rows="4" placeholder="写下你的感受..."></textarea>
+                                </div>
+                                <div class="mt-3 flex justify-end">
+                                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                                        发送
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 装饰元素 -->
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-primary/20 rounded-full blur-2xl"></div>
+                    <div class="absolute -top-6 -left-6 w-32 h-32 bg-secondary/20 rounded-full blur-3xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据统计与分析 -->
+    <section class="py-20 bg-neutral-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
+                    了解你们的爱情数据
+                </h2>
+                <p class="text-neutral-600 text-lg">
+                    通过数据分析，发现你们爱情中的小确幸，见证感情的成长
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+                    <h3 class="text-xl font-semibold mb-6">互动频率分析</h3>
+                    <div class="h-[300px]">
+                        <canvas id="interactionChart"></canvas>
+                    </div>
+                </div>
+                <div class=".././static/images/10.jpg">
+                    <h3 class="text-xl font-semibold mb-6">情感词云分析</h3>
+                    <div class="h-[300px] flex items-center justify-center">
+                        <img src="https://picsum.photos/seed/wordcloud/600/300" alt="情感词云分析" class="w-full h-auto rounded-lg">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+                            <i class="fa-solid fa-pencil text-primary text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-lg">已写日记</h4>
+                    </div>
+                    <div class="flex items-end">
+                        <span class="text-4xl font-bold text-neutral-800">156</span>
+                        <span class="text-green-500 ml-2 flex items-center text-sm">
+                            <i class="fa-solid fa-arrow-up mr-1"></i> 12%
+                        </span>
+                    </div>
+                    <p class="text-neutral-500 text-sm mt-2">相比上月增加了12%</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mr-4">
+                            <i class="fa-solid fa-heart text-secondary text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-lg">甜蜜指数</h4>
+                    </div>
+                    <div class="flex items-end">
+                        <span class="text-4xl font-bold text-neutral-800">92</span>
+                        <span class="text-green-500 ml-2 flex items-center text-sm">
+                            <i class="fa-solid fa-arrow-up mr-1"></i> 5%
+                        </span>
+                    </div>
+                    <p class="text-neutral-500 text-sm mt-2">基于内容分析的情感评分</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fa-solid fa-calendar-days text-green-500 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-lg">连续打卡</h4>
+                    </div>
+                    <div class="flex items-end">
+                        <span class="text-4xl font-bold text-neutral-800">23</span>
+                        <span class="text-green-500 ml-2 flex items-center text-sm">
+                            <i class="fa-solid fa-arrow-up mr-1"></i> 3天
+                        </span>
+                    </div>
+                    <p class="text-neutral-500 text-sm mt-2">创造了新的连续记录</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 日记展示 -->
+    <section id="gallery" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
+                    精选爱情故事
+                </h2>
+                <p class="text-neutral-600 text-lg">
+                    看看其他情侣如何记录他们的爱情故事，也许能给你们一些灵感
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 日记卡片1 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/11.jpg" alt="海边旅行" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <img src=".././static/images/112-40x40.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
+                            <img src=".././static/images/308-40x40.jpg" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                            <div class="ml-2">
+                                <div class="font-medium text-sm">小李 & 小王</div>
+                                <div class="text-xs text-neutral-500">2025年4月15日</div>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">海边的浪漫日落</h3>
+                        <p class="text-neutral-600 mb-4 line-clamp-3">
+                            今天我们一起去了海边，看了一场绝美的日落。海浪拍打着沙滩，你穿着白色的连衣裙，风轻轻吹起你的发丝...
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom">
+                                    <i class="fa-solid fa-heart mr-1"></i> 128
+                                </button>
+                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
+                                    <i class="fa-solid fa-comment mr-1"></i> 32
+                                </button>
+                            </div>
+                            <button class="text-primary font-medium">阅读更多</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日记卡片2 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/12.jpg" alt="生日惊喜" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <img src=".././static/images/308-40x40.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
+                            <img src=".././static/images/395-40x40.jpg" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                            <div class="ml-2">
+                                <div class="font-medium text-sm">小张 & 小周</div>
+                                <div class="text-xs text-neutral-500">2025年3月28日</div>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">我的生日惊喜</h3>
+                        <p class="text-neutral-600 mb-4 line-clamp-3">
+                            今年的生日过得特别难忘，你偷偷准备了一个惊喜派对，邀请了我所有的好朋友。当我推开门的那一刻，真的感动得哭了...
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom">
+                                    <i class="fa-solid fa-heart mr-1"></i> 215
+                                </button>
+                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
+                                    <i class="fa-solid fa-comment mr-1"></i> 47
+                                </button>
+                            </div>
+                            <button class="text-primary font-medium">阅读更多</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日记卡片3 -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
+                    <div class="h-48 overflow-hidden">
+                        <img src=".././static/images/13.jpg" alt="第一次旅行" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <img src=".././static/images/476-40x40.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
+                            <img src=".././static/images/896-40x40.jpg" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                            <div class="ml-2">
+                                <div class="font-medium text-sm">小陈 & 小吴</div>
+                                <div class="text-xs text-neutral-500">2025年2月14日</div>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">我们的第一次旅行</h3>
+                        <p class="text-neutral-600 mb-4 line-clamp-3">
+                            情人节那天，我们一起去了丽江。古城的石板路、街边的咖啡馆、夜晚的篝火晚会，都让我难以忘怀。最美好的是有你在我身边...
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom">
+                                    <i class="fa-solid fa-heart mr-1"></i> 187
+                                </button>
+                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
+                                    <i class="fa-solid fa-comment mr-1"></i> 53
+                                </button>
+                            </div>
+                            <button class="text-primary font-medium">阅读更多</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button class="px-8 py-3 border border-primary text-primary rounded-full hover:bg-primary/5 transition-custom">
+                    查看更多故事
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 用户评价 -->
+        <section class="py-20 bg-neutral-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
+                    用户的爱情故事
+                </h2>
+                <p class="text-neutral-600 text-lg">
+                    听听其他情侣如何使用LoveDiary记录他们的爱情旅程
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 评价卡片1 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/seed/user1/60/60" alt="用户头像" class="w-12 h-12 rounded-full">
+                        <div class="ml-4">
+                            <div class="font-semibold">小李和小王</div>
+                            <div class="text-sm text-neutral-500">在一起2年</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-4">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-neutral-600 mb-4">
+                        "LoveDiary帮助我们记录了在一起的每一个重要时刻。实时编辑功能太赞了，我们可以一起回忆过去，规划未来。最让我们感动的是，系统会提醒我们重要的纪念日，去年我差点忘记了我们的周年纪念日，还好有它的提醒！"
+                    </p>
+                </div>
+
+                <!-- 评价卡片2 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/seed/user2/60/60" alt="用户头像" class="w-12 h-12 rounded-full">
+                        <div class="ml-4">
+                            <div class="font-semibold">小张和小陈</div>
+                            <div class="text-sm text-neutral-500">异地恋1年</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-4">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <p class="text-neutral-600 mb-4">
+                        "作为一对异地恋情侣，LoveDiary是我们保持联系的重要方式。每天我们都会在日记里分享彼此的生活，就像从未分开过一样。数据统计功能也很有趣，让我们看到了彼此相处的模式和习惯。"
+                    </p>
+                </div>
+
+                <!-- 评价卡片3 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/seed/user3/60/60" alt="用户头像" class="w-12 h-12 rounded-full">
+                        <div class="ml-4">
+                            <div class="font-semibold">小赵和小林</div>
+                            <div class="text-sm text-neutral-500">新婚夫妇</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-4">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-neutral-600 mb-4">
+                        "从恋爱到结婚，LoveDiary见证了我们的整个爱情过程。现在我们已经结婚了，但仍然保持着每天写日记的习惯。这是我们爱情的见证，也是我们留给未来的礼物。感谢LoveDiary，让我们的爱情有了一个温暖的家。"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 下载区域 -->
+    <section id="download" class="py-20 bg-gradient-love text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-6">
+                    开始记录你们的爱情故事
+                </h2>
+                <p class="text-white/90 text-lg mb-10">
+                    立即下载LoveSync，与你的另一半一起创建专属的私密空间，记录每一刻的美好
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="px-8 py-3 bg-white text-primary rounded-full shadow-lg hover:shadow-xl hover:bg-white/90 transition-custom flex items-center">
+                        <i class="fa-brands fa-apple text-xl mr-2"></i> App Store
+                    </button>
+                    <button class="px-8 py-3 bg-white text-primary rounded-full shadow-lg hover:shadow-xl hover:bg-white/90 transition-custom flex items-center">
+                        <i class="fa-brands fa-android text-xl mr-2"></i> Google Play
+                    </button>
+                </div>
+                <div class="mt-12 flex items-center justify-center">
+                    <div class="w-24 h-px bg-white/30 mr-4"></div>
+                    <span class="text-white/70">或直接扫码下载</span>
+                    <div class="w-24 h-px bg-white/30 ml-4"></div>
+                </div>
+                <div class="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-6 inline-block">
+                    <img src="../static/images/erweima.png" alt="下载二维码" class="w-48 h-48">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ区域 -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
+                    常见问题
+                </h2>
+                <p class="text-neutral-600 text-lg">
+                    我们整理了一些用户经常问的问题，希望能帮助你更好地了解我们的应用
+                </p>
+            </div>
+
+            <div class="max-w-3xl mx-auto space-y-6">
+                <!-- FAQ项目1 -->
+                <div class="border border-neutral-200 rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(1)">
+                        <span>如何绑定情侣账号？</span>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-1"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden" id="faq-content-1">
+                        <p class="text-neutral-600">
+                            注册账号后，在"我的情侣"页面点击"绑定情侣"按钮，输入对方的手机号或邮箱，对方确认后即可完成绑定。绑定成功后，你们将共享一个私密的日记空间。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ项目2 -->
+                <div class="border border-neutral-200 rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(2)">
+                        <span>日记内容是否安全？</span>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-2"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden" id="faq-content-2">
+                        <p class="text-neutral-600">
+                            我们非常重视用户隐私和数据安全。所有日记内容都经过加密处理，并存储在安全的服务器上。只有绑定的情侣双方可以查看和编辑日记内容，我们不会向任何第三方分享你的隐私信息。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ项目3 -->
+                <div class="border border-neutral-200 rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(3)">
+                        <span>支持多设备同步吗？</span>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-3"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden" id="faq-content-3">
+                        <p class="text-neutral-600">
+                            是的，LoveSync支持多设备同步。你可以在手机、平板和电脑上安装我们的应用，使用同一账号登录，所有的日记内容和设置都会自动同步。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ项目4 -->
+                <div class="border border-neutral-200 rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(4)">
+                        <span>如何删除账号？</span>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-4"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden" id="faq-content-4">
+                        <p class="text-neutral-600">
+                            你可以在"设置"页面中找到"账号管理"选项，点击"删除账号"按钮，按照提示操作即可。请注意，删除账号后，所有的日记内容和数据将无法恢复，请谨慎操作。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ项目5 -->
+                <div class="border border-neutral-200 rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(5)">
+                        <span>有哪些付费功能？</span>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-5"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden" id="faq-content-5">
+                        <p class="text-neutral-600">
+                            LoveSync提供免费和高级两种版本。免费版包含基本的日记功能和部分社区功能。高级版则解锁更多个性化选项、云存储、无广告等特权。你可以在应用内的"会员中心"查看详细的功能对比和订阅价格。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-neutral-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center">
+                            <i class="fa-solid fa-heart text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold">LoveSync</span>
+                    </div>
+                    <p class="text-neutral-400 mb-6">
+                        记录每一刻的美好，珍藏属于你们的爱情故事。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary transition-custom">
+                            <i class="fa-brands fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary transition-custom">
+                            <i class="fa-brands fa-wechat"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary transition-custom">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">产品</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">功能介绍</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">会员服务</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">价格</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">更新日志</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">资源</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">帮助中心</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">社区</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">博客</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">API文档</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">公司</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">关于我们</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">联系方式</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">隐私政策</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">服务条款</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-neutral-800 mt-12 pt-8 text-center text-neutral-500 text-sm">
+                <p>© 2025 LoveSync. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow-md');
+                navbar.classList.remove('py-3', 'shadow-sm');
+            } else {
+                navbar.classList.add('py-3', 'shadow-sm');
+                navbar.classList.remove('py-2', 'shadow-md');
+            }
+        });
+
+        // 移动端菜单切换
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // FAQ 切换
+        function toggleFaq(id) {
+            const content = document.getElementById(`faq-content-${id}`);
+            const icon = document.getElementById(`faq-icon-${id}`);
+
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        // 互动频率图表
+        window.addEventListener('load', function() {
+            const ctx = document.getElementById('interactionChart').getContext('2d');
+            const interactionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '小明',
+                        data: [12, 19, 15, 22, 28, 32],
+                        borderColor: '#FF6B8B',
+                        backgroundColor: 'rgba(255, 107, 139, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '小红',
+                        data: [8, 15, 18, 20, 25, 30],
+                        borderColor: '#722ED1',
+                        backgroundColor: 'rgba(114, 46, 209, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+
+                    // 关闭移动菜单（如果打开）
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
