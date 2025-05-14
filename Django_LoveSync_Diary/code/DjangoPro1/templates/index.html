@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -39,21 +39,27 @@
             .content-auto {
                 content-visibility: auto;
             }
+
             .text-shadow {
-                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
+
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
+
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
+
             .hover-scale {
                 transition: transform 0.3s ease;
             }
+
             .hover-scale:hover {
                 transform: scale(1.03);
             }
+
             .typing-indicator {
                 display: inline-block;
                 width: 3px;
@@ -61,16 +67,23 @@
                 background-color: currentColor;
                 animation: blink 1s infinite;
             }
+
             @keyframes blink {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0; }
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0;
+                }
             }
         }
     </style>
 </head>
+
 <body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col">
     <!-- 导航栏 -->
-    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm">
+    <header id="navbar"
+        class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <a href="#" class="flex items-center space-x-2">
                 <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
@@ -80,19 +93,21 @@
             </a>
 
             <nav class="hidden md:flex items-center space-x-8">
-                <a href="#index" class="text-neutral-600 hover:text-primary transition-custom font-medium">首页</a>
+                <a href="#home" class="text-neutral-600 hover:text-primary transition-custom font-medium">首页</a>
                 <a href="#features" class="text-neutral-600 hover:text-primary transition-custom font-medium">功能</a>
                 <a href="#gallery" class="text-neutral-600 hover:text-primary transition-custom font-medium">日记展示</a>
                 <a href="#download" class="text-neutral-600 hover:text-primary transition-custom font-medium">下载</a>
             </nav>
 
             <div class="flex items-center space-x-4">
-                <button class="hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
+                <a href="login.html"
+                    class="hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
                     登录
-                </button>
-                <button class="px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-custom">
+                </a>
+                <a href="register.html"
+                    class="px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-custom">
                     注册
-                </button>
+                </a>
                 <button class="md:hidden text-neutral-700" id="menu-toggle">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
@@ -123,19 +138,25 @@
                         LoveSync是一款专为情侣设计的私密日记应用，让你们随时随地记录生活中的每一个美好瞬间，共同创造永恒的回忆。
                     </p>
                     <div class="flex flex-wrap gap-4">
-                        <button class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom flex items-center">
+                        <button
+                            class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom flex items-center">
                             <i class="fa-solid fa-heart mr-2"></i> 立即开始
                         </button>
-                        <button class="px-8 py-3 border border-neutral-300 rounded-full text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                        <button
+                            class="px-8 py-3 border border-neutral-300 rounded-full text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-play-circle mr-2"></i> 观看演示
                         </button>
                     </div>
                     <div class="mt-10 flex items-center space-x-6">
                         <div class="flex -space-x-2">
-                            <img src="https://picsum.photos/seed/user1/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
-                            <img src="https://picsum.photos/seed/user2/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
-                            <img src="https://picsum.photos/seed/user3/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
-                            <div class="w-10 h-10 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-neutral-600 text-xs">
+                            <img src=".././static/images/14.jpg" alt="用户头像"
+                                class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src=".././static/images/15.jpg" alt="用户头像"
+                                class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src=".././static/images/16.jpg" alt="用户头像"
+                                class="w-10 h-10 rounded-full border-2 border-white">
+                            <div
+                                class="w-10 h-10 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-neutral-600 text-xs">
                                 10k+
                             </div>
                         </div>
@@ -153,8 +174,9 @@
                                 <p class="text-sm mb-4">今天是我们在一起一周年的日子，时间过得真快...</p>
                                 <div class="flex items-center">
                                     <img src=".././static/images/9.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
-                                    <img src="https://picsum.photos/seed/girl/40/40" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
-                                    <span class="ml-2 text-xs">2025年5月1日</span>
+                                    <img src="https://picsum.photos/seed/girl/40/40" alt="女生头像"
+                                        class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                                    <span id="current-date" class="ml-2 text-xs"></span>
                                 </div>
                             </div>
                         </div>
@@ -340,7 +362,8 @@
                     </p>
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start">
-                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
+                            <div
+                                class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
                                 <i class="fa-solid fa-check text-green-500 text-xs"></i>
                             </div>
                             <div>
@@ -349,7 +372,8 @@
                             </div>
                         </li>
                         <li class="flex items-start">
-                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
+                            <div
+                                class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
                                 <i class="fa-solid fa-check text-green-500 text-xs"></i>
                             </div>
                             <div>
@@ -358,7 +382,8 @@
                             </div>
                         </li>
                         <li class="flex items-start">
-                            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
+                            <div
+                                class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1 mr-3 flex-shrink-0">
                                 <i class="fa-solid fa-check text-green-500 text-xs"></i>
                             </div>
                             <div>
@@ -367,7 +392,8 @@
                             </div>
                         </li>
                     </ul>
-                    <button class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom">
+                    <button
+                        class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom">
                         体验实时编辑
                     </button>
                 </div>
@@ -402,10 +428,13 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <textarea class="w-full border border-neutral-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50" rows="4" placeholder="写下你的感受..."></textarea>
+                                    <textarea
+                                        class="w-full border border-neutral-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                        rows="4" placeholder="写下你的感受..."></textarea>
                                 </div>
                                 <div class="mt-3 flex justify-end">
-                                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                                    <button
+                                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
                                         发送
                                     </button>
                                 </div>
@@ -439,10 +468,10 @@
                         <canvas id="interactionChart"></canvas>
                     </div>
                 </div>
-                <div class=".././static/images/10.jpg">
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
                     <h3 class="text-xl font-semibold mb-6">情感词云分析</h3>
                     <div class="h-[300px] flex items-center justify-center">
-                        <img src="https://picsum.photos/seed/wordcloud/600/300" alt="情感词云分析" class="w-full h-auto rounded-lg">
+                        <img src=".././static/images/802-600x300.jpg" alt="情感词云分析" class="w-full h-auto rounded-lg">
                     </div>
                 </div>
             </div>
@@ -518,7 +547,8 @@
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <img src=".././static/images/112-40x40.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
-                            <img src=".././static/images/308-40x40.jpg" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                            <img src=".././static/images/308-40x40.jpg" alt="女生头像"
+                                class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
                             <div class="ml-2">
                                 <div class="font-medium text-sm">小李 & 小王</div>
                                 <div class="text-xs text-neutral-500">2025年4月15日</div>
@@ -533,7 +563,8 @@
                                 <button class="flex items-center text-neutral-500 hover:text-primary transition-custom">
                                     <i class="fa-solid fa-heart mr-1"></i> 128
                                 </button>
-                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
+                                <button
+                                    class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
                                     <i class="fa-solid fa-comment mr-1"></i> 32
                                 </button>
                             </div>
@@ -550,7 +581,8 @@
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <img src=".././static/images/308-40x40.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
-                            <img src=".././static/images/395-40x40.jpg" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                            <img src=".././static/images/395-40x40.jpg" alt="女生头像"
+                                class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
                             <div class="ml-2">
                                 <div class="font-medium text-sm">小张 & 小周</div>
                                 <div class="text-xs text-neutral-500">2025年3月28日</div>
@@ -565,7 +597,8 @@
                                 <button class="flex items-center text-neutral-500 hover:text-primary transition-custom">
                                     <i class="fa-solid fa-heart mr-1"></i> 215
                                 </button>
-                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
+                                <button
+                                    class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
                                     <i class="fa-solid fa-comment mr-1"></i> 47
                                 </button>
                             </div>
@@ -582,7 +615,8 @@
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <img src=".././static/images/476-40x40.jpg" alt="男生头像" class="w-8 h-8 rounded-full">
-                            <img src=".././static/images/896-40x40.jpg" alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                            <img src=".././static/images/896-40x40.jpg" alt="女生头像"
+                                class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
                             <div class="ml-2">
                                 <div class="font-medium text-sm">小陈 & 小吴</div>
                                 <div class="text-xs text-neutral-500">2025年2月14日</div>
@@ -597,7 +631,8 @@
                                 <button class="flex items-center text-neutral-500 hover:text-primary transition-custom">
                                     <i class="fa-solid fa-heart mr-1"></i> 187
                                 </button>
-                                <button class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
+                                <button
+                                    class="flex items-center text-neutral-500 hover:text-primary transition-custom ml-4">
                                     <i class="fa-solid fa-comment mr-1"></i> 53
                                 </button>
                             </div>
@@ -608,7 +643,8 @@
             </div>
 
             <div class="text-center mt-12">
-                <button class="px-8 py-3 border border-primary text-primary rounded-full hover:bg-primary/5 transition-custom">
+                <button
+                    class="px-8 py-3 border border-primary text-primary rounded-full hover:bg-primary/5 transition-custom">
                     查看更多故事
                 </button>
             </div>
@@ -616,7 +652,7 @@
     </section>
 
     <!-- 用户评价 -->
-        <section class="py-20 bg-neutral-50">
+    <section class="py-20 bg-neutral-50">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
@@ -705,10 +741,12 @@
                     立即下载LoveSync，与你的另一半一起创建专属的私密空间，记录每一刻的美好
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <button class="px-8 py-3 bg-white text-primary rounded-full shadow-lg hover:shadow-xl hover:bg-white/90 transition-custom flex items-center">
+                    <button
+                        class="px-8 py-3 bg-white text-primary rounded-full shadow-lg hover:shadow-xl hover:bg-white/90 transition-custom flex items-center">
                         <i class="fa-brands fa-apple text-xl mr-2"></i> App Store
                     </button>
-                    <button class="px-8 py-3 bg-white text-primary rounded-full shadow-lg hover:shadow-xl hover:bg-white/90 transition-custom flex items-center">
+                    <button
+                        class="px-8 py-3 bg-white text-primary rounded-full shadow-lg hover:shadow-xl hover:bg-white/90 transition-custom flex items-center">
                         <i class="fa-brands fa-android text-xl mr-2"></i> Google Play
                     </button>
                 </div>
@@ -739,9 +777,12 @@
             <div class="max-w-3xl mx-auto space-y-6">
                 <!-- FAQ项目1 -->
                 <div class="border border-neutral-200 rounded-xl overflow-hidden">
-                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(1)">
+                    <button
+                        class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none"
+                        onclick="toggleFaq(1)">
                         <span>如何绑定情侣账号？</span>
-                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-1"></i>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300"
+                            id="faq-icon-1"></i>
                     </button>
                     <div class="px-6 pb-4 hidden" id="faq-content-1">
                         <p class="text-neutral-600">
@@ -752,9 +793,12 @@
 
                 <!-- FAQ项目2 -->
                 <div class="border border-neutral-200 rounded-xl overflow-hidden">
-                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(2)">
+                    <button
+                        class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none"
+                        onclick="toggleFaq(2)">
                         <span>日记内容是否安全？</span>
-                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-2"></i>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300"
+                            id="faq-icon-2"></i>
                     </button>
                     <div class="px-6 pb-4 hidden" id="faq-content-2">
                         <p class="text-neutral-600">
@@ -765,9 +809,12 @@
 
                 <!-- FAQ项目3 -->
                 <div class="border border-neutral-200 rounded-xl overflow-hidden">
-                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(3)">
+                    <button
+                        class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none"
+                        onclick="toggleFaq(3)">
                         <span>支持多设备同步吗？</span>
-                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-3"></i>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300"
+                            id="faq-icon-3"></i>
                     </button>
                     <div class="px-6 pb-4 hidden" id="faq-content-3">
                         <p class="text-neutral-600">
@@ -778,9 +825,12 @@
 
                 <!-- FAQ项目4 -->
                 <div class="border border-neutral-200 rounded-xl overflow-hidden">
-                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(4)">
+                    <button
+                        class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none"
+                        onclick="toggleFaq(4)">
                         <span>如何删除账号？</span>
-                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-4"></i>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300"
+                            id="faq-icon-4"></i>
                     </button>
                     <div class="px-6 pb-4 hidden" id="faq-content-4">
                         <p class="text-neutral-600">
@@ -791,9 +841,12 @@
 
                 <!-- FAQ项目5 -->
                 <div class="border border-neutral-200 rounded-xl overflow-hidden">
-                    <button class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none" onclick="toggleFaq(5)">
+                    <button
+                        class="w-full px-6 py-4 text-left font-medium flex justify-between items-center focus:outline-none"
+                        onclick="toggleFaq(5)">
                         <span>有哪些付费功能？</span>
-                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300" id="faq-icon-5"></i>
+                        <i class="fa-solid fa-chevron-down text-neutral-400 transition-transform duration-300"
+                            id="faq-icon-5"></i>
                     </button>
                     <div class="px-6 pb-4 hidden" id="faq-content-5">
                         <p class="text-neutral-600">
@@ -806,7 +859,7 @@
     </section>
 
     <!-- 页脚 -->
-    <footer class="bg-neutral-900 text-white py-12">
+    <footer class="bg-neutral-800 text-white py-12 relative z-10">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
@@ -820,14 +873,23 @@
                         记录每一刻的美好，珍藏属于你们的爱情故事。
                     </p>
                     <div class="flex space-x-4">
-                        <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary transition-custom">
+                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
+                            <i class="fa-brands fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
+                            <i class="fa-brands fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
+                            <i class="fa-brands fa-tiktok"></i>
+                        </a>
+                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
                             <i class="fa-brands fa-weibo"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary transition-custom">
-                            <i class="fa-brands fa-wechat"></i>
+                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
+                            <i class="fa-brands fa-youtube"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary transition-custom">
-                            <i class="fa-brands fa-instagram"></i>
+                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
+                            <i class="fa-brands fa-bilibili"></i>
                         </a>
                     </div>
                 </div>
@@ -863,15 +925,15 @@
                 </div>
             </div>
 
-            <div class="border-t border-neutral-800 mt-12 pt-8 text-center text-neutral-500 text-sm">
-                <p>© 2025 LoveSync. 保留所有权利。</p>
+            <div class="border-t border-neutral-700 mt-12 pt-8 text-center text-neutral-400">
+                <p>&copy; 2025 LoveSync. 保留所有权利。</p>
             </div>
         </div>
     </footer>
 
     <script>
         // 导航栏滚动效果
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) {
                 navbar.classList.add('py-2', 'shadow-md');
@@ -883,7 +945,7 @@
         });
 
         // 移动端菜单切换
-        document.getElementById('menu-toggle').addEventListener('click', function() {
+        document.getElementById('menu-toggle').addEventListener('click', function () {
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenu.classList.toggle('hidden');
         });
@@ -898,7 +960,7 @@
         }
 
         // 互动频率图表
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             const ctx = document.getElementById('interactionChart').getContext('2d');
             const interactionChart = new Chart(ctx, {
                 type: 'line',
@@ -949,6 +1011,16 @@
             });
         });
 
+        // 日期更新
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentDateElement = document.getElementById('current-date');
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            currentDateElement.textContent = `${year}年${month}月${day}日`;
+        });
+
         // 平滑滚动
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -970,4 +1042,5 @@
         });
     </script>
 </body>
+
 </html>

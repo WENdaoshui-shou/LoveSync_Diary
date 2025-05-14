@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - LoveSync 情侣日记本</title>
+    <title>注册 - LoveSync 情侣日记本</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -92,16 +91,12 @@
         }
     </style>
 </head>
-
 <body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative">
     <!-- 背景装饰元素 -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
-        </div>
-        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
-            style="animation-delay: -2s;"></div>
-        <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
-            style="animation-delay: -4s;"></div>
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation"></div>
+        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation" style="animation-delay: -2s;"></div>
+        <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation" style="animation-delay: -4s;"></div>
     </div>
 
     <!-- 导航栏 -->
@@ -115,43 +110,41 @@
             </a>
 
             <nav class="hidden md:flex items-center space-x-8">
-                <div class="hidden md:block text-neutral-600 font-medium">欢迎来到 LoveSync，请登录您的账号</div>
+                <a  class="text-neutral-600 hover:text-primary transition-custom font-medium">欢迎加入 LoveSync，开启你们专属的爱情篇章！</a>
             </nav>
 
             <div class="flex items-center space-x-4">
-
-                <div class="flex items-center space-x-4">
-                    <a href="index.html" id="logoutBtn"
-                        class="hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
+                <a href="index.html" class="hidden md:block">
+                    <button id="logoutBtn" class="px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
                         返回首页
-                    </a>
-                    <button class="md:hidden text-neutral-700" id="menu-toggle">
-                        <i class="fa-solid fa-bars text-xl"></i>
                     </button>
-                </div>
+                </a>
             </div>
+        </div>
 
-            <!-- 移动端菜单 -->
-            <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
-                <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
-                    <a href="#home" class="text-neutral-600 hover:text-primary py-2 transition-custom">首页</a>
-                    <a href="#features" class="text-neutral-600 hover:text-primary py-2 transition-custom">功能</a>
-                    <a href="#download" class="text-neutral-600 hover:text-primary py-2 transition-custom">下载</a>
-                </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#home" class="text-neutral-600 hover:text-primary py-2 transition-custom">首页</a>
+                <a href="#features" class="text-neutral-600 hover:text-primary py-2 transition-custom">功能</a>
+                <a href="#gallery" class="text-neutral-600 hover:text-primary py-2 transition-custom">日记展示</a>
+                <a href="#download" class="text-neutral-600 hover:text-primary py-2 transition-custom">下载</a>
+                <a href="#" id="mobileLogoutBtn" class="text-primary py-2 transition-custom">退出登录</a>
+                <a href="#" id="mobileDeleteAccountBtn" class="text-red-500 py-2 transition-custom">注销账号</a>
             </div>
+        </div>
     </header>
 
     <!-- 主内容区 -->
     <main class="flex-grow pt-24 pb-16 relative z-10">
         <div class="container mx-auto px-4">
-            <!-- 登录表单和功能卡片容器 -->
+            <!-- 注册表单和功能卡片容器 -->
             <div class="relative max-w-7xl mx-auto">
                 <!-- 左侧卡片 -->
                 <div class="hidden lg:block absolute left-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6">
                     <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-heart text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -163,8 +156,7 @@
 
                     <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-lock text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -176,8 +168,7 @@
 
                     <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-star text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -188,32 +179,46 @@
                     </div>
                 </div>
 
-                <!-- 登录表单 - 居中突出 -->
-                <div
-                    class="relative z-20 w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale transform transition-all duration-500">
+                <!-- 注册表单 - 居中突出 -->
+                <div class="relative z-20 w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale transform transition-all duration-500">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-love"></div>
                     <div class="p-8">
                         <div class="text-center mb-8">
-                            <div
-                                class="w-20 h-20 bg-gradient-love rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+                            <div class="w-20 h-20 bg-gradient-love rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
                                 <i class="fa-solid fa-heart text-white text-3xl"></i>
                             </div>
-                            <h2 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-neutral-900 tracking-tight">欢迎回来
-                            </h2>
-                            <p class="text-neutral-600 mt-2">登录您的账号，继续记录爱情故事</p>
+                            <h2 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-neutral-900 tracking-tight">创建账号</h2>
+                            <p class="text-neutral-600 mt-2">开始记录你们的爱情故事</p>
                         </div>
 
-                        <form id="loginForm" class="space-y-6">
+                        <form id="registerForm" class="space-y-6">
                             <div>
-                                <label for="email"
-                                    class="block text-sm font-medium text-neutral-700 mb-1">邮箱或手机号</label>
+                                <label for="username" class="block text-sm font-medium text-neutral-700 mb-1">用户名</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-user text-neutral-400"></i>
+                                    </div>
+                                    <input type="text" id="username" name="username" class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus" placeholder="请输入用户名">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-neutral-700 mb-1">邮箱</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fa-solid fa-envelope text-neutral-400"></i>
                                     </div>
-                                    <input type="text" id="email" name="email"
-                                        class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
-                                        placeholder="请输入邮箱或手机号">
+                                    <input type="email" id="email" name="email" class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus" placeholder="请输入邮箱">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-neutral-700 mb-1">手机号</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-phone text-neutral-400"></i>
+                                    </div>
+                                    <input type="tel" id="phone" name="phone" class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus" placeholder="请输入手机号">
                                 </div>
                             </div>
 
@@ -223,63 +228,42 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fa-solid fa-lock text-neutral-400"></i>
                                     </div>
-                                    <input type="password" id="password" name="password"
-                                        class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
-                                        placeholder="请输入密码">
-                                    <button type="button" id="togglePassword"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-custom">
+                                    <input type="password" id="password" name="password" class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus" placeholder="请输入密码">
+                                    <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-custom">
                                         <i class="fa-solid fa-eye-slash"></i>
                                     </button>
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <input id="remember-me" name="remember-me" type="checkbox"
-                                        class="h-5 w-5 text-primary focus:ring-primary/50 border-neutral-300 rounded">
-                                    <label for="remember-me" class="ml-2 block text-sm text-neutral-600">记住我</label>
+                            <div>
+                                <label for="confirm-password" class="block text-sm font-medium text-neutral-700 mb-1">确认密码</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fa-solid fa-lock text-neutral-400"></i>
+                                    </div>
+                                    <input type="password" id="confirm-password" name="confirm-password" class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus" placeholder="请再次输入密码">
+                                    <button type="button" id="toggleConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-custom">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </button>
                                 </div>
-                                <a href="#"
-                                    class="text-sm font-medium text-primary hover:text-primary/80 transition-custom">忘记密码？</a>
                             </div>
 
-                            <button type="submit"
-                                class="w-full bg-gradient-love text-white py-4 px-4 rounded-lg font-medium hover:opacity-90 shadow-xl hover:shadow-primary/20 transition-custom flex items-center justify-center btn-pulse">
-                                <i class="fa-solid fa-sign-in mr-2"></i> 登录
+                            <div class="flex items-start">
+                                <input id="terms" name="terms" type="checkbox" class="h-5 w-5 mt-1 text-primary focus:ring-primary/50 border-neutral-300 rounded">
+                                <label for="terms" class="ml-2 block text-sm text-neutral-600">
+                                    我已阅读并同意 <a href="#" class="text-primary hover:underline">服务条款</a> 和 <a href="#" class="text-primary hover:underline">隐私政策</a>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="w-full bg-gradient-love text-white py-4 px-4 rounded-lg font-medium hover:opacity-90 shadow-xl hover:shadow-primary/20 transition-custom flex items-center justify-center btn-pulse">
+                                <i class="fa-solid fa-user-plus mr-2"></i> 注册账号
                             </button>
                         </form>
 
                         <div class="mt-8 text-center">
                             <p class="text-neutral-600">
-                                还没有账号？ <a href="register.html" id="registerLink"
-                                    class="font-medium text-primary hover:text-primary/80 transition-custom">立即注册</a>
+                                已有账号？ <a href="#" id="loginLink" class="font-medium text-primary hover:text-primary/80 transition-custom">立即登录</a>
                             </p>
-                        </div>
-
-                        <div class="mt-8">
-                            <div class="relative">
-                                <div class="absolute inset-0 flex items-center">
-                                    <div class="w-full border-t border-neutral-200"></div>
-                                </div>
-                                <div class="relative flex justify-center text-sm">
-                                    <span class="px-2 bg-white text-neutral-500">其他登录方式</span>
-                                </div>
-                            </div>
-
-                            <div class="mt-6 grid grid-cols-3 gap-3">
-                                <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
-                                    <i class="fa-brands fa-weixin text-xl"></i>
-                                </button>
-                                <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
-                                    <i class="fa-brands fa-github text-xl"></i>
-                                </button>
-                                <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
-                                    <i class="fa-brands fa-tiktok text-xl"></i>
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -288,8 +272,7 @@
                 <div class="hidden lg:block absolute right-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6">
                     <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-calendar-alt text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -301,8 +284,7 @@
 
                     <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-chart-line text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -317,8 +299,7 @@
                 <div class="md:hidden mt-8 space-y-4">
                     <div class="bg-white rounded-xl p-5 shadow-lg">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-heart text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -330,8 +311,7 @@
 
                     <div class="bg-white rounded-xl p-5 shadow-lg">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-lock text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -343,8 +323,7 @@
 
                     <div class="bg-white rounded-xl p-5 shadow-lg">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-calendar-alt text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -356,8 +335,7 @@
 
                     <div class="bg-white rounded-xl p-5 shadow-lg">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-chart-line text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -369,8 +347,7 @@
 
                     <div class="bg-white rounded-xl p-5 shadow-lg">
                         <div class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                 <i class="fa-solid fa-star text-lg"></i>
                             </div>
                             <div class="ml-4">
@@ -390,8 +367,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <div class="flex items-center space-x-2 mb-6">
-                        <div
-                            class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
+                        <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
                             <i class="fa-solid fa-heart text-xl"></i>
                         </div>
                         <span class="text-xl font-bold">LoveSync</span>
@@ -399,25 +375,25 @@
                     <p class="text-neutral-400 mb-6">
                         记录属于你们的爱情故事，创造永恒的回忆。
                     </p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-facebook"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-tiktok"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-weibo"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-youtube"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-bilibili"></i>
-                        </a>
+                    <div class = "flex space-x-4" >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-facebook" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-twitter" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-tiktok" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-weibo" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-youtube" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-bilibili" ></i >
+                        </a >
                     </div>
                 </div>
 
@@ -468,50 +444,78 @@
 
     <script>
         // 页面加载完成后执行
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // 导航菜单切换
             const menuToggle = document.getElementById('menu-toggle');
             const mobileMenu = document.getElementById('mobile-menu');
 
-            menuToggle.addEventListener('click', function () {
+            menuToggle.addEventListener('click', function() {
                 mobileMenu.classList.toggle('hidden');
             });
 
-            // 登录表单提交
-            const loginForm = document.getElementById('loginForm');
-            loginForm.addEventListener('submit', function (e) {
+            // 注册表单提交
+            const registerForm = document.getElementById('registerForm');
+            registerForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                // 模拟登录逻辑
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
 
-                if (email && password) {
-                    // 登录成功，显示成功消息
-                    alert('登录成功！');
-                    // 显示登录后的导航按钮
-                    document.getElementById('logoutBtn').classList.remove('hidden');
-                    document.getElementById('deleteAccountBtn').classList.remove('hidden');
-                    // 隐藏登录表单，显示主内容
-                    document.getElementById('loginFormContainer').classList.add('hidden');
-                } else {
-                    alert('请输入邮箱和密码');
+                // 获取表单数据
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const terms = document.getElementById('terms').checked;
+
+                // 简单验证
+                if (!username || !email || !phone || !password || !confirmPassword) {
+                    alert('请填写所有必填字段');
+                    return;
                 }
+
+                if (password !== confirmPassword) {
+                    alert('两次输入的密码不一致');
+                    return;
+                }
+
+                if (!terms) {
+                    alert('请同意服务条款和隐私政策');
+                    return;
+                }
+
+                // 模拟注册成功
+                alert('注册成功！我们已向您的邮箱发送了验证邮件，请查收。');
+
+                // 显示登录后的导航按钮
+                document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('deleteAccountBtn').classList.remove('hidden');
+
+                // 隐藏注册表单，显示主内容
+                document.getElementById('registerFormContainer').classList.add('hidden');
             });
 
             // 密码显示/隐藏切换
             const togglePassword = document.getElementById('togglePassword');
             const passwordInput = document.getElementById('password');
+            const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+            const confirmPasswordInput = document.getElementById('confirm-password');
 
-            togglePassword.addEventListener('click', function () {
+            togglePassword.addEventListener('click', function() {
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
                 this.querySelector('i').classList.toggle('fa-eye');
                 this.querySelector('i').classList.toggle('fa-eye-slash');
             });
 
+            toggleConfirmPassword.addEventListener('click', function() {
+                const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                confirmPasswordInput.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+
             // 导航栏滚动效果
             const navbar = document.querySelector('header');
-            window.addEventListener('scroll', function () {
+            window.addEventListener('scroll', function() {
                 if (window.scrollY > 10) {
                     navbar.classList.add('py-2', 'shadow-md');
                     navbar.classList.remove('py-3', 'shadow-sm');
@@ -524,15 +528,22 @@
             // 表单元素动画效果
             const formInputs = document.querySelectorAll('input');
             formInputs.forEach(input => {
-                input.addEventListener('focus', function () {
+                input.addEventListener('focus', function() {
                     this.parentElement.classList.add('scale-105');
                 });
-                input.addEventListener('blur', function () {
+                input.addEventListener('blur', function() {
                     this.parentElement.classList.remove('scale-105');
                 });
+            });
+
+            // 登录链接点击事件
+            const loginLink = document.getElementById('loginLink');
+            loginLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 这里可以添加跳转到登录页面的逻辑
+                alert('即将跳转到登录页面');
             });
         });
     </script>
 </body>
-
 </html>

@@ -1,0 +1,254 @@
+<div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
+    <h3 class="text-xl font-semibold mb-6">情感词云分析</h3>
+    <div class="h-[300px] relative">
+        <canvas id="emotionWordCloud" class="w-full h-full"></canvas>
+        <div id="wordCloudTooltip" class="hidden absolute bg-white shadow-lg rounded-lg p-3 z-10 text-sm">
+            <div class="font-medium" id="tooltipWord"></div>
+            <div class="text-sm text-neutral-500" id="tooltipFrequency"></div>
+            <div class="text-xs text-primary" id="tooltipEmotion"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 情感词云数据
+    const wordCloudData = [
+        { word: '爱', size: 45, emotion: '积极' },
+        { word: '幸福', size: 40, emotion: '积极' },
+        { word: '快乐', size: 38, emotion: '积极' },
+        { word: '美好', size: 35, emotion: '积极' },
+        { word: '温暖', size: 32, emotion: '积极' },
+        { word: '浪漫', size: 30, emotion: '积极' },
+        { word: '理解', size: 28, emotion: '积极' },
+        { word: '支持', size: 27, emotion: '积极' },
+        { word: '陪伴', size: 26, emotion: '积极' },
+        { word: '耐心', size: 25, emotion: '积极' },
+        { word: '争吵', size: 22, emotion: '消极' },
+        { word: '难过', size: 20, emotion: '消极' },
+        { word: '误会', size: 18, emotion: '消极' },
+        { word: '压力', size: 17, emotion: '消极' },
+        { word: '忙碌', size: 15, emotion: '中性' },
+        { word: '工作', size: 14, emotion: '中性' },
+        { word: '生活', size: 16, emotion: '中性' },
+        { word: '旅行', size: 21, emotion: '积极' },
+        { word: '美食', size: 19, emotion: '积极' },
+        { word: '电影', size: 17, emotion: '积极' }
+    ];
+
+    // 获取Canvas元素
+    const canvas = document.getElementById('emotionWordCloud');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('wordCloudTooltip');
+    const tooltipWord = document.getElementById('tooltipWord');
+    const tooltipFrequency = document.getElementById('tooltipFrequency');
+    const tooltipEmotion = document.getElementById('tooltipEmotion');
+
+    // 设置Canvas尺寸
+    function resizeCanvas() {
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        drawWordCloud();
+    }
+
+    // 监听窗口大小变化，调整Canvas尺寸
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // 情感颜色映射
+    const emotionColors = {
+        '积极': '#FF6B8B',  // 使用主色调
+        '消极': '#722ED1',  // 使用辅助色
+        '中性': '#9E9E9E'   // 使用中性色
+    };
+
+    // 存储单词位置和尺寸
+    const words = [];
+
+    // 绘制词云
+    function drawWordCloud() {
+        // 清空画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        words.length = 0;
+
+        // 计算单词位置
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const maxRadius = Math.min(canvas.width, canvas.height) * 0.4;
+        const angleStep = Math.PI / 30;
+        let angle = 0;
+        let radius = 0;
+        let attempts = 0;
+        const maxAttempts = 100;
+
+        wordCloudData.forEach(item => {
+            const word = item.word;
+            const size = item.size;
+            const emotion = item.emotion;
+            const color = emotionColors[emotion] || '#000';
+
+            ctx.font = `${size}px Inter, sans-serif`;
+            const textWidth = ctx.measureText(word).width;
+            const textHeight = size;
+
+            let x, y;
+            let placed = false;
+
+            // 尝试放置单词，避免重叠
+            while (!placed && attempts < maxAttempts) {
+                radius += 5;
+                angle += angleStep;
+
+                x = centerX + radius * Math.cos(angle);
+                y = centerY + radius * Math.sin(angle);
+
+                // 检查是否超出边界
+                if (x - textWidth/2 < 0 || x + textWidth/2 > canvas.width ||
+                    y - textHeight/2 < 0 || y + textHeight/2 > canvas.height) {
+                    attempts++;
+                    continue;
+                }
+
+                // 检查是否与其他单词重叠
+                let overlapping = false;
+                for (let i = 0; i < words.length; i++) {
+                    const other = words[i];
+                    const dx = x - other.x;
+                    const dy = y - other.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // 简单的重叠检测
+                    if (distance < (textWidth + other.width + textHeight + other.height) / 4) {
+                        overlapping = true;
+                        break;
+                    }
+                }
+
+                if (!overlapping) {
+                    placed = true;
+                    words.push({
+                        word,
+                        x,
+                        y,
+                        width: textWidth,
+                        height: textHeight,
+                        size,
+                        color,
+                        emotion,
+                        alpha: 0  // 用于动画
+                    });
+                }
+
+                attempts++;
+            }
+        });
+
+        // 绘制单词并添加动画效果
+        animateWords();
+    }
+
+    // 单词出现动画
+    let animationFrame;
+    let animationStartTime = null;
+    const animationDuration = 1500; // 动画持续时间（毫秒）
+
+    function animateWords(timestamp) {
+        if (!animationStartTime) animationStartTime = timestamp;
+        const progress = Math.min((timestamp - animationStartTime) / animationDuration, 1);
+
+        // 清空画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制所有单词
+        words.forEach(word => {
+            const easeProgress = easeInOutCubic(progress);
+            word.alpha = easeProgress;
+
+            ctx.save();
+            ctx.font = `${word.size}px Inter, sans-serif`;
+            ctx.fillStyle = word.color;
+            ctx.globalAlpha = word.alpha;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(word.word, word.x, word.y);
+            ctx.restore();
+        });
+
+        if (progress < 1) {
+            animationFrame = requestAnimationFrame(animateWords);
+        }
+    }
+
+    // 缓动函数
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    // 鼠标悬停交互
+    canvas.addEventListener('mousemove', function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        let hoveredWord = null;
+
+        // 检查鼠标是否在某个单词上
+        for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            if (mouseX >= word.x - word.width/2 &&
+                mouseX <= word.x + word.width/2 &&
+                mouseY >= word.y - word.height/2 &&
+                mouseY <= word.y + word.height/2) {
+                hoveredWord = word;
+                break;
+            }
+        }
+
+        if (hoveredWord) {
+            // 显示提示框
+            tooltipWord.textContent = hoveredWord.word;
+            tooltipFrequency.textContent = `频率: ${hoveredWord.size}%`;
+            tooltipEmotion.textContent = `情感: ${hoveredWord.emotion}`;
+
+            // 设置提示框位置
+            tooltip.style.left = `${e.clientX + 10}px`;
+            tooltip.style.top = `${e.clientY + 10}px`;
+            tooltip.classList.remove('hidden');
+
+            // 高亮当前单词
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            words.forEach(word => {
+                ctx.save();
+                ctx.font = `${word.size}px Inter, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                if (word === hoveredWord) {
+                    // 高亮效果
+                    ctx.fillStyle = 'rgba(255, 107, 139, 0.2)';
+                    ctx.fillRect(word.x - word.width/2 - 5, word.y - word.height/2 - 5,
+                                word.width + 10, word.height + 10);
+                    ctx.fillStyle = word.color;
+                    ctx.font = `${word.size + 2}px Inter, sans-serif`;
+                } else {
+                    ctx.fillStyle = word.color;
+                }
+
+                ctx.fillText(word.word, word.x, word.y);
+                ctx.restore();
+            });
+        } else {
+            // 隐藏提示框并恢复正常显示
+            tooltip.classList.add('hidden');
+            drawWordCloud();
+        }
+    });
+
+    // 鼠标离开画布
+    canvas.addEventListener('mouseout', function() {
+        tooltip.classList.add('hidden');
+        drawWordCloud();
+    });
+});
+</script>
