@@ -176,10 +176,12 @@
     </style>
 </head>
 
-<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth">
+<body
+    class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth">
     <!-- 背景装饰元素 -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation"></div>
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+        </div>
         <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
             style="animation-delay: -2s;"></div>
         <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
@@ -191,36 +193,48 @@
         <div class="container mx-auto px-4 flex items-center justify-between">
             <!-- 品牌标识 -->
             <a href="#" class="flex items-center space-x-2">
-                <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
                     <i class="fa-solid fa-heart text-xl"></i>
                 </div>
                 <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
             </a>
-
             <!-- 桌面端导航菜单 -->
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
-                <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">社区</a>
-                <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">动态</a>
-                <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">相册</a>
-                <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">收藏</a>
-                
+                <a href="index.html"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
+                <a href="community.html"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">社区</a>
+                <a href="moments.html"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">我们的动态</a>
+                <a href="Photo_album.html"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">相册</a>
+                <a href="favorites.html"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">收藏</a>
+
                 <!-- 更多下拉菜单 -->
-                <div class="relative group">
-                    <button class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2">
+                <div class="relative" id="moreDropdown">
+                    <button
+                        class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
+                        id="moreButton">
                         更多 <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
                     </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden group-hover:block transition-custom transform origin-top-right scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 duration-200">
-                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                        id="moreOptions">
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-calendar-heart mr-2 w-5 text-center"></i>纪念日提醒
                         </a>
-                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-gift mr-2 w-5 text-center"></i>礼物推荐
                         </a>
-                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-map-marker-heart mr-2 w-5 text-center"></i>情侣地点
                         </a>
-                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-question-circle mr-2 w-5 text-center"></i>爱情测试
                         </a>
                     </div>
@@ -229,33 +243,40 @@
 
             <!-- 用户操作区 -->
             <div class="flex items-center space-x-4">
-                <button id="createPostBtn" class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg">
+                <a href="moments.html" id="createPostLink"
+                    class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg">
                     <i class="fa-solid fa-pencil"></i>
                     <span>发布动态</span>
-                </button>
-                
+                </a>
+
                 <!-- 用户头像与下拉菜单 -->
-                <div class="relative group">
-                    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm">
+                <div class="relative" id="userDropdown">
+                    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
+                        id="userAvatar">
                         <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
                     </div>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden group-hover:block transition-custom transform origin-top-right scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 duration-200">
-                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-user mr-2 w-5 text-center"></i>个人主页
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                        id="userOptions">
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-user mr-2 w-5 text-center"></i>主页
                         </a>
-                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>我的收藏
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>消息
                         </a>
-                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-cog mr-2 w-5 text-center"></i>设置
                         </a>
                         <div class="border-t border-neutral-200 my-1"></div>
-                        <a href="#" class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
+                        <a href="login.html"
+                            class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
                             <i class="fa-solid fa-sign-out mr-2 w-5 text-center"></i>退出登录
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- 移动端菜单按钮 -->
                 <button class="md:hidden text-neutral-700 focus:outline-none" id="menu-toggle">
                     <i class="fa-solid fa-bars text-xl"></i>
@@ -264,21 +285,28 @@
         </div>
 
         <!-- 移动端菜单 -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out" style="top: 100%;">
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
+            style="top: 100%;">
             <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
-                <a href="#" class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                <a href="#"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
                     <i class="fa-solid fa-book-open mr-3 w-5 text-center"></i>双人日记
                 </a>
-                <a href="#" class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                <a href="community.html"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
                     <i class="fa-solid fa-users mr-3 w-5 text-center"></i>社区
                 </a>
-                <a href="#" class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
-                    <i class="fa-solid fa-bolt mr-3 w-5 text-center"></i>动态
+                <a href="moments.html"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                    <i class="fa-solid fa-bolt mr-3 w-5 text-center"></i>我们的动态
                 </a>
-                <a href="#" class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                <a href="Photo_album.html"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
                     <i class="fa-solid fa-images mr-3 w-5 text-center"></i>相册
                 </a>
-                <a href="#" class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                <a href="favorites.html"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
                     <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>收藏
                 </a>
                 <div class="border-t border-neutral-200 my-1"></div>
@@ -295,17 +323,17 @@
                     <i class="fa-solid fa-question-circle mr-3 w-5 text-center"></i>爱情测试
                 </a>
                 <div class="border-t border-neutral-200 my-1"></div>
-                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
+                <a href="Personal_Center.html" class="text-neutral-700 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-user mr-3 w-5 text-center"></i>个人主页
                 </a>
                 <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>我的收藏
+                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>消息
                 </a>
                 <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-cog mr-3 w-5 text-center"></i>设置
                 </a>
                 <div class="border-t border-neutral-200 my-1"></div>
-                <a href="#" class="text-red-500 py-2 transition-custom flex items-center">
+                <a href="login.html" class="text-red-500 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-sign-out mr-3 w-5 text-center"></i>退出登录
                 </a>
             </div>
@@ -314,7 +342,7 @@
 
     <!-- 主内容区 -->
     <main class="flex-grow pt-24 pb-16 relative z-10">
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto px-4 space-y-6">
             <!-- 个人信息展示 -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                 <div class="h-32 bg-gradient-love relative">
@@ -359,7 +387,7 @@
                 <h3 class="text-lg font-semibold text-neutral-900 mb-6">爱情故事时间轴</h3>
                 <div class="relative">
                     <div class="timeline-line"></div>
-                    
+
                     <!-- 时间点1 -->
                     <div class="relative pb-12">
                         <div class="timeline-dot" style="top: 0;"></div>
@@ -372,19 +400,21 @@
                             <div class="w-2/12"></div>
                             <div class="w-5/12 pl-8">
                                 <div class="rounded-lg overflow-hidden hover-scale">
-                                    <img src="https://picsum.photos/400/300?random=40" alt="第一次相遇" class="w-full h-32 object-cover">
+                                    <img src="https://picsum.photos/400/300?random=40" alt="第一次相遇"
+                                        class="w-full h-32 object-cover">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- 时间点2 -->
                     <div class="relative pb-12">
                         <div class="timeline-dot" style="top: 0;"></div>
                         <div class="flex justify-between items-center">
                             <div class="w-5/12 text-right pr-8">
                                 <div class="rounded-lg overflow-hidden hover-scale">
-                                    <img src="https://picsum.photos/400/300?random=41" alt="第一次约会" class="w-full h-32 object-cover">
+                                    <img src="https://picsum.photos/400/300?random=41" alt="第一次约会"
+                                        class="w-full h-32 object-cover">
                                 </div>
                             </div>
                             <div class="w-2/12"></div>
@@ -395,7 +425,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- 时间点3 -->
                     <div class="relative">
                         <div class="timeline-dot" style="top: 0;"></div>
@@ -408,7 +438,8 @@
                             <div class="w-2/12"></div>
                             <div class="w-5/12 pl-8">
                                 <div class="rounded-lg overflow-hidden hover-scale">
-                                    <img src="https://picsum.photos/400/300?random=42" alt="确定关系" class="w-full h-32 object-cover">
+                                    <img src="https://picsum.photos/400/300?random=42" alt="确定关系"
+                                        class="w-full h-32 object-cover">
                                 </div>
                             </div>
                         </div>
@@ -421,20 +452,24 @@
                 <h3 class="text-lg font-semibold text-neutral-900 mb-4">我们的歌单</h3>
                 <div class="flex items-center space-x-4">
                     <div class="w-16 h-16 rounded-lg overflow-hidden">
-                        <img src="https://picsum.photos/100/100?random=50" alt="音乐封面" class="w-full h-full object-cover">
+                        <img src="https://picsum.photos/100/100?random=50" alt="音乐封面"
+                            class="w-full h-full object-cover">
                     </div>
                     <div class="flex-1">
                         <h4 class="text-neutral-900 font-medium">我们的主题曲</h4>
                         <p class="text-neutral-500 text-sm">《Love Story》 - Taylor Swift</p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-custom">
+                        <button
+                            class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-custom">
                             <i class="fa-solid fa-step-backward"></i>
                         </button>
-                        <button class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:opacity-90 transition-custom">
+                        <button
+                            class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:opacity-90 transition-custom">
                             <i class="fa-solid fa-play"></i>
                         </button>
-                        <button class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-custom">
+                        <button
+                            class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-custom">
                             <i class="fa-solid fa-step-forward"></i>
                         </button>
                     </div>
@@ -485,7 +520,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="p-4 border border-neutral-200 rounded-lg hover:border-primary transition-custom">
                         <h4 class="text-neutral-900 font-medium">你们第一次约会去了哪里？</h4>
                         <div class="mt-3 space-y-2">
@@ -506,8 +541,9 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <button class="w-full py-3 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-custom">
+
+                    <button
+                        class="w-full py-3 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-custom">
                         开始新的考验
                     </button>
                 </div>
@@ -544,16 +580,19 @@
                         </div>
                         <div class="mt-4 flex justify-between items-center">
                             <div class="flex space-x-4">
-                                <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
                                     <i class="fa-regular fa-heart"></i>
                                     <span>128</span>
                                 </button>
-                                <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
                                     <i class="fa-regular fa-comment"></i>
                                     <span>24</span>
                                 </button>
                             </div>
-                            <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                            <button
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
                                 <i class="fa-regular fa-share-from-square"></i>
                                 <span>分享</span>
                             </button>
@@ -613,10 +652,12 @@
                             <!-- 发表评论 -->
                             <div class="flex space-x-3 mt-2">
                                 <div class="w-8 h-8 rounded-full overflow-hidden">
-                                    <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
+                                    <img src="https://picsum.photos/200/200?random=1" alt="用户头像"
+                                        class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex-1 relative">
-                                    <input type="text" placeholder="写下你的评论..." class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
+                                    <input type="text" placeholder="写下你的评论..."
+                                        class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
                                     <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
                                         <i class="fa-solid fa-paper-plane"></i>
                                     </button>
@@ -657,16 +698,19 @@
                         </div>
                         <div class="mt-4 flex justify-between items-center">
                             <div class="flex space-x-4">
-                                <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
                                     <i class="fa-regular fa-heart"></i>
                                     <span>256</span>
                                 </button>
-                                <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
                                     <i class="fa-regular fa-comment"></i>
                                     <span>42</span>
                                 </button>
                             </div>
-                            <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                            <button
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
                                 <i class="fa-regular fa-share-from-square"></i>
                                 <span>分享</span>
                             </button>
@@ -726,10 +770,12 @@
                             <!-- 发表评论 -->
                             <div class="flex space-x-3 mt-2">
                                 <div class="w-8 h-8 rounded-full overflow-hidden">
-                                    <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
+                                    <img src="https://picsum.photos/200/200?random=1" alt="用户头像"
+                                        class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex-1 relative">
-                                    <input type="text" placeholder="写下你的评论..." class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
+                                    <input type="text" placeholder="写下你的评论..."
+                                        class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
                                     <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
                                         <i class="fa-solid fa-paper-plane"></i>
                                     </button>
@@ -768,16 +814,19 @@
                         </div>
                         <div class="mt-4 flex justify-between items-center">
                             <div class="flex space-x-4">
-                                <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
                                     <i class="fa-regular fa-heart"></i>
                                     <span>89</span>
                                 </button>
-                                <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
                                     <i class="fa-regular fa-comment"></i>
                                     <span>1000</span>
                                 </button>
                             </div>
-                            <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                            <button
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
                                 <i class="fa-regular fa-share-from-square"></i>
                                 <span>分享</span>
                             </button>
@@ -789,20 +838,95 @@
     </main>
     <!-- 页脚 -->
     <footer class="bg-white border-t border-neutral-200 py-8">
-      <div class="container mx-auto px-4">
-          <div class="flex flex-col md:flex-row justify-between items-center">
-              <div class="flex items-center space-x-2">
-                  <div class="w-8 h-8 bg-gradient-love rounded-full text-white">
-                      <i class="fa-solid fa-heart"></i>
-                  </div>
-                  <span class="text-lg font-bold">LoveSync</span>
-              </div>
-              <div class="text-neutral-500 text-sm">
-                  &copy; 2023 LoveSync. All rights reserved.
-              </div>
-          </div>
-      </div>
-  </footer>
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <a href="#" class="flex items-center space-x-2">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
+                        <i class="fa-solid fa-heart text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
+                </a>
+                <div class="text-neutral-500 text-sm">
+                    &copy; 2025 LoveSync. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
 
-                
+    <script>
+        // 移动端菜单切换
+        document.getElementById('menu-toggle').addEventListener('click', function () {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                // 添加动画类
+                setTimeout(() => {
+                    mobileMenu.classList.add('translate-y-0', 'opacity-100');
+                }, 50);
+            } else {
+                // 移除动画类
+                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
+                // 等待动画完成后隐藏菜单
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 200);
+            }
+        });
 
+        const userAvatar = document.getElementById('userAvatar');
+        const userOptions = document.getElementById('userOptions');
+        const userDropdown = document.getElementById('userDropdown');
+
+        let closeTimer;
+
+        // 鼠标经过头像时打开菜单
+        userAvatar.addEventListener('mouseenter', function () {
+            clearTimeout(closeTimer); // 清除之前的定时器
+            userOptions.classList.remove('hidden');
+        });
+
+        // 鼠标悬停在下拉菜单时保持菜单打开
+        userDropdown.addEventListener('mouseenter', function () {
+            clearTimeout(closeTimer); // 清除之前的定时器
+            userOptions.classList.remove('hidden');
+        });
+
+        // 鼠标离开下拉菜单时关闭菜单
+        userDropdown.addEventListener('mouseleave', function () {
+            closeTimer = setTimeout(() => {
+                userOptions.classList.add('hidden');
+            }, 500);
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const moreButton = document.getElementById('moreButton');
+            const moreOptions = document.getElementById('moreOptions');
+            const moreDropdown = document.getElementById('moreDropdown');
+
+            let closeTimer;
+
+            // 鼠标经过按钮时打开菜单
+            moreButton.addEventListener('mouseenter', function () {
+                clearTimeout(closeTimer); // 清除之前的定时器
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标悬停在下拉菜单时保持菜单打开
+            moreDropdown.addEventListener('mouseenter', function () {
+                clearTimeout(closeTimer); // 清除之前的定时器
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标离开下拉菜单时关闭菜单
+            moreDropdown.addEventListener('mouseleave', function () {
+                closeTimer = setTimeout(() => {
+                    moreOptions.classList.add('hidden');
+                }, 500); // 延迟200毫秒
+            });
+        });
+    </script>
+
+</body>
+
+</html>
