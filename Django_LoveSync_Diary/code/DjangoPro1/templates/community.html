@@ -312,11 +312,11 @@
                 <a href="Personal_Center.html" class="text-neutral-700 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-user mr-3 w-5 text-center"></i>个人主页
                 </a>
-                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>消息
+                <a href="message.html" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>消息中心
                 </a>
-                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-cog mr-3 w-5 text-center"></i>设置
+                <a href="message.html" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-cog mr-3 w-5 text-center"></i>设置中心
                 </a>
                 <div class="border-t border-neutral-200 my-1"></div>
                 <a href="login.html" class="text-red-500 py-2 transition-custom flex items-center">
@@ -327,96 +327,142 @@
     </header>
 
     <!-- 新增固定导航栏 -->
-    <div class="fixed left-0 top-24 h-full w-64 bg-neutral-50 shadow-md z-50 overflow-y-auto md:block hidden"
+    <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 overflow-y-auto md:block hidden border-r border-neutral-200 transition-all duration-300"
         id="sidebar">
-        <div class="p-2">
+        <!-- 自定义滚动条样式 -->
+        <style>
+            #sidebar::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            #sidebar::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb {
+                background: #e0e0e0;
+                border-radius: 10px;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb:hover {
+                background: #d0d0d0;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb:active {
+                background: #c0c0c0;
+            }
+        </style>
+
+        <div class="p-4 flex justify-between items-center border-b border-neutral-200">
+            <div class="flex items-center space-x-2">
+                <div
+                    class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-sm transform hover:rotate-12 transition-all duration-300">
+                    <i class="fa-solid fa-heart text-lg"></i>
+                </div>
+                <span class="font-bold text-neutral-800 text-lg">LoveSync</span>
+            </div>
             <!-- 导航栏关闭开启按钮 -->
-            <button id="toggleSidebar" class="text-neutral-600 hover:text-primary transition-custom">
+            <button id="toggleSidebar"
+                class="text-neutral-700 hover:text-primary transition-all duration-200 p-2 rounded-full hover:bg-neutral-100 active:scale-95">
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
         <div class="p-4 space-y-4">
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <a href="index.html"
-                    class="flex items-center space-x-2 text-neutral-600 hover:text-primary transition-custom w-full h-8 text-sm">
-                    <i class="fa-solid fa-house"></i>
+                    class="flex items-center space-x-3 text-primary bg-primary/5 border-l-4 border-primary px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>双人日记</span>
                 </a>
                 <a href="Personal_Center.html"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-blog"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-blog w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>个人主页</span>
                 </a>
-                <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-download"></i>
-                    <span>下载</span>
+                <a href="message.html"
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-download w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span>消息中心</span>
                 </a>
                 <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-list-ol"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-list-ol w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>排行榜</span>
                 </a>
                 <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-bell"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>订阅</span>
                 </a>
                 <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-user-plus"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-user-plus w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>关注</span>
                 </a>
                 <a href="favorites.html"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-bookmark"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-bookmark w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>收藏</span>
                 </a>
                 <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-history"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>历史</span>
                 </a>
                 <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-crown"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>会员中心</span>
                 </a>
                 <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-pencil"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-pencil w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>创作中心</span>
                 </a>
             </div>
-            <div class="border-t border-neutral-200 mt-6 pt-6">
+            <div class="border-t border-neutral-200 mt-4 pt-4">
                 <a href="#"
-                    class="flex items-center space-x-2 text-neutral-700 hover:text-primary transition-custom w-56 h-9 text-sm">
-                    <i class="fa-solid fa-envelope"></i>
+                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                    <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                     <span>联系我们</span>
                 </a>
-                <div class="mt-3 space-y-2 text-sm">
-                    <p class="text-neutral-500">工作时间: 8:30 - 22:00</p>
-                    <p class="text-neutral-500">客服电话: 187-0022-2185</p>
-                    <p class="text-neutral-500">18700222185@163.com在线客服</p>
-                    <a href="#" class="hover:text-primary transition-custom">关于我们</a>
-                    <a href="#" class="hover:text-primary transition-custom">招贤纳士</a>
-                    <a href="#" class="hover:text-primary transition-custom">商务合作</a>
-                    <a href="#" class="hover:text-primary transition-custom">寻求报道</a>
-                    <p class="text-neutral-500 hover:text-primary transition-custom">京ICP备19004658号</p>
-                    <p class="text-neutral-500 hover:text-primary transition-custom">经营性网站备案信息</p>
-                    <p class="text-neutral-500 hover:text-primary transition-custom">公安备案号110110110110</p>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">营业执照</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">互联网违法和不良信息举报中心</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">家长监护</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">中国互联网举报中心</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">网络110报警服务</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">Chrome商店下载</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">账号管理规范</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">版权与免责声明</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">版权申诉</a>
-                    <a href="#" class="text-neutral-500 hover:text-primary transition-custom">出版物许可证</a>
-                    <p class="text-neutral-500">©2003-2025陕西文刀水寿网络技术有限责任公司</p>
+                <div class="mt-3 space-y-2 text-xs text-neutral-500 pl-2">
+                    <p>工作时间: 8:30 - 22:00</p>
+                    <p>客服电话: 187-0022-2185</p>
+                    <p><a href="#" class="hover:text-primary transition-custom">关于我们</a>
+                        <a href="#" class="hover:text-primary transition-custom">招贤纳士</a>
+                    </p>
+                    <p><a href="#" class="hover:text-primary transition-custom">商务合作</a>
+                        <a href="#" class="hover:text-primary transition-custom">寻求报道</a>
+                    </p>
+                    <p>18700222185@163.com在线客服</p>
+                    <p>京ICP备19004658号</p>
+                    <p>经营性网站备案信息</p>
+                    <p>公安备案号110110110110
+                        营业执照</p>
+                    <p>互联网违法和不良信息举报中心</p>
+                    <p>家长监护
+                        中国互联网举报中心</p>
+                    <p>网络110报警服务
+                        账号管理规范</p>
+                    <p>版权与免责声明
+                        出版物许可证</p>
                 </div>
+            </div>
+            <div class="border-t border-neutral-200 mt-4 pt-4">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-24 h-24 relative">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-full opacity-20 animate-pulse">
+                        </div>
+                        <div
+                            class="absolute inset-1 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-all duration-300">
+                            <i class="fa-solid fa-heart text-gradient text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-neutral-500 text-center">©2003-2025 陕西文刀水寿网络技术有限责任公司</p>
             </div>
         </div>
     </div>
@@ -992,7 +1038,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const imageElement = document.getElementById('dynamicImage');
             let a = 1; // 初始化变量 a
-            const maxImageNumber = 15; // 假设图片编号从 1 到 5，可根据实际情况修改
+            const maxImageNumber = 16; // 假设图片编号从 1 到 5，可根据实际情况修改
 
             // 定义函数用于更新图片地址
             function updateImage() {
