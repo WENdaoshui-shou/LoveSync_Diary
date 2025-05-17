@@ -85,7 +85,7 @@
     <header id="navbar"
         class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="#" class="flex items-center space-x-2">
+            <a href="{% url 'index' %}" class="flex items-center space-x-2">
                 <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
                     <i class="fa-solid fa-heart text-xl"></i>
                 </div>
@@ -100,11 +100,11 @@
             </nav>
 
             <div class="flex items-center space-x-4">
-                <a href="login.html"
+                <a href="{% url 'login' %}"
                     class="hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
                     登录
                 </a>
-                <a href="register.html"
+                <a href="{% url 'register' %}"
                     class="px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-custom">
                     注册
                 </a>

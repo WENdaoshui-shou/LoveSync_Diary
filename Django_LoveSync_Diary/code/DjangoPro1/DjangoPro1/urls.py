@@ -3,8 +3,9 @@ from django.urls import path
 from App.views import *
 urlpatterns = [
     # 首页
-    path('/', user_index),
+    path('', user_index, name='index'),
     path('index/', user_index, name='index'),
+
     # 登录
     path('login/', user_login, name='login'),
 
