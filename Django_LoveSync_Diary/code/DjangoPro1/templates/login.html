@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang = "zh-CN" >
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - LoveSync 情侣日记本</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
+<head >
+    <meta charset = "UTF-8" >
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
+    <title >登录 - LoveSync 情侣日记本</title >
+    <script src = "https://cdn.tailwindcss.com" ></script >
+    <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
+    <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel = "stylesheet" >
+    <script >
         tailwind.config = {
             theme: {
                 extend: {
@@ -33,37 +34,46 @@
                 },
             }
         }
-    </script>
-    <style type="text/tailwindcss">
+    </script >
+    <style type = "text/tailwindcss" >
         @layer utilities {
             .content-auto {
                 content-visibility: auto;
             }
+
             .text-shadow {
-                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
+
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
+
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
+
             .hover-scale {
                 transition: transform 0.3s ease;
             }
+
             .hover-scale:hover {
                 transform: scale(1.03);
             }
+
             .form-input-focus {
                 transition: all 0.3s ease;
             }
+
             .form-input-focus:focus {
                 transform: translateY(-2px);
                 box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
             }
+
             .btn-pulse {
                 animation: pulse 2s infinite;
             }
+
             @keyframes pulse {
                 0% {
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
@@ -78,6 +88,7 @@
             .float-animation {
                 animation: float 6s ease-in-out infinite;
             }
+
             @keyframes float {
                 0% {
                     transform: translateY(0px);
@@ -89,384 +100,417 @@
                     transform: translateY(0px);
                 }
             }
-        }
-    </style>
-</head>
+            .input-error {
+                border-color: #FF4D4F !important;
+                box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
+            }
 
-<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative">
+            .error-message {
+                color: #FF4D4F;
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+                display: none;
+            }
+
+            .success-message {
+                color: #52C41A;
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+                display: none;
+            }
+        }
+    </style >
+</head >
+
+<body class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative" >
     <!-- 背景装饰元素 -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
-        </div>
-        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
-            style="animation-delay: -2s;"></div>
-        <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
-            style="animation-delay: -4s;"></div>
-    </div>
+    <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
+        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" >
+        </div >
+        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+             style = "animation-delay: -2s;" ></div >
+        <div class = "absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+             style = "animation-delay: -4s;" ></div >
+    </div >
 
     <!-- 导航栏 -->
-    <header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="#" class="flex items-center space-x-2">
-                <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
-                    <i class="fa-solid fa-heart text-xl"></i>
-                </div>
-                <span class="text-xl font-bold text-neutral-800">LoveSync</span>
-            </a>
+    <header class = "fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm" >
+        <div class = "container mx-auto px-4 py-3 flex items-center justify-between" >
+            <a href = "#" class = "flex items-center space-x-2" >
+                <div class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white" >
+                    <i class = "fa-solid fa-heart text-xl" ></i >
+                </div >
+                <span class = "text-xl font-bold text-neutral-800" >LoveSync</span >
+            </a >
 
-            <nav class="hidden md:flex items-center space-x-8">
-                <div class="hidden md:block text-neutral-600 font-medium">欢迎来到 LoveSync，请登录您的账号</div>
-            </nav>
+            <nav class = "hidden md:flex items-center space-x-8" >
+                <div class = "hidden md:block text-neutral-600 font-medium" >欢迎来到 LoveSync，请登录您的账号</div >
+            </nav >
 
-            <div class="flex items-center space-x-4">
+            <div class = "flex items-center space-x-4" >
 
-                <div class="flex items-center space-x-4">
-                    <a href="index.html" id="logoutBtn"
-                        class="hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
+                <div class = "flex items-center space-x-4" >
+                    <a href = "{% url 'index' %}" id = "logoutBtn"
+                       class = "hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom" >
                         返回首页
-                    </a>
-                    <button class="md:hidden text-neutral-700" id="menu-toggle">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
+                    </a >
+                    <button class = "md:hidden text-neutral-700" id = "menu-toggle" >
+                        <i class = "fa-solid fa-bars text-xl" ></i >
+                    </button >
+                </div >
+            </div >
 
             <!-- 移动端菜单 -->
-            <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
-                <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
-                    <a href="#home" class="text-neutral-600 hover:text-primary py-2 transition-custom">首页</a>
-                    <a href="#features" class="text-neutral-600 hover:text-primary py-2 transition-custom">功能</a>
-                    <a href="#download" class="text-neutral-600 hover:text-primary py-2 transition-custom">下载</a>
-                </div>
-            </div>
-    </header>
+            <div id = "mobile-menu" class = "hidden md:hidden bg-white shadow-lg absolute w-full" >
+                <div class = "container mx-auto px-4 py-3 flex flex-col space-y-3" >
+                    <a href = "#home" class = "text-neutral-600 hover:text-primary py-2 transition-custom" >首页</a >
+                    <a href = "#features"
+                       class = "text-neutral-600 hover:text-primary py-2 transition-custom" >功能</a >
+                    <a href = "#download"
+                       class = "text-neutral-600 hover:text-primary py-2 transition-custom" >下载</a >
+                </div >
+            </div >
+        </div>
+    </header >
 
     <!-- 主内容区 -->
-    <main class="flex-grow pt-24 pb-16 relative z-10">
-        <div class="container mx-auto px-4">
+    <main class = "flex-grow pt-24 pb-16 relative z-10" >
+        <div class = "container mx-auto px-4" >
             <!-- 登录表单和功能卡片容器 -->
-            <div class="relative max-w-7xl mx-auto">
+            <div class = "relative max-w-7xl mx-auto" >
                 <!-- 左侧卡片 -->
-                <div class="hidden lg:block absolute left-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6">
-                    <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
-                        <div class="flex items-start">
+                <div class = "hidden lg:block absolute left-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6" >
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-heart text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">记录爱情瞬间</h4>
-                                <p class="text-neutral-600 mt-1 text-sm">随时随地记录你们的美好回忆，创建专属于你们的爱情故事。</p>
-                            </div>
-                        </div>
-                    </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-heart text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >记录爱情瞬间</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >随时随地记录你们的美好回忆，创建专属于你们的爱情故事。</p >
+                            </div >
+                        </div >
+                    </div >
 
-                    <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
-                        <div class="flex items-start">
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-lock text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">私密安全</h4>
-                                <p class="text-neutral-600 mt-1 text-sm">只有你们两人可以查看和编辑日记内容，保护你们的隐私。</p>
-                            </div>
-                        </div>
-                    </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-lock text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >私密安全</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >只有你们两人可以查看和编辑日记内容，保护你们的隐私。</p >
+                            </div >
+                        </div >
+                    </div >
 
-                    <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
-                        <div class="flex items-start">
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-star text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">为什么选择 LoveSync？</h4>
-                                <p class="text-neutral-600 mt-1 text-sm">因为我们专注于为情侣打造最贴心的日记本，让你们的爱情故事更加完美。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-star text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >为什么选择 LoveSync？</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >因为我们专注于为情侣打造最贴心的日记本，让你们的爱情故事更加完美。</p >
+                            </div >
+                        </div >
+                    </div >
+                </div >
 
                 <!-- 登录表单 - 居中突出 -->
                 <div
-                    class="relative z-20 w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale transform transition-all duration-500">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-love"></div>
-                    <div class="p-8">
-                        <div class="text-center mb-8">
+                        class = "relative z-20 w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale transform transition-all duration-500" >
+                    <div class = "absolute top-0 left-0 w-full h-1 bg-gradient-love" ></div >
+                    <div class = "p-8" >
+                        <div class = "text-center mb-8" >
                             <div
-                                class="w-20 h-20 bg-gradient-love rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
-                                <i class="fa-solid fa-heart text-white text-3xl"></i>
-                            </div>
-                            <h2 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-neutral-900 tracking-tight">欢迎回来
-                            </h2>
-                            <p class="text-neutral-600 mt-2">登录您的账号，继续记录爱情故事</p>
-                        </div>
+                                    class = "w-20 h-20 bg-gradient-love rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse" >
+                                <i class = "fa-solid fa-heart text-white text-3xl" ></i >
+                            </div >
+                            <h2 class = "text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-neutral-900 tracking-tight" >欢迎回来
+                            </h2 >
+                            <p class = "text-neutral-600 mt-2" >登录您的账号，继续记录爱情故事</p >
+                        </div >
 
-                        <form id="loginForm" class="space-y-6">
-                            <div>
-                                <label for="email"
-                                    class="block text-sm font-medium text-neutral-700 mb-1">邮箱或手机号</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fa-solid fa-envelope text-neutral-400"></i>
-                                    </div>
-                                    <input type="text" id="email" name="email"
-                                        class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
-                                        placeholder="请输入邮箱或手机号">
-                                </div>
-                            </div>
+                        <!-- 登录表单 -->
+                        <form id = "loginForm" class = "space-y-6" method = "POST" action = "{% url 'login' %}" >
+                            {% csrf_token %}
 
-                            <div>
-                                <label for="password" class="block text-sm font-medium text-neutral-700 mb-1">密码</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fa-solid fa-lock text-neutral-400"></i>
-                                    </div>
-                                    <input type="password" id="password" name="password"
-                                        class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
-                                        placeholder="请输入密码">
-                                    <button type="button" id="togglePassword"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-custom">
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <div >
+                                <label for = "email"
+                                       class = "block text-sm font-medium text-neutral-700 mb-1" >邮箱或手机号</label >
+                                <div class = "relative" >
+                                    <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                        <i class = "fa-solid fa-envelope text-neutral-400" ></i >
+                                    </div >
+                                    <input type = "text" id = "email" name = "username"
+                                           class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                           placeholder = "请输入邮箱或手机号" >
+                                </div >
+                                <p id = "emailError" class = "error-message" ><i
+                                        class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的邮箱或手机号</p >
+                            </div >
 
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <input id="remember-me" name="remember-me" type="checkbox"
-                                        class="h-5 w-5 text-primary focus:ring-primary/50 border-neutral-300 rounded">
-                                    <label for="remember-me" class="ml-2 block text-sm text-neutral-600">记住我</label>
-                                </div>
-                                <a href="#"
-                                    class="text-sm font-medium text-primary hover:text-primary/80 transition-custom">忘记密码？</a>
-                            </div>
+                            <div >
+                                <label for = "password"
+                                       class = "block text-sm font-medium text-neutral-700 mb-1" >密码</label >
+                                <div class = "relative" >
+                                    <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                        <i class = "fa-solid fa-lock text-neutral-400" ></i >
+                                    </div >
+                                    <input type = "password" id = "password" name = "password"
+                                           class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                           placeholder = "请输入密码" >
+                                    <button type = "button" id = "togglePassword"
+                                            class = "absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-custom" >
+                                        <i class = "fa-solid fa-eye-slash" ></i >
+                                    </button >
+                                </div >
+                                <p id = "passwordError" class = "error-message" ><i
+                                        class = "fa-solid fa-exclamation-circle mr-1" ></i > 密码长度至少为6位</p >
+                            </div >
 
-                            <button type="submit"
-                                class="w-full bg-gradient-love text-white py-4 px-4 rounded-lg font-medium hover:opacity-90 shadow-xl hover:shadow-primary/20 transition-custom flex items-center justify-center btn-pulse">
-                                <i class="fa-solid fa-sign-in mr-2"></i> 登录
-                            </button>
-                        </form>
+                            <div class = "flex items-center justify-between" >
+                                <div class = "flex items-center" >
+                                    <input id = "remember-me" name = "remember-me" type = "checkbox"
+                                           class = "h-5 w-5 text-primary focus:ring-primary/50 border-neutral-300 rounded" >
+                                    <label for = "remember-me"
+                                           class = "ml-2 block text-sm text-neutral-600" >记住我</label >
+                                </div >
+                                <a href = "#"
+                                   class = "text-sm font-medium text-primary hover:text-primary/80 transition-custom" >忘记密码？</a >
+                            </div >
 
-                        <div class="mt-8 text-center">
-                            <p class="text-neutral-600">
-                                还没有账号？ <a href="register.html" id="registerLink"
-                                    class="font-medium text-primary hover:text-primary/80 transition-custom">立即注册</a>
-                            </p>
-                        </div>
+                            <button type = "submit"
+                                    class = "w-full bg-gradient-love text-white py-4 px-4 rounded-lg font-medium hover:opacity-90 shadow-xl hover:shadow-primary/20 transition-custom flex items-center justify-center btn-pulse" >
+                                <i class = "fa-solid fa-sign-in mr-2" ></i > 登录
+                            </button >
+                        </form >
 
-                        <div class="mt-8">
-                            <div class="relative">
-                                <div class="absolute inset-0 flex items-center">
-                                    <div class="w-full border-t border-neutral-200"></div>
-                                </div>
-                                <div class="relative flex justify-center text-sm">
-                                    <span class="px-2 bg-white text-neutral-500">其他登录方式</span>
-                                </div>
-                            </div>
+                        <div class = "mt-8 text-center" >
+                            <p class = "text-neutral-600" >
+                                还没有账号？ <a href = "register.html" id = "registerLink"
+                                               class = "font-medium text-primary hover:text-primary/80 transition-custom" >立即注册</a >
+                            </p >
+                        </div >
 
-                            <div class="mt-6 grid grid-cols-3 gap-3">
+                        <div class = "mt-8" >
+                            <div class = "relative" >
+                                <div class = "absolute inset-0 flex items-center" >
+                                    <div class = "w-full border-t border-neutral-200" ></div >
+                                </div >
+                                <div class = "relative flex justify-center text-sm" >
+                                    <span class = "px-2 bg-white text-neutral-500" >其他登录方式</span >
+                                </div >
+                            </div >
+
+                            <div class = "mt-6 grid grid-cols-3 gap-3" >
                                 <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
-                                    <i class="fa-brands fa-weixin text-xl"></i>
-                                </button>
+                                        class = "relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale" >
+                                    <i class = "fa-brands fa-weixin text-xl" ></i >
+                                </button >
                                 <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
-                                    <i class="fa-brands fa-github text-xl"></i>
-                                </button>
+                                        class = "relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale" >
+                                    <i class = "fa-brands fa-github text-xl" ></i >
+                                </button >
                                 <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
-                                    <i class="fa-brands fa-tiktok text-xl"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                        class = "relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale" >
+                                    <i class = "fa-brands fa-tiktok text-xl" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+                </div >
 
                 <!-- 右侧卡片 -->
-                <div class="hidden lg:block absolute right-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6">
-                    <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
-                        <div class="flex items-start">
+                <div class = "hidden lg:block absolute right-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6" >
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-calendar-alt text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">爱情纪念日</h4>
-                                <p class="text-neutral-600 mt-1 text-sm">设置重要的纪念日提醒，永远不会忘记你们的特殊日子。</p>
-                            </div>
-                        </div>
-                    </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-calendar-alt text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >爱情纪念日</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >设置重要的纪念日提醒，永远不会忘记你们的特殊日子。</p >
+                            </div >
+                        </div >
+                    </div >
 
-                    <div class="bg-white rounded-xl p-5 shadow-lg hover-scale">
-                        <div class="flex items-start">
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-chart-line text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">互动统计</h4>
-                                <p class="text-neutral-600 mt-1 text-sm">查看你们的互动数据，了解彼此的习惯和喜好。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-chart-line text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >互动统计</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >查看你们的互动数据，了解彼此的习惯和喜好。</p >
+                            </div >
+                        </div >
+                    </div >
+                </div >
 
                 <!-- 移动端功能卡片 - 垂直排列 -->
-                <div class="md:hidden mt-8 space-y-4">
-                    <div class="bg-white rounded-xl p-5 shadow-lg">
-                        <div class="flex items-start">
+                <div class = "md:hidden mt-8 space-y-4" >
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-heart text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">记录爱情瞬间</h4>
-                                <p class="text-neutral-600 mt-1">随时随地记录你们的美好回忆，创建专属于你们的爱情故事。</p>
-                            </div>
-                        </div>
-                    </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-heart text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >记录爱情瞬间</h4 >
+                                <p class = "text-neutral-600 mt-1" >随时随地记录你们的美好回忆，创建专属于你们的爱情故事。</p >
+                            </div >
+                        </div >
+                    </div >
 
-                    <div class="bg-white rounded-xl p-5 shadow-lg">
-                        <div class="flex items-start">
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-lock text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">私密安全</h4>
-                                <p class="text-neutral-600 mt-1">只有你们两人可以查看和编辑日记内容，保护你们的隐私。</p>
-                            </div>
-                        </div>
-                    </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-lock text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >私密安全</h4 >
+                                <p class = "text-neutral-600 mt-1" >只有你们两人可以查看和编辑日记内容，保护你们的隐私。</p >
+                            </div >
+                        </div >
+                    </div >
 
-                    <div class="bg-white rounded-xl p-5 shadow-lg">
-                        <div class="flex items-start">
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-calendar-alt text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">爱情纪念日</h4>
-                                <p class="text-neutral-600 mt-1">设置重要的纪念日提醒，永远不会忘记你们的特殊日子。</p>
-                            </div>
-                        </div>
-                    </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-calendar-alt text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >爱情纪念日</h4 >
+                                <p class = "text-neutral-600 mt-1" >设置重要的纪念日提醒，永远不会忘记你们的特殊日子。</p >
+                            </div >
+                        </div >
+                    </div >
 
-                    <div class="bg-white rounded-xl p-5 shadow-lg">
-                        <div class="flex items-start">
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-chart-line text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">互动统计</h4>
-                                <p class="text-neutral-600 mt-1">查看你们的互动数据，了解彼此的习惯和喜好。</p>
-                            </div>
-                        </div>
-                    </div>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-chart-line text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >互动统计</h4 >
+                                <p class = "text-neutral-600 mt-1" >查看你们的互动数据，了解彼此的习惯和喜好。</p >
+                            </div >
+                        </div >
+                    </div >
 
-                    <div class="bg-white rounded-xl p-5 shadow-lg">
-                        <div class="flex items-start">
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
                             <div
-                                class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-star text-lg"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-lg font-semibold text-neutral-800">为什么选择 LoveSync？</h4>
-                                <p class="text-neutral-600 mt-1">因为我们专注于为情侣打造最贴心的日记本，让你们的爱情故事更加完美。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+                                    class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-star text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >为什么选择 LoveSync？</h4 >
+                                <p class = "text-neutral-600 mt-1" >因为我们专注于为情侣打造最贴心的日记本，让你们的爱情故事更加完美。</p >
+                            </div >
+                        </div >
+                    </div >
+                </div >
+            </div >
+        </div >
+    </main >
 
     <!-- 页脚 -->
-    <footer class="bg-neutral-800 text-white py-12 relative z-10">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-6">
+    <footer class = "bg-neutral-800 text-white py-12 relative z-10" >
+        <div class = "container mx-auto px-4" >
+            <div class = "grid grid-cols-1 md:grid-cols-4 gap-8" >
+                <div >
+                    <div class = "flex items-center space-x-2 mb-6" >
                         <div
-                            class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
-                            <i class="fa-solid fa-heart text-xl"></i>
-                        </div>
-                        <span class="text-xl font-bold">LoveSync</span>
-                    </div>
-                    <p class="text-neutral-400 mb-6">
+                                class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white" >
+                            <i class = "fa-solid fa-heart text-xl" ></i >
+                        </div >
+                        <span class = "text-xl font-bold" >LoveSync</span >
+                    </div >
+                    <p class = "text-neutral-400 mb-6" >
                         记录属于你们的爱情故事，创造永恒的回忆。
-                    </p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-facebook"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-tiktok"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-weibo"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-youtube"></i>
-                        </a>
-                        <a href="#" class="text-neutral-400 hover:text-white transition-custom">
-                            <i class="fa-brands fa-bilibili"></i>
-                        </a>
-                    </div>
-                </div>
+                    </p >
+                    <div class = "flex space-x-4" >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-facebook" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-twitter" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-tiktok" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-weibo" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-youtube" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-bilibili" ></i >
+                        </a >
+                    </div >
+                </div >
 
-                <div>
-                    <h4 class="text-lg font-semibold mb-6">快速链接</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#home" class="text-neutral-400 hover:text-white transition-custom">首页</a></li>
-                        <li><a href="#features" class="text-neutral-400 hover:text-white transition-custom">功能</a></li>
-                        <li><a href="#gallery" class="text-neutral-400 hover:text-white transition-custom">日记展示</a></li>
-                        <li><a href="#download" class="text-neutral-400 hover:text-white transition-custom">下载</a></li>
-                    </ul>
-                </div>
+                <div >
+                    <h4 class = "text-lg font-semibold mb-6" >快速链接</h4 >
+                    <ul class = "space-y-3" >
+                        <li ><a href = "#home" class = "text-neutral-400 hover:text-white transition-custom" >首页</a ></li >
+                        <li ><a href = "#features"
+                                class = "text-neutral-400 hover:text-white transition-custom" >功能</a ></li >
+                        <li ><a href = "#gallery"
+                                class = "text-neutral-400 hover:text-white transition-custom" >日记展示</a ></li >
+                        <li ><a href = "#download"
+                                class = "text-neutral-400 hover:text-white transition-custom" >下载</a ></li >
+                    </ul >
+                </div >
 
-                <div>
-                    <h4 class="text-lg font-semibold mb-6">支持</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">帮助中心</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">常见问题</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">联系我们</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">隐私政策</a></li>
-                    </ul>
-                </div>
+                <div >
+                    <h4 class = "text-lg font-semibold mb-6" >支持</h4 >
+                    <ul class = "space-y-3" >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >帮助中心</a ></li >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >常见问题</a ></li >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >联系我们</a ></li >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >隐私政策</a ></li >
+                    </ul >
+                </div >
 
-                <div>
-                    <h4 class="text-lg font-semibold mb-6">联系我们</h4>
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-envelope text-primary mt-1 mr-3"></i>
-                            <span class="text-neutral-400">18700222185@163.com</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-phone text-primary mt-1 mr-3"></i>
-                            <span class="text-neutral-400">187-0022-2185</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-map-marker-alt text-primary mt-1 mr-3"></i>
-                            <span class="text-neutral-400">陕西理工大学#13B-324</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                <div >
+                    <h4 class = "text-lg font-semibold mb-6" >联系我们</h4 >
+                    <ul class = "space-y-3" >
+                        <li class = "flex items-start" >
+                            <i class = "fa-solid fa-envelope text-primary mt-1 mr-3" ></i >
+                            <span class = "text-neutral-400" >18700222185@163.com</span >
+                        </li >
+                        <li class = "flex items-start" >
+                            <i class = "fa-solid fa-phone text-primary mt-1 mr-3" ></i >
+                            <span class = "text-neutral-400" >187-0022-2185</span >
+                        </li >
+                        <li class = "flex items-start" >
+                            <i class = "fa-solid fa-map-marker-alt text-primary mt-1 mr-3" ></i >
+                            <span class = "text-neutral-400" >陕西理工大学#13B-324</span >
+                        </li >
+                    </ul >
+                </div >
+            </div >
 
-            <div class="border-t border-neutral-700 mt-12 pt-8 text-center text-neutral-400">
-                <p>&copy; 2025 LoveSync. 保留所有权利。</p>
-            </div>
-        </div>
-    </footer>
+            <div class = "border-t border-neutral-700 mt-12 pt-8 text-center text-neutral-400" >
+                <p >&copy; 2025 LoveSync. 保留所有权利。</p >
+            </div >
+        </div >
+    </footer >
 
-    <script>
+    <script >
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function () {
             // 导航菜单切换
@@ -475,27 +519,6 @@
 
             menuToggle.addEventListener('click', function () {
                 mobileMenu.classList.toggle('hidden');
-            });
-
-            // 登录表单提交
-            const loginForm = document.getElementById('loginForm');
-            loginForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                // 模拟登录逻辑
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-
-                if (email && password) {
-                    // 登录成功，显示成功消息
-                    alert('登录成功！');
-                    // 显示登录后的导航按钮
-                    document.getElementById('logoutBtn').classList.remove('hidden');
-                    document.getElementById('deleteAccountBtn').classList.remove('hidden');
-                    // 隐藏登录表单，显示主内容
-                    document.getElementById('loginFormContainer').classList.add('hidden');
-                } else {
-                    alert('请输入邮箱和密码');
-                }
             });
 
             // 密码显示/隐藏切换
@@ -531,8 +554,102 @@
                     this.parentElement.classList.remove('scale-105');
                 });
             });
-        });
-    </script>
-</body>
 
-</html>
+            // 表单验证
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+
+            // 邮箱或手机号验证正则表达式
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const phoneRegex = /^1[3-9]\d{9}$/;
+
+            // 验证邮箱或手机号
+            function validateEmail() {
+                const value = emailInput.value.trim();
+                if (value === '') {
+                    showError(emailInput, emailError, '请输入邮箱或手机号');
+                    return false;
+                } else if (!emailRegex.test(value) && !phoneRegex.test(value)) {
+                    showError(emailInput, emailError, '请输入有效的邮箱或手机号');
+                    return false;
+                } else {
+                    hideError(emailInput, emailError);
+                    return true;
+                }
+            }
+
+            // 验证密码
+            function validatePassword() {
+                const value = passwordInput.value;
+                if (value === '') {
+                    showError(passwordInput, passwordError, '请输入密码');
+                    return false;
+                } else if (value.length < 6) {
+                    showError(passwordInput, passwordError, '密码长度至少为6位');
+                    return false;
+                } else {
+                    hideError(passwordInput, passwordError);
+                    return true;
+                }
+            }
+
+            // 显示错误信息
+            function showError(input, errorElement, message) {
+                input.classList.add('input-error');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+
+            // 隐藏错误信息
+            function hideError(input, errorElement) {
+                input.classList.remove('input-error');
+                errorElement.style.display = 'none';
+            }
+
+            // 添加输入事件监听
+            emailInput.addEventListener('input', validateEmail);
+            passwordInput.addEventListener('input', validatePassword);
+
+            // 表单提交验证
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const isEmailValid = validateEmail();
+                const isPasswordValid = validatePassword();
+
+                if (isEmailValid && isPasswordValid) {
+                    // 所有验证通过，提交表单
+                    this.submit();
+
+                    // 或者使用AJAX提交表单
+                    /*
+                    const formData = new FormData(this);
+                    fetch(this.action, {
+                        method: this.method,
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 处理响应
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                    */
+                } else {
+                    // 验证失败，显示错误信息
+                    if (!isEmailValid) {
+                        emailInput.focus();
+                    } else if (!isPasswordValid) {
+                        passwordInput.focus();
+                    }
+                }
+            });
+        });
+    </script >
+</body >
+
+</html >

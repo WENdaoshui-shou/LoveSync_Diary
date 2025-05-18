@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -101,9 +102,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'  # 静态文件的 URL 前缀
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # 全局静态文件目录（可选）
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # 生产环境收集静态文件的目录
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'login'  # 指定登录页面的URL名称
+LOGIN_REDIRECT_URL = 'community'  # 登录成功后重定向的页面
+LOGOUT_REDIRECT_URL = 'login'  # 登出后重定向的页面

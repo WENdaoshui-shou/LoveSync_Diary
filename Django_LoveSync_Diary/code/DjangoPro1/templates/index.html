@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoveSync - 双人日记</title>
+    {% load static %}
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
@@ -149,11 +150,11 @@
                     </div>
                     <div class="mt-10 flex items-center space-x-6">
                         <div class="flex -space-x-2">
-                            <img src=".././static/images/14.jpg" alt="用户头像"
+                            <img src="{% static 'images/14.jpg' %}" alt="用户头像"
                                 class="w-10 h-10 rounded-full border-2 border-white">
-                            <img src=".././static/images/15.jpg" alt="用户头像"
+                            <img src="{% static 'images/15.jpg' %}" alt="用户头像"
                                 class="w-10 h-10 rounded-full border-2 border-white">
-                            <img src=".././static/images/16.jpg" alt="用户头像"
+                            <img src="{% static 'images/16.jpg' %}" alt="用户头像"
                                 class="w-10 h-10 rounded-full border-2 border-white">
                             <div
                                 class="w-10 h-10 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-neutral-600 text-xs">
@@ -167,7 +168,7 @@
                 </div>
                 <div class="md:w-1/2 relative">
                     <div class="relative z-10 bg-white rounded-3xl shadow-2xl overflow-hidden hover-scale">
-                        <img src=".././static/images/1.jpg" alt="情侣日记应用截图" class="w-full h-auto">
+                        <img src="../static/images/1.jpg" alt="情侣日记应用截图" class="w-full h-auto">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end">
                             <div class="p-6 text-white">
                                 <h3 class="text-xl font-semibold mb-2">我们的一周年纪念</h3>
@@ -253,7 +254,7 @@
                 <!-- 功能卡片2 -->
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
                     <div class="h-48 overflow-hidden">
-                        <img src=".././static/images/4.jpg" alt="纪念日提醒" class="w-full h-full object-cover">
+                        <img src="/static/images/3.jpg" alt="纪念日提醒" class="w-full h-full object-cover">
                     </div>
                     <div class="p-6">
                         <div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mb-4">

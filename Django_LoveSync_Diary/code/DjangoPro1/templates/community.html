@@ -42,6 +42,28 @@
             .text-shadow {
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
+            #sidebar::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            #sidebar::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb {
+                background: #e0e0e0;
+                border-radius: 10px;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb:hover {
+                background: #d0d0d0;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb:active {
+                background: #c0c0c0;
+            }
+
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
@@ -243,20 +265,20 @@
                     </div>
                     <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
                         id="userOptions">
-                        <a href="#"
+                        <a href="{% url 'Personal_Center' %}"
                             class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-user mr-2 w-5 text-center"></i>主页
                         </a>
-                        <a href="#"
+                        <a href="{% url 'message' %}"
                             class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>消息
                         </a>
-                        <a href="#"
+                        <a href="{% url 'settings' %}"
                             class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-cog mr-2 w-5 text-center"></i>设置
                         </a>
                         <div class="border-t border-neutral-200 my-1"></div>
-                        <a href="login.html"
+                        <a href="{% url 'login' %}"
                             class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
                             <i class="fa-solid fa-sign-out mr-2 w-5 text-center"></i>退出登录
                         </a>
@@ -329,31 +351,6 @@
     <!-- 新增固定导航栏 -->
     <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 overflow-y-auto md:block hidden border-r border-neutral-200 transition-all duration-300"
         id="sidebar">
-        <!-- 自定义滚动条样式 -->
-        <style>
-            #sidebar::-webkit-scrollbar {
-                width: 8px;
-            }
-
-            #sidebar::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
-            }
-
-            #sidebar::-webkit-scrollbar-thumb {
-                background: #e0e0e0;
-                border-radius: 10px;
-            }
-
-            #sidebar::-webkit-scrollbar-thumb:hover {
-                background: #d0d0d0;
-            }
-
-            #sidebar::-webkit-scrollbar-thumb:active {
-                background: #c0c0c0;
-            }
-        </style>
-
         <div class="p-4 flex justify-between items-center border-b border-neutral-200">
             <div class="flex items-center space-x-2">
                 <div
@@ -454,11 +451,8 @@
                 <div class="flex items-center justify-center mb-4">
                     <div class="w-24 h-24 relative">
                         <div
-                            class="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-full opacity-20 animate-pulse">
-                        </div>
-                        <div
-                            class="absolute inset-1 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-all duration-300">
-                            <i class="fa-solid fa-heart text-gradient text-3xl"></i>
+                            class="w-24 h-24 rounded-full bg-gradient-love flex items-center justify-center text-white  hover:scale-110 hover:rotate-12 transition-all duration-300">
+                            <i class="fa-solid fa-heart text-gradient text-6xl"></i>
                         </div>
                     </div>
                 </div>
