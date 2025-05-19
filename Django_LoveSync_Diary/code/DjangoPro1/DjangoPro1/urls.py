@@ -29,7 +29,7 @@ urlpatterns = [
     path('Personal_Center/', Personal_Center, name='Personal_Center'),
 
     # 相册
-    path('favorites/', favorites, name='favorites'),
+    path('Photo_album/', Photo_album, name='Photo_album'),
 
     # 收藏
     path('favorites/', favorites, name='favorites'),

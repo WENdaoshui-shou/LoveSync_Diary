@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang = "zh-CN" >
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoveSync</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
+<head >
+    <meta charset = "UTF-8" >
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
+    <title >LoveSync</title >
+    <script src = "https://cdn.tailwindcss.com" ></script >
+    <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
+    <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel = "stylesheet" >
+    <script >
         tailwind.config = {
             theme: {
                 extend: {
@@ -33,15 +34,17 @@
                 },
             }
         }
-    </script>
-    <style type="text/tailwindcss">
+    </script >
+    <style type = "text/tailwindcss" >
         @layer utilities {
             .content-auto {
                 content-visibility: auto;
             }
+
             .text-shadow {
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
+
             #sidebar::-webkit-scrollbar {
                 width: 8px;
             }
@@ -67,25 +70,32 @@
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
+
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
+
             .hover-scale {
                 transition: transform 0.3s ease;
             }
+
             .hover-scale:hover {
                 transform: scale(1.03);
             }
+
             .form-input-focus {
                 transition: all 0.3s ease;
             }
+
             .form-input-focus:focus {
                 transform: translateY(-2px);
                 box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
             }
+
             .btn-pulse {
                 animation: pulse 2s infinite;
             }
+
             @keyframes pulse {
                 0% {
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
@@ -100,6 +110,7 @@
             .float-animation {
                 animation: float 6s ease-in-out infinite;
             }
+
             @keyframes float {
                 0% {
                     transform: translateY(0px);
@@ -114,13 +125,16 @@
             .post-card {
                 transition: all 0.3s ease;
             }
+
             .post-card:hover {
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                 transform: translateY(-2px);
             }
+
             .like-animation {
                 animation: like 0.5s ease;
             }
+
             @keyframes like {
                 0% {
                     transform: scale(1);
@@ -135,6 +149,7 @@
             .comment-slide {
                 animation: slideUp 0.3s ease;
             }
+
             @keyframes slideUp {
                 from {
                     transform: translateY(20px);
@@ -148,865 +163,871 @@
             .scroll-smooth {
                 scroll-behavior: smooth;
             }
+
             .skew-x-15 {
                 transform: skewX(15deg);
             }
+
             .skew-x--15 {
                 transform: skewX(-15deg);
             }
+
             .mask-custom {
                 mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
             }
         }
-    </style>
-</head>
+    </style >
+</head >
 
 <body
-    class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth">
+        class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
     <!-- 背景装饰元素 -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
-        </div>
-        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
-            style="animation-delay: -2s;"></div>
-        <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
-            style="animation-delay: -4s;"></div>
-    </div>
+    <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
+        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" >
+        </div >
+        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+             style = "animation-delay: -2s;" ></div >
+        <div class = "absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+             style = "animation-delay: -4s;" ></div >
+    </div >
 
     <!-- 导航栏 -->
-    <header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3">
-        <div class="container mx-auto px-4 flex items-center justify-between">
+    <header class = "fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3" >
+        <div class = "container mx-auto px-4 flex items-center justify-between" >
             <!-- 品牌标识 -->
-            <a href="#" class="flex items-center space-x-2">
+            <a href = "#" class = "flex items-center space-x-2" >
                 <div
-                    class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
-                    <i class="fa-solid fa-heart text-xl"></i>
-                </div>
-                <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
-            </a>
+                        class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md" >
+                    <i class = "fa-solid fa-heart text-xl" ></i >
+                </div >
+                <span class = "text-xl font-bold text-neutral-800 tracking-tight" >LoveSync</span >
+            </a >
             <!-- 桌面端导航菜单 -->
-            <nav class="hidden md:flex items-center space-x-6">
-                <a href="index.html"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
-                <a href="community.html"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">社区</a>
-                <a href="moments.html"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">我们的动态</a>
-                <a href="Photo_album.html"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">相册</a>
-                <a href="favorites.html"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">收藏</a>
+            <nav class = "hidden md:flex items-center space-x-6" >
+                <a href = "{% url 'index' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
+                <a href = "{% url 'community' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >社区</a >
+                <a href = "{% url 'moments' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >我们的动态</a >
+                <a href = "{% url 'Photo_album' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >相册</a >
+                <a href = "{% url 'favorites' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >收藏</a >
 
                 <!-- 更多下拉菜单 -->
-                <div class="relative" id="moreDropdown">
+                <div class = "relative" id = "moreDropdown" >
                     <button
-                        class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
-                        id="moreButton">
-                        更多 <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
-                    </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                        id="moreOptions">
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-calendar-heart mr-2 w-5 text-center"></i>纪念日提醒
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-gift mr-2 w-5 text-center"></i>礼物推荐
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-map-marker-heart mr-2 w-5 text-center"></i>情侣地点
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-question-circle mr-2 w-5 text-center"></i>爱情测试
-                        </a>
-                    </div>
-                </div>
-            </nav>
+                            class = "text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
+                            id = "moreButton" >
+                        更多 <i class = "fa-solid fa-chevron-down ml-1 text-xs" ></i >
+                    </button >
+                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                         id = "moreOptions" >
+                        <a href = "#"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-calendar-heart mr-2 w-5 text-center" ></i >纪念日提醒
+                        </a >
+                        <a href = "#"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-gift mr-2 w-5 text-center" ></i >礼物推荐
+                        </a >
+                        <a href = "#"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-map-marker-heart mr-2 w-5 text-center" ></i >情侣地点
+                        </a >
+                        <a href = "#"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-question-circle mr-2 w-5 text-center" ></i >爱情测试
+                        </a >
+                    </div >
+                </div >
+            </nav >
 
             <!-- 内容过滤器 -->
             <div
-                class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale">
-                <div class="flex space-x-2">
-                    <button class="px-4 py-2 rounded-full bg-primary text-white text-sm font-medium">
+                    class = "bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale" >
+                <div class = "flex space-x-2" >
+                    <button class = "px-4 py-2 rounded-full bg-primary text-white text-sm font-medium" >
                         推荐
-                    </button>
+                    </button >
                     <button
-                        class="px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom">
+                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
                         最新
-                    </button>
+                    </button >
                     <button
-                        class="px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom">
+                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
                         热门
-                    </button>
-                </div>
-                <div class="relative">
-                    <input type="text" placeholder="LoveSync: 搜索..."
-                        class="pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
-                </div>
-            </div>
+                    </button >
+                </div >
+                <div class = "relative" >
+                    <input type = "text" placeholder = "LoveSync: 搜索..."
+                           class = "pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
+                    <i class = "fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" ></i >
+                </div >
+            </div >
 
             <!-- 用户操作区 -->
-            <div class="flex items-center space-x-4">
-                <a href="moments.html" id="createPostLink"
-                    class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg">
-                    <i class="fa-solid fa-pencil"></i>
-                    <span>发布动态</span>
-                </a>
+            <div class = "flex items-center space-x-4" >
+                <a href = "{% url 'moments' %}" id = "createPostLink"
+                   class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg" >
+                    <i class = "fa-solid fa-pencil" ></i >
+                    <span >发布动态</span >
+                </a >
 
                 <!-- 用户头像与下拉菜单 -->
-                <div class="relative" id="userDropdown">
-                    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
-                        id="userAvatar">
-                        <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
-                    </div>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                        id="userOptions">
-                        <a href="{% url 'Personal_Center' %}"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-user mr-2 w-5 text-center"></i>主页
-                        </a>
-                        <a href="{% url 'message' %}"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>消息
-                        </a>
-                        <a href="{% url 'settings' %}"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-cog mr-2 w-5 text-center"></i>设置
-                        </a>
-                        <div class="border-t border-neutral-200 my-1"></div>
-                        <a href="{% url 'login' %}"
-                            class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-sign-out mr-2 w-5 text-center"></i>退出登录
-                        </a>
-                    </div>
-                </div>
+                <div class = "relative" id = "userDropdown" >
+                    <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
+                         id = "userAvatar" >
+                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                             class = "w-full h-full object-cover" >
+                    </div >
+                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                         id = "userOptions" >
+                        <a href = "{% url 'Personal_Center' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-user mr-2 w-5 text-center" ></i >主页
+                        </a >
+                        <a href = "{% url 'message' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-bookmark mr-2 w-5 text-center" ></i >消息
+                        </a >
+                        <a href = "{% url 'settings' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-cog mr-2 w-5 text-center" ></i >设置
+                        </a >
+                        <div class = "border-t border-neutral-200 my-1" ></div >
+                        <a href = "{% url 'logout' %}"
+                           class = "block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-sign-out mr-2 w-5 text-center" ></i >退出登录
+                        </a >
+                    </div >
+                </div >
 
                 <!-- 移动端菜单按钮 -->
-                <button class="md:hidden text-neutral-700 focus:outline-none" id="menu-toggle">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-            </div>
-        </div>
+                <button class = "md:hidden text-neutral-700 focus:outline-none" id = "menu-toggle" >
+                    <i class = "fa-solid fa-bars text-xl" ></i >
+                </button >
+            </div >
+        </div >
 
         <!-- 移动端菜单 -->
-        <div id="mobile-menu"
-            class="hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
-            style="top: 100%;">
-            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
-                <a href="#"
-                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
-                    <i class="fa-solid fa-book-open mr-3 w-5 text-center"></i>双人日记
-                </a>
-                <a href="community.html"
-                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
-                    <i class="fa-solid fa-users mr-3 w-5 text-center"></i>社区
-                </a>
-                <a href="moments.html"
-                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
-                    <i class="fa-solid fa-bolt mr-3 w-5 text-center"></i>我们的动态
-                </a>
-                <a href="Photo_album.html"
-                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
-                    <i class="fa-solid fa-images mr-3 w-5 text-center"></i>相册
-                </a>
-                <a href="favorites.html"
-                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
-                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>收藏
-                </a>
-                <div class="border-t border-neutral-200 my-1"></div>
-                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-calendar-heart mr-3 w-5 text-center"></i>纪念日提醒
-                </a>
-                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-gift mr-3 w-5 text-center"></i>礼物推荐
-                </a>
-                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-map-marker-heart mr-3 w-5 text-center"></i>情侣地点
-                </a>
-                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-question-circle mr-3 w-5 text-center"></i>爱情测试
-                </a>
-                <div class="border-t border-neutral-200 my-1"></div>
-                <a href="Personal_Center.html" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-user mr-3 w-5 text-center"></i>个人主页
-                </a>
-                <a href="message.html" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>消息中心
-                </a>
-                <a href="message.html" class="text-neutral-700 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-cog mr-3 w-5 text-center"></i>设置中心
-                </a>
-                <div class="border-t border-neutral-200 my-1"></div>
-                <a href="login.html" class="text-red-500 py-2 transition-custom flex items-center">
-                    <i class="fa-solid fa-sign-out mr-3 w-5 text-center"></i>退出登录
-                </a>
-            </div>
-        </div>
-    </header>
+        <div id = "mobile-menu"
+             class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
+             style = "top: 100%;" >
+            <div class = "container mx-auto px-4 py-3 flex flex-col space-y-3" >
+                <a href = "{% url 'index' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-book-open mr-3 w-5 text-center" ></i >双人日记
+                </a >
+                <a href = "{% url 'community' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-users mr-3 w-5 text-center" ></i >社区
+                </a >
+                <a href = "{% url 'moments' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >我们的动态
+                </a >
+                <a href = "{% url 'Photo_album' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >相册
+                </a >
+                <a href = "{% url 'favorites' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >收藏
+                </a >
+                <div class = "border-t border-neutral-200 my-1" ></div >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-calendar-heart mr-3 w-5 text-center" ></i >纪念日提醒
+                </a >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-gift mr-3 w-5 text-center" ></i >礼物推荐
+                </a >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-map-marker-heart mr-3 w-5 text-center" ></i >情侣地点
+                </a >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-question-circle mr-3 w-5 text-center" ></i >爱情测试
+                </a >
+                <div class = "border-t border-neutral-200 my-1" ></div >
+                <a href = "{% url 'Personal_Center' %}"
+                   class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >个人主页
+                </a >
+                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >消息中心
+                </a >
+                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置中心
+                </a >
+                <div class = "border-t border-neutral-200 my-1" ></div >
+                <a href = "{% url 'logout' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
+                </a >
+            </div >
+        </div >
+    </header >
 
     <!-- 新增固定导航栏 -->
-    <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 overflow-y-auto md:block hidden border-r border-neutral-200 transition-all duration-300"
-        id="sidebar">
-        <div class="p-4 flex justify-between items-center border-b border-neutral-200">
-            <div class="flex items-center space-x-2">
+    <div class = "fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 overflow-y-auto md:block hidden border-r border-neutral-200 transition-all duration-300"
+         id = "sidebar" >
+        <div class = "p-4 flex justify-between items-center border-b border-neutral-200" >
+            <div class = "flex items-center space-x-2" >
                 <div
-                    class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-sm transform hover:rotate-12 transition-all duration-300">
-                    <i class="fa-solid fa-heart text-lg"></i>
-                </div>
-                <span class="font-bold text-neutral-800 text-lg">LoveSync</span>
-            </div>
+                        class = "w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-sm transform hover:rotate-12 transition-all duration-300" >
+                    <i class = "fa-solid fa-heart text-lg" ></i >
+                </div >
+                <span class = "font-bold text-neutral-800 text-lg" >LoveSync</span >
+            </div >
             <!-- 导航栏关闭开启按钮 -->
-            <button id="toggleSidebar"
-                class="text-neutral-700 hover:text-primary transition-all duration-200 p-2 rounded-full hover:bg-neutral-100 active:scale-95">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-        </div>
-        <div class="p-4 space-y-4">
-            <div class="space-y-1">
-                <a href="index.html"
-                    class="flex items-center space-x-3 text-primary bg-primary/5 border-l-4 border-primary px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>双人日记</span>
-                </a>
-                <a href="Personal_Center.html"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-blog w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>个人主页</span>
-                </a>
-                <a href="message.html"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-download w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>消息中心</span>
-                </a>
-                <a href="#"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-list-ol w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>排行榜</span>
-                </a>
-                <a href="#"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>订阅</span>
-                </a>
-                <a href="#"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-user-plus w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>关注</span>
-                </a>
-                <a href="favorites.html"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-bookmark w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>收藏</span>
-                </a>
-                <a href="#"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>历史</span>
-                </a>
-                <a href="#"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>会员中心</span>
-                </a>
-                <a href="#"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-pencil w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>创作中心</span>
-                </a>
-            </div>
-            <div class="border-t border-neutral-200 mt-4 pt-4">
-                <a href="#"
-                    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>联系我们</span>
-                </a>
-                <div class="mt-3 space-y-2 text-xs text-neutral-500 pl-2">
-                    <p>工作时间: 8:30 - 22:00</p>
-                    <p>客服电话: 187-0022-2185</p>
-                    <p><a href="#" class="hover:text-primary transition-custom">关于我们</a>
-                        <a href="#" class="hover:text-primary transition-custom">招贤纳士</a>
-                    </p>
-                    <p><a href="#" class="hover:text-primary transition-custom">商务合作</a>
-                        <a href="#" class="hover:text-primary transition-custom">寻求报道</a>
-                    </p>
-                    <p>18700222185@163.com在线客服</p>
-                    <p>京ICP备19004658号</p>
-                    <p>经营性网站备案信息</p>
-                    <p>公安备案号110110110110
-                        营业执照</p>
-                    <p>互联网违法和不良信息举报中心</p>
-                    <p>家长监护
-                        中国互联网举报中心</p>
-                    <p>网络110报警服务
-                        账号管理规范</p>
-                    <p>版权与免责声明
-                        出版物许可证</p>
-                </div>
-            </div>
-            <div class="border-t border-neutral-200 mt-4 pt-4">
-                <div class="flex items-center justify-center mb-4">
-                    <div class="w-24 h-24 relative">
+            <button id = "toggleSidebar"
+                    class = "text-neutral-700 hover:text-primary transition-all duration-200 p-2 rounded-full hover:bg-neutral-100 active:scale-95" >
+                <i class = "fa-solid fa-bars" ></i >
+            </button >
+        </div >
+        <div class = "p-4 space-y-4" >
+            <div class = "space-y-1" >
+                <a href = "{% url 'index' %}"
+                   class = "flex items-center space-x-3 text-primary bg-primary/5 border-l-4 border-primary px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >双人日记</span >
+                </a >
+                <a href = "{% url 'Personal_Center' %}"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-blog w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >个人主页</span >
+                </a >
+                <a href = "{% url 'message' %}"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-download w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >消息中心</span >
+                </a >
+                <a href = "#"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-list-ol w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >排行榜</span >
+                </a >
+                <a href = "#"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >订阅</span >
+                </a >
+                <a href = "#"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-user-plus w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >关注</span >
+                </a >
+                <a href = "{% url 'favorites' %}"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-bookmark w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >收藏</span >
+                </a >
+                <a href = "#"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >历史</span >
+                </a >
+                <a href = "#"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >会员中心</span >
+                </a >
+                <a href = "#"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-pencil w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >创作中心</span >
+                </a >
+            </div >
+            <div class = "border-t border-neutral-200 mt-4 pt-4" >
+                <a href = "#"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >联系我们</span >
+                </a >
+                <div class = "mt-3 space-y-2 text-xs text-neutral-500 pl-2" >
+                    <p >工作时间: 8:30 - 22:00</p >
+                    <p >客服电话: 187-0022-2185</p >
+                    <p ><a href = "#" class = "hover:text-primary transition-custom" >关于我们</a >
+                        <a href = "#" class = "hover:text-primary transition-custom" >招贤纳士</a >
+                    </p >
+                    <p ><a href = "#" class = "hover:text-primary transition-custom" >商务合作</a >
+                        <a href = "#" class = "hover:text-primary transition-custom" >寻求报道</a >
+                    </p >
+                    <p >18700222185@163.com在线客服</p >
+                    <p >京ICP备19004658号</p >
+                    <p >经营性网站备案信息</p >
+                    <p >公安备案号110110110110
+                        营业执照</p >
+                    <p >互联网违法和不良信息举报中心</p >
+                    <p >家长监护
+                        中国互联网举报中心</p >
+                    <p >网络110报警服务
+                        账号管理规范</p >
+                    <p >版权与免责声明
+                        出版物许可证</p >
+                </div >
+            </div >
+            <div class = "border-t border-neutral-200 mt-4 pt-4" >
+                <div class = "flex items-center justify-center mb-4" >
+                    <div class = "w-24 h-24 relative" >
                         <div
-                            class="w-24 h-24 rounded-full bg-gradient-love flex items-center justify-center text-white  hover:scale-110 hover:rotate-12 transition-all duration-300">
-                            <i class="fa-solid fa-heart text-gradient text-6xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-xs text-neutral-500 text-center">©2003-2025 陕西文刀水寿网络技术有限责任公司</p>
-            </div>
-        </div>
-    </div>
+                                class = "w-24 h-24 rounded-full bg-gradient-love flex items-center justify-center text-white  hover:scale-110 hover:rotate-12 transition-all duration-300" >
+                            <i class = "fa-solid fa-heart text-gradient text-6xl" ></i >
+                        </div >
+                    </div >
+                </div >
+                <p class = "text-xs text-neutral-500 text-center" >©2003-2025 陕西文刀水寿网络技术有限责任公司</p >
+            </div >
+        </div >
+    </div >
 
     <!-- 主内容区 -->
-    <main class="flex-grow pt-24 pb-16 relative z-10 pl-64">
-        <div class="container mx-auto px-4">
+    <main class = "flex-grow pt-24 pb-16 relative z-10 pl-64" >
+        <div class = "container mx-auto px-4" >
             <!-- 修改为 flex-wrap，小屏幕下换行显示 -->
-            <div class="flex flex-col md:flex-row flex-wrap">
+            <div class = "flex flex-col md:flex-row flex-wrap" >
                 <!-- 中间内容区 -->
-                <div class="w-full md:w-3/4 md:px-6 space-y-6">
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
-                        <div class="relative aspect-video h-full ">
-                            <div class="absolute inset-0 carousel-container">
+                <div class = "w-full md:w-3/4 md:px-6 space-y-6" >
+                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden hover-scale" >
+                        <div class = "relative aspect-video h-full " >
+                            <div class = "absolute inset-0 carousel-container" >
                                 <!-- 轮播图项 1 -->
-                                <div class="w-full h-full bg-cover bg-center carousel-item">
-                                    <img id="dynamicImage" src="" alt="动态图片" class="w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-black opacity-30"></div>
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <h3 class="text-2xl font-bold text-white text-shadow">情侣专属活动</h3>
-                                    </div>
-                                </div>
-                            </div>
+                                <div class = "w-full h-full bg-cover bg-center carousel-item" >
+                                    <img id = "dynamicImage" src = "" alt = "动态图片"
+                                         class = "w-full h-full object-cover" >
+                                    <div class = "absolute inset-0 bg-black opacity-30" ></div >
+                                    <div class = "absolute inset-0 flex items-center justify-center" >
+                                        <h3 class = "text-2xl font-bold text-white text-shadow" >情侣专属活动</h3 >
+                                    </div >
+                                </div >
+                            </div >
                             <!-- 轮播图导航按钮 -->
                             <button
-                                class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-primary transition-custom carousel-prev">
-                                <i class="fa-solid fa-chevron-left text-2xl"></i>
-                            </button>
+                                    class = "absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-primary transition-custom carousel-prev" >
+                                <i class = "fa-solid fa-chevron-left text-2xl" ></i >
+                            </button >
                             <button
-                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-primary transition-custom carousel-next">
-                                <i class="fa-solid fa-chevron-right text-2xl"></i>
-                            </button>
-                        </div>
-                    </div>
+                                    class = "absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-primary transition-custom carousel-next" >
+                                <i class = "fa-solid fa-chevron-right text-2xl" ></i >
+                            </button >
+                        </div >
+                    </div >
 
                     <!-- 动态内容列表 -->
                     <!-- 动态1 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card w-full">
-                        <div class="p-8">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=5" alt="发布者头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-neutral-900">小甜甜和小帅帅</h4>
-                                        <p class="text-neutral-500 text-xs">2小时前</p>
-                                    </div>
-                                </div>
-                                <button class="text-neutral-400 hover:text-neutral-700 transition-custom">
-                                    <i class="fa-solid fa-ellipsis-h"></i>
-                                </button>
-                            </div>
-                            <div class="mt-4">
-                                <p class="text-neutral-800">今天是我们恋爱一周年的日子，一起去了我们第一次约会的餐厅，回忆满满💕 #恋爱一周年纪念#</p>
-                            </div>
-                            <div class="mt-4 grid grid-cols-2 gap-2">
-                                <img src="https://picsum.photos/600/400?random=10" alt="动态图片1"
-                                    class="rounded-lg w-full h-40 object-cover hover-scale">
-                                <img src="https://picsum.photos/600/400?random=11" alt="动态图片2"
-                                    class="rounded-lg w-full h-40 object-cover hover-scale">
-                            </div>
-                            <div class="mt-4 flex justify-between items-center">
-                                <div class="flex space-x-4">
+                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card w-full" >
+                        <div class = "p-8" >
+                            <div class = "flex items-center justify-between" >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=5" alt = "发布者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div >
+                                        <h4 class = "font-semibold text-neutral-900" >小甜甜和小帅帅</h4 >
+                                        <p class = "text-neutral-500 text-xs" >2小时前</p >
+                                    </div >
+                                </div >
+                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
+                                    <i class = "fa-solid fa-ellipsis-h" ></i >
+                                </button >
+                            </div >
+                            <div class = "mt-4" >
+                                <p class = "text-neutral-800" >今天是我们恋爱一周年的日子，一起去了我们第一次约会的餐厅，回忆满满💕 #恋爱一周年纪念#</p >
+                            </div >
+                            <div class = "mt-4 grid grid-cols-2 gap-2" >
+                                <img src = "https://picsum.photos/600/400?random=10" alt = "动态图片1"
+                                     class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                                <img src = "https://picsum.photos/600/400?random=11" alt = "动态图片2"
+                                     class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                            </div >
+                            <div class = "mt-4 flex justify-between items-center" >
+                                <div class = "flex space-x-4" >
                                     <button
-                                        class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
-                                        <i class="fa-regular fa-heart"></i>
-                                        <span>128</span>
-                                    </button>
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
+                                        <i class = "fa-regular fa-heart" ></i >
+                                        <span >128</span >
+                                    </button >
                                     <button
-                                        class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
-                                        <i class="fa-regular fa-comment"></i>
-                                        <span>24</span>
-                                    </button>
-                                </div>
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
+                                        <i class = "fa-regular fa-comment" ></i >
+                                        <span >24</span >
+                                    </button >
+                                </div >
                                 <button
-                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
-                                    <i class="fa-regular fa-share-from-square"></i>
-                                    <span>分享</span>
-                                </button>
-                            </div>
-                        </div>
+                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom" >
+                                    <i class = "fa-regular fa-share-from-square" ></i >
+                                    <span >分享</span >
+                                </button >
+                            </div >
+                        </div >
                         <!-- 评论区域 -->
-                        <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
-                            <div class="space-y-4">
+                        <div class = "bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section" >
+                            <div class = "space-y-4" >
                                 <!-- 评论1 -->
-                                <div class="flex space-x-3 comment-slide">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=6" alt="评论者头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="bg-white rounded-lg p-3">
-                                            <div class="flex justify-between items-center">
-                                                <h5 class="font-medium text-sm text-neutral-900">恋爱小助手</h5>
-                                                <span class="text-neutral-400 text-xs">1小时前</span>
-                                            </div>
-                                            <p class="text-neutral-700 text-sm mt-1">一周年快乐！好羡慕你们呀，希望你们能一直幸福下去~</p>
-                                        </div>
-                                        <div class="flex space-x-3 mt-2">
+                                <div class = "flex space-x-3 comment-slide" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=6" alt = "评论者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1" >
+                                        <div class = "bg-white rounded-lg p-3" >
+                                            <div class = "flex justify-between items-center" >
+                                                <h5 class = "font-medium text-sm text-neutral-900" >恋爱小助手</h5 >
+                                                <span class = "text-neutral-400 text-xs" >1小时前</span >
+                                            </div >
+                                            <p class = "text-neutral-700 text-sm mt-1" >一周年快乐！好羡慕你们呀，希望你们能一直幸福下去~</p >
+                                        </div >
+                                        <div class = "flex space-x-3 mt-2" >
                                             <button
-                                                class="text-neutral-500 hover:text-primary text-xs transition-custom">
-                                                <i class="fa-regular fa-heart"></i> 16
-                                            </button>
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
+                                                <i class = "fa-regular fa-heart" ></i > 16
+                                            </button >
                                             <button
-                                                class="text-neutral-500 hover:text-primary text-xs transition-custom">
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
                                                 回复
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                            </button >
+                                        </div >
+                                    </div >
+                                </div >
                                 <!-- 评论2 -->
-                                <div class="flex space-x-3 comment-slide" style="animation-delay: 0.1s;">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=7" alt="评论者头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="bg-white rounded-lg p-3">
-                                            <div class="flex justify-between items-center">
-                                                <h5 class="font-medium text-sm text-neutral-900">爱情故事</h5>
-                                                <span class="text-neutral-400 text-xs">50分钟前</span>
-                                            </div>
-                                            <p class="text-neutral-700 text-sm mt-1">餐厅看起来很不错啊，是哪家呢？也想和另一半去体验一下~</p>
-                                        </div>
-                                        <div class="flex space-x-3 mt-2">
+                                <div class = "flex space-x-3 comment-slide" style = "animation-delay: 0.1s;" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=7" alt = "评论者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1" >
+                                        <div class = "bg-white rounded-lg p-3" >
+                                            <div class = "flex justify-between items-center" >
+                                                <h5 class = "font-medium text-sm text-neutral-900" >爱情故事</h5 >
+                                                <span class = "text-neutral-400 text-xs" >50分钟前</span >
+                                            </div >
+                                            <p class = "text-neutral-700 text-sm mt-1" >餐厅看起来很不错啊，是哪家呢？也想和另一半去体验一下~</p >
+                                        </div >
+                                        <div class = "flex space-x-3 mt-2" >
                                             <button
-                                                class="text-neutral-500 hover:text-primary text-xs transition-custom">
-                                                <i class="fa-regular fa-heart"></i> 8
-                                            </button>
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
+                                                <i class = "fa-regular fa-heart" ></i > 8
+                                            </button >
                                             <button
-                                                class="text-neutral-500 hover:text-primary text-xs transition-custom">
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
                                                 回复
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                            </button >
+                                        </div >
+                                    </div >
+                                </div >
                                 <!-- 发表评论 -->
-                                <div class="flex space-x-3 mt-2">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=1" alt="用户头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1 relative">
-                                        <input type="text" placeholder="写下你的评论..."
-                                            class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
-                                        <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
-                                            <i class="fa-solid fa-paper-plane"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                <div class = "flex space-x-3 mt-2" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1 relative" >
+                                        <input type = "text" placeholder = "写下你的评论..."
+                                               class = "w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
+                                        <button class = "absolute right-2 top-1/2 -translate-y-1/2 text-primary" >
+                                            <i class = "fa-solid fa-paper-plane" ></i >
+                                        </button >
+                                    </div >
+                                </div >
+                            </div >
+                        </div >
+                    </div >
 
                     <!-- 动态2 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=8" alt="发布者头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-neutral-900">旅行情侣</h4>
-                                        <p class="text-neutral-500 text-xs">昨天</p>
-                                    </div>
-                                </div>
-                                <button class="text-neutral-400 hover:text-neutral-700 transition-custom">
-                                    <i class="fa-solid fa-ellipsis-h"></i>
-                                </button>
-                            </div>
-                            <div class="mt-4">
-                                <p class="text-neutral-800">第一次一起出国旅行，泰国普吉岛真的太美了！和你一起看海，一起探索新的地方，这就是我想要的生活~ #情侣旅行#
-                                </p>
-                            </div>
-                            <div class="mt-4 grid grid-cols-3 gap-2">
-                                <img src="https://picsum.photos/600/400?random=20" alt="动态图片1"
-                                    class="rounded-lg w-full h-32 object-cover hover-scale">
-                                <img src="https://picsum.photos/600/400?random=21" alt="动态图片2"
-                                    class="rounded-lg w-full h-32 object-cover hover-scale">
-                                <img src="https://picsum.photos/600/400?random=22" alt="动态图片3"
-                                    class="rounded-lg w-full h-32 object-cover hover-scale">
-                            </div>
-                            <div class="mt-4 flex justify-between items-center">
-                                <div class="flex space-x-4">
+                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card" >
+                        <div class = "p-6" >
+                            <div class = "flex items-center justify-between" >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=8" alt = "发布者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div >
+                                        <h4 class = "font-semibold text-neutral-900" >旅行情侣</h4 >
+                                        <p class = "text-neutral-500 text-xs" >昨天</p >
+                                    </div >
+                                </div >
+                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
+                                    <i class = "fa-solid fa-ellipsis-h" ></i >
+                                </button >
+                            </div >
+                            <div class = "mt-4" >
+                                <p class = "text-neutral-800" >第一次一起出国旅行，泰国普吉岛真的太美了！和你一起看海，一起探索新的地方，这就是我想要的生活~ #情侣旅行#
+                                </p >
+                            </div >
+                            <div class = "mt-4 grid grid-cols-3 gap-2" >
+                                <img src = "https://picsum.photos/600/400?random=20" alt = "动态图片1"
+                                     class = "rounded-lg w-full h-32 object-cover hover-scale" >
+                                <img src = "https://picsum.photos/600/400?random=21" alt = "动态图片2"
+                                     class = "rounded-lg w-full h-32 object-cover hover-scale" >
+                                <img src = "https://picsum.photos/600/400?random=22" alt = "动态图片3"
+                                     class = "rounded-lg w-full h-32 object-cover hover-scale" >
+                            </div >
+                            <div class = "mt-4 flex justify-between items-center" >
+                                <div class = "flex space-x-4" >
                                     <button
-                                        class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
-                                        <i class="fa-regular fa-heart"></i>
-                                        <span>256</span>
-                                    </button>
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
+                                        <i class = "fa-regular fa-heart" ></i >
+                                        <span >256</span >
+                                    </button >
                                     <button
-                                        class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
-                                        <i class="fa-regular fa-comment"></i>
-                                        <span>42</span>
-                                    </button>
-                                </div>
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
+                                        <i class = "fa-regular fa-comment" ></i >
+                                        <span >42</span >
+                                    </button >
+                                </div >
                                 <button
-                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
-                                    <i class="fa-regular fa-share-from-square"></i>
-                                    <span>分享</span>
-                                </button>
-                            </div>
-                        </div>
+                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom" >
+                                    <i class = "fa-regular fa-share-from-square" ></i >
+                                    <span >分享</span >
+                                </button >
+                            </div >
+                        </div >
                         <!-- 评论区域 (默认隐藏) -->
-                        <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
+                        <div class = "bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section" >
                             <!-- 评论内容将通过JavaScript动态加载 -->
-                            <div class="space-y-4">
+                            <div class = "space-y-4" >
                                 <!-- 发表评论 -->
-                                <div class="flex space-x-3 mt-2">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=1" alt="用户头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1 relative">
-                                        <input type="text" placeholder="写下你的评论..."
-                                            class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
-                                        <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
-                                            <i class="fa-solid fa-paper-plane"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                <div class = "flex space-x-3 mt-2" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1 relative" >
+                                        <input type = "text" placeholder = "写下你的评论..."
+                                               class = "w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
+                                        <button class = "absolute right-2 top-1/2 -translate-y-1/2 text-primary" >
+                                            <i class = "fa-solid fa-paper-plane" ></i >
+                                        </button >
+                                    </div >
+                                </div >
+                            </div >
+                        </div >
+                    </div >
 
                     <!-- 动态3 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=9" alt="发布者头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-neutral-900">美食情侣</h4>
-                                        <p class="text-neutral-500 text-xs">3天前</p>
-                                    </div>
-                                </div>
-                                <button class="text-neutral-400 hover:text-neutral-700 transition-custom">
-                                    <i class="fa-solid fa-ellipsis-h"></i>
-                                </button>
-                            </div>
-                            <div class="mt-4">
-                                <p class="text-neutral-800">周末一起学做了一道菜，虽然过程有点曲折，但成品还不错哦！第一次合作下厨，很开心~ #情侣日常# #美食分享#
-                                </p>
-                            </div>
-                            <div class="mt-4">
-                                <img src="https://picsum.photos/800/500?random=30" alt="动态图片"
-                                    class="rounded-lg w-full h-64 object-cover hover-scale">
-                            </div>
-                            <div class="mt-4 flex justify-between items-center">
-                                <div class="flex space-x-4">
+                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card" >
+                        <div class = "p-6" >
+                            <div class = "flex items-center justify-between" >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=9" alt = "发布者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div >
+                                        <h4 class = "font-semibold text-neutral-900" >美食情侣</h4 >
+                                        <p class = "text-neutral-500 text-xs" >3天前</p >
+                                    </div >
+                                </div >
+                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
+                                    <i class = "fa-solid fa-ellipsis-h" ></i >
+                                </button >
+                            </div >
+                            <div class = "mt-4" >
+                                <p class = "text-neutral-800" >周末一起学做了一道菜，虽然过程有点曲折，但成品还不错哦！第一次合作下厨，很开心~ #情侣日常# #美食分享#
+                                </p >
+                            </div >
+                            <div class = "mt-4" >
+                                <img src = "https://picsum.photos/800/500?random=30" alt = "动态图片"
+                                     class = "rounded-lg w-full h-64 object-cover hover-scale" >
+                            </div >
+                            <div class = "mt-4 flex justify-between items-center" >
+                                <div class = "flex space-x-4" >
                                     <button
-                                        class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
-                                        <i class="fa-regular fa-heart"></i>
-                                        <span>189</span>
-                                    </button>
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
+                                        <i class = "fa-regular fa-heart" ></i >
+                                        <span >189</span >
+                                    </button >
                                     <button
-                                        class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
-                                        <i class="fa-regular fa-comment"></i>
-                                        <span>36</span>
-                                    </button>
-                                </div>
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
+                                        <i class = "fa-regular fa-comment" ></i >
+                                        <span >36</span >
+                                    </button >
+                                </div >
                                 <button
-                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
-                                    <i class="fa-regular fa-share-from-square"></i>
-                                    <span>分享</span>
-                                </button>
-                            </div>
-                        </div>
+                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom" >
+                                    <i class = "fa-regular fa-share-from-square" ></i >
+                                    <span >分享</span >
+                                </button >
+                            </div >
+                        </div >
                         <!-- 评论区域 (默认隐藏) -->
-                        <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
+                        <div class = "bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section" >
                             <!-- 评论内容将通过JavaScript动态加载 -->
-                            <div class="space-y-4">
+                            <div class = "space-y-4" >
                                 <!-- 发表评论 -->
-                                <div class="flex space-x-3 mt-2">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden">
-                                        <img src="https://picsum.photos/200/200?random=1" alt="用户头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1 relative">
-                                        <input type="text" placeholder="写下你的评论..."
-                                            class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
-                                        <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
-                                            <i class="fa-solid fa-paper-plane"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                <div class = "flex space-x-3 mt-2" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1 relative" >
+                                        <input type = "text" placeholder = "写下你的评论..."
+                                               class = "w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
+                                        <button class = "absolute right-2 top-1/2 -translate-y-1/2 text-primary" >
+                                            <i class = "fa-solid fa-paper-plane" ></i >
+                                        </button >
+                                    </div >
+                                </div >
+                            </div >
+                        </div >
+                    </div >
 
                     <!-- 加载更多 -->
                     <button
-                        class="w-full py-3 bg-white rounded-xl shadow-lg text-primary font-medium hover:bg-neutral-50 transition-custom">
+                            class = "w-full py-3 bg-white rounded-xl shadow-lg text-primary font-medium hover:bg-neutral-50 transition-custom" >
                         加载更多
-                    </button>
-                </div>
+                    </button >
+                </div >
 
                 <!-- 右侧内容区 -->
-                <div class="w-full md:w-1/4 space-y-6 mt-6 md:mt-0">
-                    <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
-                        <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
-                            <i class="fa-solid fa-fire text-primary mr-2"></i>
+                <div class = "w-full md:w-1/4 space-y-6 mt-6 md:mt-0" >
+                    <div class = "bg-white rounded-xl shadow-lg p-6 hover-scale" >
+                        <h3 class = "text-lg font-semibold text-neutral-900 mb-4 flex items-center" >
+                            <i class = "fa-solid fa-fire text-primary mr-2" ></i >
                             热门话题
-                        </h3>
-                        <ul class="space-y-3">
-                            <li>
-                                <a href="#"
-                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                        </h3 >
+                        <ul class = "space-y-3" >
+                            <li >
+                                <a href = "#"
+                                   class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <span
-                                        class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情人节计划#</span>
-                                    <span class="text-neutral-700 text-sm">2.4k 动态</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                            class = "bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2" >#情人节计划#</span >
+                                    <span class = "text-neutral-700 text-sm" >2.4k 动态</span >
+                                </a >
+                            </li >
+                            <li >
+                                <a href = "#"
+                                   class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <span
-                                        class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情侣穿搭#</span>
-                                    <span class="text-neutral-700 text-sm">1.8k 动态</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                            class = "bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2" >#情侣穿搭#</span >
+                                    <span class = "text-neutral-700 text-sm" >1.8k 动态</span >
+                                </a >
+                            </li >
+                            <li >
+                                <a href = "#"
+                                   class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <span
-                                        class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#爱情保鲜秘诀#</span>
-                                    <span class="text-neutral-700 text-sm">1.5k 动态</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                            class = "bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2" >#爱情保鲜秘诀#</span >
+                                    <span class = "text-neutral-700 text-sm" >1.5k 动态</span >
+                                </a >
+                            </li >
+                            <li >
+                                <a href = "#"
+                                   class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <span
-                                        class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情侣旅行#</span>
-                                    <span class="text-neutral-700 text-sm">1.2k 动态</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                            class = "bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2" >#情侣旅行#</span >
+                                    <span class = "text-neutral-700 text-sm" >1.2k 动态</span >
+                                </a >
+                            </li >
+                            <li >
+                                <a href = "#"
+                                   class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <span
-                                        class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#恋爱周年纪念#</span>
-                                    <span class="text-neutral-700 text-sm">980 动态</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                                            class = "bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2" >#恋爱周年纪念#</span >
+                                    <span class = "text-neutral-700 text-sm" >980 动态</span >
+                                </a >
+                            </li >
+                        </ul >
+                    </div >
 
                     <!-- 推荐关注模块 -->
-                    <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
-                        <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
-                            <i class="fa-solid fa-user-plus text-primary mr-2"></i>
+                    <div class = "bg-white rounded-xl shadow-lg p-6 hover-scale" >
+                        <h3 class = "text-lg font-semibold text-neutral-900 mb-4 flex items-center" >
+                            <i class = "fa-solid fa-user-plus text-primary mr-2" ></i >
                             推荐关注
-                        </h3>
-                        <ul class="space-y-4">
-                            <li>
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
-                                        <img src="https://picsum.photos/200/200?random=2" alt="推荐用户头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="text-neutral-900 font-medium text-sm">甜甜的小两口</h4>
-                                        <p class="text-neutral-500 text-xs">分享日常甜蜜瞬间</p>
-                                    </div>
+                        </h3 >
+                        <ul class = "space-y-4" >
+                            <li >
+                                <div class = "flex items-center" >
+                                    <div class = "w-10 h-10 rounded-full overflow-hidden mr-3" >
+                                        <img src = "https://picsum.photos/200/200?random=2" alt = "推荐用户头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1" >
+                                        <h4 class = "text-neutral-900 font-medium text-sm" >甜甜的小两口</h4 >
+                                        <p class = "text-neutral-500 text-xs" >分享日常甜蜜瞬间</p >
+                                    </div >
                                     <button
-                                        class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                            class = "text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom" >
                                         关注
-                                    </button>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
-                                        <img src="https://picsum.photos/200/200?random=3" alt="推荐用户头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="text-neutral-900 font-medium text-sm">情侣摄影师</h4>
-                                        <p class="text-neutral-500 text-xs">记录爱情的每一刻</p>
-                                    </div>
+                                    </button >
+                                </div >
+                            </li >
+                            <li >
+                                <div class = "flex items-center" >
+                                    <div class = "w-10 h-10 rounded-full overflow-hidden mr-3" >
+                                        <img src = "https://picsum.photos/200/200?random=3" alt = "推荐用户头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1" >
+                                        <h4 class = "text-neutral-900 font-medium text-sm" >情侣摄影师</h4 >
+                                        <p class = "text-neutral-500 text-xs" >记录爱情的每一刻</p >
+                                    </div >
                                     <button
-                                        class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                            class = "text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom" >
                                         关注
-                                    </button>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
-                                        <img src="https://picsum.photos/200/200?random=4" alt="推荐用户头像"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="text-neutral-900 font-medium text-sm">恋爱导师</h4>
-                                        <p class="text-neutral-500 text-xs">分享恋爱技巧与建议</p>
-                                    </div>
+                                    </button >
+                                </div >
+                            </li >
+                            <li >
+                                <div class = "flex items-center" >
+                                    <div class = "w-10 h-10 rounded-full overflow-hidden mr-3" >
+                                        <img src = "https://picsum.photos/200/200?random=4" alt = "推荐用户头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1" >
+                                        <h4 class = "text-neutral-900 font-medium text-sm" >恋爱导师</h4 >
+                                        <p class = "text-neutral-500 text-xs" >分享恋爱技巧与建议</p >
+                                    </div >
                                     <button
-                                        class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                            class = "text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom" >
                                         关注
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                                    </button >
+                                </div >
+                            </li >
+                        </ul >
+                    </div >
 
                     <!-- 社区活动 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
-                        <div class="p-6">
-                            <h3 class="text-lg font-semibold text-neutral-900 mb-4">社区活动</h3>
-                            <div class="space-y-4">
-                                <div class="bg-gradient-love rounded-lg p-4 text-white">
-                                    <h4 class="font-semibold">七夕情侣摄影大赛</h4>
-                                    <p class="text-white/80 text-sm mt-1">分享你们的甜蜜照片，赢取浪漫奖品</p>
-                                    <div class="mt-3 text-xs bg-white/20 inline-block px-3 py-1 rounded-full">
+                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden hover-scale" >
+                        <div class = "p-6" >
+                            <h3 class = "text-lg font-semibold text-neutral-900 mb-4" >社区活动</h3 >
+                            <div class = "space-y-4" >
+                                <div class = "bg-gradient-love rounded-lg p-4 text-white" >
+                                    <h4 class = "font-semibold" >七夕情侣摄影大赛</h4 >
+                                    <p class = "text-white/80 text-sm mt-1" >分享你们的甜蜜照片，赢取浪漫奖品</p >
+                                    <div class = "mt-3 text-xs bg-white/20 inline-block px-3 py-1 rounded-full" >
                                         还有3天结束
-                                    </div>
-                                </div>
+                                    </div >
+                                </div >
                                 <div
-                                    class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
-                                    <h4 class="font-medium text-neutral-900">情侣默契大考验</h4>
-                                    <p class="text-neutral-600 text-sm mt-1">测试你们的默契程度，看看是否心灵相通</p>
+                                        class = "border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom" >
+                                    <h4 class = "font-medium text-neutral-900" >情侣默契大考验</h4 >
+                                    <p class = "text-neutral-600 text-sm mt-1" >测试你们的默契程度，看看是否心灵相通</p >
                                     <div
-                                        class="mt-3 text-xs bg-primary/10 text-primary inline-block px-3 py-1 rounded-full">
+                                            class = "mt-3 text-xs bg-primary/10 text-primary inline-block px-3 py-1 rounded-full" >
                                         进行中
-                                    </div>
-                                </div>
+                                    </div >
+                                </div >
                                 <div
-                                    class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
-                                    <h4 class="font-medium text-neutral-900">爱情故事征集</h4>
-                                    <p class="text-neutral-600 text-sm mt-1">分享你们的爱情故事，让更多人感受幸福</p>
+                                        class = "border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom" >
+                                    <h4 class = "font-medium text-neutral-900" >爱情故事征集</h4 >
+                                    <p class = "text-neutral-600 text-sm mt-1" >分享你们的爱情故事，让更多人感受幸福</p >
                                     <div
-                                        class="mt-3 text-xs bg-neutral-100 text-neutral-600 inline-block px-3 py-1 rounded-full">
+                                            class = "mt-3 text-xs bg-neutral-100 text-neutral-600 inline-block px-3 py-1 rounded-full" >
                                         即将开始
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                    </div >
+                                </div >
+                            </div >
+                        </div >
+                    </div >
 
                     <!-- 热门情侣 -->
-                    <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
-                        <h3 class="text-lg font-semibold text-neutral-900 mb-4">热门情侣</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex -space-x-2">
-                                        <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
-                                            <img src="https://picsum.photos/200/200?random=12" alt="情侣头像1"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                        <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
-                                            <img src="https://picsum.photos/200/200?random=13" alt="情侣头像2"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium text-sm text-neutral-900">甜蜜二人组</h4>
-                                        <p class="text-neutral-500 text-xs">3.2k 粉丝</p>
-                                    </div>
-                                </div>
+                    <div class = "bg-white rounded-xl shadow-lg p-6 hover-scale" >
+                        <h3 class = "text-lg font-semibold text-neutral-900 mb-4" >热门情侣</h3 >
+                        <div class = "space-y-4" >
+                            <div class = "flex items-center justify-between" >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "flex -space-x-2" >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden border-2 border-white" >
+                                            <img src = "https://picsum.photos/200/200?random=12" alt = "情侣头像1"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden border-2 border-white" >
+                                            <img src = "https://picsum.photos/200/200?random=13" alt = "情侣头像2"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                    </div >
+                                    <div >
+                                        <h4 class = "font-medium text-sm text-neutral-900" >甜蜜二人组</h4 >
+                                        <p class = "text-neutral-500 text-xs" >3.2k 粉丝</p >
+                                    </div >
+                                </div >
                                 <button
-                                    class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                        class = "text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom" >
                                     关注
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex -space-x-2">
-                                        <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
-                                            <img src="https://picsum.photos/200/200?random=14" alt="情侣头像1"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                        <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
-                                            <img src="https://picsum.photos/200/200?random=15" alt="情侣头像2"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium text-sm text-neutral-900">旅行伴侣</h4>
-                                        <p class="text-neutral-500 text-xs">2.8k 粉丝</p>
-                                    </div>
-                                </div>
+                                </button >
+                            </div >
+                            <div class = "flex items-center justify-between" >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "flex -space-x-2" >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden border-2 border-white" >
+                                            <img src = "https://picsum.photos/200/200?random=14" alt = "情侣头像1"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden border-2 border-white" >
+                                            <img src = "https://picsum.photos/200/200?random=15" alt = "情侣头像2"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                    </div >
+                                    <div >
+                                        <h4 class = "font-medium text-sm text-neutral-900" >旅行伴侣</h4 >
+                                        <p class = "text-neutral-500 text-xs" >2.8k 粉丝</p >
+                                    </div >
+                                </div >
                                 <button
-                                    class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                        class = "text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom" >
                                     关注
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex -space-x-2">
-                                        <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
-                                            <img src="https://picsum.photos/200/200?random=16" alt="情侣头像1"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                        <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
-                                            <img src="https://picsum.photos/200/200?random=17" alt="情侣头像2"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium text-sm text-neutral-900">美食爱好者</h4>
-                                        <p class="text-neutral-500 text-xs">2.5k 粉丝</p>
-                                    </div>
-                                </div>
+                                </button >
+                            </div >
+                            <div class = "flex items-center justify-between" >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "flex -space-x-2" >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden border-2 border-white" >
+                                            <img src = "https://picsum.photos/200/200?random=16" alt = "情侣头像1"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden border-2 border-white" >
+                                            <img src = "https://picsum.photos/200/200?random=17" alt = "情侣头像2"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                    </div >
+                                    <div >
+                                        <h4 class = "font-medium text-sm text-neutral-900" >美食爱好者</h4 >
+                                        <p class = "text-neutral-500 text-xs" >2.5k 粉丝</p >
+                                    </div >
+                                </div >
                                 <button
-                                    class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                        class = "text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom" >
                                     关注
-                                </button>
-                            </div>
-                        </div>
+                                </button >
+                            </div >
+                        </div >
                         <button
-                            class="w-full mt-4 py-2 text-center text-primary text-sm border border-primary rounded-lg hover:bg-primary hover:text-white transition-custom">
+                                class = "w-full mt-4 py-2 text-center text-primary text-sm border border-primary rounded-lg hover:bg-primary hover:text-white transition-custom" >
                             查看更多
-                        </button>
-                    </div>
+                        </button >
+                    </div >
 
                     <!-- 应用下载 -->
-                    <div class="bg-gradient-love rounded-xl shadow-lg p-6 text-white hover-scale">
-                        <h3 class="text-lg font-semibold mb-2">下载 LoveSync 应用</h3>
-                        <p class="text-white/80 text-sm mb-4">随时随地记录你们的爱情故事</p>
-                        <div class="flex space-x-3">
-                            <a href="#"
-                                class="bg-white/20 hover:bg-white/30 transition-custom rounded-lg px-3 py-2 flex items-center space-x-2">
-                                <i class="fa-brands fa-apple text-lg"></i>
-                                <div>
-                                    <div class="text-xs">下载</div>
-                                    <div class="text-sm font-medium">App Store</div>
-                                </div>
-                            </a>
-                            <a href="#"
-                                class="bg-white/20 hover:bg-white/30 transition-custom rounded-lg px-3 py-2 flex items-center space-x-2">
-                                <i class="fa-brands fa-android text-lg"></i>
-                                <div>
-                                    <div class="text-xs">下载</div>
-                                    <div class="text-sm font-medium">Google Play</div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+                    <div class = "bg-gradient-love rounded-xl shadow-lg p-6 text-white hover-scale" >
+                        <h3 class = "text-lg font-semibold mb-2" >下载 LoveSync 应用</h3 >
+                        <p class = "text-white/80 text-sm mb-4" >随时随地记录你们的爱情故事</p >
+                        <div class = "flex space-x-3" >
+                            <a href = "#"
+                               class = "bg-white/20 hover:bg-white/30 transition-custom rounded-lg px-3 py-2 flex items-center space-x-2" >
+                                <i class = "fa-brands fa-apple text-lg" ></i >
+                                <div >
+                                    <div class = "text-xs" >下载</div >
+                                    <div class = "text-sm font-medium" >App Store</div >
+                                </div >
+                            </a >
+                            <a href = "#"
+                               class = "bg-white/20 hover:bg-white/30 transition-custom rounded-lg px-3 py-2 flex items-center space-x-2" >
+                                <i class = "fa-brands fa-android text-lg" ></i >
+                                <div >
+                                    <div class = "text-xs" >下载</div >
+                                    <div class = "text-sm font-medium" >Google Play</div >
+                                </div >
+                            </a >
+                        </div >
+                    </div >
+                </div >
+            </div >
+        </div >
+    </main >
 
     <!-- 页脚 -->
     <!-- <footer class="bg-white border-t border-neutral-200 py-8">    
@@ -1026,7 +1047,7 @@
         </div>
     </footer> -->
 
-    <script>
+    <script >
 
         // 轮播
         document.addEventListener('DOMContentLoaded', function () {
@@ -1135,7 +1156,7 @@
             window.scrollTo(0, 0);
         };
 
-    </script>
-</body>
+    </script >
+</body >
 
-</html>
+</html >

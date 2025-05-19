@@ -3,11 +3,12 @@ from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from asgiref.sync import sync_to_async  # 仅在需要异步时保留
-from django.contrib.auth.models import User  # 假设使用默认用户模型，如需自定义请替换
+from asgiref.sync import sync_to_async
+from django.contrib.auth.models import User
 from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
+from asgiref.sync import sync_to_async
+from django.db import IntegrityError
+from django.shortcuts import render, redirect
 
 
 # 首页
@@ -15,76 +16,93 @@ def user_index(request):
     return render(request, 'index.html')
 
 
-# 登录（异步视图）
-async def user_login(request):
-    # 若用户已登录，直接跳转到 community 页面
+# 登录
+def user_login(request, backend='django.contrib.auth.backends.ModelBackend', remember=True):
     if request.user.is_authenticated:
-        return redirect('community')
+        return redirect('community')  # 已登录用户直接跳转
 
     if request.method == 'POST':
-        # 获取表单数据
-        username = request.POST.get('username')  # 对应表单中 input 的 name 属性
-        password = request.POST.get('password')
+        username = request.POST.get('username').strip()
+        password = request.POST.get('password').strip()
 
-        # 验证用户
+        # 使用Django内置认证系统验证用户
         user = authenticate(request, username=username, password=password)
-
         if user is not None:
-            # 验证成功，创建 session 并登录用户
             login(request, user)
 
-            # 设置 session 有效期（可选）
-            # request.session.set_expiry(3600)  # 1小时后过期
-
-            # 获取重定向参数（如果有），否则默认跳转到 community
-            next_url = request.POST.get('next') or request.GET.get('next')
-            if next_url:
-                return redirect(next_url)
+            # 可选：根据是否勾选“记住我”设置不同有效期
+            if request.POST.get('remember-me'):
+                # 设置会话有效期为 7 天（单位：秒）
+                request.session.set_expiry(7 * 24 * 3600)
             else:
-                return redirect('community')  # 跳转到 community 页面
-        else:
-            # 验证失败，返回错误信息
-            messages.error(request, '用户名或密码错误')
+                # 关闭浏览器后会话过期（等价于 SESSION_EXPIRE_AT_BROWSER_CLOSE = True）
+                request.session.set_expiry(0)
 
-    # GET 请求或验证失败时，渲染登录页面
+            # 跳转至目标页面或默认社区页面
+            next_url = request.POST.get('next') or request.GET.get('next')
+            return redirect(next_url or 'community')
+        else:
+            messages.error(request, '用户名或密码错误，请重新输入')
+            return redirect('login')  # 验证失败返回登录页
+
+        # 处理GET请求，渲染登录页面
     return render(request, 'login.html', {
-        'next': request.GET.get('next')  # 传递 next 参数到模板
+        'next': request.GET.get('next')
     })
 
 
-# 退出登录（同步视图）
+# 退出登录
 @login_required
 def user_logout(request):
-    logout(request)  # 自动清除 Session
-    messages.success(request, '您已成功登出')
-    return redirect('login')  # 重定向到登录页面
+    # 清除会话数据
+    request.session.flush()
+
+    # 设置会话立即过期
+    request.session.set_expiry(0)
+
+    # 删除客户端 Cookie
+    response = redirect('login')
+    if 'sessionid' in request.COOKIES:
+        response.delete_cookie('sessionid')
+
+    return response
 
 
+# 注册
 async def user_register(request):
-    if request.method == "GET":
-        return render(request, 'register.html')
-    elif request.method == "POST":
-        uname = request.POST.get('uname')
-        passwd = request.POST.get('passwd')
+    if request.method == "POST":
+        uname = request.POST.get('username')
+        passwd = request.POST.get('password')
+        phone = request.POST.get('phone')
+        email = request.POST.get('email')
+        avatar = request.POST.get('userAvatar')  # 如果有上传头像
 
-        # 检查用户名是否存在（异步包装）
-        user_exists = await sync_to_async(User.objects.filter)(username=uname).exists()
+        # 检查用户名是否存在
+        user_exists = await sync_to_async(User.objects.filter(username=uname).exists)()
         if user_exists:
-            return render(request, 'register.html', {'error': '该用户名已被注册'})
+            return render(request, 'register.html', {'messages': '用户名已存在'})
 
-        # 创建用户（异步包装）
         try:
-            user = await sync_to_async(User.objects.create_user)(
+            # 创建用户（使用管理器方法）
+            create_user = sync_to_async(User.objects.create_user)
+            user = await create_user(
                 username=uname,
                 password=passwd,
+                phone=phone,
+                email=email,
+                userAvatar=avatar
             )
-            return redirect('login')
+
+            return redirect('community', user.id)
+
         except IntegrityError:
-            return render(request, 'register.html', {'error': '注册失败，请重试'})
+            return render(request, 'register.html', {'messages': '注册失败，请重试'})
+    else:
+        return render(request, 'register.html')
 
 
 # 社区（需登录，同步视图）
-@login_required
+
 def community(request):
     if request.method == 'GET':
         user = request.user
@@ -93,39 +111,38 @@ def community(request):
             'username': user.username,
             # 不返回密码！密码属于敏感信息，禁止暴露
         }
-        return JsonResponse({
-            'status': 'success',
-            'data': user_data,
-            'message': '用户信息获取成功'
+
+        return render(request, 'community.html', {
+            'user': user_data
         })
     return JsonResponse({'status': 'error', 'message': '仅支持 GET 请求'}, status=405)
 
 
 # 消息
 async def message(request):
-    return redirect(request, 'message.html')
+    return render(request, 'message.html')
 
 
 # 收藏
 async def favorites(request):
-    return redirect(request, 'favorites.html')
+    return render(request, 'favorites.html')
 
 
 # 相册
 async def Photo_album(request):
-    return redirect(request, 'Photo_album.html')
+    return render(request, 'Photo_album.html')
 
 
 # 动态
 async def moments(request):
-    return redirect(request, 'moments.html')
+    return render(request, 'moments.html')
 
 
 # 主页
 async def Personal_Center(request):
-    return redirect(request, 'Personal_Center.html')
+    return render(request, 'Personal_Center.html')
 
 
 # 设置
 async def settings(request):
-    return redirect(request, 'settings.html')
+    return render(request, 'settings.html')
