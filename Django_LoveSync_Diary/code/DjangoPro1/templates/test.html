@@ -1,254 +1,892 @@
-<div class="bg-white rounded-2xl shadow-lg p-6 hover-scale">
-    <h3 class="text-xl font-semibold mb-6">情感词云分析</h3>
-    <div class="h-[300px] relative">
-        <canvas id="emotionWordCloud" class="w-full h-full"></canvas>
-        <div id="wordCloudTooltip" class="hidden absolute bg-white shadow-lg rounded-lg p-3 z-10 text-sm">
-            <div class="font-medium" id="tooltipWord"></div>
-            <div class="text-sm text-neutral-500" id="tooltipFrequency"></div>
-            <div class="text-xs text-primary" id="tooltipEmotion"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 情感词云数据
-    const wordCloudData = [
-        { word: '爱', size: 45, emotion: '积极' },
-        { word: '幸福', size: 40, emotion: '积极' },
-        { word: '快乐', size: 38, emotion: '积极' },
-        { word: '美好', size: 35, emotion: '积极' },
-        { word: '温暖', size: 32, emotion: '积极' },
-        { word: '浪漫', size: 30, emotion: '积极' },
-        { word: '理解', size: 28, emotion: '积极' },
-        { word: '支持', size: 27, emotion: '积极' },
-        { word: '陪伴', size: 26, emotion: '积极' },
-        { word: '耐心', size: 25, emotion: '积极' },
-        { word: '争吵', size: 22, emotion: '消极' },
-        { word: '难过', size: 20, emotion: '消极' },
-        { word: '误会', size: 18, emotion: '消极' },
-        { word: '压力', size: 17, emotion: '消极' },
-        { word: '忙碌', size: 15, emotion: '中性' },
-        { word: '工作', size: 14, emotion: '中性' },
-        { word: '生活', size: 16, emotion: '中性' },
-        { word: '旅行', size: 21, emotion: '积极' },
-        { word: '美食', size: 19, emotion: '积极' },
-        { word: '电影', size: 17, emotion: '积极' }
-    ];
-
-    // 获取Canvas元素
-    const canvas = document.getElementById('emotionWordCloud');
-    const ctx = canvas.getContext('2d');
-    const tooltip = document.getElementById('wordCloudTooltip');
-    const tooltipWord = document.getElementById('tooltipWord');
-    const tooltipFrequency = document.getElementById('tooltipFrequency');
-    const tooltipEmotion = document.getElementById('tooltipEmotion');
-
-    // 设置Canvas尺寸
-    function resizeCanvas() {
-        const container = canvas.parentElement;
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        drawWordCloud();
-    }
-
-    // 监听窗口大小变化，调整Canvas尺寸
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // 情感颜色映射
-    const emotionColors = {
-        '积极': '#FF6B8B',  // 使用主色调
-        '消极': '#722ED1',  // 使用辅助色
-        '中性': '#9E9E9E'   // 使用中性色
-    };
-
-    // 存储单词位置和尺寸
-    const words = [];
-
-    // 绘制词云
-    function drawWordCloud() {
-        // 清空画布
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        words.length = 0;
-
-        // 计算单词位置
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const maxRadius = Math.min(canvas.width, canvas.height) * 0.4;
-        const angleStep = Math.PI / 30;
-        let angle = 0;
-        let radius = 0;
-        let attempts = 0;
-        const maxAttempts = 100;
-
-        wordCloudData.forEach(item => {
-            const word = item.word;
-            const size = item.size;
-            const emotion = item.emotion;
-            const color = emotionColors[emotion] || '#000';
-
-            ctx.font = `${size}px Inter, sans-serif`;
-            const textWidth = ctx.measureText(word).width;
-            const textHeight = size;
-
-            let x, y;
-            let placed = false;
-
-            // 尝试放置单词，避免重叠
-            while (!placed && attempts < maxAttempts) {
-                radius += 5;
-                angle += angleStep;
-
-                x = centerX + radius * Math.cos(angle);
-                y = centerY + radius * Math.sin(angle);
-
-                // 检查是否超出边界
-                if (x - textWidth/2 < 0 || x + textWidth/2 > canvas.width ||
-                    y - textHeight/2 < 0 || y + textHeight/2 > canvas.height) {
-                    attempts++;
-                    continue;
-                }
-
-                // 检查是否与其他单词重叠
-                let overlapping = false;
-                for (let i = 0; i < words.length; i++) {
-                    const other = words[i];
-                    const dx = x - other.x;
-                    const dy = y - other.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    // 简单的重叠检测
-                    if (distance < (textWidth + other.width + textHeight + other.height) / 4) {
-                        overlapping = true;
-                        break;
+<!DOCTYPE html>
+<html lang = "zh-CN" >
+<head >
+    <meta charset = "UTF-8" >
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
+    <title >注册 - LoveSync 情侣日记本</title >
+    <script src = "https://cdn.tailwindcss.com" ></script >
+    <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
+    <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel = "stylesheet" >
+    <script >
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B8B', // 爱情粉色作为主色调
+                        secondary: '#722ED1', // 紫色作为辅助色
+                        neutral: {
+                            100: '#F9F9F9',
+                            200: '#F0F0F0',
+                            300: '#E0E0E0',
+                            400: '#BDBDBD',
+                            500: '#9E9E9E',
+                            600: '#757575',
+                            700: '#616161',
+                            800: '#424242',
+                            900: '#212121',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'custom': '0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04)',
+                        'custom-hover': '0 20px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04)',
                     }
-                }
-
-                if (!overlapping) {
-                    placed = true;
-                    words.push({
-                        word,
-                        x,
-                        y,
-                        width: textWidth,
-                        height: textHeight,
-                        size,
-                        color,
-                        emotion,
-                        alpha: 0  // 用于动画
-                    });
-                }
-
-                attempts++;
-            }
-        });
-
-        // 绘制单词并添加动画效果
-        animateWords();
-    }
-
-    // 单词出现动画
-    let animationFrame;
-    let animationStartTime = null;
-    const animationDuration = 1500; // 动画持续时间（毫秒）
-
-    function animateWords(timestamp) {
-        if (!animationStartTime) animationStartTime = timestamp;
-        const progress = Math.min((timestamp - animationStartTime) / animationDuration, 1);
-
-        // 清空画布
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // 绘制所有单词
-        words.forEach(word => {
-            const easeProgress = easeInOutCubic(progress);
-            word.alpha = easeProgress;
-
-            ctx.save();
-            ctx.font = `${word.size}px Inter, sans-serif`;
-            ctx.fillStyle = word.color;
-            ctx.globalAlpha = word.alpha;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(word.word, word.x, word.y);
-            ctx.restore();
-        });
-
-        if (progress < 1) {
-            animationFrame = requestAnimationFrame(animateWords);
-        }
-    }
-
-    // 缓动函数
-    function easeInOutCubic(t) {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    }
-
-    // 鼠标悬停交互
-    canvas.addEventListener('mousemove', function(e) {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        let hoveredWord = null;
-
-        // 检查鼠标是否在某个单词上
-        for (let i = 0; i < words.length; i++) {
-            const word = words[i];
-            if (mouseX >= word.x - word.width/2 &&
-                mouseX <= word.x + word.width/2 &&
-                mouseY >= word.y - word.height/2 &&
-                mouseY <= word.y + word.height/2) {
-                hoveredWord = word;
-                break;
+                },
             }
         }
+    </script >
+    <style type = "text/tailwindcss" >
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
 
-        if (hoveredWord) {
-            // 显示提示框
-            tooltipWord.textContent = hoveredWord.word;
-            tooltipFrequency.textContent = `频率: ${hoveredWord.size}%`;
-            tooltipEmotion.textContent = `情感: ${hoveredWord.emotion}`;
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
 
-            // 设置提示框位置
-            tooltip.style.left = `${e.clientX + 10}px`;
-            tooltip.style.top = `${e.clientY + 10}px`;
-            tooltip.classList.remove('hidden');
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
 
-            // 高亮当前单词
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            words.forEach(word => {
-                ctx.save();
-                ctx.font = `${word.size}px Inter, sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+            .bg-gradient-love {
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            }
 
-                if (word === hoveredWord) {
-                    // 高亮效果
-                    ctx.fillStyle = 'rgba(255, 107, 139, 0.2)';
-                    ctx.fillRect(word.x - word.width/2 - 5, word.y - word.height/2 - 5,
-                                word.width + 10, word.height + 10);
-                    ctx.fillStyle = word.color;
-                    ctx.font = `${word.size + 2}px Inter, sans-serif`;
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+
+            .hover-scale:hover {
+                transform: translateY(-2px);
+            }
+
+            .form-input-focus {
+                transition: all 0.3s ease;
+            }
+
+            .error-message {
+                color: #FF4D4F;
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+                display: none;
+            }
+
+            .form-input-focus:focus {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+            }
+
+            .btn-pulse {
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+                }
+            }
+
+            .float-animation {
+                animation: float 6s ease-in-out infinite;
+            }
+
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-20px);
+                }
+                100% {
+                    transform: translateY(0px);
+                }
+            }
+
+            .password-strength-bar {
+                height: 4px;
+                transition: width 0.3s ease;
+            }
+
+            .checkbox-custom {
+                transition: all 0.2s ease;
+            }
+
+            .checkbox-custom:checked {
+                background-color: theme('colors.primary');
+                border-color: theme('colors.primary');
+            }
+
+            .terms-label {
+                transition: all 0.2s ease;
+            }
+
+            .terms-error .terms-label {
+                color: theme('colors.red.500');
+            }
+
+            .terms-error .checkbox-custom {
+                border-color: theme('colors.red.500');
+            }
+
+            .password-toggle {
+                position: absolute;
+                right: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+                transition: all 0.2s ease;
+                color: theme('colors.neutral-400');
+                z-index: 10;
+            }
+
+            .password-toggle:hover {
+                color: theme('colors.primary');
+                transform: translateY(-50%) scale(1.1);
+            }
+
+            .page-transition {
+                opacity: 0;
+                transform: translateY(20px);
+                transition: opacity 0.5s ease, transform 0.5s ease;
+            }
+
+            .page-loaded {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .link-underline {
+                position: relative;
+            }
+
+            .link-underline::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: -2px;
+                left: 0;
+                background-color: theme('colors.primary');
+                transition: width 0.3s ease;
+            }
+
+            .link-underline:hover::after {
+                width: 100%;
+            }
+
+            .btn-slide {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .btn-slide::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.6s ease;
+            }
+
+            .btn-slide:hover::before {
+                left: 100%;
+            }
+
+            .card-float {
+                transition: transform 0.5s ease, box-shadow 0.5s ease;
+            }
+
+            .card-float:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+            }
+        }
+    </style >
+</head >
+<body class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative page-transition" >
+    <!-- 背景装饰元素 -->
+    <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
+        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" ></div >
+        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+             style = "animation-delay: -2s;" ></div >
+        <div class = "absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+             style = "animation-delay: -4s;" ></div >
+    </div >
+
+    <!-- 导航栏 -->
+    <header class = "fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm" >
+        <div class = "container mx-auto px-4 py-3 flex items-center justify-between" >
+            <a href = "#" class = "flex items-center space-x-2" >
+                <div class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white" >
+                    <i class = "fa-solid fa-heart text-xl" ></i >
+                </div >
+                <span class = "text-xl font-bold text-neutral-800" >LoveSync</span >
+            </a >
+
+            <nav class = "hidden md:flex items-center space-x-8" >
+                <a class = "text-neutral-600 hover:text-primary transition-custom font-medium link-underline" >欢迎加入 LoveSync，开启你们专属的爱情篇章！</a >
+            </nav >
+
+            <div class = "flex items-center space-x-4" >
+                <a href = "{% url 'index' %}" class = "hidden md:block" >
+                    <button id = "logoutBtn"
+                            class = "px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom link-underline" >
+                        返回首页
+                    </button >
+                </a >
+            </div >
+        </div >
+    </header >
+
+    <!-- 主内容区 -->
+    <main class = "flex-grow pt-24 pb-16 relative z-10" >
+        <div class = "container mx-auto px-4" >
+            <!-- 注册表单和功能卡片容器 -->
+            <div class = "relative max-w-7xl mx-auto" >
+                <!-- 左侧卡片 -->
+                <div class = "hidden lg:block absolute left-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6" >
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-heart text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >记录爱情瞬间</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >随时随地记录你们的美好回忆，创建专属于你们的爱情故事。</p >
+                            </div >
+                        </div >
+                    </div >
+
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-lock text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >私密安全</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >只有你们两人可以查看和编辑日记内容，保护你们的隐私。</p >
+                            </div >
+                        </div >
+                    </div >
+
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-star text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >为什么选择 LoveSync？</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >因为我们专注于为情侣打造最贴心的日记本，让你们的爱情故事更加完美。</p >
+                            </div >
+                        </div >
+                    </div >
+                </div >
+
+                <!-- 注册表单 - 居中突出 -->
+                <div class = "relative z-20 w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale transform transition-all duration-500 card-float" >
+                    <div class = "absolute top-0 left-0 w-full h-1 bg-gradient-love" ></div >
+                    <div class = "p-8" >
+                        <div class = "text-center mb-8" >
+                            <div class = "w-20 h-20 bg-gradient-love rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse" >
+                                <i class = "fa-solid fa-heart text-white text-3xl" ></i >
+                            </div >
+                            <h2 class = "text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-neutral-900 tracking-tight" >创建账号</h2 >
+                            <p class = "text-neutral-600 mt-2" >开始记录你们的爱情故事</p >
+                        </div >
+
+                        <form id = "registerForm" class = "space-y-6" method = "POST" action = "{% url 'register' %}" >
+                            {% csrf_token %}
+                            {% if messages %}
+                                <div class = "alert alert-danger" >
+                                    {% for message in messages %}
+                                        {{ message }}
+                                    {% endfor %}
+                                </div >
+                            {% endif %}
+
+                            <!-- 用户名输入框 -->
+                            <div >
+                                <label for = "username"
+                                       class = "block text-sm font-medium text-neutral-700 mb-1" >用户名</label >
+                                <div class = "relative" >
+                                    <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                        <i class = "fa-solid fa-user text-neutral-400" ></i >
+                                    </div >
+                                    <input type = "text" id = "username" name = "username" required
+                                           class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                           placeholder = "请输入用户名" >
+                                </div >
+                                <p id = "usernameError" class = "error-message" ><i
+                                        class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的手机号</p >
+                            </div >
+
+                            <!-- 邮箱输入框 -->
+                            <div >
+                                <label for = "email"
+                                       class = "block text-sm font-medium text-neutral-700 mb-1" >邮箱</label >
+                                <div class = "relative" >
+                                    <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                        <i class = "fa-solid fa-envelope text-neutral-400" ></i >
+                                    </div >
+                                    <input type = "email" id = "email" name = "email" required
+                                           class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                           placeholder = "请输入邮箱" >
+                                </div >
+                                <p id = "emailError" class = "error-message" ><i
+                                        class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的手机号</p >
+                            </div >
+
+                            <!-- 手机号输入框 -->
+                            <div >
+                                <label for = "phone"
+                                       class = "block text-sm font-medium text-neutral-700 mb-1" >手机号</label >
+                                <div class = "relative" >
+                                    <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                        <i class = "fa-solid fa-phone text-neutral-400" ></i >
+                                    </div >
+                                    <input type = "tel" id = "phone" name = "phone" required
+                                           class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                           placeholder = "手机号将作为你登录账号" >
+                                </div >
+                                <p id = "phoneError" class = "error-message" ><i
+                                        class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的手机号</p >
+                            </div >
+
+                            <!-- 密码输入框 -->
+                            <div >
+                                <label for = "password"
+                                       class = "block text-sm font-medium text-neutral-700 mb-1" >密码</label >
+                                <div class = "relative" >
+                                    <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                        <i class = "fa-solid fa-lock text-neutral-400" ></i >
+                                    </div >
+                                    <input type = "password" id = "password" name = "password" required
+                                           class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                           placeholder = "请输入密码" >
+                                </div >
+                                <p id = "passwordError" class = "error-message" ><i
+                                        class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的手机号</p >
+
+                                <!-- 密码强度指示器 -->
+                                <div id = "passwordStrength" class = "mt-2" >
+                                    <div class = "flex justify-between text-xs text-neutral-500 mb-1" >
+                                        <span >密码强度</span >
+                                        <span id = "strengthText" ></span >
+                                    </div >
+                                    <div class = "w-full bg-neutral-200 rounded-full h-1.5" >
+                                        <div id = "strengthBar"
+                                             class = "password-strength-bar bg-neutral-300 rounded-full h-1.5"
+                                             style = "width: 0" ></div >
+                                    </div >
+                                </div >
+                            </div >
+
+                            <!-- 确认密码输入框 -->
+                            <div >
+                                <label for = "confirm-password"
+                                       class = "block text-sm font-medium text-neutral-700 mb-1" >确认密码</label >
+                                <div class = "relative" >
+                                    <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                        <i class = "fa-solid fa-lock text-neutral-400" ></i >
+                                    </div >
+                                    <input type = "password" id = "confirm-password" name = "confirm-password" required
+                                           class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                           placeholder = "请再次输入密码" >
+                                </div >
+                                <p id = "confirmPasswordError" class = "error-message" ><i
+                                        class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的手机号</p >
+                            </div >
+
+                            <!-- 同意条款 -->
+                            <div id = "termsContainer" class = "flex items-start" >
+                                <input id = "terms" name = "terms" type = "checkbox" required
+                                       class = "h-5 w-5 mt-1 text-primary focus:ring-primary/50 border-neutral-300 rounded checkbox-custom" >
+                                <label for = "terms" class = "ml-2 block text-sm text-neutral-600 terms-label " >
+                                    我已阅读并同意 <a href = "#" class = "text-primary hover:underline" >服务条款</a > 和 <a
+                                        href = "#" class = "text-primary hover:underline" >隐私政策</a >
+                                </label >
+                            </div >
+
+                            <!-- 错误提示 -->
+                            <div id = "termsError" class = "text-red-500 text-xs hidden" >
+                                <i class = "fa-solid fa-exclamation-circle mr-1" ></i > 请同意服务条款和隐私政策
+                            </div >
+
+                            <!-- 注册按钮 -->
+                            <button type = "submit"
+                                    class = "w-full bg-gradient-love text-white py-4 px-4 rounded-lg font-medium hover:opacity-90 shadow-xl hover:shadow-primary/20 transition-custom flex items-center justify-center btn-pulse btn-slide" >
+                                <i class = "fa-solid fa-user-plus mr-2" ></i > 注册账号
+                            </button >
+                        </form >
+
+                        <div class = "mt-8 text-center" >
+                            <p class = "text-neutral-600" >
+                                已有账号？ <a href = "{% url 'login' %}" id = "loginLink"
+                                             class = "font-medium text-primary hover:text-primary/80 transition-custom link-underline" >立即登录</a >
+                            </p >
+                        </div >
+                    </div >
+                </div >
+
+                <!-- 右侧卡片 -->
+                <div class = "hidden lg:block absolute right-0 top-1/2 transform -translate-y-1/2 w-64 space-y-6" >
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-calendar-alt text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >爱情纪念日</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >设置重要的纪念日提醒，永远不会忘记你们的特殊日子。</p >
+                            </div >
+                        </div >
+                    </div >
+
+                    <div class = "bg-white rounded-xl p-5 shadow-lg hover-scale" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-chart-line text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >互动统计</h4 >
+                                <p class = "text-neutral-600 mt-1 text-sm" >查看你们的互动数据，了解彼此的习惯和喜好。</p >
+                            </div >
+                        </div >
+                    </div >
+                </div >
+
+                <!-- 移动端功能卡片 - 垂直排列 -->
+                <div class = "md:hidden mt-8 space-y-4" >
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-heart text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >记录爱情瞬间</h4 >
+                                <p class = "text-neutral-600 mt-1" >随时随地记录你们的美好回忆，创建专属于你们的爱情故事。</p >
+                            </div >
+                        </div >
+                    </div >
+
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-lock text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >私密安全</h4 >
+                                <p class = "text-neutral-600 mt-1" >只有你们两人可以查看和编辑日记内容，保护你们的隐私。</p >
+                            </div >
+                        </div >
+                    </div >
+
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-calendar-alt text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >爱情纪念日</h4 >
+                                <p class = "text-neutral-600 mt-1" >设置重要的纪念日提醒，永远不会忘记你们的特殊日子。</p >
+                            </div >
+                        </div >
+                    </div >
+
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-chart-line text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >互动统计</h4 >
+                                <p class = "text-neutral-600 mt-1" >查看你们的互动数据，了解彼此的习惯和喜好。</p >
+                            </div >
+                        </div >
+                    </div >
+
+                    <div class = "bg-white rounded-xl p-5 shadow-lg" >
+                        <div class = "flex items-start" >
+                            <div class = "flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary" >
+                                <i class = "fa-solid fa-star text-lg" ></i >
+                            </div >
+                            <div class = "ml-4" >
+                                <h4 class = "text-lg font-semibold text-neutral-800" >为什么选择 LoveSync？</h4 >
+                                <p class = "text-neutral-600 mt-1" >因为我们专注于为情侣打造最贴心的日记本，让你们的爱情故事更加完美。</p >
+                            </div >
+                        </div >
+                    </div >
+                </div >
+            </div >
+        </div >
+    </main >
+
+    <!-- 页脚 -->
+    <footer class = "bg-neutral-800 text-white py-12 relative z-10" >
+        <div class = "container mx-auto px-4" >
+            <div class = "grid grid-cols-1 md:grid-cols-4 gap-8" >
+                <div >
+                    <div class = "flex items-center space-x-2 mb-6" >
+                        <div class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white" >
+                            <i class = "fa-solid fa-heart text-xl" ></i >
+                        </div >
+                        <span class = "text-xl font-bold" >LoveSync</span >
+                    </div >
+                    <p class = "text-neutral-400 mb-6" >
+                        记录属于你们的爱情故事，创造永恒的回忆。
+                    </p >
+                    <div class = "flex space-x-4" >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-facebook" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-twitter" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-tiktok" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-weibo" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-youtube" ></i >
+                        </a >
+                        <a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >
+                            <i class = "fa-brands fa-bilibili" ></i >
+                        </a >
+                    </div >
+                </div >
+
+                <div >
+                    <h4 class = "text-lg font-semibold mb-6" >快速链接</h4 >
+                    <ul class = "space-y-3" >
+                        <li ><a href = "#home" class = "text-neutral-400 hover:text-white transition-custom" >首页</a ></li >
+                        <li ><a href = "#features"
+                                class = "text-neutral-400 hover:text-white transition-custom" >功能</a ></li >
+                        <li ><a href = "#gallery"
+                                class = "text-neutral-400 hover:text-white transition-custom" >日记展示</a ></li >
+                        <li ><a href = "#download"
+                                class = "text-neutral-400 hover:text-white transition-custom" >下载</a ></li >
+                    </ul >
+                </div >
+
+                <div >
+                    <h4 class = "text-lg font-semibold mb-6" >支持</h4 >
+                    <ul class = "space-y-3" >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >帮助中心</a ></li >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >常见问题</a ></li >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >联系我们</a ></li >
+                        <li ><a href = "#" class = "text-neutral-400 hover:text-white transition-custom" >隐私政策</a ></li >
+                    </ul >
+                </div >
+
+                <div >
+                    <h4 class = "text-lg font-semibold mb-6" >联系我们</h4 >
+                    <ul class = "space-y-3" >
+                        <li class = "flex items-start" >
+                            <i class = "fa-solid fa-envelope text-primary mt-1 mr-3" ></i >
+                            <span class = "text-neutral-400" >18700222185@163.com</span >
+                        </li >
+                        <li class = "flex items-start" >
+                            <i class = "fa-solid fa-phone text-primary mt-1 mr-3" ></i >
+                            <span class = "text-neutral-400" >187-0022-2185</span >
+                        </li >
+                        <li class = "flex items-start" >
+                            <i class = "fa-solid fa-map-marker-alt text-primary mt-1 mr-3" ></i >
+                            <span class = "text-neutral-400" >陕西理工大学#13B-324</span >
+                        </li >
+                    </ul >
+                </div >
+            </div >
+
+            <div class = "border-t border-neutral-700 mt-12 pt-8 text-center text-neutral-400" >
+                <p >&copy; 2025 LoveSync. 保留所有权利。</p >
+            </div >
+        </div >
+    </footer >
+
+    <script >
+        document.addEventListener('DOMContentLoaded', function () {
+            // 页面加载动画
+            setTimeout(() => {
+                document.body.classList.add('page-loaded');
+            }, 100);
+
+            // 导航栏滚动效果
+            const navbar = document.querySelector('header');
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('py-2', 'shadow-md');
+                    navbar.classList.remove('py-3', 'shadow-sm');
                 } else {
-                    ctx.fillStyle = word.color;
+                    navbar.classList.add('py-3', 'shadow-sm');
+                    navbar.classList.remove('py-2', 'shadow-md');
+                }
+            });
+
+            // 表单元素动画效果
+            const formInputs = document.querySelectorAll('input');
+            formInputs.forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.parentElement.classList.add('scale-105');
+                });
+                input.addEventListener('blur', function () {
+                    this.parentElement.classList.remove('scale-105');
+                });
+            });
+
+            // 正则表达式集合
+            const regex = {
+                email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                phone: /^1[3-9]\d{9}$/,
+                username: /^[a-zA-Z0-9_\u4e00-\u9fa5]{3,20}$/, // 用户名允许中文、字母、数字和下划线，长度3-20
+                password: /^(?=.*\d)(?=.*[^\w\s:])(\S){6,20}$/ // 密码包含大写字母、数字、特殊字符，长度6-20
+            };
+
+            // 表单验证模块
+            const formValidator = {
+                // 显示错误信息
+                showError(input, errorElement, message) {
+                    input.classList.add('input-error');
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                    input.classList.add('border-red-500');
+                    input.classList.remove('border-green-500');
+                },
+
+                // 隐藏错误信息
+                hideError(input, errorElement) {
+                    input.classList.remove('input-error');
+                    errorElement.style.display = 'none';
+                    input.classList.remove('border-red-500');
+                },
+
+                // 验证用户名
+                validateUsername() {
+                    const usernameInput = document.getElementById('username');
+                    const usernameError = document.getElementById('usernameError');
+                    const value = usernameInput.value.trim();
+
+                    if (value === '') {
+                        this.showError(usernameInput, usernameError, '请输入用户名');
+                        return false;
+                    } else if (!regex.username.test(value)) {
+                        this.showError(usernameInput, usernameError, '用户名格式不正确（3-20位，可包含中文、字母、数字和下划线）');
+                        return false;
+                    } else {
+                        this.hideError(usernameInput, usernameError);
+                        usernameInput.classList.add('border-green-500');
+                        return true;
+                    }
+                },
+
+                // 验证邮箱
+                validateEmail() {
+                    const emailInput = document.getElementById('email');
+                    const emailError = document.getElementById('emailError');
+                    const value = emailInput.value.trim();
+
+                    if (value === '') {
+                        this.showError(emailInput, emailError, '请输入邮箱');
+                        return false;
+                    } else if (!regex.email.test(value)) {
+                        this.showError(emailInput, emailError, '请输入有效的邮箱地址');
+                        return false;
+                    } else {
+                        this.hideError(emailInput, emailError);
+                        emailInput.classList.add('border-green-500');
+                        return true;
+                    }
+                },
+
+                // 验证手机号
+                validatePhone() {
+                    const phoneInput = document.getElementById('phone');
+                    const phoneError = document.getElementById('phoneError');
+                    const value = phoneInput.value.trim();
+
+                    if (value === '') {
+                        this.showError(phoneInput, phoneError, '请输入手机号');
+                        return false;
+                    } else if (!regex.phone.test(value)) {
+                        this.showError(phoneInput, phoneError, '请输入有效的手机号');
+                        return false;
+                    } else {
+                        this.hideError(phoneInput, phoneError);
+                        phoneInput.classList.add('border-green-500');
+                        return true;
+                    }
+                },
+
+                // 验证密码
+                validatePassword() {
+                    const passwordInput = document.getElementById('password');
+                    const passwordError = document.getElementById('passwordError');
+                    const value = passwordInput.value;
+
+                    if (value === '') {
+                        this.showError(passwordInput, passwordError, '请输入密码');
+                        return false;
+                    } else if (!regex.password.test(value)) {
+                        this.showError(passwordInput, passwordError, '密码强度不足（需包数字和特殊字符，长度6-20位）');
+                        return false;
+                    } else {
+                        this.hideError(passwordInput, passwordError);
+                        passwordInput.classList.add('border-green-500');
+                        this.validateConfirmPassword(); // 当密码有效时，重新验证确认密码
+                        return true;
+                    }
+                },
+
+                // 验证确认密码
+                validateConfirmPassword() {
+                    const passwordInput = document.getElementById('password');
+                    const confirmPasswordInput = document.getElementById('confirm-password');
+                    const confirmPasswordError = document.getElementById('confirmPasswordError');
+                    const value = confirmPasswordInput.value;
+
+                    if (value === '') {
+                        this.showError(confirmPasswordInput, confirmPasswordError, '请确认密码');
+                        return false;
+                    } else if (value !== passwordInput.value) {
+                        this.showError(confirmPasswordInput, confirmPasswordError, '两次输入的密码不一致');
+                        return false;
+                    } else {
+                        this.hideError(confirmPasswordInput, confirmPasswordError);
+                        confirmPasswordInput.classList.add('border-green-500');
+                        return true;
+                    }
+                },
+
+                // 验证条款同意
+                validateTerms() {
+                    const termsCheckbox = document.getElementById('terms');
+                    const termsError = document.getElementById('termsError');
+                    const termsContainer = document.getElementById('termsContainer');
+
+                    if (!termsCheckbox.checked) {
+                        termsError.style.display = 'block';
+                        termsContainer.classList.add('terms-error');
+                        return false;
+                    } else {
+                        termsError.style.display = 'none';
+                        termsContainer.classList.remove('terms-error');
+                        return true;
+                    }
+                },
+
+                // 验证所有字段
+                validateAll() {
+                    const isUsernameValid = this.validateUsername();
+                    const isEmailValid = this.validateEmail();
+                    const isPasswordValid = this.validatePassword();
+                    const isConfirmPasswordValid = this.validateConfirmPassword();
+                    const isTermsValid = this.validateTerms();
+
+                    return isUsernameValid && isEmailValid &&
+                        isPasswordValid && isConfirmPasswordValid && isTermsValid;
+                }
+            };
+
+            // 注册表单处理
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                // 添加输入事件监听
+                document.getElementById('username').addEventListener('input', () => formValidator.validateUsername());
+                document.getElementById('email').addEventListener('input', () => formValidator.validateEmail());
+                document.getElementById('phone').addEventListener('input', () => formValidator.validatePhone());
+                document.getElementById('password').addEventListener('input', () => {
+                    formValidator.validatePassword();
+                    updatePasswordStrength(document.getElementById('password').value);
+                });
+                document.getElementById('confirm-password').addEventListener('input', () => formValidator.validateConfirmPassword());
+                document.getElementById('terms').addEventListener('change', () => formValidator.validateTerms());
+
+                // 表单提交验证
+                registerForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    if (formValidator.validateAll()) {
+                        // 所有验证通过，提交表单
+                        this.submit();
+                    } else {
+                        // 验证失败，聚焦第一个错误字段
+                        const firstInvalidField = document.querySelector('.input-error');
+                        if (firstInvalidField) {
+                            firstInvalidField.focus();
+                        }
+                    }
+                });
+            }
+
+            // 密码强度检测
+            function updatePasswordStrength(password) {
+                const strengthBar = document.getElementById('strengthBar');
+                const strengthText = document.getElementById('strengthText');
+
+                if (password.length === 0) {
+                    // 没有输入时重置为初始状态
+                    strengthBar.className = 'password-strength-bar bg-neutral-300 rounded-full h-1.5';
+                    strengthBar.style.width = '0%';
+                    strengthText.textContent = '未输入';
+                    strengthText.className = 'text-xs font-medium text-neutral-500';
+                    return;
                 }
 
-                ctx.fillText(word.word, word.x, word.y);
-                ctx.restore();
-            });
-        } else {
-            // 隐藏提示框并恢复正常显示
-            tooltip.classList.add('hidden');
-            drawWordCloud();
-        }
-    });
+                // 计算密码强度得分
+                let score = 0;
+                if (password.length >= 8) score += 1;
+                if (/[A-Z]/.test(password)) score += 1;
+                if (/[0-9]/.test(password)) score += 1;
+                if (/[^A-Za-z0-9]/.test(password)) score += 1;
 
-    // 鼠标离开画布
-    canvas.addEventListener('mouseout', function() {
-        tooltip.classList.add('hidden');
-        drawWordCloud();
-    });
-});
-</script>
+                // 显示密码强度
+                let strengthClass, strengthLabel, width;
+
+                switch (score) {
+                    case 0:
+                    case 1:
+                        strengthClass = 'bg-red-500';
+                        strengthLabel = '弱';
+                        width = '25%';
+                        break;
+                    case 2:
+                        strengthClass = 'bg-yellow-500';
+                        strengthLabel = '中';
+                        width = '50%';
+                        break;
+                    case 3:
+                        strengthClass = 'bg-blue-500';
+                        strengthLabel = '强';
+                        width = '75%';
+                        break;
+                    case 4:
+                        strengthClass = 'bg-green-500';
+                        strengthLabel = '非常强';
+                        width = '100%';
+                        break;
+                }
+
+                strengthBar.className = `password-strength-bar rounded-full h-1.5 ${strengthClass}`;
+                strengthBar.style.width = width;
+                strengthText.textContent = strengthLabel;
+                strengthText.className = `text-xs font-medium ${strengthLabel === '弱' ? 'text-red-500' :
+                    strengthLabel === '中' ? 'text-yellow-500' :
+                        strengthLabel === '强' ? 'text-blue-500' : 'text-green-500'}`;
+            }
+        });
+    </script >
+</body >
+</html >

@@ -232,11 +232,11 @@
                         <form id = "loginForm" class = "space-y-6" method = "POST" action = "{% url 'login' %}" >
                             {% csrf_token %}
                             {% if messages %}
-                                <div class="alert alert-danger">
+                                <div class = "alert alert-danger" >
                                     {% for message in messages %}
                                         {{ message }}
                                     {% endfor %}
-                                </div>
+                                </div >
                             {% endif %}
                             <div >
                                 <label for = "email"
@@ -260,13 +260,9 @@
                                     <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
                                         <i class = "fa-solid fa-lock text-neutral-400" ></i >
                                     </div >
-                                    <input id = "password" name = "password"
+                                    <input  type="password" id = "password" name = "password"
                                            class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
                                            placeholder = "请输入密码" >
-                                    <button type = "button" id = "togglePassword"
-                                            class = "absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-custom" >
-                                        <i class = "fa-solid fa-eye-slash " ></i >
-                                    </button >
                                 </div >
                                 <p id = "passwordError" class = "error-message" ><i
                                         class = "fa-solid fa-exclamation-circle mr-1" ></i > 密码长度至少为6位</p >
@@ -515,31 +511,9 @@
             // 导航菜单切换
             const menuToggle = document.getElementById('menu-toggle');
             const mobileMenu = document.getElementById('mobile-menu');
-
+            const passwordInput = document.getElementById('password');
             menuToggle.addEventListener('click', function () {
                 mobileMenu.classList.toggle('hidden');
-            });
-
-            // 密码显示/隐藏切换
-            const togglePassword = document.getElementById('togglePassword');
-            const passwordInput = document.getElementById('password');
-
-            if (!togglePassword || !passwordInput) return;
-
-            togglePassword.addEventListener('click', function () {
-                // 切换输入框类型
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-
-                // 切换图标（明确移除旧类，添加新类）
-                const icon = this.querySelector('i');
-                if (type === 'password') {
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
             });
 
             // 导航栏滚动效果
@@ -579,10 +553,10 @@
             function validateEmail() {
                 const value = emailInput.value.trim();
                 if (value === '') {
-                    showError(emailInput, emailError, '请输入邮箱或手机号');
+                    showError(emailInput, emailError, '请输入手机号');
                     return false;
                 } else if (!emailRegex.test(value) && !phoneRegex.test(value)) {
-                    showError(emailInput, emailError, '请输入有效的邮箱或手机号');
+                    showError(emailInput, emailError, '请输入有效的手机号');
                     return false;
                 } else {
                     hideError(emailInput, emailError);

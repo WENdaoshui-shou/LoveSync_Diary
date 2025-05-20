@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
 
 
 # CustomUser：扩展了 Django 的用户模型，添加了 couple 字段用于关联情侣关系。
@@ -15,37 +15,11 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 
 # 用户
-class UserManager(BaseUserManager):
-    def create_user(self, username, password=None, phone=None, email=None, userAvatar=None):
-        if not username:
-            raise ValueError('用户必须有用户名')
-
-        user = self.model(
-            username=username,
-            phone=phone,
-            email=self.normalize_email(email),  # 规范化邮箱
-            userAvatar=userAvatar
-        )
-        user.set_password(password)  # 哈希密码
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, password, email=None):
-        user = self.create_user(
-            username=username,
-            password=password,
-            email=email
-        )
-        user.is_admin = True
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
-
-
-class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=30, unique=True)
+class User(AbstractUser):
+    username = models.CharField(max_length=11, unique=True)
     password = models.CharField(max_length=128)  # 增加长度以存储哈希密码
-    phone = models.CharField(max_length=11, null=True)
+    name = models.CharField(max_length=30, null=True)
     email = models.EmailField(max_length=30, null=True)  # 使用 EmailField 自动验证
-    userAvatar = models.CharField(max_length=128, null=True)
+    userAvatar = models.CharField(max_length=128, null=True, blank=True)
+
+    USERNAME_FIELD = 'username'

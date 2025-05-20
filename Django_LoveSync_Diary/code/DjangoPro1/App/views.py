@@ -1,15 +1,12 @@
-from django.db import IntegrityError
-from django.shortcuts import render, redirect, reverse
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from asgiref.sync import sync_to_async
-from django.contrib.auth.models import User
+from App.models import *
 from django.contrib import messages
 from asgiref.sync import sync_to_async
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect
-
+import re
 
 # 首页
 def user_index(request):
@@ -54,6 +51,7 @@ def user_login(request, backend='django.contrib.auth.backends.ModelBackend', rem
 # 退出登录
 @login_required
 def user_logout(request):
+    logout(request)  # 使用Django内置logout函数自动处理会话清除
     # 清除会话数据
     request.session.flush()
 
@@ -70,39 +68,46 @@ def user_logout(request):
 
 # 注册
 async def user_register(request):
-    if request.method == "POST":
-        uname = request.POST.get('username')
+    if request.method == "GET":
+        return render(request, 'register.html')
+    elif request.method == "POST":
+        phone = request.POST.get('username')
         passwd = request.POST.get('password')
-        phone = request.POST.get('phone')
+        name = request.POST.get('name')
         email = request.POST.get('email')
-        avatar = request.POST.get('userAvatar')  # 如果有上传头像
 
         # 检查用户名是否存在
-        user_exists = await sync_to_async(User.objects.filter(username=uname).exists)()
+        user_exists = await sync_to_async(User.objects.filter(username=phone).exists)()
         if user_exists:
-            return render(request, 'register.html', {'messages': '用户名已存在'})
+            return render(request, 'register.html', {'messages': '该用户名已被注册'})
 
         try:
-            # 创建用户（使用管理器方法）
+            # 创建用户
             create_user = sync_to_async(User.objects.create_user)
             user = await create_user(
-                username=uname,
+                username=phone,
                 password=passwd,
-                phone=phone,
+                name=name,
                 email=email,
-                userAvatar=avatar
             )
 
-            return redirect('community', user.id)
+            # 正确的异步登录处理
+            login_user = sync_to_async(login)
+            await login_user(request, user)
 
-        except IntegrityError:
+            return redirect('community')
+
+        except IntegrityError as e:
+            if 'unique constraint' in str(e).lower():
+                return render(request, 'register.html', {'messages': '手机号被注册'})
             return render(request, 'register.html', {'messages': '注册失败，请重试'})
-    else:
-        return render(request, 'register.html')
+        except Exception as e:
+            # 捕获其他异常
+            return render(request, 'register.html', {'messages': '注册过程中发生错误, 请稍后再试'})
 
 
 # 社区（需登录，同步视图）
-
+@login_required
 def community(request):
     if request.method == 'GET':
         user = request.user
@@ -119,30 +124,36 @@ def community(request):
 
 
 # 消息
+@login_required
 async def message(request):
     return render(request, 'message.html')
 
 
 # 收藏
+@login_required
 async def favorites(request):
     return render(request, 'favorites.html')
 
 
 # 相册
+@login_required
 async def Photo_album(request):
     return render(request, 'Photo_album.html')
 
 
 # 动态
+@login_required
 async def moments(request):
     return render(request, 'moments.html')
 
 
 # 主页
+@login_required
 async def Personal_Center(request):
     return render(request, 'Personal_Center.html')
 
 
 # 设置
+@login_required
 async def settings(request):
     return render(request, 'settings.html')
