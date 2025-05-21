@@ -1,222 +1,254 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang = "zh-CN" >
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>情侣社区 - 设置</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
+<head >
+  <meta charset = "UTF-8" >
+  <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
+  <title >情侣社区 - 设置</title >
+  <script src = "https://cdn.tailwindcss.com" ></script >
+  <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
+  <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel = "stylesheet" >
+  <script >
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#FF6B8B', // 爱情粉色作为主色调
-            secondary: '#722ED1', // 紫色作为辅助色
-            neutral: {
-              100: '#F9F9F9',
-              200: '#F0F0F0',
-              300: '#E0E0E0',
-              400: '#BDBDBD',
-              500: '#9E9E9E',
-              600: '#757575',
-              700: '#616161',
-              800: '#424242',
-              900: '#212121',
-            }
-          },
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-          },
-        },
-      }
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#FF6B8B', // 爱情粉色作为主色调
+                    secondary: '#722ED1', // 紫色作为辅助色
+                    neutral: {
+                        100: '#F9F9F9',
+                        200: '#F0F0F0',
+                        300: '#E0E0E0',
+                        400: '#BDBDBD',
+                        500: '#9E9E9E',
+                        600: '#757575',
+                        700: '#616161',
+                        800: '#424242',
+                        900: '#212121',
+                    }
+                },
+                fontFamily: {
+                    inter: ['Inter', 'sans-serif'],
+                },
+            },
+        }
     }
-  </script>
-  <style type="text/tailwindcss">
+  </script >
+  <style type = "text/tailwindcss" >
     @layer utilities {
-            .content-auto {
-                content-visibility: auto;
+        .content-auto {
+            content-visibility: auto;
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .transition-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bg-gradient-love {
+            background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.03);
+        }
+
+        .form-input-focus {
+            transition: all 0.3s ease;
+        }
+
+        .form-input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+        }
+
+        .btn-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
             }
-            .text-shadow {
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
             }
-            .transition-custom {
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .bg-gradient-love {
-                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
-            }
-            .hover-scale {
-                transition: transform 0.3s ease;
-            }
-            .hover-scale:hover {
-                transform: scale(1.03);
-            }
-            .form-input-focus {
-                transition: all 0.3s ease;
-            }
-            .form-input-focus:focus {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
-            }
-            .btn-pulse {
-                animation: pulse 2s infinite;
-            }
-            @keyframes pulse {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
-                }
-                70% {
-                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
-                }
-                100% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
-                }
-            }
-            .float-animation {
-                animation: float 6s ease-in-out infinite;
-            }
-            @keyframes float {
-                0% {
-                    transform: translateY(0px);
-                }
-                50% {
-                    transform: translateY(-20px);
-                }
-                100% {
-                    transform: translateY(0px);
-                }
-            }
-            .post-card {
-                transition: all 0.3s ease;
-            }
-            .post-card:hover {
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                transform: translateY(-2px);
-            }
-            .like-animation {
-                animation: like 0.5s ease;
-            }
-            @keyframes like {
-                0% {
-                    transform: scale(1);
-                }
-                50% {
-                    transform: scale(1.3);
-                }
-                100% {
-                    transform: scale(1);
-                }
-            }
-            .comment-slide {
-                animation: slideUp 0.3s ease;
-            }
-            @keyframes slideUp {
-                from {
-                    transform: translateY(20px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-            .scroll-smooth {
-                scroll-behavior: smooth;
-            }
-            .skew-x-15 {
-                transform: skewX(15deg);
-            }
-            .skew-x--15 {
-                transform: skewX(-15deg);
-            }
-            .mask-custom {
-                mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
-            }
-            .message-unread {
-                border-left: 3px solid #FF6B8B;
-            }
-            .message-read {
-                border-left: 3px solid transparent;
-            }
-            .message-hover {
-                transition: all 0.2s ease;
-            }
-            .message-hover:hover {
-                background-color: #f8f8f8;
-                transform: translateX(2px);
-            }
-            .badge-pulse {
-                animation: badge-pulse 2s infinite;
-            }
-            @keyframes badge-pulse {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
-                }
-                70% {
-                    box-shadow: 0 0 0 6px rgba(255, 107, 139, 0);
-                }
-                100% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
-                }
-            }
-            .switch {
-                position: relative;
-                display: inline-block;
-                width: 48px;
-                height: 24px;
-            }
-            .switch input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-            .slider {
-                position: absolute;
-                cursor: pointer;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: #ccc;
-                transition: .4s;
-                border-radius: 34px;
-            }
-            .slider:before {
-                position: absolute;
-                content: "";
-                height: 16px;
-                width: 16px;
-                left: 4px;
-                bottom: 4px;
-                background-color: white;
-                transition: .4s;
-                border-radius: 50%;
-            }
-            input:checked + .slider {
-                background-color: #FF6B8B;
-            }
-            input:focus + .slider {
-                box-shadow: 0 0 1px #FF6B8B;
-            }
-            input:checked + .slider:before {
-                transform: translateX(24px);
-            }
-            .gradient-text {
-    background-image: linear-gradient(to right, #ff758c, #ff7eb3);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-            .bg-glass {
-                background: rgba(255, 255, 255, 0.7);
-                backdrop-filter: blur(10px);
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
             }
         }
-    </style>
-</head>
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        .post-card {
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .like-animation {
+            animation: like 0.5s ease;
+        }
+
+        @keyframes like {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .comment-slide {
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .scroll-smooth {
+            scroll-behavior: smooth;
+        }
+
+        .skew-x-15 {
+            transform: skewX(15deg);
+        }
+
+        .skew-x--15 {
+            transform: skewX(-15deg);
+        }
+
+        .mask-custom {
+            mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
+        }
+
+        .message-unread {
+            border-left: 3px solid #FF6B8B;
+        }
+
+        .message-read {
+            border-left: 3px solid transparent;
+        }
+
+        .message-hover {
+            transition: all 0.2s ease;
+        }
+
+        .message-hover:hover {
+            background-color: #f8f8f8;
+            transform: translateX(2px);
+        }
+
+        .badge-pulse {
+            animation: badge-pulse 2s infinite;
+        }
+
+        @keyframes badge-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(255, 107, 139, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+            }
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #FF6B8B;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #FF6B8B;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .gradient-text {
+            background-image: linear-gradient(to right, #ff758c, #ff7eb3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+    }
+    </style >
+</head >
 
 <body
         class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
@@ -521,617 +553,618 @@
     </div >
 
 
-  <!-- 主内容区 -->
-  <main class="flex-grow pt-24 pb-16 relative z-10 pl-64">
-    <div class="container mx-auto px-4">
+    <!-- 主内容区 -->
+  <main class = "flex-grow pt-24 pb-16 relative z-10 pl-64" >
+    <div class = "container mx-auto px-4" >
       <!-- 设置页面标题 -->
-      <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
-        <h2 class="text-2xl font-bold text-neutral-900">设置中心</h2>
-        <p class="text-neutral-500 mt-1">管理你的个人信息和应用偏好</p>
-      </div>
+      <div class = "bg-white rounded-xl shadow-lg p-6 hover-scale" >
+        <h2 class = "text-2xl font-bold text-neutral-900" >设置中心</h2 >
+        <p class = "text-neutral-500 mt-1" >管理你的个人信息和应用偏好</p >
+      </div >
 
       <!-- 设置选项卡 -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden mt-6">
+      <div class = "bg-white rounded-xl shadow-lg overflow-hidden mt-6" >
 
         <!-- 选项卡 -->
-        <div class="flex flex-wrap border-b border-neutral-200">
-          <button class="px-6 py-4 text-primary border-b-2 border-primary font-medium" id="tab-profile">
-            <i class="fa-solid fa-user mr-2"></i>个人信息
-          </button>
-          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
-            id="tab-notifications">
-            <i class="fa-solid fa-bell mr-2"></i>通知设置
-          </button>
-          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
-            id="tab-privacy">
-            <i class="fa-solid fa-shield mr-2"></i>隐私设置
-          </button>
-          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
-            id="tab-account">
-            <i class="fa-solid fa-cog mr-2"></i>账号安全
-          </button>
-          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
-            id="tab-appearance">
-            <i class="fa-solid fa-paint-brush mr-2"></i>外观设置
-          </button>
-          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
-            id="tab-couple">
-            <i class="fa-solid fa-heart mr-2"></i>情侣设置
-          </button>
-        </div>
+        <div class = "flex flex-wrap border-b border-neutral-200" >
+          <button class = "px-6 py-4 text-primary border-b-2 border-primary font-medium" id = "tab-profile" >
+            <i class = "fa-solid fa-user mr-2" ></i >个人信息
+          </button >
+          <button class = "px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+                  id = "tab-notifications" >
+            <i class = "fa-solid fa-bell mr-2" ></i >通知设置
+          </button >
+          <button class = "px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+                  id = "tab-privacy" >
+            <i class = "fa-solid fa-shield mr-2" ></i >隐私设置
+          </button >
+          <button class = "px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+                  id = "tab-account" >
+            <i class = "fa-solid fa-cog mr-2" ></i >账号安全
+          </button >
+          <button class = "px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+                  id = "tab-appearance" >
+            <i class = "fa-solid fa-paint-brush mr-2" ></i >外观设置
+          </button >
+          <button class = "px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+                  id = "tab-couple" >
+            <i class = "fa-solid fa-heart mr-2" ></i >情侣设置
+          </button >
+        </div >
 
         <!-- 个人信息设置 -->
-        <div class="p-6" id="content-profile">
-          <h3 class="text-xl font-semibold mb-4">个人信息</h3>
+        <div class = "p-6" id = "content-profile" >
+          <h3 class = "text-xl font-semibold mb-4" >个人信息</h3 >
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class = "grid grid-cols-1 md:grid-cols-3 gap-6" >
             <!-- 头像设置 -->
-            <div class="md:col-span-1">
-              <div class="bg-neutral-50 rounded-xl p-4 text-center">
-                <div class="relative w-32 h-32 mx-auto mb-4">
+            <div class = "md:col-span-1" >
+              <div class = "bg-neutral-50 rounded-xl p-4 text-center" >
+                <div class = "relative w-32 h-32 mx-auto mb-4" >
                   <div
-                    class="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full opacity-20 animate-pulse">
-                  </div>
-                  <div class="absolute inset-1 bg-white rounded-full overflow-hidden border-2 border-primary">
-                    <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
-                  </div>
+                          class = "absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full opacity-20 animate-pulse" >
+                  </div >
+                  <div class = "absolute inset-1 bg-white rounded-full overflow-hidden border-2 border-primary" >
+                    <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                         class = "w-full h-full object-cover" >
+                  </div >
                   <button
-                    class="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-custom">
-                    <i class="fa-solid fa-camera"></i>
-                  </button>
-                </div>
-                <button class="w-full py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom">
+                          class = "absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-custom" >
+                    <i class = "fa-solid fa-camera" ></i >
+                  </button >
+                </div >
+                <button class = "w-full py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom" >
                   更换头像
-                </button>
-                <p class="text-xs text-neutral-500 mt-2">支持 JPG, PNG 格式，最大 2MB</p>
-              </div>
-            </div>
+                </button >
+                <p class = "text-xs text-neutral-500 mt-2" >支持 JPG, PNG 格式，最大 2MB</p >
+              </div >
+            </div >
 
             <!-- 基本信息设置 -->
-            <div class="md:col-span-2 space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">昵称</label>
-                  <input type="text" value="小甜甜"
-                    class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">性别</label>
-                  <div class="flex space-x-4 mt-2">
-                    <label class="inline-flex items-center">
-                      <input type="radio" name="gender" value="female" checked class="form-radio h-4 w-4 text-primary">
-                      <span class="ml-2 text-neutral-700">女</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                      <input type="radio" name="gender" value="male" class="form-radio h-4 w-4 text-primary">
-                      <span class="ml-2 text-neutral-700">男</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                      <input type="radio" name="gender" value="other" class="form-radio h-4 w-4 text-primary">
-                      <span class="ml-2 text-neutral-700">保密</span>
-                    </label>
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">出生日期</label>
-                  <input type="date" value="2000-01-01"
-                    class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">所在地</label>
+            <div class = "md:col-span-2 space-y-4" >
+              <div class = "grid grid-cols-1 md:grid-cols-2 gap-4" >
+                <div >
+                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >昵称</label >
+                  <input type = "text" value = "小甜甜"
+                         class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
+                </div >
+                <div >
+                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >性别</label >
+                  <div class = "flex space-x-4 mt-2" >
+                    <label class = "inline-flex items-center" >
+                      <input type = "radio" name = "gender" value = "female" checked
+                             class = "form-radio h-4 w-4 text-primary" >
+                      <span class = "ml-2 text-neutral-700" >女</span >
+                    </label >
+                    <label class = "inline-flex items-center" >
+                      <input type = "radio" name = "gender" value = "male" class = "form-radio h-4 w-4 text-primary" >
+                      <span class = "ml-2 text-neutral-700" >男</span >
+                    </label >
+                    <label class = "inline-flex items-center" >
+                      <input type = "radio" name = "gender" value = "other" class = "form-radio h-4 w-4 text-primary" >
+                      <span class = "ml-2 text-neutral-700" >保密</span >
+                    </label >
+                  </div >
+                </div >
+                <div >
+                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >出生日期</label >
+                  <input type = "date" value = "2000-01-01"
+                         class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
+                </div >
+                <div >
+                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >所在地</label >
                   <select
-                    class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
-                    <option>北京市</option>
-                    <option>上海市</option>
-                    <option>广东省</option>
-                    <option>江苏省</option>
-                    <option>浙江省</option>
-                  </select>
-                </div>
-                <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">个人简介</label>
-                  <textarea rows="3"
-                    class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">记录我们的爱情故事，分享生活中的点点滴滴。</textarea>
-                </div>
-              </div>
+                          class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
+                    <option >北京市</option >
+                    <option >安徽省</option >
+                    <option >重庆市</option >
+                  </select >
+                </div >
+                <div class = "md:col-span-2" >
+                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >个人简介</label >
+                  <textarea rows = "3"
+                            class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >记录我们的爱情故事，分享生活中的点点滴滴。</textarea >
+                </div >
+              </div >
 
-              <div class="pt-4">
+              <div class = "pt-4" >
                 <button
-                  class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm">
+                        class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
                   保存修改
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                </button >
+              </div >
+            </div >
+          </div >
+        </div >
 
         <!-- 通知设置 -->
-        <div class="p-6 hidden" id="content-notifications">
-          <h3 class="text-xl font-semibold mb-4">通知设置</h3>
+        <div class = "p-6 hidden" id = "content-notifications" >
+          <h3 class = "text-xl font-semibold mb-4" >通知设置</h3 >
 
-          <!-- 声音和震动 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-medium mb-4">声音和震动</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">开启通知声音</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">开启震动提醒</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">夜间免打扰 (22:00-07:00)</span>
-                <label class="switch">
-                  <input type="checkbox">
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
+            <!-- 声音和震动 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-medium mb-4" >声音和震动</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >开启通知声音</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >开启震动提醒</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >夜间免打扰 (22:00-07:00)</span >
+                <label class = "switch" >
+                  <input type = "checkbox" >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+            </div >
+          </div >
 
-          <!-- 消息通知 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-medium mb-4">消息通知</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">情侣消息</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">社区消息</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">系统消息</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">评论和回复</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">点赞和收藏</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
+            <!-- 消息通知 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-medium mb-4" >消息通知</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >情侣消息</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >社区消息</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >系统消息</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >评论和回复</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >点赞和收藏</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+            </div >
+          </div >
 
-          <!-- 推送内容 -->
-          <div class="bg-neutral-50 rounded-xl p-4">
-            <h4 class="text-lg font-medium mb-4">推送内容</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">纪念日提醒</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">情侣活动推荐</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">热门话题提醒</span>
-                <label class="switch">
-                  <input type="checkbox">
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">优惠活动推送</span>
-                <label class="switch">
-                  <input type="checkbox">
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
+            <!-- 推送内容 -->
+          <div class = "bg-neutral-50 rounded-xl p-4" >
+            <h4 class = "text-lg font-medium mb-4" >推送内容</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >纪念日提醒</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >情侣活动推荐</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >热门话题提醒</span >
+                <label class = "switch" >
+                  <input type = "checkbox" >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >优惠活动推送</span >
+                <label class = "switch" >
+                  <input type = "checkbox" >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+            </div >
+          </div >
 
-          <div class="pt-6">
-            <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm">
+          <div class = "pt-6" >
+            <button class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
               保存设置
-            </button>
-          </div>
-        </div>
+            </button >
+          </div >
+        </div >
 
         <!-- 隐私设置 -->
-        <div class="p-6 hidden" id="content-privacy">
-          <h3 class="text-xl font-semibold mb-4">隐私设置</h3>
+        <div class = "p-6 hidden" id = "content-privacy" >
+          <h3 class = "text-xl font-semibold mb-4" >隐私设置</h3 >
 
-          <!-- 个人信息可见性 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-medium mb-4">个人信息可见性</h4>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">个人主页</label>
-                <div class="flex space-x-4">
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="profile_visibility" value="everyone" checked
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">所有人可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="profile_visibility" value="friends"
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅好友可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="profile_visibility" value="private"
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅自己可见</span>
-                  </label>
-                </div>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">显示在线状态</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">允许被搜索</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">显示地理位置</span>
-                <label class="switch">
-                  <input type="checkbox">
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
+            <!-- 个人信息可见性 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-medium mb-4" >个人信息可见性</h4 >
+            <div class = "space-y-4" >
+              <div >
+                <label class = "block text-sm font-medium text-neutral-700 mb-2" >个人主页</label >
+                <div class = "flex space-x-4" >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "profile_visibility" value = "everyone" checked
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >所有人可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "profile_visibility" value = "friends"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅好友可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "profile_visibility" value = "private"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅自己可见</span >
+                  </label >
+                </div >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >显示在线状态</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >允许被搜索</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >显示地理位置</span >
+                <label class = "switch" >
+                  <input type = "checkbox" >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+            </div >
+          </div >
 
-          <!-- 内容可见性 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-medium mb-4">内容可见性</h4>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">动态</label>
-                <div class="flex space-x-4">
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="moments_visibility" value="everyone" checked
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">所有人可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="moments_visibility" value="friends"
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅好友可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="moments_visibility" value="private"
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅自己可见</span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">相册</label>
-                <div class="flex space-x-4">
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="album_visibility" value="everyone"
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">所有人可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="album_visibility" value="friends" checked
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅好友可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="album_visibility" value="private" class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅自己可见</span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">收藏</label>
-                <div class="flex space-x-4">
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="favorites_visibility" value="everyone"
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">所有人可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="favorites_visibility" value="friends" checked
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅好友可见</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input type="radio" name="favorites_visibility" value="private"
-                      class="form-radio h-4 w-4 text-primary">
-                    <span class="ml-2 text-neutral-700">仅自己可见</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
+            <!-- 内容可见性 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-medium mb-4" >内容可见性</h4 >
+            <div class = "space-y-4" >
+              <div >
+                <label class = "block text-sm font-medium text-neutral-700 mb-2" >动态</label >
+                <div class = "flex space-x-4" >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "moments_visibility" value = "everyone" checked
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >所有人可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "moments_visibility" value = "friends"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅好友可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "moments_visibility" value = "private"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅自己可见</span >
+                  </label >
+                </div >
+              </div >
+              <div >
+                <label class = "block text-sm font-medium text-neutral-700 mb-2" >相册</label >
+                <div class = "flex space-x-4" >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "album_visibility" value = "everyone"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >所有人可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "album_visibility" value = "friends" checked
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅好友可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "album_visibility" value = "private"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅自己可见</span >
+                  </label >
+                </div >
+              </div >
+              <div >
+                <label class = "block text-sm font-medium text-neutral-700 mb-2" >收藏</label >
+                <div class = "flex space-x-4" >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "favorites_visibility" value = "everyone"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >所有人可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "favorites_visibility" value = "friends" checked
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅好友可见</span >
+                  </label >
+                  <label class = "inline-flex items-center" >
+                    <input type = "radio" name = "favorites_visibility" value = "private"
+                           class = "form-radio h-4 w-4 text-primary" >
+                    <span class = "ml-2 text-neutral-700" >仅自己可见</span >
+                  </label >
+                </div >
+              </div >
+            </div >
+          </div >
 
-          <!-- 互动设置 -->
-          <div class="bg-neutral-50 rounded-xl p-4">
-            <h4 class="text-lg font-medium mb-4">互动设置</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">允许陌生人私信</span>
-                <label class="switch">
-                  <input type="checkbox">
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">允许评论</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-neutral-700">允许转发</span>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
+            <!-- 互动设置 -->
+          <div class = "bg-neutral-50 rounded-xl p-4" >
+            <h4 class = "text-lg font-medium mb-4" >互动设置</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >允许陌生人私信</span >
+                <label class = "switch" >
+                  <input type = "checkbox" >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >允许评论</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+              <div class = "flex justify-between items-center" >
+                <span class = "text-neutral-700" >允许转发</span >
+                <label class = "switch" >
+                  <input type = "checkbox" checked >
+                  <span class = "slider" ></span >
+                </label >
+              </div >
+            </div >
+          </div >
 
-          <div class="pt-6">
-            <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm">
+          <div class = "pt-6" >
+            <button class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
               保存设置
-            </button>
-          </div>
-        </div>
+            </button >
+          </div >
+        </div >
 
         <!-- 账号安全 -->
-        <div class="p-6 hidden" id="content-account">
-          <h3 class="text-xl font-semibold mb-4">账号安全</h3>
+        <div class = "p-6 hidden" id = "content-account" >
+          <h3 class = "text-xl font-semibold mb-4" >账号安全</h3 >
 
-          <!-- 登录信息 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-medium mb-4">登录信息</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <span class="block text-neutral-700">手机号码</span>
-                  <span class="text-sm text-neutral-500">138****6789</span>
-                </div>
-                <button class="text-primary hover:text-primary/80 transition-custom">
+            <!-- 登录信息 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-medium mb-4" >登录信息</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <span class = "block text-neutral-700" >手机号码</span >
+                  <span class = "text-sm text-neutral-500" >138****6789</span >
+                </div >
+                <button class = "text-primary hover:text-primary/80 transition-custom" >
                   更换
-                </button>
-              </div>
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <span class="block text-neutral-700">邮箱地址</span>
-                  <span class="text-sm text-neutral-500">exam***@example.com</span>
-                </div>
-                <button class="text-primary hover:text-primary/80 transition-custom">
+                </button >
+              </div >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <span class = "block text-neutral-700" >邮箱地址</span >
+                  <span class = "text-sm text-neutral-500" >exam***@example.com</span >
+                </div >
+                <button class = "text-primary hover:text-primary/80 transition-custom" >
                   更换
-                </button>
-              </div>
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <span class="block text-neutral-700">登录密码</span>
-                  <span class="text-sm text-neutral-500">已设置</span>
-                </div>
-                <button class="text-primary hover:text-primary/80 transition-custom">
+                </button >
+              </div >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <span class = "block text-neutral-700" >登录密码</span >
+                  <span class = "text-sm text-neutral-500" >已设置</span >
+                </div >
+                <button class = "text-primary hover:text-primary/80 transition-custom" >
                   修改
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                </button >
+              </div >
+            </div >
+          </div >
+        </div >
 
         <!-- 外观设置 -->
-        <div class="p-6 hidden" id="content-appearance">
-          <h3 class="text-xl font-semibold mb-4">外观设置</h3>
+        <div class = "p-6 hidden" id = "content-appearance" >
+          <h3 class = "text-xl font-semibold mb-4" >外观设置</h3 >
 
-          <!-- 主题颜色 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-semibold mb-2">主题颜色</h4>
-            <div class="flex flex-wrap gap-2">
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary"></div>
-              </button>
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary"></div>
-              </button>
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary"></div>
-              </button>
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary"></div>
-              </button>
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary"></div>
-              </button>
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary"></div>
-              </button>
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary"></div>
-              </button>
-              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary"></div>
-              </button>
-            </div>
-          </div>
+            <!-- 主题颜色 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-semibold mb-2" >主题颜色</h4 >
+            <div class = "flex flex-wrap gap-2" >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
+              </button >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary" ></div >
+              </button >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
+              </button >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary" ></div >
+              </button >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
+              </button >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary" ></div >
+              </button >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
+              </button >
+              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
+                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary" ></div >
+              </button >
+            </div >
+          </div >
 
-          <!-- 字体设置 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-semibold mb-2">字体设置</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <label class="text-sm font-medium">字体大小</label>
-                  <div class="flex items-center space-x-2">
-                    <button class="text-primary hover:text-primary/80 transition-custom">
-                      <i class="fa-solid fa-minus"></i>
-                    </button>
-                    <span class="text-sm">16px</span>
-                    <button class="text-primary hover:text-primary/80 transition-custom">
-                      <i class="fa-solid fa-plus"></i>
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label class="text-sm font-medium">字体类型</label>
-                  <select class="text-sm font-medium">
-                    <option value="default">默认字体</option>
-                    <option value="sans-serif">无衬线字体</option>
-                    <option value="serif">衬线字体</option>
-                    <option value="monospace">等宽字体</option>
-                  </select>
-                </div>
-              </div>
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <label class="text-sm font-medium">行高</label>
-                  <div class="flex items-center space-x-2">
-                    <button class="text-primary hover:text-primary/80 transition-custom">
-                      <i class="fa-solid fa-minus"></i>
-                    </button>
-                    <span class="text-sm">1.5</span>
-                    <button class="text-primary hover:text-primary/80 transition-custom">
-                      <i class="fa-solid fa-plus"></i>
-                    </button>
-                  </div>
-                </div>
-                <div>
-                </div>
-              </div>
-            </div>
-          </div>
+            <!-- 字体设置 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-semibold mb-2" >字体设置</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <label class = "text-sm font-medium" >字体大小</label >
+                  <div class = "flex items-center space-x-2" >
+                    <button class = "text-primary hover:text-primary/80 transition-custom" >
+                      <i class = "fa-solid fa-minus" ></i >
+                    </button >
+                    <span class = "text-sm" >16px</span >
+                    <button class = "text-primary hover:text-primary/80 transition-custom" >
+                      <i class = "fa-solid fa-plus" ></i >
+                    </button >
+                  </div >
+                </div >
+                <div >
+                  <label class = "text-sm font-medium" >字体类型</label >
+                  <select class = "text-sm font-medium" >
+                    <option value = "default" >默认字体</option >
+                    <option value = "sans-serif" >无衬线字体</option >
+                    <option value = "serif" >衬线字体</option >
+                    <option value = "monospace" >等宽字体</option >
+                  </select >
+                </div >
+              </div >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <label class = "text-sm font-medium" >行高</label >
+                  <div class = "flex items-center space-x-2" >
+                    <button class = "text-primary hover:text-primary/80 transition-custom" >
+                      <i class = "fa-solid fa-minus" ></i >
+                    </button >
+                    <span class = "text-sm" >1.5</span >
+                    <button class = "text-primary hover:text-primary/80 transition-custom" >
+                      <i class = "fa-solid fa-plus" ></i >
+                    </button >
+                  </div >
+                </div >
+                <div >
+                </div >
+              </div >
+            </div >
+          </div >
 
-          <!-- 界面风格 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-semibold mb-2">界面风格</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <label class="text-sm font-medium">页面布局</label>
-                  <select class="text-sm font-medium">
-                    <option value="default">默认布局</option>
-                    <option value="compact">紧凑布局</option>
-                    <option value="wide">宽屏布局</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-sm font-medium">背景图片</label>
-                  <select class="text-sm font-medium">
-                    <option value="none">无背景</option>
-                    <option value="default">默认背景</option>
-                    <option value="custom">自定义背景</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+            <!-- 界面风格 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-semibold mb-2" >界面风格</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <label class = "text-sm font-medium" >页面布局</label >
+                  <select class = "text-sm font-medium" >
+                    <option value = "default" >默认布局</option >
+                    <option value = "compact" >紧凑布局</option >
+                    <option value = "wide" >宽屏布局</option >
+                  </select >
+                </div >
+                <div >
+                  <label class = "text-sm font-medium" >背景图片</label >
+                  <select class = "text-sm font-medium" >
+                    <option value = "none" >无背景</option >
+                    <option value = "default" >默认背景</option >
+                    <option value = "custom" >自定义背景</option >
+                  </select >
+                </div >
+              </div >
+            </div >
+          </div >
+        </div >
 
 
         <!-- 情侣设置 -->
-        <div class="p-6 hidden" id="content-couple">
-          <h3 class="text-xl font-semibold mb-4">情侣设置</h3>
+        <div class = "p-6 hidden" id = "content-couple" >
+          <h3 class = "text-xl font-semibold mb-4" >情侣设置</h3 >
 
-          <!-- 情侣信息 -->
-          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
-            <h4 class="text-lg font-semibold mb-2">情侣信息</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <span class="block text-neutral-700">情侣姓名</span>
-                  <span class="text-sm text-neutral-500">小甜甜</span>
-                </div>
-                <button class="text-primary hover:text-primary/80 transition-custom">
+            <!-- 情侣信息 -->
+          <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
+            <h4 class = "text-lg font-semibold mb-2" >情侣信息</h4 >
+            <div class = "space-y-4" >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <span class = "block text-neutral-700" >情侣姓名</span >
+                  <span class = "text-sm text-neutral-500" >小甜甜</span >
+                </div >
+                <button class = "text-primary hover:text-primary/80 transition-custom" >
                   更换
-                </button>
-              </div>
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <span class="block text-neutral-700">情侣头像</span>
-                  <span class="text-sm text-neutral-500">已设置</span>
-                </div>
-                <button class="text-primary hover:text-primary/80 transition-custom">
+                </button >
+              </div >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <span class = "block text-neutral-700" >情侣头像</span >
+                  <span class = "text-sm text-neutral-500" >已设置</span >
+                </div >
+                <button class = "text-primary hover:text-primary/80 transition-custom" >
                   更换
-                </button>
-              </div>
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <span class="block text-neutral-700">情侣生日</span>
-                  <span class="text-sm text-neutral-500">2024-06-15</span>
-                </div>
-                <button class="text-primary hover:text-primary/80 transition-custom">
+                </button >
+              </div >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <span class = "block text-neutral-700" >情侣生日</span >
+                  <span class = "text-sm text-neutral-500" >2024-06-15</span >
+                </div >
+                <button class = "text-primary hover:text-primary/80 transition-custom" >
                   修改
-                </button>
-              </div>
-              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
-                <div>
-                  <span class="block text-neutral-700">爱情宣言</span>
-                  <span class="text-sm text-neutral-500">I love you</span>
-                </div>
-                <button class="text-primary hover:text-primary/80 transition-custom">
+                </button >
+              </div >
+              <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
+                <div >
+                  <span class = "block text-neutral-700" >爱情宣言</span >
+                  <span class = "text-sm text-neutral-500" >I love you</span >
+                </div >
+                <button class = "text-primary hover:text-primary/80 transition-custom" >
                   更改
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                </button >
+              </div >
+            </div >
+          </div >
+        </div >
 
-      </div>
-    </div>
-  </main>
+      </div >
+    </div >
+  </main >
 
-  <script>
+  <script >
 
     // 移动端菜单切换
     document.getElementById('menu-toggle').addEventListener('click', function () {
-      const mobileMenu = document.getElementById('mobile-menu');
-      if (mobileMenu.classList.contains('hidden')) {
-        mobileMenu.classList.remove('hidden');
-        // 添加动画类
-        setTimeout(() => {
-          mobileMenu.classList.add('translate-y-0', 'opacity-100');
-        }, 50);
-      } else {
-        // 移除动画类
-        mobileMenu.classList.remove('translate-y-0', 'opacity-100');
-        // 等待动画完成后隐藏菜单
-        setTimeout(() => {
-          mobileMenu.classList.add('hidden');
-        }, 200);
-      }
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.remove('hidden');
+            // 添加动画类
+            setTimeout(() => {
+                mobileMenu.classList.add('translate-y-0', 'opacity-100');
+            }, 50);
+        } else {
+            // 移除动画类
+            mobileMenu.classList.remove('translate-y-0', 'opacity-100');
+            // 等待动画完成后隐藏菜单
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+            }, 200);
+        }
     });
 
     const userAvatar = document.getElementById('userAvatar');
@@ -1142,100 +1175,111 @@
 
     // 鼠标经过头像时打开菜单
     userAvatar.addEventListener('mouseenter', function () {
-      clearTimeout(closeTimer); // 清除之前的定时器
-      userOptions.classList.remove('hidden');
+        clearTimeout(closeTimer); // 清除之前的定时器
+        userOptions.classList.remove('hidden');
     });
 
     // 鼠标悬停在下拉菜单时保持菜单打开
     userDropdown.addEventListener('mouseenter', function () {
-      clearTimeout(closeTimer); // 清除之前的定时器
-      userOptions.classList.remove('hidden');
+        clearTimeout(closeTimer); // 清除之前的定时器
+        userOptions.classList.remove('hidden');
     });
 
     // 鼠标离开下拉菜单时关闭菜单
     userDropdown.addEventListener('mouseleave', function () {
-      closeTimer = setTimeout(() => {
-        userOptions.classList.add('hidden');
-      }, 500);
+        closeTimer = setTimeout(() => {
+            userOptions.classList.add('hidden');
+        }, 500);
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-      const moreButton = document.getElementById('moreButton');
-      const moreOptions = document.getElementById('moreOptions');
-      const moreDropdown = document.getElementById('moreDropdown');
+        const moreButton = document.getElementById('moreButton');
+        const moreOptions = document.getElementById('moreOptions');
+        const moreDropdown = document.getElementById('moreDropdown');
 
-      let closeTimer;
+        let closeTimer;
 
-      // 鼠标经过按钮时打开菜单
-      moreButton.addEventListener('mouseenter', function () {
-        clearTimeout(closeTimer); // 清除之前的定时器
-        moreOptions.classList.remove('hidden');
-      });
+        // 鼠标经过按钮时打开菜单
+        moreButton.addEventListener('mouseenter', function () {
+            clearTimeout(closeTimer); // 清除之前的定时器
+            moreOptions.classList.remove('hidden');
+        });
 
-      // 鼠标悬停在下拉菜单时保持菜单打开
-      moreDropdown.addEventListener('mouseenter', function () {
-        clearTimeout(closeTimer); // 清除之前的定时器
-        moreOptions.classList.remove('hidden');
-      });
+        // 鼠标悬停在下拉菜单时保持菜单打开
+        moreDropdown.addEventListener('mouseenter', function () {
+            clearTimeout(closeTimer); // 清除之前的定时器
+            moreOptions.classList.remove('hidden');
+        });
 
-      // 鼠标离开下拉菜单时关闭菜单
-      moreDropdown.addEventListener('mouseleave', function () {
-        closeTimer = setTimeout(() => {
-          moreOptions.classList.add('hidden');
-        }, 500); // 延迟200毫秒
-      });
+        // 鼠标离开下拉菜单时关闭菜单
+        moreDropdown.addEventListener('mouseleave', function () {
+            closeTimer = setTimeout(() => {
+                moreOptions.classList.add('hidden');
+            }, 500); // 延迟200毫秒
+        });
     });
 
     // 页面加载完成时将页面滚动到顶部
     window.onload = function () {
-      window.scrollTo(0, 0);
+        window.scrollTo(0, 0);
     };
 
     // 获取URL参数
     function getUrlParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
     }
 
     // 等待DOM加载完成
     document.addEventListener('DOMContentLoaded', function () {
-      // 获取所有选项卡按钮和内容区域
-      const tabs = {
-        'tab-profile': 'content-profile',
-        'tab-notifications': 'content-notifications',
-        'tab-privacy': 'content-privacy',
-        'tab-account': 'content-account',
-        'tab-appearance': 'content-appearance',
-        'tab-couple': 'content-couple',
-      };
+        // 获取所有选项卡按钮和内容区域
+        const tabs = {
+            'tab-profile': 'content-profile',
+            'tab-notifications': 'content-notifications',
+            'tab-privacy': 'content-privacy',
+            'tab-account': 'content-account',
+            'tab-appearance': 'content-appearance',
+            'tab-couple': 'content-couple',
+        };
 
-      // 为每个选项卡按钮添加点击事件
-      Object.keys(tabs).forEach(tabId => {
-        const tabElement = document.getElementById(tabId);
-        if (tabElement) {
-          tabElement.addEventListener('click', function () {
-            // 移除所有选项卡按钮的激活状态
-            Object.keys(tabs).forEach(id => {
-              document.getElementById(id).classList.remove('text-primary', 'border-primary');
-              document.getElementById(id).classList.add('text-neutral-500', 'border-transparent');
-            });
+        // 为每个选项卡按钮添加点击事件
+        Object.keys(tabs).forEach(tabId => {
+            const tabElement = document.getElementById(tabId);
+            if (tabElement) {
+                tabElement.addEventListener('click', function () {
+                    // 移除所有选项卡按钮的激活状态
+                    Object.keys(tabs).forEach(id => {
+                        document.getElementById(id).classList.remove('text-primary', 'border-primary');
+                        document.getElementById(id).classList.add('text-neutral-500', 'border-transparent');
+                    });
 
-            // 添加当前选项卡按钮的激活状态
-            this.classList.remove('text-neutral-500', 'border-transparent');
-            this.classList.add('text-primary', 'border-primary');
+                    // 添加当前选项卡按钮的激活状态
+                    this.classList.remove('text-neutral-500', 'border-transparent');
+                    this.classList.add('text-primary', 'border-primary');
 
-            // 隐藏所有内容区域
-            Object.values(tabs).forEach(contentId => {
-              document.getElementById(contentId).classList.add('hidden');
-            });
+                    // 隐藏所有内容区域
+                    Object.values(tabs).forEach(contentId => {
+                        document.getElementById(contentId).classList.add('hidden');
+                    });
 
-            // 显示当前选项卡对应的内容区域
-            document.getElementById(tabs[tabId]).classList.remove('hidden');
-          });
-        }
-      });
+                    // 显示当前选项卡对应的内容区域
+                    document.getElementById(tabs[tabId]).classList.remove('hidden');
+                });
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectElement = document.querySelector('select');
+            if (selectElement) {
+                const newCities = ['成都市', '杭州市', '南京市', '武汉市'];
+                newCities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.textContent = city;
+                    selectElement.appendChild(option);
+                });
+            }
+        });
     });
-  </script>
-</body>
+  </script >
+</body >
 
-</html>
+</html >

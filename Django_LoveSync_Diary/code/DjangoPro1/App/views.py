@@ -8,6 +8,7 @@ from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect
 import re
 
+
 # 首页
 def user_index(request):
     return render(request, 'index.html')

@@ -23,3 +23,6 @@ class User(AbstractUser):
     userAvatar = models.CharField(max_length=128, null=True, blank=True)
 
     USERNAME_FIELD = 'username'
+
+
+# 设置
