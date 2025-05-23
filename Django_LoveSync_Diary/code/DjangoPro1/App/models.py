@@ -25,4 +25,4 @@ class User(AbstractUser):
     USERNAME_FIELD = 'username'
 
 
-# 设置
+# 设置.
