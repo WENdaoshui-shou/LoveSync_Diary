@@ -10,7 +10,7 @@ urlpatterns = [
     # 登录
     path('login/', user_login, name='login'),
 
-    # 退出登录
+    # 退出
     path('logout/', user_logout, name='logout'),
 
     # 注册
