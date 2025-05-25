@@ -3,10 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from App.models import *
 from django.contrib import messages
-from asgiref.sync import sync_to_async
 from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect
-import re
 
 
 # 首页
@@ -68,7 +66,7 @@ def user_logout(request):
 
 
 # 注册
-async def user_register(request):
+def user_register(request):
     if request.method == "GET":
         return render(request, 'register.html')
     elif request.method == "POST":
@@ -78,23 +76,21 @@ async def user_register(request):
         email = request.POST.get('email')
 
         # 检查用户名是否存在
-        user_exists = await sync_to_async(User.objects.filter(username=phone).exists)()
+        user_exists = User.objects.filter(username=phone).exists
         if user_exists:
             return render(request, 'register.html', {'messages': '该用户名已被注册'})
 
         try:
             # 创建用户
-            create_user = sync_to_async(User.objects.create_user)
-            user = await create_user(
+            create_user = User.objects.create_user
+            user = create_user(
                 username=phone,
                 password=passwd,
                 name=name,
                 email=email,
             )
-
-            # 正确的异步登录处理
-            login_user = sync_to_async(login)
-            await login_user(request, user)
+            login_user = login
+            login_user(request, user)
 
             return redirect('community')
 
@@ -126,35 +122,35 @@ def community(request):
 
 # 消息
 @login_required
-async def message(request):
+def message(request):
     return render(request, 'message.html')
 
 
 # 收藏
 @login_required
-async def favorites(request):
+def favorites(request):
     return render(request, 'favorites.html')
 
 
 # 相册
 @login_required
-async def Photo_album(request):
+def Photo_album(request):
     return render(request, 'Photo_album.html')
 
 
 # 动态
 @login_required
-async def moments(request):
+def moments(request):
     return render(request, 'moments.html')
 
 
 # 主页
 @login_required
-async def Personal_Center(request):
+def Personal_Center(request):
     return render(request, 'Personal_Center.html')
 
 
 # 设置
 @login_required
-async def settings(request):
+def settings(request):
     return render(request, 'settings.html')
