@@ -386,8 +386,6 @@
 
 
 
-
-
                                                 {{ moment.user.userAvatar|default:'https://picsum.photos/200/200?random=1' }}"
                                              alt = "发布者头像"
                                              class = "w-full h-full object-cover" >
@@ -430,9 +428,59 @@
                                 </button >
                             </div >
                         </div >
-
-        </div >
                     {% endfor %}
+                    </div >
+
+                        <!-- 动态2 -->
+                <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card animate-fade-in"
+                     style = "animation-delay: 0.1s" >
+                    <div class = "p-6" >
+                        <div class = "flex items-center justify-between" >
+                            <div class = "flex items-center space-x-3" >
+                                <div class = "w-10 h-10 rounded-full overflow-hidden self-badge" >
+                                    {% for image in moment.moment_images.all %}
+                                        <img src = "{{ image.image.url }}" alt = "发布者头像"
+                                             class = "w-full h-full object-cover" > >
+                                    {% endfor %}
+                                </div >
+                                <div >
+                                    <h4 class = "font-semibold text-neutral-900" >小甜甜和小帅帅</h4 >
+                                    <p class = "text-neutral-500 text-xs" >昨天</p >
+                                </div >
+                            </div >
+                            <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
+                                <i class = "fa-solid fa-ellipsis-h" ></i >
+                            </button >
+                        </div >
+                        <div class = "mt-4" >
+                            <p class = "text-neutral-800" >第一次一起出国旅行，泰国普吉岛真的太美了！和你一起看海，一起探索新的地方，这就是我想要的生活~ #情侣旅行#</p >
+                        </div >
+                        <div class = "mt-4 grid grid-cols-3 gap-2" >
+                            <img src = "https://picsum.photos/600/400?random=24" alt = "动态图片1"
+                                 class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                            <img src = "https://picsum.photos/600/400?random=25" alt = "动态图片2"
+                                 class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                            <img src = "https://picsum.photos/600/400?random=26" alt = "动态图片3"
+                                 class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                        </div >
+                        <div class = "mt-4 flex justify-between items-center" >
+                            <div class = "flex space-x-4" >
+                                <button
+                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
+                                    <i class = "fa-regular fa-heart" ></i >
+                                    <span >120</span >
+                                </button >
+                                <button
+                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
+                                    <i class = "fa-regular fa-comment" ></i >
+                                    <span >30</span >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+                </div >
+            </div >
+        </div >
     </main >
 
     <!-- 页脚 -->

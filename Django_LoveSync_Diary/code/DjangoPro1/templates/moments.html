@@ -312,7 +312,7 @@
                     <div class="mb-4">
                         <textarea id="postContent" rows="4" class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom" placeholder="分享你们的甜蜜瞬间..."></textarea>
                     </div>
-                    
+
                     <div class="flex flex-wrap gap-4 mb-4">
                         <div class="flex items-center space-x-2">
                             <input type="checkbox" id="tag-travel" class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
@@ -335,7 +335,7 @@
                             <label for="tag-gift" class="text-sm text-neutral-700">礼物</label>
                         </div>
                     </div>
-                    
+
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center space-x-4">
                             <label for="postImage" class="cursor-pointer">
@@ -476,23 +476,23 @@
         // 发布动态表单提交
         document.getElementById('postForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const content = document.getElementById('postContent').value;
             if (!content.trim()) {
                 alert('请输入动态内容');
                 return;
             }
-            
+
             // 模拟发布成功
             alert('动态发布成功！');
             document.getElementById('postContent').value = '';
-            
+
             // 清空标签选择
             const checkboxes = document.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = false;
             });
-            
+
             // 清空文件选择
             document.getElementById('postImage').value = '';
         });
@@ -502,7 +502,7 @@
             btn.addEventListener('click', function() {
                 const icon = this.querySelector('i');
                 const count = this.querySelector('span');
-                
+
                 if (icon.classList.contains('fa-regular')) {
                     icon.classList.remove('fa-regular');
                     icon.classList.add('fa-solid');
@@ -565,7 +565,7 @@
         userDropdown.addEventListener('mouseleave', function () {
             closeTimer = setTimeout(() => {
                 userOptions.classList.add('hidden');
-            }, 500); 
+            }, 500);
         });
 
         document.addEventListener('DOMContentLoaded', function () {

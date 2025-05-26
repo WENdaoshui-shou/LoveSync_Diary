@@ -1,3 +1,4 @@
+import datetime
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -139,9 +140,39 @@ def Photo_album(request):
 
 
 # 动态
-@login_required
 def moments(request):
-    return render(request, 'moments.html')
+    if request.method == 'GET':
+        return render(request, 'moments.html', {
+            'moments': Moment.objects.all(),
+            'images': MomentImage.objects.all(),
+        })
+
+    if request.method == 'POST':
+        print(f"POST 数据: {request.POST}")  # 调试用
+        print(f"FILES 数据: {request.FILES}")  # 调试用
+        content = request.POST.get('content')
+        images = request.FILES.getlist('image')  # 获取图片列表
+
+        if not content:
+            return render(request, 'moments.html', {'error': '动态内容不能为空'})
+
+        try:
+            # 创建动态（不含图片字段）
+            moment = Moment.objects.create(
+                user=request.user,
+                content=content,
+                likes=0,
+                comments=0,
+            )
+
+            # 保存所有上传的图片
+            for img in images:
+                MomentImage.objects.create(moment=moment, image=img)
+
+            return redirect('moments')
+
+        except Exception as e:
+            return render(request, 'moments.html', {'error': f'发布失败：{str(e)}'})
 
 
 # 主页
@@ -152,5 +183,5 @@ def Personal_Center(request):
 
 # 设置
 @login_required
-def settings(request):
+def settings_view(request):
     return render(request, 'settings.html')

@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.urls import path
 from App.views import *
+from django.contrib import admin
+from django.urls import include, path
+from django.conf import settings  # 导入 settings
+from django.conf.urls.static import static  # 导入 static
 
 urlpatterns = [
     # 首页
@@ -23,7 +27,7 @@ urlpatterns = [
     path('message/', message, name='message'),
 
     # 设置
-    path('settings/', settings, name='settings'),
+    path('settings/', settings_view, name='settings'),
 
     # 主页
     path('Personal_Center/', Personal_Center, name='Personal_Center'),
@@ -39,3 +43,8 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
 ]
+
+# 添加媒体文件路由（仅在开发环境使用）
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

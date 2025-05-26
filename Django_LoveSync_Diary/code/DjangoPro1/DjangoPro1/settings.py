@@ -120,3 +120,6 @@ LOGOUT_REDIRECT_URL = 'login'  # 登出后重定向的页面
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 关闭浏览器后失效
 
 AUTH_USER_MODEL = 'App.User'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

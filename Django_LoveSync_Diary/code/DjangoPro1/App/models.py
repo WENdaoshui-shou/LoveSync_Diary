@@ -25,4 +25,21 @@ class User(AbstractUser):
     USERNAME_FIELD = 'username'
 
 
+# 发布动态
+class Moment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='moments')
+    content = models.TextField(verbose_name='动态内容')
+    likes = models.IntegerField(default=0, verbose_name='点赞数', db_default=0)
+    comments = models.IntegerField(default=0, verbose_name='评论数', db_default=0)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
+    def __str__(self):
+        return f'{self.user.username} 的动态 - {self.created_at}'
+
+
+class MomentImage(models.Model):
+    moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name='moment_images')
+    image = models.ImageField(upload_to='moment_images/%Y/%m/%d/')
+
+    def __str__(self):
+        return f'图片 for {self.moment}'
