@@ -157,7 +157,7 @@ def Photo_album(request):
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
         moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
-        return render(request, 'moments.html', {
+        return render(request, 'Photo_album.html', {
             'user': request.user,
             'moments': moments,
         })
