@@ -287,7 +287,7 @@
             <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in" >
                 <div class = "flex flex-col md:flex-row items-center" >
                     <div class = "w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6 border-4 border-primary/20 self-badge" >
-                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                        <img src = "{{ moment.user.userAvatar|default:'https://picsum.photos/200/200?random=1' }}" alt = "用户头像"
                              class = "w-full h-full object-cover" >
                     </div >
                     <div class = "text-center md:text-left" >

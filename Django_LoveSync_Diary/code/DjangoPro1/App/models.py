@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 # CustomUser：扩展了 Django 的用户模型，添加了 couple 字段用于关联情侣关系。
@@ -20,18 +22,26 @@ class User(AbstractUser):
     password = models.CharField(max_length=128)  # 增加长度以存储哈希密码
     name = models.CharField(max_length=30, null=True)
     email = models.EmailField(max_length=30, null=True)  # 使用 EmailField 自动验证
-    userAvatar = models.CharField(max_length=128, null=True, blank=True)
 
     USERNAME_FIELD = 'username'
 
 
 # 发布动态
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)  # 标签名称（唯一）
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Moment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='moments')
     content = models.TextField(verbose_name='动态内容')
     likes = models.IntegerField(default=0, verbose_name='点赞数', db_default=0)
     comments = models.IntegerField(default=0, verbose_name='评论数', db_default=0)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    tags = models.ManyToManyField(Tag, blank=True, related_name='moments')  # 添加标签多对多字段
 
     def __str__(self):
         return f'{self.user.username} 的动态 - {self.created_at}'
@@ -43,3 +53,25 @@ class MomentImage(models.Model):
 
     def __str__(self):
         return f'图片 for {self.moment}'
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    userAvatar = models.ImageField(
+        upload_to='userAvatar/',
+        blank=True,
+        null=True,
+        default='userAvatar/1.jpg'  # 确保默认图片存在
+    )
+
+
+#  用户注册时未自动创建 Profile 模型
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

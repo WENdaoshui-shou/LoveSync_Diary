@@ -286,8 +286,9 @@
             <!-- 个人信息头部 -->
             <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in" >
                 <div class = "flex flex-col md:flex-row items-center" >
-                    <div class = "w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6 border-4 border-primary/20 self-badge" >
-                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                    <div
+                            class = "w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6 border-4 border-primary/20 self-badge" >
+                        <img src = "{{ moment.user.userAvatar }}" alt = "用户头像"
                              class = "w-full h-full object-cover" >
                     </div >
                     <div class = "text-center md:text-left" >
@@ -312,47 +313,52 @@
                 </div >
             </div >
 
-            <!-- 动态发布表单 -->
+            <!-- 发布动态表单 -->
             <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-slide-up" >
                 <h3 class = "text-xl font-semibold text-neutral-800 mb-4" >分享你的此刻</h3 >
-                <form method = "POST" enctype = "multipart/form-data" action = "{% url 'moments' %}" >
+                {% if error %}
+                    <div class = "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" >
+                        {{ error }}
+                    </div >
+                {% endif %}
+                <form id = "postForm" method = "POST" enctype = "multipart/form-data" action = "{% url 'moments' %}" >
                     {% csrf_token %}
 
                     <!-- 动态内容 -->
                     <div class = "mb-4" >
-                        <textarea name = "content" rows = "4"
+                        <textarea id = "postContent" rows = "4" name = "content"
                                   class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
                                   placeholder = "分享你们的甜蜜瞬间..." ></textarea >
                     </div >
+
                     <div class = "flex flex-wrap gap-4 mb-4" >
                         <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-travel"
+                            <input type = "checkbox" id = "tag-travel" name="tags" value="旅行"
                                    class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
                             <label for = "tag-travel" class = "text-sm text-neutral-700" >旅行</label >
                         </div >
                         <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-food"
+                            <input type = "checkbox" id = "tag-food" name="tags" value="美食"
                                    class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
                             <label for = "tag-food" class = "text-sm text-neutral-700" >美食</label >
                         </div >
                         <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-anniversary"
+                            <input type = "checkbox" id = "tag-anniversary" name="tags" value="纪念日"
                                    class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
                             <label for = "tag-anniversary" class = "text-sm text-neutral-700" >纪念日</label >
                         </div >
                         <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-daily"
+                            <input type = "checkbox" id = "tag-daily" name="tags" value="日常"
                                    class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
                             <label for = "tag-daily" class = "text-sm text-neutral-700" >日常</label >
                         </div >
                         <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-gift"
+                            <input type = "checkbox" id = "tag-gift" name="tags" value="礼物"
                                    class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
                             <label for = "tag-gift" class = "text-sm text-neutral-700" >礼物</label >
                         </div >
                     </div >
 
-                    <!-- 图片上传 -->
                     <div class = "flex flex-wrap items-center justify-between gap-4" >
                         <div class = "flex items-center space-x-4" >
                             <label for = "image" class = "cursor-pointer" >
@@ -372,85 +378,83 @@
             </div >
 
             <!-- 动态列表 -->
-                <div class = "space-y-6" >
-                    {% for moment in moments %}
-                        <!-- 动态1（自己的动态） -->
-                        <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card animate-fade-in" >
-                        <div class = "p-6" >
-                            <!-- 用户信息 -->
-                            <div class = "flex items-center justify-between" >
-                                <div class = "flex items-center space-x-3" >
-                                    <div class = "w-10 h-10 rounded-full overflow-hidden self-badge" >
-                                        <img src = "
-
-
-
-
-
-
-                                                {{ moment.user.userAvatar|default:'https://picsum.photos/200/200?random=1' }}"
-                                             alt = "发布者头像"
-                                             class = "w-full h-full object-cover" >
-                                    </div >
-                                    <div >
-                                        <h4 class = "font-semibold text-neutral-900" >{{ moment.user.username }}</h4 >
-                                        <p class = "text-neutral-500 text-xs" >{{ moment.created_at|timesince }}前</p >
-                                    </div >
+            <div class = "space-y-6" >
+                {% for moment in moments %}
+                    <!-- 动态1 -->
+                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card animate-fade-in"
+                         style = "animation-delay: 0.1s" >
+                    <div class = "p-6" >
+                        <!-- 用户信息 -->
+                        <div class = "flex items-center justify-between" >
+                            <div class = "flex items-center space-x-3" >
+                                <div class = "w-10 h-10 rounded-full overflow-hidden self-badge" >
+                                    <img src = "
+                                            {{ moment.user.userAvatar|default:'https://picsum.photos/200/200?random=1' }}"
+                                         alt = "发布者头像" class = "w-full h-full object-cover" >
                                 </div >
-                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
-                                    <i class = "fa-solid fa-ellipsis-h" ></i >
-                                </button >
-                            </div >
 
-                            <!-- 动态内容 -->
-                            <div class = "mt-4" >
-                                <p class = "text-neutral-800" >{{ moment.content }}</p >
+                                <div >
+                                    <h4 class = "font-semibold text-neutral-900" >{{ moment.user.name }}</h4 >
+                                    <p class = "text-neutral-500 text-xs" >{{ moment.created_at|timesince }}前</p >
+                                </div >
                             </div >
-
-                            <!-- 动态图片 -->
-                            <div class = "mt-4 grid grid-cols-2 gap-2" >
-                                {% for image in moment.moment_images.all %}
-                                    <img src = "{{ image.image.url }}" alt = "动态图片"
-                                         class = "rounded-lg w-full h-40 object-cover hover-scale" >
-                                {% endfor %}
-                            </div >
+                            <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
+                                <i class = "fa-solid fa-ellipsis-h" ></i >
+                            </button >
                         </div >
 
+                        <!-- 动态内容 -->
+                        <div class = "mt-4" >
+                            <p class = "text-neutral-800" >{{ moment.content }}</p >
+                        </div >
+
+                        <!-- 动态图片 -->
+                        <div class = "mt-4 grid grid-cols-2 gap-2" >
+                            {% for image in moment.moment_images.all %}
+                                <img src = "{{ image.image.url }}" alt = "动态图片"
+                                     class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                            {% endfor %}
+                        </div >
+
+                        <!-- 点赞评论数 -->
                         <div class = "mt-4 flex justify-between items-center" >
                             <div class = "flex space-x-4" >
                                 <button
                                         class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
                                     <i class = "fa-regular fa-heart" ></i >
-                                    <span >120</span >
+                                    <span >{{ moment.likes }}</span >
                                 </button >
                                 <button
                                         class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
                                     <i class = "fa-regular fa-comment" ></i >
-                                    <span >30</span >
+                                    <span >{{ moment.comments }}</span >
                                 </button >
                             </div >
                         </div >
-
+                    </div >
+                    </div >
+                {% endfor %}
+            </div >
         </div >
-                    {% endfor %}
     </main >
 
     <!-- 页脚 -->
     <footer class = "bg-white border-t border-neutral-200 py-8" >
-      <div class = "container mx-auto px-4" >
-          <div class = "flex flex-col md:flex-row justify-between items-center" >
-              <div class = "flex items-center space-x-2" >
-                  <div class = "w-8 h-8 bg-gradient-love rounded-full text-white" >
-                      <i class = "fa-solid fa-heart" ></i >
-                  </div >
-                  <span class = "text-lg font-bold" >LoveSync</span >
-              </div >
-              <div class = "text-neutral-500 text-sm" >
-                  &copy; 2023 LoveSync. 我们的故事，正在动态里持续更新。
-              </div >
-          </div >
-      </div >
-  </footer >
+        <div class = "container mx-auto px-4" >
+            <div class = "flex flex-col md:flex-row justify-between items-center" >
+                <div class = "flex items-center space-x-2" >
+                    <div class = "w-8 h-8 bg-gradient-love rounded-full text-white" >
+                        <i class = "fa-solid fa-heart" ></i >
+                    </div >
+                    <span class = "text-lg font-bold" >LoveSync</span >
+                </div >
+                <div class = "text-neutral-500 text-sm" >
+                    &copy; 2023 LoveSync. 我们的故事，正在动态里持续更新。
+                </div >
+            </div >
+        </div >
+    </footer >
+
     <!-- 交互逻辑 -->
     <script >
         // 移动端菜单切换
@@ -482,7 +486,7 @@
             });
 
             // 清空文件选择
-            document.getElementById('postImage').value = '';
+            document.getElementById('image').value = '';
         });
 
         // 点赞功能

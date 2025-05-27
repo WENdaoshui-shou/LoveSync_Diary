@@ -6,6 +6,8 @@ from App.models import *
 from django.contrib import messages
 from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_http_methods
 
 
 # 首页
@@ -109,14 +111,12 @@ def user_register(request):
 def community(request):
     if request.method == 'GET':
         user = request.user
-        user_data = {
-            'id': user.id,
-            'username': user.username,
-            # 不返回密码！密码属于敏感信息，禁止暴露
-        }
-
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        moments = Moment.objects.select_related('user__profile').all()
         return render(request, 'community.html', {
-            'user': user_data
+            'user': request.user,
+            'moments': moments,
         })
     return JsonResponse({'status': 'error', 'message': '仅支持 GET 请求'}, status=405)
 
@@ -124,64 +124,128 @@ def community(request):
 # 消息
 @login_required
 def message(request):
-    return render(request, 'message.html')
+    if request.method == 'GET':
+        user = request.user
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        return render(request, 'message.html', {
+            'user': request.user,
+            'moments': moments,
+        })
 
 
 # 收藏
 @login_required
 def favorites(request):
-    return render(request, 'favorites.html')
+    if request.method == 'GET':
+        user = request.user
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        return render(request, 'favorites.html', {
+            'user': request.user,
+            'moments': moments,
+        })
 
 
 # 相册
 @login_required
 def Photo_album(request):
-    return render(request, 'Photo_album.html')
+    if request.method == 'GET':
+        user = request.user
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        return render(request, 'moments.html', {
+            'user': request.user,
+            'moments': moments,
+        })
 
 
 # 动态
 def moments(request):
     if request.method == 'GET':
+        user = request.user
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
         return render(request, 'moments.html', {
-            'moments': Moment.objects.all(),
-            'images': MomentImage.objects.all(),
+            'user': request.user,
+            'moments': moments,
         })
 
-    if request.method == 'POST':
-        print(f"POST 数据: {request.POST}")  # 调试用
-        print(f"FILES 数据: {request.FILES}")  # 调试用
-        content = request.POST.get('content')
-        images = request.FILES.getlist('image')  # 获取图片列表
+    elif request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        tags = request.POST.getlist('tags')  # 获取选中的标签
+        images = request.FILES.getlist('image')  # 获取多图
 
+        # 验证内容非空
         if not content:
-            return render(request, 'moments.html', {'error': '动态内容不能为空'})
+            return render(request, 'moments.html', {
+                'moments': Moment.objects.all(),
+                'error': '动态内容不能为空'
+            })
 
         try:
-            # 创建动态（不含图片字段）
+            # 创建动态
             moment = Moment.objects.create(
                 user=request.user,
                 content=content,
                 likes=0,
-                comments=0,
+                comments=0
             )
 
-            # 保存所有上传的图片
+            # 处理标签
+            for tag_name in tags:
+                tag, _ = Tag.objects.get_or_create(name=tag_name)
+                moment.tags.add(tag)
+
+            # 处理多图
             for img in images:
                 MomentImage.objects.create(moment=moment, image=img)
 
-            return redirect('moments')
+            return redirect('moments')  # 重定向到动态列表
 
         except Exception as e:
-            return render(request, 'moments.html', {'error': f'发布失败：{str(e)}'})
+            return render(request, 'moments.html', {
+                'moments': Moment.objects.all(),
+                'error': f'发布失败：{str(e)}'
+            })
+
+
+# 删除动态
+@login_required
+@require_http_methods(['DELETE'])
+def delete_moment(request, moment_id):
+    moment = get_object_or_404(Moment, id=moment_id, user=request.user)
+    moment.delete()
+    return JsonResponse({'status': 'success'})
 
 
 # 主页
 @login_required
 def Personal_Center(request):
-    return render(request, 'Personal_Center.html')
+    if request.method == 'GET':
+        user = request.user
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        return render(request, 'Personal_Center.html', {
+            'user': request.user,
+            'moments': moments,
+        })
 
 
 # 设置
 @login_required
 def settings_view(request):
-    return render(request, 'settings.html')
+    if request.method == 'GET':
+        user = request.user
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        return render(request, 'settings.html', {
+            'user': request.user,
+            'moments': moments,
+        })

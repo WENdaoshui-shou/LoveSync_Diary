@@ -288,7 +288,7 @@
                 <div class = "relative" id = "userDropdown" >
                     <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
                          id = "userAvatar" >
-                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                        <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
                              class = "w-full h-full object-cover" >
                     </div >
                     <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"

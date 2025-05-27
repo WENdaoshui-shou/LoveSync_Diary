@@ -41,10 +41,12 @@ urlpatterns = [
     # 动态
     path('moments/', moments, name='moments'),
 
+    # 删除动态
+    path('moments/<int:moment_id>/delete/', delete_moment, name='delete_moment'),
+
     path('admin/', admin.site.urls),
 ]
 
 # 添加媒体文件路由（仅在开发环境使用）
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
