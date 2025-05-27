@@ -214,13 +214,6 @@ def moments(request):
             })
 
 
-# 全部动态
-@login_required
-def all_moments(request):
-    moments = Moment.objects.select_related('user__profile').all()
-    return render(request, 'moments.html', {'moments': moments})
-
-
 # 删除动态
 @login_required
 @require_http_methods(['DELETE'])
