@@ -75,3 +75,19 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+# 评论
+class Comment(models.Model):
+    moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name='comment_set')  # 修改关联名称
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_comments')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    content = models.TextField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} 对 {self.parent.user.username if self.parent else '动态'} 的评论: {self.content[:20]}"

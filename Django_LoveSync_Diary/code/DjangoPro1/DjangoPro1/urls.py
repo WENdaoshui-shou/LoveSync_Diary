@@ -41,6 +41,9 @@ urlpatterns = [
     # 动态
     path('moments/', moments, name='moments'),
 
+    # 全部动态
+    path('all_moments/', all_moments, name='all_moments'),
+
     # 删除动态
     path('moments/<int:moment_id>/delete/', delete_moment, name='delete_moment'),
 

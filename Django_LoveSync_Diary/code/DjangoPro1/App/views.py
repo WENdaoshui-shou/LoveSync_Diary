@@ -73,13 +73,13 @@ def user_register(request):
     if request.method == "GET":
         return render(request, 'register.html')
     elif request.method == "POST":
+        name = request.POST.get('name')
         phone = request.POST.get('username')
         passwd = request.POST.get('password')
-        name = request.POST.get('name')
         email = request.POST.get('email')
 
         # 检查用户名是否存在
-        user_exists = User.objects.filter(username=phone).exists
+        user_exists = User.objects.filter(username=phone).exists()
         if user_exists:
             return render(request, 'register.html', {'messages': '该用户名已被注册'})
 
@@ -214,6 +214,13 @@ def moments(request):
             })
 
 
+# 全部动态
+@login_required
+def all_moments(request):
+    moments = Moment.objects.select_related('user__profile').all()
+    return render(request, 'moments.html', {'moments': moments})
+
+
 # 删除动态
 @login_required
 @require_http_methods(['DELETE'])
@@ -249,3 +256,72 @@ def settings_view(request):
             'user': request.user,
             'moments': moments,
         })
+
+
+# 评论
+@login_required
+def add_comment(request, moment_id, parent_id=None):
+    try:
+        moment = get_object_or_404(Moment, id=moment_id)
+        parent_comment = None
+
+        # 验证父评论（如果有）
+        if parent_id:
+            parent_comment = get_object_or_404(Comment, id=parent_id, moment=moment)
+
+        content = request.POST.get('content', '').strip()
+        if not content:
+            return JsonResponse({'status': 'error', 'message': '评论内容不能为空'}, status=400)
+
+        # 创建评论
+        comment = Comment.objects.create(
+            moment=moment,
+            user=request.user,
+            parent=parent_comment,
+            content=content
+        )
+
+        # 序列化评论数据
+        def serialize_comment(comment):
+            return {
+                'id': comment.id,
+                'user': {
+                    'username': comment.user.username,
+                    'avatar': comment.user.profile.userAvatar.url if hasattr(comment.user, 'profile') else None
+                },
+                'content': comment.content,
+                'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
+                'is_parent': comment.parent_id is None,
+                'replies_count': comment.replies.count()
+            }
+
+        return JsonResponse({
+            'status': 'success',
+            'comment': serialize_comment(comment),
+            'total_comments': moment.comment_set.count()
+        })
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+# 删除评论
+def delete_comment(request, comment_id):
+    try:
+        comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+        moment_id = comment.moment.id
+
+        # 删除前获取评论总数（用于前端更新）
+        total_comments = comment.moment.comment_set.count()
+
+        # 执行删除（级联删除所有子评论）
+        comment.delete()
+
+        return JsonResponse({
+            'status': 'success',
+            'moment_id': moment_id,
+            'total_comments': total_comments - 1
+        })
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
