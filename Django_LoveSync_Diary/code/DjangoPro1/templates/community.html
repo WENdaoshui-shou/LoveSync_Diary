@@ -484,10 +484,11 @@
     <!-- 主内容区 -->
     <main class = "flex-grow pt-24 pb-16 relative z-10 pl-64" >
         <div class = "container mx-auto px-4" >
-            <!-- 修改为 flex-wrap，小屏幕下换行显示 -->
+            <!-- 小屏幕下换行显示 -->
             <div class = "flex flex-col md:flex-row flex-wrap" >
                 <!-- 中间内容区 -->
                 <div class = "w-full md:w-3/4 md:px-6 space-y-6" >
+                    <!-- 轮播图 -->
                     <div class = "bg-white rounded-xl shadow-lg overflow-hidden hover-scale" >
                         <div class = "relative aspect-video h-full " >
                             <div class = "absolute inset-0 carousel-container" >
@@ -514,44 +515,52 @@
                     </div >
 
                     <!-- 动态内容列表 -->
+                    {% for moment in moments %}
                     <!-- 动态1 -->
-                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card w-full" >
+                        <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card w-full" >
                         <div class = "p-8" >
                             <div class = "flex items-center justify-between" >
                                 <div class = "flex items-center space-x-3" >
                                     <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                        <img src = "https://picsum.photos/200/200?random=5" alt = "发布者头像"
+                                        <img src = "{{ moment.user.profile.userAvatar.url }}" alt = "发布者头像"
                                              class = "w-full h-full object-cover" >
                                     </div >
                                     <div >
-                                        <h4 class = "font-semibold text-neutral-900" >小甜甜和小帅帅</h4 >
-                                        <p class = "text-neutral-500 text-xs" >2小时前</p >
+                                        <h4 class = "font-semibold text-neutral-900" >{{ moment.user.name }}</h4 >
+                                        <p class = "text-neutral-500 text-xs" >{{ moment.created_at|date:"Y-m-d H:i" }}</p >
                                     </div >
                                 </div >
                                 <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
                                     <i class = "fa-solid fa-ellipsis-h" ></i >
                                 </button >
                             </div >
+
                             <div class = "mt-4" >
-                                <p class = "text-neutral-800" >今天是我们恋爱一周年的日子，一起去了我们第一次约会的餐厅，回忆满满💕 #恋爱一周年纪念#</p >
+                                <p class = "text-neutral-800" >{{ moment.content }}</p >
                             </div >
-                            <div class = "mt-4 grid grid-cols-2 gap-2" >
-                                <img src = "https://picsum.photos/600/400?random=10" alt = "动态图片1"
-                                     class = "rounded-lg w-full h-40 object-cover hover-scale" >
-                                <img src = "https://picsum.photos/600/400?random=11" alt = "动态图片2"
-                                     class = "rounded-lg w-full h-40 object-cover hover-scale" >
+
+                            <!-- 动态图片 -->
+                            <div class = "mt-4 grid gap-2
+                                        sm:grid-cols-2
+                                        md:grid-cols-3
+                                        lg:grid-cols-4" >
+                                {% for image in moment.moment_images.all %}
+                                    <img src = "{{ image.image.url }}" alt = "动态图片"
+                                         class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                                {% endfor %}
                             </div >
+
                             <div class = "mt-4 flex justify-between items-center" >
                                 <div class = "flex space-x-4" >
                                     <button
                                             class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
                                         <i class = "fa-regular fa-heart" ></i >
-                                        <span >128</span >
+                                        <span >{{ moment.likes }}</span >
                                     </button >
                                     <button
                                             class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
                                         <i class = "fa-regular fa-comment" ></i >
-                                        <span >24</span >
+                                        <span >{{ moment.comments }}</span >
                                     </button >
                                 </div >
                                 <button
@@ -561,7 +570,7 @@
                                 </button >
                             </div >
                         </div >
-                        <!-- 评论区域 -->
+                            <!-- 评论区域 -->
                         <div class = "bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section" >
                             <div class = "space-y-4" >
                                 <!-- 评论1 -->
@@ -633,146 +642,7 @@
                             </div >
                         </div >
                     </div >
-
-                    <!-- 动态2 -->
-                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card" >
-                        <div class = "p-6" >
-                            <div class = "flex items-center justify-between" >
-                                <div class = "flex items-center space-x-3" >
-                                    <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                        <img src = "https://picsum.photos/200/200?random=8" alt = "发布者头像"
-                                             class = "w-full h-full object-cover" >
-                                    </div >
-                                    <div >
-                                        <h4 class = "font-semibold text-neutral-900" >旅行情侣</h4 >
-                                        <p class = "text-neutral-500 text-xs" >昨天</p >
-                                    </div >
-                                </div >
-                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
-                                    <i class = "fa-solid fa-ellipsis-h" ></i >
-                                </button >
-                            </div >
-                            <div class = "mt-4" >
-                                <p class = "text-neutral-800" >第一次一起出国旅行，泰国普吉岛真的太美了！和你一起看海，一起探索新的地方，这就是我想要的生活~ #情侣旅行#
-                                </p >
-                            </div >
-                            <div class = "mt-4 grid grid-cols-3 gap-2" >
-                                <img src = "https://picsum.photos/600/400?random=20" alt = "动态图片1"
-                                     class = "rounded-lg w-full h-32 object-cover hover-scale" >
-                                <img src = "https://picsum.photos/600/400?random=21" alt = "动态图片2"
-                                     class = "rounded-lg w-full h-32 object-cover hover-scale" >
-                                <img src = "https://picsum.photos/600/400?random=22" alt = "动态图片3"
-                                     class = "rounded-lg w-full h-32 object-cover hover-scale" >
-                            </div >
-                            <div class = "mt-4 flex justify-between items-center" >
-                                <div class = "flex space-x-4" >
-                                    <button
-                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span >256</span >
-                                    </button >
-                                    <button
-                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
-                                        <i class = "fa-regular fa-comment" ></i >
-                                        <span >42</span >
-                                    </button >
-                                </div >
-                                <button
-                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom" >
-                                    <i class = "fa-regular fa-share-from-square" ></i >
-                                    <span >分享</span >
-                                </button >
-                            </div >
-                        </div >
-                        <!-- 评论区域 (默认隐藏) -->
-                        <div class = "bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section" >
-                            <!-- 评论内容将通过JavaScript动态加载 -->
-                            <div class = "space-y-4" >
-                                <!-- 发表评论 -->
-                                <div class = "flex space-x-3 mt-2" >
-                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
-                                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
-                                             class = "w-full h-full object-cover" >
-                                    </div >
-                                    <div class = "flex-1 relative" >
-                                        <input type = "text" placeholder = "写下你的评论..."
-                                               class = "w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
-                                        <button class = "absolute right-2 top-1/2 -translate-y-1/2 text-primary" >
-                                            <i class = "fa-solid fa-paper-plane" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-                    </div >
-
-                    <!-- 动态3 -->
-                    <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card" >
-                        <div class = "p-6" >
-                            <div class = "flex items-center justify-between" >
-                                <div class = "flex items-center space-x-3" >
-                                    <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                        <img src = "https://picsum.photos/200/200?random=9" alt = "发布者头像"
-                                             class = "w-full h-full object-cover" >
-                                    </div >
-                                    <div >
-                                        <h4 class = "font-semibold text-neutral-900" >美食情侣</h4 >
-                                        <p class = "text-neutral-500 text-xs" >3天前</p >
-                                    </div >
-                                </div >
-                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
-                                    <i class = "fa-solid fa-ellipsis-h" ></i >
-                                </button >
-                            </div >
-                            <div class = "mt-4" >
-                                <p class = "text-neutral-800" >周末一起学做了一道菜，虽然过程有点曲折，但成品还不错哦！第一次合作下厨，很开心~ #情侣日常# #美食分享#
-                                </p >
-                            </div >
-                            <div class = "mt-4" >
-                                <img src = "https://picsum.photos/800/500?random=30" alt = "动态图片"
-                                     class = "rounded-lg w-full h-64 object-cover hover-scale" >
-                            </div >
-                            <div class = "mt-4 flex justify-between items-center" >
-                                <div class = "flex space-x-4" >
-                                    <button
-                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span >189</span >
-                                    </button >
-                                    <button
-                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
-                                        <i class = "fa-regular fa-comment" ></i >
-                                        <span >36</span >
-                                    </button >
-                                </div >
-                                <button
-                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom" >
-                                    <i class = "fa-regular fa-share-from-square" ></i >
-                                    <span >分享</span >
-                                </button >
-                            </div >
-                        </div >
-                        <!-- 评论区域 (默认隐藏) -->
-                        <div class = "bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section" >
-                            <!-- 评论内容将通过JavaScript动态加载 -->
-                            <div class = "space-y-4" >
-                                <!-- 发表评论 -->
-                                <div class = "flex space-x-3 mt-2" >
-                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
-                                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
-                                             class = "w-full h-full object-cover" >
-                                    </div >
-                                    <div class = "flex-1 relative" >
-                                        <input type = "text" placeholder = "写下你的评论..."
-                                               class = "w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
-                                        <button class = "absolute right-2 top-1/2 -translate-y-1/2 text-primary" >
-                                            <i class = "fa-solid fa-paper-plane" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-                    </div >
+                    {% endfor %}
 
                     <!-- 加载更多 -->
                     <button
@@ -1030,7 +900,7 @@
     </main >
 
     <!-- 页脚 -->
-    <!-- <footer class="bg-white border-t border-neutral-200 py-8">    
+    <!-- <footer class="bg-white border-t border-neutral-200 py-8">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <a href="#" class="flex items-center space-x-2">
