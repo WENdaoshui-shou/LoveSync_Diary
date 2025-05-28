@@ -55,25 +55,47 @@ class MomentImage(models.Model):
         return f'图片 for {self.moment}'
 
 
+GENDER_CHOICES = [
+    ('female', '女'),
+    ('male', '男'),
+    ('other', '保密'),
+]
+
+LOCATION_CHOICES = [
+    ('北京市', '北京市'),
+    ('天津市', '天津市'),
+    ('重庆市', '重庆市'),
+    ('上海市', '上海市'),
+]
+
+
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     userAvatar = models.ImageField(
         upload_to='userAvatar/',
         blank=True,
         null=True,
-        default='userAvatar/1.jpg'  # 确保默认图片存在
     )
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='other', verbose_name='性别')
+    birth_date = models.DateField(null=True, blank=True, verbose_name='出生日期')
+    location = models.CharField(max_length=100, choices=LOCATION_CHOICES, null=True, blank=True, verbose_name='所在地')
+    bio = models.TextField(max_length=500, null=True, blank=True, verbose_name='个人简介')
+
+    def __str__(self):
+        return f"{self.user.username} 的个人设置"
+
+    class Meta:
+        verbose_name = '用户设置'
+        verbose_name_plural = '用户设置'
 
 
-#  用户注册时未自动创建 Profile 模型
+#  用户注册时自动创建 Profile 模型
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_and_save_user_profile(sender, instance, created, **kwargs):
     if created:
+        # 创建 Profile 对象
         Profile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
+    # 每次保存用户时都保存 Profile（可选，根据需要保留）
     instance.profile.save()
 
 

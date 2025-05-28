@@ -26,23 +26,24 @@ urlpatterns = [
     # 消息
     path('message/', message, name='message'),
 
-    # 设置
-    path('settings/', settings_view, name='settings'),
+    # # 设置
+    # path('settings/', settings_view, name='settings'),
+    # 个人设置页面 - 带tab参数
+    path('settings/<str:tab>/', settings_view, name='settings'),
+    # 个人设置页面 - 默认显示profile选项卡
+    path('settings/', settings_view, {'tab': 'profile'}, name='settings'),
 
     # 主页
-    path('Personal_Center/', Personal_Center, name='Personal_Center'),
+    path('personal_center/', personal_center, name='personal_center'),
 
     # 相册
-    path('Photo_album/', Photo_album, name='Photo_album'),
+    path('photo_album/', photo_album, name='photo_album'),
 
     # 收藏
     path('favorites/', favorites, name='favorites'),
 
     # 动态
     path('moments/', moments, name='moments'),
-
-    # 全部动态
-    path('all_moments/', all_moments, name='all_moments'),
 
     # 删除动态
     path('moments/<int:moment_id>/delete/', delete_moment, name='delete_moment'),

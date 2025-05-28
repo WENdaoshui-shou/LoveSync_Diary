@@ -1,11 +1,11 @@
-import datetime
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+import os
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from App.models import *
 from django.contrib import messages
-from django.db import IntegrityError, transaction
-from django.shortcuts import render, redirect
+from django.db import IntegrityError
+from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
 
@@ -16,7 +16,7 @@ def user_index(request):
 
 
 # 登录
-def user_login(request, backend='django.contrib.auth.backends.ModelBackend', remember=True):
+def user_login(request):
     if request.user.is_authenticated:
         return redirect('community')  # 已登录用户直接跳转
 
@@ -101,7 +101,7 @@ def user_register(request):
             if 'unique constraint' in str(e).lower():
                 return render(request, 'register.html', {'messages': '手机号被注册'})
             return render(request, 'register.html', {'messages': '注册失败，请重试'})
-        except Exception as e:
+        except Exception:
             # 捕获其他异常
             return render(request, 'register.html', {'messages': '注册过程中发生错误, 请稍后再试'})
 
@@ -111,12 +111,15 @@ def user_register(request):
 def community(request):
     if request.method == 'GET':
         user = request.user
+
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        moments = Moment.objects.select_related('user__profile').all()
+
+        moment = Moment.objects.select_related('user__profile').all()
+
         return render(request, 'community.html', {
             'user': request.user,
-            'moments': moments,
+            'moments': moment,
         })
     return JsonResponse({'status': 'error', 'message': '仅支持 GET 请求'}, status=405)
 
@@ -126,12 +129,15 @@ def community(request):
 def message(request):
     if request.method == 'GET':
         user = request.user
+
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
         return render(request, 'message.html', {
             'user': request.user,
-            'moments': moments,
+            'moments': moment,
         })
 
 
@@ -140,26 +146,32 @@ def message(request):
 def favorites(request):
     if request.method == 'GET':
         user = request.user
+
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
         return render(request, 'favorites.html', {
             'user': request.user,
-            'moments': moments,
+            'moments': moment,
         })
 
 
 # 相册
 @login_required
-def Photo_album(request):
+def photo_album(request):
     if request.method == 'GET':
         user = request.user
+
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
-        return render(request, 'Photo_album.html', {
+
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
+        return render(request, 'photo_album.html', {
             'user': request.user,
-            'moments': moments,
+            'moments': moment,
         })
 
 
@@ -167,12 +179,15 @@ def Photo_album(request):
 def moments(request):
     if request.method == 'GET':
         user = request.user
+
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
         return render(request, 'moments.html', {
             'user': request.user,
-            'moments': moments,
+            'moments': moment,
         })
 
     elif request.method == 'POST':
@@ -225,30 +240,66 @@ def delete_moment(request, moment_id):
 
 # 主页
 @login_required
-def Personal_Center(request):
+def personal_center(request):
     if request.method == 'GET':
         user = request.user
+
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
-        return render(request, 'Personal_Center.html', {
+
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
+        return render(request, 'personal_center.html', {
             'user': request.user,
-            'moments': moments,
+            'moments': moment,
         })
 
 
 # 设置
-@login_required
-def settings_view(request):
+def settings_view(request, tab='profile'):
     if request.method == 'GET':
         user = request.user
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        moments = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
         return render(request, 'settings.html', {
             'user': request.user,
-            'moments': moments,
+            'moments': moment,
         })
+
+    if request.method == 'POST':
+        profile = request.user.profile
+
+        if tab == 'profile':
+            # 处理个人信息表单
+            # 更新 User 模型的昵称
+            request.user.name = request.POST.get('name', request.user.name)
+            request.user.save()
+
+            # 更新 Profile 模型的其他信息
+            profile.gender = request.POST.get('gender', profile.gender)
+            birth_date = request.POST.get('birth_date')
+            profile.birth_date = birth_date if birth_date else None
+            profile.location = request.POST.get('location', profile.location)
+            profile.bio = request.POST.get('bio', profile.bio)
+
+            # 处理头像上传
+            if 'userAvatar' in request.FILES:
+                # # 删除旧头像
+                # if profile.userAvatar:
+                #     old_avatar_path = profile.userAvatar.path
+                #     if os.path.exists(old_avatar_path):
+                #         os.remove(old_avatar_path)
+                profile.userAvatar = request.FILES['userAvatar']
+
+            profile.save()
+            messages.success(request, '个人信息已成功更新！')
+            return redirect('settings', tab='profile')
+
+        # 处理 GET 请求时渲染模板
+        return render(request, 'settings.html')
 
 
 # 评论

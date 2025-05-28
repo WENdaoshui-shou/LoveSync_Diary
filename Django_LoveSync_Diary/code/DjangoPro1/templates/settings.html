@@ -281,7 +281,7 @@
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >社区</a >
                 <a href = "{% url 'moments' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >我们的动态</a >
-                <a href = "{% url 'Photo_album' %}"
+                <a href = "{% url 'photo_album' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >相册</a >
                 <a href = "{% url 'favorites' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >收藏</a >
@@ -355,7 +355,7 @@
                     </div >
                     <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
                          id = "userOptions" >
-                        <a href = "{% url 'Personal_Center' %}"
+                        <a href = "{% url 'personal_center' %}"
                            class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
                             <i class = "fa-solid fa-user mr-2 w-5 text-center" ></i >主页
                         </a >
@@ -399,7 +399,7 @@
                    class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
                     <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >我们的动态
                 </a >
-                <a href = "{% url 'Photo_album' %}"
+                <a href = "{% url 'photo_album' %}"
                    class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
                     <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >相册
                 </a >
@@ -421,7 +421,7 @@
                     <i class = "fa-solid fa-question-circle mr-3 w-5 text-center" ></i >爱情测试
                 </a >
                 <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'Personal_Center' %}"
+                <a href = "{% url 'personal_center' %}"
                    class = "text-neutral-700 py-2 transition-custom flex items-center" >
                     <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >个人主页
                 </a >
@@ -463,7 +463,7 @@
                     <i class = "fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform" ></i >
                     <span >双人日记</span >
                 </a >
-                <a href = "{% url 'Personal_Center' %}"
+                <a href = "{% url 'personal_center' %}"
                    class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
                     <i class = "fa-solid fa-blog w-5 text-center group-hover:scale-110 transition-transform" ></i >
                     <span >个人主页</span >
@@ -594,92 +594,102 @@
 
         <!-- 个人信息设置 -->
         <div class = "p-6" id = "content-profile" >
-          <h3 class = "text-xl font-semibold mb-4" >个人信息</h3 >
+            <form action = "{% url 'settings' 'profile' %}" method = "POST" enctype = "multipart/form-data" >
+            {% csrf_token %}
+                  <div class = "grid grid-cols-1 md:grid-cols-3 gap-6" >
+                    <!-- 头像设置 -->
+                    <div class = "md:col-span-1" >
+                      <div class = "bg-neutral-50 rounded-xl p-4 text-center" >
+                        <div class = "relative w-32 h-32 mx-auto mb-4 cursor-pointer" id = "avatar-container" >
+                          <div class = "absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full opacity-20 animate-pulse" ></div >
+                          <div class = "absolute inset-1 bg-white rounded-full overflow-hidden border-2 border-primary" >
+                            <img src = "{{ user.profile.userAvatar.url}}"
+                                 alt = "用户头像"
+                                 class = "w-full h-full object-cover"
+                                 id = "avatar-image" >
+                          </div >
+                          <button class = "absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-custom"
+                                  id = "camera-button" >
+                            <i class = "fa-solid fa-camera" ></i >
+                          </button >
+                        </div >
+                        <input type = "file" id = "avatarInput" name = "userAvatar" accept = "image/*"
+                               class = "hidden" >
+                        <button class = "w-full py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom"
+                                id = "change-avatar-button" >
+                          更换头像
+                        </button >
+                        <p class = "text-xs text-neutral-500 mt-2" >支持 JPG, PNG 格式</p >
+                      </div >
+                    </div >
 
-          <div class = "grid grid-cols-1 md:grid-cols-3 gap-6" >
-            <!-- 头像设置 -->
-            <div class = "md:col-span-1" >
-              <div class = "bg-neutral-50 rounded-xl p-4 text-center" >
-                <div class = "relative w-32 h-32 mx-auto mb-4" >
-                  <div
-                          class = "absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full opacity-20 animate-pulse" >
+                    <!-- 基本信息设置 -->
+                    <div class = "md:col-span-2 space-y-4" >
+                        <div class = "grid grid-cols-1 md:grid-cols-2 gap-4" >
+                          <div >
+                            <label class = "block text-sm font-medium text-neutral-700 mb-1" >昵称</label >
+                            <input type = "text" name = "name" value = "{{ user.name }}"
+                                   class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
+                          </div >
+                          <div >
+                            <label class = "block text-sm font-medium text-neutral-700 mb-1" >性别</label >
+                            <div class = "flex space-x-4 mt-2" >
+                              <label class = "inline-flex items-center" >
+                                <input type = "radio" name = "gender" value = "female"
+                                       class = "form-radio h-4 w-4 text-primary" >
+                                <span class = "ml-2 text-neutral-700" >女</span >
+                              </label >
+                              <label class = "inline-flex items-center" >
+                                <input type = "radio" name = "gender" value = "male"
+                                       class = "form-radio h-4 w-4 text-primary" >
+                                <span class = "ml-2 text-neutral-700" >男</span >
+                              </label >
+                              <label class = "inline-flex items-center" >
+                                <input type = "radio" name = "gender" value = "other" checked
+                                       class = "form-radio h-4 w-4 text-primary" >
+                                <span class = "ml-2 text-neutral-700" >保密</span >
+                              </label >
+                              <label class = "inline-flex items-center" >
+                                  <span class = "ml-2 text-neutral-700 text-xs" >(默认为保密)</span >
+                              </label >
+                            </div >
+                          </div >
+                          <div >
+                            <label class = "block text-sm font-medium text-neutral-700 mb-1" >出生日期</label >
+                            <input type = "date" name = "birth_date"
+                                   value = "{{ user.profile.birth_date|date:'Y-m-d' }}"
+                                   class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
+                          </div >
+                          <div >
+                            <label class = "block text-sm font-medium text-neutral-700 mb-1" >所在地</label >
+                            <select name = "location"
+                                    class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
+                                    <option value = "" >请选择所在地</option >
+                                    <option value = "北京市" >北京市</option >
+                                    <option value = "上海市" >上海市</option >
+                                    <option value = "重庆市" >重庆市</option >
+                                    <option value = "天津市" >天津市</option >
+                            </select >
+                          </div >
+                          <div class = "md:col-span-2" >
+                            <label class = "block text-sm font-medium text-neutral-700 mb-1" >个人简介</label >
+                            <textarea name = "bio" rows = "3"
+                                      class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >{{ user.profile.bio }}</textarea >
+                          </div >
+                          <div class = "pt-4" >
+                              <button type = "submit"
+                                      class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
+                                保存设置
+                              </button >
+                          </div >
+                        </div >
+                    </div >
                   </div >
-                  <div class = "absolute inset-1 bg-white rounded-full overflow-hidden border-2 border-primary" >
-                    <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
-                         class = "w-full h-full object-cover" >
-                  </div >
-                  <button
-                          class = "absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-custom" >
-                    <i class = "fa-solid fa-camera" ></i >
-                  </button >
-                </div >
-                <button class = "w-full py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom" >
-                  更换头像
-                </button >
-                <p class = "text-xs text-neutral-500 mt-2" >支持 JPG, PNG 格式，最大 2MB</p >
-              </div >
-            </div >
-
-            <!-- 基本信息设置 -->
-            <div class = "md:col-span-2 space-y-4" >
-              <div class = "grid grid-cols-1 md:grid-cols-2 gap-4" >
-                <div >
-                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >昵称</label >
-                  <input type = "text" value = "{{ user.name }}"
-                         class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
-                </div >
-                <div >
-                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >性别</label >
-                  <div class = "flex space-x-4 mt-2" >
-                    <label class = "inline-flex items-center" >
-                      <input type = "radio" name = "gender" value = "female" checked
-                             class = "form-radio h-4 w-4 text-primary" >
-                      <span class = "ml-2 text-neutral-700" >女</span >
-                    </label >
-                    <label class = "inline-flex items-center" >
-                      <input type = "radio" name = "gender" value = "male" class = "form-radio h-4 w-4 text-primary" >
-                      <span class = "ml-2 text-neutral-700" >男</span >
-                    </label >
-                    <label class = "inline-flex items-center" >
-                      <input type = "radio" name = "gender" value = "other" class = "form-radio h-4 w-4 text-primary" >
-                      <span class = "ml-2 text-neutral-700" >保密</span >
-                    </label >
-                  </div >
-                </div >
-                <div >
-                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >出生日期</label >
-                  <input type = "date" value = "2000-01-01"
-                         class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
-                </div >
-                <div >
-                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >所在地</label >
-                  <select
-                          class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
-                    <option >北京市</option >
-                    <option >安徽省</option >
-                    <option >重庆市</option >
-                  </select >
-                </div >
-                <div class = "md:col-span-2" >
-                  <label class = "block text-sm font-medium text-neutral-700 mb-1" >个人简介</label >
-                  <textarea rows = "3"
-                            class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >记录我们的爱情故事，分享生活中的点点滴滴。</textarea >
-                </div >
-              </div >
-
-              <div class = "pt-4" >
-                <button
-                        class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
-                  保存修改
-                </button >
-              </div >
-            </div >
-          </div >
+            </form >
         </div >
 
         <!-- 通知设置 -->
         <div class = "p-6 hidden" id = "content-notifications" >
-          <h3 class = "text-xl font-semibold mb-4" >通知设置</h3 >
 
             <!-- 声音和震动 -->
           <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
@@ -786,16 +796,16 @@
             </div >
           </div >
 
-          <div class = "pt-6" >
-            <button class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
-              保存设置
-            </button >
-          </div >
+              <div class = "pt-4" >
+                <button
+                        class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm margin-auto" >
+                  保存设置
+                </button >
+              </div >
         </div >
 
         <!-- 隐私设置 -->
         <div class = "p-6 hidden" id = "content-privacy" >
-          <h3 class = "text-xl font-semibold mb-4" >隐私设置</h3 >
 
             <!-- 个人信息可见性 -->
           <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
@@ -940,16 +950,16 @@
             </div >
           </div >
 
-          <div class = "pt-6" >
-            <button class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
-              保存设置
-            </button >
-          </div >
+              <div class = "pt-4" >
+                <button
+                        class = "px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
+                  保存设置
+                </button >
+              </div >
         </div >
 
         <!-- 账号安全 -->
         <div class = "p-6 hidden" id = "content-account" >
-          <h3 class = "text-xl font-semibold mb-4" >账号安全</h3 >
 
             <!-- 登录信息 -->
           <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
@@ -958,7 +968,7 @@
               <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
                 <div >
                   <span class = "block text-neutral-700" >手机号码</span >
-                  <span class = "text-sm text-neutral-500" >138****6789</span >
+                  <span class = "text-sm text-neutral-500" >{{ user.username }}</span >
                 </div >
                 <button class = "text-primary hover:text-primary/80 transition-custom" >
                   更换
@@ -967,7 +977,7 @@
               <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
                 <div >
                   <span class = "block text-neutral-700" >邮箱地址</span >
-                  <span class = "text-sm text-neutral-500" >exam***@example.com</span >
+                  <span class = "text-sm text-neutral-500" >{{ user.email }}</span >
                 </div >
                 <button class = "text-primary hover:text-primary/80 transition-custom" >
                   更换
@@ -976,7 +986,7 @@
               <div class = "flex justify-between items-center py-2 border-b border-neutral-200" >
                 <div >
                   <span class = "block text-neutral-700" >登录密码</span >
-                  <span class = "text-sm text-neutral-500" >已设置</span >
+                  <span class = "text-sm text-neutral-500" >{{ user.password }}</span >
                 </div >
                 <button class = "text-primary hover:text-primary/80 transition-custom" >
                   修改
@@ -988,30 +998,11 @@
 
         <!-- 外观设置 -->
         <div class = "p-6 hidden" id = "content-appearance" >
-          <h3 class = "text-xl font-semibold mb-4" >外观设置</h3 >
 
             <!-- 主题颜色 -->
           <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
             <h4 class = "text-lg font-semibold mb-2" >主题颜色</h4 >
             <div class = "flex flex-wrap gap-2" >
-              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
-                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
-              </button >
-              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
-                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary" ></div >
-              </button >
-              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
-                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
-              </button >
-              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
-                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary" ></div >
-              </button >
-              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
-                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
-              </button >
-              <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
-                <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary" ></div >
-              </button >
               <button class = "w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom" >
                 <div class = "w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary" ></div >
               </button >
@@ -1096,7 +1087,6 @@
 
         <!-- 情侣设置 -->
         <div class = "p-6 hidden" id = "content-couple" >
-          <h3 class = "text-xl font-semibold mb-4" >情侣设置</h3 >
 
             <!-- 情侣信息 -->
           <div class = "bg-neutral-50 rounded-xl p-4 mb-6" >
@@ -1141,98 +1131,15 @@
             </div >
           </div >
         </div >
-
-      </div >
+    </div >
     </div >
   </main >
 
-  <script >
-
-    // 移动端菜单切换
-    document.getElementById('menu-toggle').addEventListener('click', function () {
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (mobileMenu.classList.contains('hidden')) {
-            mobileMenu.classList.remove('hidden');
-            // 添加动画类
-            setTimeout(() => {
-                mobileMenu.classList.add('translate-y-0', 'opacity-100');
-            }, 50);
-        } else {
-            // 移除动画类
-            mobileMenu.classList.remove('translate-y-0', 'opacity-100');
-            // 等待动画完成后隐藏菜单
-            setTimeout(() => {
-                mobileMenu.classList.add('hidden');
-            }, 200);
-        }
-    });
-
-    const userAvatar = document.getElementById('userAvatar');
-    const userOptions = document.getElementById('userOptions');
-    const userDropdown = document.getElementById('userDropdown');
-
-    let closeTimer;
-
-    // 鼠标经过头像时打开菜单
-    userAvatar.addEventListener('mouseenter', function () {
-        clearTimeout(closeTimer); // 清除之前的定时器
-        userOptions.classList.remove('hidden');
-    });
-
-    // 鼠标悬停在下拉菜单时保持菜单打开
-    userDropdown.addEventListener('mouseenter', function () {
-        clearTimeout(closeTimer); // 清除之前的定时器
-        userOptions.classList.remove('hidden');
-    });
-
-    // 鼠标离开下拉菜单时关闭菜单
-    userDropdown.addEventListener('mouseleave', function () {
-        closeTimer = setTimeout(() => {
-            userOptions.classList.add('hidden');
-        }, 500);
-    });
-
+<script >
     document.addEventListener('DOMContentLoaded', function () {
-        const moreButton = document.getElementById('moreButton');
-        const moreOptions = document.getElementById('moreOptions');
-        const moreDropdown = document.getElementById('moreDropdown');
-
-        let closeTimer;
-
-        // 鼠标经过按钮时打开菜单
-        moreButton.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            moreOptions.classList.remove('hidden');
-        });
-
-        // 鼠标悬停在下拉菜单时保持菜单打开
-        moreDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            moreOptions.classList.remove('hidden');
-        });
-
-        // 鼠标离开下拉菜单时关闭菜单
-        moreDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
-                moreOptions.classList.add('hidden');
-            }, 500); // 延迟200毫秒
-        });
-    });
-
-    // 页面加载完成时将页面滚动到顶部
-    window.onload = function () {
-        window.scrollTo(0, 0);
-    };
-
-    // 获取URL参数
-    function getUrlParam(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
-
-    // 等待DOM加载完成
-    document.addEventListener('DOMContentLoaded', function () {
-        // 获取所有选项卡按钮和内容区域
+        // ======================
+        // 选项卡切换功能
+        // ======================
         const tabs = {
             'tab-profile': 'content-profile',
             'tab-notifications': 'content-notifications',
@@ -1242,44 +1149,219 @@
             'tab-couple': 'content-couple',
         };
 
-        // 为每个选项卡按钮添加点击事件
+        // 获取 URL 参数并设置默认选项卡
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTabParam = urlParams.get('tab');
+        let activeTab = activeTabParam || 'tab-profile';
+
+        // 验证选项卡有效性
+        if (!Object.keys(tabs).includes(activeTab)) {
+            activeTab = 'tab-profile';
+        }
+
+        // 切换选项卡函数
+        function switchTab(activeTabId) {
+            // 隐藏所有选项卡和内容
+            Object.keys(tabs).forEach(tabId => {
+                const tabButton = document.getElementById(tabId);
+                const contentId = tabs[tabId];
+
+                if (tabButton) {
+                    tabButton.classList.remove('text-primary', 'border-primary');
+                    tabButton.classList.add('text-neutral-500', 'border-transparent');
+                }
+
+                if (contentId) {
+                    document.getElementById(contentId).classList.add('hidden');
+                }
+            });
+
+            // 激活当前选项卡
+            const currentTabButton = document.getElementById(activeTabId);
+            const currentContentId = tabs[activeTabId];
+
+            if (currentTabButton && currentContentId) {
+                currentTabButton.classList.add('text-primary', 'border-primary');
+                document.getElementById(currentContentId).classList.remove('hidden');
+            }
+        }
+
+        // 初始化选项卡
+        switchTab(activeTab);
+
+        // 绑定选项卡点击事件
         Object.keys(tabs).forEach(tabId => {
-            const tabElement = document.getElementById(tabId);
-            if (tabElement) {
-                tabElement.addEventListener('click', function () {
-                    // 移除所有选项卡按钮的激活状态
-                    Object.keys(tabs).forEach(id => {
-                        document.getElementById(id).classList.remove('text-primary', 'border-primary');
-                        document.getElementById(id).classList.add('text-neutral-500', 'border-transparent');
-                    });
-
-                    // 添加当前选项卡按钮的激活状态
-                    this.classList.remove('text-neutral-500', 'border-transparent');
-                    this.classList.add('text-primary', 'border-primary');
-
-                    // 隐藏所有内容区域
-                    Object.values(tabs).forEach(contentId => {
-                        document.getElementById(contentId).classList.add('hidden');
-                    });
-
-                    // 显示当前选项卡对应的内容区域
-                    document.getElementById(tabs[tabId]).classList.remove('hidden');
+            const tabButton = document.getElementById(tabId);
+            if (tabButton) {
+                tabButton.addEventListener('click', () => {
+                    switchTab(tabId);
+                    history.pushState({}, '', `?tab=${tabId.split('-')[1]}`); // 更新 URL 参数
                 });
             }
         });
-        document.addEventListener('DOMContentLoaded', function () {
-            const selectElement = document.querySelector('select');
-            if (selectElement) {
-                const newCities = ['成都市', '杭州市', '南京市', '武汉市'];
-                newCities.forEach(city => {
-                    const option = document.createElement('option');
-                    option.textContent = city;
-                    selectElement.appendChild(option);
-                });
-            }
-        });
+
+
+        // ======================
+        // 头像上传功能（支持三种触发方式）
+        // ======================
+        const avatarContainer = document.getElementById('avatar-container');
+        const avatarImage = document.getElementById('avatar-image');
+        const cameraButton = document.getElementById('camera-button');
+        const changeAvatarButton = document.getElementById('change-avatar-button');
+        const avatarInput = document.getElementById('avatarInput');
+        let originalAvatarUrl = avatarImage.src; // 存储原始头像 URL
+
+        // 触发文件选择的公共函数
+        function triggerFileSelection() {
+            avatarInput.click();
+        }
+
+        // 绑定三种触发方式
+        if (avatarContainer) {
+            avatarContainer.addEventListener('click', (e) => {
+                // 排除相机按钮的点击事件
+                if (!cameraButton.contains(e.target)) {
+                    triggerFileSelection();
+                }
+            });
+        }
+
+        if (cameraButton) {
+            cameraButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                triggerFileSelection(); // 统一调用公共函数
+            });
+        }
+
+        if (changeAvatarButton) {
+            changeAvatarButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                triggerFileSelection(); // 统一调用公共函数
+            });
+        }
+
+        // 处理文件选择和预览
+        if (avatarInput && avatarImage) {
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // 文件类型验证
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('仅支持 JPG/PNG/GIF 格式！');
+                    e.target.value = ''; // 清空无效文件
+                    return;
+                }
+
+                // 保存原始头像 URL（用于取消上传）
+                originalAvatarUrl = avatarImage.src;
+
+                // 图片预览
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // 淡入效果
+                    avatarImage.style.opacity = '0';
+                    setTimeout(() => {
+                        avatarImage.src = event.target.result;
+                        avatarImage.style.opacity = '1';
+                    }, 200);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+
+        // ======================
+        // 表单验证与提交处理
+        // ======================
+        const profileForm = document.querySelector('form[action*="profile"]');
+        const nameInput = document.querySelector('input[name="name"]');
+
+        if (profileForm) {
+            profileForm.addEventListener('submit', (e) => {
+                // 昵称验证
+                if (nameInput && nameInput.value.trim().length < 2) {
+                    alert('昵称至少需要 2 个字符！');
+                    e.preventDefault();
+                    return;
+                }
+
+                // 显示加载状态
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    const originalText = submitButton.innerHTML;
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 保存中...';
+
+                    // 延迟恢复按钮状态（模拟异步请求）
+                    setTimeout(() => {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                    }, 1500);
+                }
+            });
+        }
+
+
+        // ======================
+        // 移动端菜单与下拉菜单
+        // ======================
+        // 移动端菜单切换
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (menuToggle && mobileMenu) {
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.toggle('translate-y-0 opacity-100');
+                }, 10);
+            });
+        }
+
+        // 用户下拉菜单（头像菜单）
+        const userDropdown = document.getElementById('userDropdown');
+        const userOptions = document.getElementById('userOptions');
+        let closeTimer;
+
+        if (userDropdown && userOptions) {
+            userDropdown.addEventListener('mouseenter', () => {
+                clearTimeout(closeTimer);
+                userOptions.classList.remove('hidden');
+            });
+
+            userDropdown.addEventListener('mouseleave', () => {
+                closeTimer = setTimeout(() => {
+                    userOptions.classList.add('hidden');
+                }, 300); // 延迟 300ms 关闭菜单，避免误触
+            });
+        }
+
+        // 更多下拉菜单（导航栏更多按钮）
+        const moreDropdown = document.getElementById('moreDropdown');
+        const moreOptions = document.getElementById('moreOptions');
+
+        if (moreDropdown && moreOptions) {
+            moreDropdown.addEventListener('mouseenter', () => {
+                clearTimeout(closeTimer);
+                moreOptions.classList.remove('hidden');
+            });
+
+            moreDropdown.addEventListener('mouseleave', () => {
+                closeTimer = setTimeout(() => {
+                    moreOptions.classList.add('hidden');
+                }, 300);
+            });
+        }
     });
-  </script >
+
+    // 获取 CSRF 令牌（供 AJAX 使用）
+    function getCSRFToken() {
+        const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return csrfInput ? csrfInput.value : '';
+    }
+</script >
 </body >
 
 </html >
