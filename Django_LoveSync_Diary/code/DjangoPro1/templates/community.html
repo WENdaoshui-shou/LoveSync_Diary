@@ -969,6 +969,33 @@
             }
         });
 
+        // 点赞功能
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const icon = this.querySelector('i');
+                const count = this.querySelector('span');
+
+                if (icon.classList.contains('fa-regular')) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = '#FF6B8B';
+                    count.textContent = parseInt(count.textContent) + 1;
+                } else {
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    icon.style.color = '';
+                    count.textContent = parseInt(count.textContent) - 1;
+                }
+            });
+        });
+
+        // 评论功能（模拟打开评论框）
+        document.querySelectorAll('.comment-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                alert('打开评论区（功能开发中）');
+            });
+        });
+
         const userAvatar = document.getElementById('userAvatar');
         const userOptions = document.getElementById('userOptions');
         const userDropdown = document.getElementById('userDropdown');

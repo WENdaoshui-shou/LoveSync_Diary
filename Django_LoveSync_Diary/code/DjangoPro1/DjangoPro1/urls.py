@@ -44,7 +44,10 @@ urlpatterns = [
 
     # 动态
     path('moments/', moments, name='moments'),
-
+    # 分享动态
+    path('share-moment/<int:moment_id>/', share_moment, name='share_moment'),
+    # 取消分享动态
+    path('unshare-moment/<int:moment_id>/', unshare_moment, name='unshare_moment'),
     # 删除动态
     path('moments/<int:moment_id>/delete/', delete_moment, name='delete_moment'),
 

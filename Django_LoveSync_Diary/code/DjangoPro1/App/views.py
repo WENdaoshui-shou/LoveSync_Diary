@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 
 
 # 首页
@@ -115,7 +115,8 @@ def community(request):
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
 
-        moment = Moment.objects.select_related('user__profile').all()
+        # 只显示已分享的动态
+        moment = Moment.objects.filter(is_shared=True).select_related('user__profile').all()
 
         return render(request, 'community.html', {
             'user': request.user,
@@ -227,6 +228,52 @@ def moments(request):
                 'moments': Moment.objects.all(),
                 'error': f'发布失败：{str(e)}'
             })
+
+
+# 分享动态
+@login_required
+@require_POST
+def share_moment(request, moment_id):
+    try:
+        moment = Moment.objects.get(id=moment_id)
+
+        # 关键校验：防止重复分享
+        if moment.is_shared:
+            return JsonResponse({'success': False, 'error': '此动态已分享'})
+
+        if moment.user != request.user:
+            return JsonResponse({'success': False, 'error': '你无权分享此动态'})
+
+        moment.is_shared = True
+        moment.save()
+
+        return JsonResponse({'success': True, 'message': '分享成功'})
+
+    except Moment.DoesNotExist:
+        return JsonResponse({'success': False, 'error': '动态不存在'})
+
+
+# 取消分享动态
+@login_required
+@require_POST
+def unshare_moment(request, moment_id):
+    try:
+        moment = Moment.objects.get(id=moment_id)
+
+        # 检查用户权限
+        if moment.user != request.user:
+            return JsonResponse({'success': False, 'error': '无权限'}, status=403)
+
+        # 取消分享
+        moment.is_shared = False
+        moment.save()
+
+        return JsonResponse({'success': True, 'message': '已取消分享'})
+
+    except Moment.DoesNotExist:
+        return JsonResponse({'success': False, 'error': '动态不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 # 删除动态

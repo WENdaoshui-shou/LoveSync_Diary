@@ -41,6 +41,7 @@ class Moment(models.Model):
     likes = models.IntegerField(default=0, verbose_name='点赞数', db_default=0)
     comments = models.IntegerField(default=0, verbose_name='评论数', db_default=0)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    is_shared = models.BooleanField(default=False)  # 新增字段，表示是否被分享
     tags = models.ManyToManyField(Tag, blank=True, related_name='moments')  # 添加标签多对多字段
 
     def __str__(self):

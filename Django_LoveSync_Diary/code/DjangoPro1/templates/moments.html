@@ -421,11 +421,88 @@
                                 </button >
                                 <div class = "absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50 hidden"
                                      id = "menu-{{ moment.id }}" >
+                                    {% if moment.is_shared %}
+                                        <a href = "#"
+                                           class = "block px-4 py-2 text-yellow-500 hover:bg-yellow-50 transition-custom unshare-btn"
+                                           data-moment-id = "{{ moment.id }}" >
+                                            <i class = "fa-solid fa-undo mr-2" ></i > 取消分享
+                                        </a >
+                                    {% else %}
+                                        <a href = "#"
+                                           class = "block px-4 py-2
+                                           {% if moment.is_shared %}
+                                              text-gray-400 cursor-not-allowed opacity-50
+                                           {% else %}
+                                              text-blue-500 hover:bg-blue-50 transition-custom share-btn
+                                           {% endif %}"
+                                           data-moment-id = "{{ moment.id }}"
+                                           data-is-shared = "{{ moment.is_shared|lower }}" >
+                                            <i class = "fa-solid fa-{% if moment.is_shared %}check{% else %}share-alt{% endif %} mr-2" ></i >
+                                            {% if moment.is_shared %}已分享{% else %}分享到社区{% endif %}
+                                        </a >
+                                    {% endif %}
                                     <a href = "#"
                                        class = "block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom delete-btn"
                                        data-moment-id = "{{ moment.id }}" >
-                                        <i class = "fa-solid fa-trash-can mr-2" ></i > 删除动态
-                                    </a >
+                                            <i class = "fa-solid fa-trash-can mr-2" ></i > 删除动态
+                                        </a >
+                                </div >
+                            </div >
+
+                                <!-- 分享确认弹窗 -->
+                            <div id = "share-confirm-modal"
+                                 class = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" >
+                                <div class = "bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all" >
+                                    <h3 class = "text-lg font-semibold text-gray-800 mb-4" >确认分享</h3 >
+                                    <p class = "text-gray-600 mb-6" >你确定要将这条动态分享到社区吗？</p >
+                                    <div class = "flex justify-end space-x-3" >
+                                        <button id = "cancel-share-btn"
+                                                class = "px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom" >
+                                            取消
+                                        </button >
+                                        <button id = "confirm-share-btn"
+                                                class = "px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-custom" >
+                                            <i class = "fa fa-share-alt mr-2" ></i >分享
+                                        </button >
+                                    </div >
+                                </div >
+                            </div >
+
+                                <!-- 删除确认模态框 -->
+                            <div id = "delete-modal"
+                                 class = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" >
+                                <div class = "bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all" >
+                                    <h3 class = "text-lg font-semibold text-gray-800 mb-4" >确认删除</h3 >
+                                    <p class = "text-gray-600 mb-6" >你确定要删除这条动态吗？此操作不可撤销。</p >
+                                    <div class = "flex justify-end space-x-3" >
+                                        <button id = "cancel-delete-btn"
+                                                class = "px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom" >
+                                            取消
+                                        </button >
+                                        <button id = "confirm-delete-btn"
+                                                class = "px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-custom" >
+                                            <i class = "fa fa-trash mr-2" ></i >删除
+                                        </button >
+                                    </div >
+                                </div >
+                            </div >
+
+                                <!-- 取消分享确认模态框 -->
+                            <div id = "unshare-modal"
+                                 class = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" >
+                                <div class = "bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all" >
+                                    <h3 class = "text-lg font-semibold text-gray-800 mb-4" >确认取消分享</h3 >
+                                    <p class = "text-gray-600 mb-6" >你确定要取消这条动态的分享吗？它将不再显示在社区中。</p >
+                                    <div class = "flex justify-end space-x-3" >
+                                        <button id = "cancel-unshare-btn"
+                                                class = "px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom" >
+                                            取消
+                                        </button >
+                                        <button id = "confirm-unshare-btn"
+                                                class = "px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-custom" >
+                                            <i class = "fa fa-undo mr-2" ></i >取消分享
+                                        </button >
+                                    </div >
                                 </div >
                             </div >
                         </div >
@@ -488,96 +565,289 @@
 
     <!-- 交互逻辑 -->
     <script >
+    // 获取CSRF令牌
+    function getCSRFToken() {
+        const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+        return cookieValue ? cookieValue.pop() : '';
+    }
+
+    // 封装模态框操作函数
+    function setupModal(modalId, openBtnsClass, closeBtnId, confirmBtnId, confirmCallback) {
+        const modal = document.getElementById(modalId);
+        const openBtns = document.querySelectorAll(openBtnsClass);
+        const closeBtn = document.getElementById(closeBtnId);
+        const confirmBtn = document.getElementById(confirmBtnId);
+
+        let currentId = null;
+
+        // 打开模态框
+        openBtns.forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                currentId = this.getAttribute('data-moment-id');
+
+                // 显示模态框并添加动画
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.querySelector('div').classList.add('scale-100');
+                    modal.querySelector('div').classList.remove('scale-95', 'opacity-0');
+                }, 10);
+            });
+        });
+
+        // 关闭模态框
+        closeBtn.addEventListener('click', function () {
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 500);
+        });
+
+        // 确认操作
+        confirmBtn.addEventListener('click', function () {
+            if (!currentId) return;
+
+            // 显示加载状态
+            this.disabled = true;
+            this.innerHTML = this.innerHTML.replace(/[^\s]+/, '<i class="fa fa-spinner fa-spin mr-2"></i>');
+
+            // 执行回调函数
+            confirmCallback(currentId, this, modal);
+        });
+
+        return {
+            getCurrentId: () => currentId
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
         // 移动端菜单切换
-        document.getElementById('menu-toggle').addEventListener('click', function () {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
-            mobileMenu.classList.toggle('-translate-y-2');
-            mobileMenu.classList.toggle('opacity-0');
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', function () {
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.add('translate-y-0', 'opacity-100');
+                }, 50);
+            } else {
+                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 200);
+            }
         });
 
         // 发布动态表单提交
-        document.getElementById('postForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+        const postForm = document.getElementById('postForm');
+        if (postForm) {
+            postForm.addEventListener('submit', function (e) {
+                e.preventDefault();
 
-            const content = document.getElementById('postContent').value;
-            if (!content.trim()) {
-                alert('请输入动态内容');
-                return;
-            }
+                const content = document.getElementById('postContent').value;
+                if (!content.trim()) {
+                    alert('请输入动态内容');
+                    return;
+                }
 
-            this.submit();
+                this.submit();
 
-            document.getElementById('postContent').value = '';
+                // 清空表单
+                document.getElementById('postContent').value = '';
 
-            // 清空标签选择
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = false;
+                // 清空标签选择
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+                // 清空文件选择
+                document.getElementById('image').value = '';
+                document.getElementById('image-preview').innerHTML = '';
             });
-
-            // 清空文件选择
-            document.getElementById('image').value = '';
-        });
+        }
 
         // 预览上传图片
-        document.getElementById('image').addEventListener('change', function (e) {
-            const previewContainer = document.getElementById('image-preview');
-            previewContainer.innerHTML = ''; // 清空旧预览
+        const imageInput = document.getElementById('image');
+        if (imageInput) {
+            imageInput.addEventListener('change', function (e) {
+                const previewContainer = document.getElementById('image-preview');
+                previewContainer.innerHTML = ''; // 清空旧预览
 
-            const files = e.target.files;
-            for (const file of files) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.className = "rounded-lg w-full h-40 object-cover hover-scale";
-                previewContainer.appendChild(img);
-            }
-        });
-
-        // 删除动态
-        document.addEventListener('DOMContentLoaded', () => {
-            // 点击更多按钮显示/隐藏菜单
-            document.querySelectorAll('[id^="moreBtn-"]').forEach(button => {
-                button.addEventListener('click', function () {
-                    const menuId = this.id.replace('moreBtn-', 'menu-');
-                    const menu = document.getElementById(menuId);
-                    menu.classList.toggle('hidden');
-                });
+                const files = e.target.files;
+                for (const file of files) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = "rounded-lg w-full h-40 object-cover hover-scale";
+                    previewContainer.appendChild(img);
+                }
             });
+        }
 
-            // 点击删除按钮触发删除请求
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
-                    const momentId = this.dataset.momentId;
-                    const confirmed = confirm('确认要删除这条动态吗？');
+        // 设置分享功能
+        setupModal(
+            'share-confirm-modal',
+            '.share-btn:not(.opacity-50)',
+            'cancel-share-btn',
+            'confirm-share-btn',
+            (momentId, btn, modal) => {
+                fetch(`/share-moment/${momentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 更新UI
+                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
+                            const shareBtn = momentCard.querySelector('.share-btn');
 
-                    if (confirmed) {
-                        try {
-                            // 发送 DELETE 请求
-                            const response = await fetch(`/moments/${momentId}/delete/`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
-                                },
-                            });
+                            shareBtn.classList.remove('text-blue-500', 'hover:bg-blue-50', 'share-btn');
+                            shareBtn.classList.add('text-gray-400', 'cursor-not-allowed', 'opacity-50');
+                            shareBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> 已分享';
 
-                            if (response.ok) {
-                                alert('此条动态已删除');
-                                // 删除对应的 DOM 元素
-                                const postCard = this.closest('.post-card');
-                                postCard.remove();
-                            } else {
-                                alert('删除失败');
-                            }
-                        } catch (error) {
-                            console.error('删除请求失败:', error);
+                            // 更新data属性
+                            shareBtn.setAttribute('data-is-shared', 'true');
+
+                            // 更新菜单中的按钮
+                            const menuBtn = momentCard.querySelector(`[data-moment-id="${momentId}"]`);
+                            menuBtn.classList.remove('share-btn');
+                            menuBtn.classList.add('unshare-btn');
+                            menuBtn.classList.remove('text-blue-500', 'hover:bg-blue-50');
+                            menuBtn.classList.add('text-yellow-500', 'hover:bg-yellow-50');
+                            menuBtn.innerHTML = '<i class="fa-solid fa-undo mr-2"></i> 取消分享';
+
+                            modal.classList.add('hidden');
+                        } else {
+                            alert(data.error || '分享失败，请重试');
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('网络错误，请重试');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-share-alt mr-2"></i>分享';
+                    });
+            }
+        );
+
+
+        // 设置删除功能
+        setupModal(
+            'delete-modal',
+            '.delete-btn',
+            'cancel-delete-btn',
+            'confirm-delete-btn',
+            (momentId, btn, modal) => {
+                fetch(`/moments/${momentId}/delete/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // 从DOM中移除动态卡片
+                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
+                            momentCard.classList.add('opacity-0');
+
+                            setTimeout(() => {
+                                momentCard.remove();
+                                modal.classList.add('hidden');
+                            }, 300);
+                        } else {
+                            throw new Error('删除失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('删除失败，请重试');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-trash mr-2"></i>删除';
+                    });
+            }
+        );
+
+        // 设置取消分享功能
+        setupModal(
+            'unshare-modal',
+            '.unshare-btn',
+            'cancel-unshare-btn',
+            'confirm-unshare-btn',
+            (momentId, btn, modal) => {
+                fetch(`/unshare-moment/${momentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 更新UI
+                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
+                            const unshareBtn = momentCard.querySelector('.unshare-btn');
+
+                            // 切换按钮状态
+                            unshareBtn.classList.remove('text-yellow-500', 'hover:bg-yellow-50', 'unshare-btn');
+                            unshareBtn.classList.add('text-blue-500', 'hover:bg-blue-50', 'share-btn');
+                            unshareBtn.innerHTML = '<i class="fa-solid fa-share-alt mr-2"></i> 分享到社区';
+
+                            // 更新data属性
+                            unshareBtn.setAttribute('data-is-shared', 'false');
+
+                            // 如果是在社区页面，移除该动态
+                            if (window.location.pathname === '/community/') {
+                                momentCard.classList.add('opacity-0');
+                                setTimeout(() => {
+                                    momentCard.remove();
+                                }, 300);
+                            }
+
+                            modal.classList.add('hidden');
+                        } else {
+                            alert(data.error || '取消分享失败，请重试');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('网络错误，请重试');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-undo mr-2"></i>取消分享';
+                    });
+            }
+        );
+
+        // 菜单按钮功能
+        document.querySelectorAll('[id^="moreBtn-"]').forEach(button => {
+            button.addEventListener('click', function () {
+                const menuId = this.id.replace('moreBtn-', 'menu-');
+                const menu = document.getElementById(menuId);
+
+                // 关闭其他所有菜单
+                document.querySelectorAll('[id^="menu-"]').forEach(otherMenu => {
+                    if (otherMenu.id !== menuId) {
+                        otherMenu.classList.add('hidden');
                     }
                 });
+
+                // 切换当前菜单
+                menu.classList.toggle('hidden');
             });
         });
 
-        // 菜单关闭
+        // 点击其他区域关闭菜单
         document.addEventListener('click', (e) => {
             if (!e.target.closest('[id^="moreBtn-"]') && !e.target.closest('[id^="menu-"]')) {
                 document.querySelectorAll('[id^="menu-"]').forEach(menu => {
@@ -613,77 +883,63 @@
             });
         });
 
-        // 移动端菜单切换
-        document.getElementById('menu-toggle').addEventListener('click', function () {
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('hidden');
-                // 添加动画类
-                setTimeout(() => {
-                    mobileMenu.classList.add('translate-y-0', 'opacity-100');
-                }, 50);
-            } else {
-                // 移除动画类
-                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
-                // 等待动画完成后隐藏菜单
-                setTimeout(() => {
-                    mobileMenu.classList.add('hidden');
-                }, 200);
-            }
-        });
-
+        // 用户下拉菜单
         const userAvatar = document.getElementById('userAvatar');
         const userOptions = document.getElementById('userOptions');
         const userDropdown = document.getElementById('userDropdown');
 
-        let closeTimer;
+        let userCloseTimer;
 
-        // 鼠标经过头像时打开菜单
-        userAvatar.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
+        if (userAvatar && userOptions && userDropdown) {
+            // 鼠标经过头像时打开菜单
+            userAvatar.addEventListener('mouseenter', function () {
+                clearTimeout(userCloseTimer);
+                userOptions.classList.remove('hidden');
+            });
 
-        // 鼠标悬停在下拉菜单时保持菜单打开
-        userDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
+            // 鼠标悬停在下拉菜单时保持菜单打开
+            userDropdown.addEventListener('mouseenter', function () {
+                clearTimeout(userCloseTimer);
+                userOptions.classList.remove('hidden');
+            });
 
-        // 鼠标离开下拉菜单时关闭菜单
-        userDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
-                userOptions.classList.add('hidden');
-            }, 500);
-        });
+            // 鼠标离开下拉菜单时关闭菜单
+            userDropdown.addEventListener('mouseleave', function () {
+                userCloseTimer = setTimeout(() => {
+                    userOptions.classList.add('hidden');
+                }, 500);
+            });
+        }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
+        // 更多选项下拉菜单
+        const moreButton = document.getElementById('moreButton');
+        const moreOptions = document.getElementById('moreOptions');
+        const moreDropdown = document.getElementById('moreDropdown');
 
-            let closeTimer;
+        let moreCloseTimer;
 
+        if (moreButton && moreOptions && moreDropdown) {
             // 鼠标经过按钮时打开菜单
             moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
+                clearTimeout(moreCloseTimer);
                 moreOptions.classList.remove('hidden');
             });
 
             // 鼠标悬停在下拉菜单时保持菜单打开
             moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
+                clearTimeout(moreCloseTimer);
                 moreOptions.classList.remove('hidden');
             });
 
             // 鼠标离开下拉菜单时关闭菜单
             moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
+                moreCloseTimer = setTimeout(() => {
                     moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
+                }, 500);
             });
-        });
-    </script >
+        }
+    });
+</script >
 </body >
 
 </html >

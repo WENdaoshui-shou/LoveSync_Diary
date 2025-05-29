@@ -517,87 +517,132 @@
                     <!-- 动态内容列表 -->
                     {% for moment in moments %}
                     <!-- 动态1 -->
-                        <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card animate-fade-in"
-                             style = "animation-delay: 0.1s" >
-                    <div class = "p-6" >
-                        <!-- 用户信息 -->
-                        <div class = "flex items-center justify-between" >
-                            <div class = "flex items-center space-x-3" >
-                                <div class = "w-10 h-10 rounded-full overflow-hidden self-badge" >
-                                    <img src = "{{ moment.user.profile.userAvatar.url }}" alt = "用户头像"
-                                         class = "w-full h-full object-cover" >
-                                </div >
-
-                                <div >
-                                    <h4 class = "font-semibold text-neutral-900" >{{ moment.user.name }}</h4 >
-                                    <p class = "text-neutral-500 text-xs" >{{ moment.created_at|timesince }}前</p >
-
-                                    <div class = "flex flex-wrap gap-2 mt-3" >
-                                        {% for tag in moment.tags.all %}
-                                            <span class = "px-2 py-1 text-xs font-medium text-primary bg-primary/20 rounded-full" >
-                                                {{ tag.name }}
-                                            </span >
-                                        {% endfor %}
-                                    </div >
-
-                                </div >
-                            </div >
+                        <div class = "bg-white rounded-xl shadow-lg overflow-hidden post-card w-full" >
+                        <div class = "p-8" >
                             <div class = "flex items-center justify-between" >
-                            <div class = "flex items-center space-x-3" >
-                                <!-- 用户头像和名称 -->
-                            </div >
-                            <div class = "relative" >
-                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom"
-                                        id = "moreBtn-{{ moment.id }}" >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                        <img src = "{{ moment.user.profile.userAvatar.url }}" alt = "发布者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div >
+                                        <h4 class = "font-semibold text-neutral-900" >{{ moment.user.name }}</h4 >
+                                        <p class = "text-neutral-500 text-xs" >{{ moment.created_at|date:"Y-m-d H:i" }}</p >
+                                    </div >
+                                </div >
+                                <button class = "text-neutral-400 hover:text-neutral-700 transition-custom" >
                                     <i class = "fa-solid fa-ellipsis-h" ></i >
                                 </button >
-                                <div class = "absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50 hidden"
-                                     id = "menu-{{ moment.id }}" >
-                                    <a href = "#"
-                                       class = "block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom delete-btn"
-                                       data-moment-id = "{{ moment.id }}" >
-                                        <i class = "fa-solid fa-trash-can mr-2" ></i > 删除动态
-                                    </a >
+                            </div >
+
+                            <div class = "mt-4" >
+                                <p class = "text-neutral-800" >{{ moment.content }}</p >
+                            </div >
+
+                            <!-- 动态图片 -->
+                            <div class = "mt-4 grid gap-2
+                                        sm:grid-cols-2
+                                        md:grid-cols-3
+                                        lg:grid-cols-4" >
+                                {% for image in moment.moment_images.all %}
+                                    <img src = "{{ image.image.url }}" alt = "动态图片"
+                                         class = "rounded-lg w-full h-40 object-cover hover-scale" >
+                                {% endfor %}
+                            </div >
+
+                            <div class = "mt-4 flex justify-between items-center" >
+                                <div class = "flex space-x-4" >
+                                    <button
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
+                                        <i class = "fa-regular fa-heart" ></i >
+                                        <span >{{ moment.likes }}</span >
+                                    </button >
+                                    <button
+                                            class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
+                                        <i class = "fa-regular fa-comment" ></i >
+                                        <span >{{ moment.comments }}</span >
+                                    </button >
+                                </div >
+                                <button
+                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom" >
+                                    <i class = "fa-regular fa-share-from-square" ></i >
+                                    <span >分享</span >
+                                </button >
+                            </div >
+                        </div >
+                            <!-- 评论区域 -->
+                        <div class = "bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section" >
+                            <div class = "space-y-4" >
+                                <!-- 评论1 -->
+                                <div class = "flex space-x-3 comment-slide" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=6" alt = "评论者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1" >
+                                        <div class = "bg-white rounded-lg p-3" >
+                                            <div class = "flex justify-between items-center" >
+                                                <h5 class = "font-medium text-sm text-neutral-900" >恋爱小助手</h5 >
+                                                <span class = "text-neutral-400 text-xs" >1小时前</span >
+                                            </div >
+                                            <p class = "text-neutral-700 text-sm mt-1" >一周年快乐！好羡慕你们呀，希望你们能一直幸福下去~</p >
+                                        </div >
+                                        <div class = "flex space-x-3 mt-2" >
+                                            <button
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
+                                                <i class = "fa-regular fa-heart" ></i > 16
+                                            </button >
+                                            <button
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
+                                                回复
+                                            </button >
+                                        </div >
+                                    </div >
+                                </div >
+                                <!-- 评论2 -->
+                                <div class = "flex space-x-3 comment-slide" style = "animation-delay: 0.1s;" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=7" alt = "评论者头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1" >
+                                        <div class = "bg-white rounded-lg p-3" >
+                                            <div class = "flex justify-between items-center" >
+                                                <h5 class = "font-medium text-sm text-neutral-900" >爱情故事</h5 >
+                                                <span class = "text-neutral-400 text-xs" >50分钟前</span >
+                                            </div >
+                                            <p class = "text-neutral-700 text-sm mt-1" >餐厅看起来很不错啊，是哪家呢？也想和另一半去体验一下~</p >
+                                        </div >
+                                        <div class = "flex space-x-3 mt-2" >
+                                            <button
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
+                                                <i class = "fa-regular fa-heart" ></i > 8
+                                            </button >
+                                            <button
+                                                    class = "text-neutral-500 hover:text-primary text-xs transition-custom" >
+                                                回复
+                                            </button >
+                                        </div >
+                                    </div >
+                                </div >
+                                <!-- 发表评论 -->
+                                <div class = "flex space-x-3 mt-2" >
+                                    <div class = "w-8 h-8 rounded-full overflow-hidden" >
+                                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
+                                             class = "w-full h-full object-cover" >
+                                    </div >
+                                    <div class = "flex-1 relative" >
+                                        <input type = "text" placeholder = "写下你的评论..."
+                                               class = "w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
+                                        <button class = "absolute right-2 top-1/2 -translate-y-1/2 text-primary" >
+                                            <i class = "fa-solid fa-paper-plane" ></i >
+                                        </button >
+                                    </div >
                                 </div >
                             </div >
                         </div >
-                        </div >
-
-                        <!-- 动态内容 -->
-                        <div class = "mt-4" >
-                            <p class = "text-neutral-800" >{{ moment.content }}</p >
-                        </div >
-
-                        <!-- 动态图片 -->
-                        <div class = "mt-4 grid gap-2
-                                    sm:grid-cols-2
-                                    md:grid-cols-3
-                                    lg:grid-cols-4" >
-                            {% for image in moment.moment_images.all %}
-                                <img src = "{{ image.image.url }}" alt = "动态图片"
-                                     class = "rounded-lg w-full h-40 object-cover hover-scale" >
-                            {% endfor %}
-                        </div >
-
-                        <!-- 点赞评论数 -->
-                        <div class = "mt-4 flex justify-between items-center" >
-                            <div class = "flex space-x-4" >
-                                <button
-                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn" >
-                                    <i class = "fa-regular fa-heart" ></i >
-                                    <span >{{ moment.likes }}</span >
-                                </button >
-                                <button
-                                        class = "flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span >{{ moment.comments }}</span >
-                                </button >
-                            </div >
-                        </div >
-                    </div >
                     </div >
                     {% endfor %}
-
 
                     <!-- 加载更多 -->
                     <button
@@ -922,6 +967,33 @@
                     mobileMenu.classList.add('hidden');
                 }, 200);
             }
+        });
+
+        // 点赞功能
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const icon = this.querySelector('i');
+                const count = this.querySelector('span');
+
+                if (icon.classList.contains('fa-regular')) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = '#FF6B8B';
+                    count.textContent = parseInt(count.textContent) + 1;
+                } else {
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    icon.style.color = '';
+                    count.textContent = parseInt(count.textContent) - 1;
+                }
+            });
+        });
+
+        // 评论功能（模拟打开评论框）
+        document.querySelectorAll('.comment-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                alert('打开评论区（功能开发中）');
+            });
         });
 
         const userAvatar = document.getElementById('userAvatar');
