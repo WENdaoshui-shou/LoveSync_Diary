@@ -366,7 +366,7 @@
                 right: 0;
                 bottom: 0;
                 background-color: rgba(0, 0, 0, 0.7);
-                z-index: 9999;
+                z-Index: 9999;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -453,10 +453,63 @@
             .preview-item:hover .remove-preview {
                 opacity: 1;
             }
+
+            .photo-item {
+                transition: all 0.3s ease;
+            }
+
+            .photo-item.opacity-0 {
+                opacity: 0;
+            }
+
+            .photo-item.scale-90 {
+                transform: scale(0.9);
+            }
+
+            .delete-btn {
+                transition: all 0.2s ease;
+                transform: scale(0);
+            }
+
+            .delete-btn.scale-100 {
+                transform: scale(1);
+            }
+
+            /* 删除确认弹窗样式 */
+            #deleteModal.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            #deleteModal .bg-white {
+                transition: transform 0.3s ease;
+            }
+
+            /* 照片项动画 */
+            .photo-item {
+                transition: all 0.3s ease;
+            }
+
+            .photo-item.opacity-0 {
+                opacity: 0;
+            }
+
+            .photo-item.scale-90 {
+                transform: scale(0.9);
+            }
+
+            /* 删除按钮动画 */
+            .delete-btn {
+                transition: all 0.2s ease;
+                transform: scale(0);
+            }
+
+            .delete-btn.scale-100 {
+                transform: scale(1);
+            }
         }
     </style >
 </head >
-
 <body class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
     <!-- 背景装饰元素 -->
     <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
@@ -486,7 +539,7 @@
                 <a href = "{% url 'moments' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >我们的动态</a >
                 <a href = "{% url 'photo_album' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >相册</a >
+                   class = "text-primary font-medium px-1 py-2 border-b-2 border-primary" >相册</a >
                 <a href = "{% url 'favorites' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >收藏</a >
 
@@ -599,8 +652,7 @@
                    class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
                     <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >我们的动态
                 </a >
-                <a href = "{% url 'photo_album' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                <a href = "{% url 'photo_album' %}" class = "text-primary py-2 font-medium flex items-center" >
                     <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >相册
                 </a >
                 <a href = "{% url 'favorites' %}"
@@ -632,7 +684,7 @@
                     <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置中心
                 </a >
                 <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'login' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
+                <a href = "{% url 'logout' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
                     <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
                 </a >
             </div >
@@ -643,28 +695,29 @@
     <main class = "flex-grow pt-24 pb-16 relative z-10" >
         <div class = "container mx-auto px-4" >
             <!-- 个人信息展示 -->
-            <div class = "bg-white rounded-xl shadow-lg overflow-hidden hover-scale" >
-                <div class = "h-32 bg-gradient-love relative" >
-                    <div class = "absolute -bottom-8 left-6 w-16 h-16 rounded-full border-4 border-white overflow-hidden" >
+            <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in" >
+                <div class = "flex flex-col md:flex-row items-center" >
+                    <div class = "w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6 border-4 border-primary/20 self-badge" >
                         <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
                              class = "w-full h-full object-cover" >
                     </div >
-                </div >
-                <div class = "pt-10 pb-6 px-6" >
-                    <h3 class = "text-lg font-semibold text-neutral-900" >{{ user.name }}</h3 >
-                    <p class = "text-neutral-600 text-sm mt-1" >分享我们的爱情故事</p >
-                    <div class = "flex justify-between mt-4 pt-4 border-t border-neutral-200" >
-                        <div class = "text-center" >
-                            <p class = "text-neutral-900 font-semibold" >24</p >
-                            <p class = "text-neutral-500 text-xs" >动态</p >
-                        </div >
-                        <div class = "text-center" >
-                            <p class = "text-neutral-900 font-semibold" >128</p >
-                            <p class = "text-neutral-500 text-xs" >粉丝</p >
-                        </div >
-                        <div class = "text-center" >
-                            <p class = "text-neutral-900 font-semibold" >64</p >
-                            <p class = "text-neutral-500 text-xs" >关注</p >
+                    <div class = "text-center md:text-left" >
+                        <h2 class = "text-2xl font-bold text-neutral-800 mb-1" >{{ user.name }}</h2 >
+                        <p class = "text-neutral-600 mb-1" >记录我们的美好瞬间</p >
+                        <p class = "text-neutral-700 mb-3 text-sm italic" >"每一张照片都是时光的标本"</p >
+                        <div class = "flex flex-wrap justify-center md:justify-start gap-4" >
+                            <div class = "text-center" >
+                                <p class = "text-2xl font-bold text-primary" >{{ photos|length }}</p >
+                                <p class = "text-neutral-500 text-sm" >照片</p >
+                            </div >
+                            <div class = "text-center" >
+                                <p class = "text-2xl font-bold text-primary" >12</p >
+                                <p class = "text-neutral-500 text-sm" >相册</p >
+                            </div >
+                            <div class = "text-center" >
+                                <p class = "text-2xl font-bold text-primary" >{{ moments|length }}</p >
+                                <p class = "text-neutral-500 text-sm" >动态</p >
+                            </div >
                         </div >
                     </div >
                 </div >
@@ -698,42 +751,38 @@
                     <button class = "px-4 py-2 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-full text-sm transition-custom" >自拍</button >
                 </div >
 
+                <!-- 错误提示 -->
+                {% if error %}
+                    <div class = "mb-6 px-4 py-3 bg-red-100 border border-red-400 text-red-700 rounded-lg" >
+                    <strong class = "font-bold" >错误:</strong >
+                    <span >{{ error }}</span >
+                </div >
+                {% endif %}
+
                 <!-- 照片网格 -->
                 <div class = "photo-grid" >
                 {% if photos %}
                     <!-- 照片 -->
                     {% for photo in photos %}
-                        <div class = "photo-item" data-category = "日常" data-index = "0"
-                             data-moment-id = "{{ photo.id }}" data-is-shared = "{{ photo.is_shared|lower }}" >
-                            <img src = "{{ photo.image.url }}" alt = "{{ photo.description|default:'无描述' }}"
-                                 class = "w-full h-64 object-cover" >
-                            <div class = "photo-overlay" >
-                                <h4 class = "text-white font-medium" >{{ photo.description|default:'无描述' }}</h4 >
+                        <div class = "photo-item relative group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+                             data-category = "日常"
+                             data-index = "0"
+                             data-moment-id = "{{ photo.id }}"
+                             data-is-shared = "{{ photo.is_shared|lower }}" >
+
+                            <!-- 删除表单 -->
+                                <button class="delete-btn absolute top-3 right-3 w-8 h-8 bg-red-500/80 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-10"
+                                        data-photo-id="{{ photo.id }}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+
+                            <img src = "{{ photo.image.url }}"
+                                 alt = "{{ photo.description|default:'无描述' }}"
+                                 class = "w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105" >
+
+                            <div class = "photo-overlay absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4" >
+                                <h4 class = "text-white font-medium text-lg" >{{ photo.description|default:'无描述' }}</h4 >
                                 <p class = "text-white/80 text-sm" >{{ photo.uploaded_at|date:"Y年m月d日" }}</p >
-                                <div class = "flex justify-between items-center mt-2" >
-                                    <div class = "flex items-center space-x-2" >
-                                        <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                            <i class = "fa-regular fa-heart" ></i >
-                                            <span class = "like-count" >{{ photo.likes_count }}</span >
-                                        </button >
-                                    </div >
-                                    <div class = "flex items-center space-x-2" >
-                                        <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                            <i class = "fa-regular fa-comment" ></i >
-                                            <span class = "comment-count" >{{ photo.comments_count }}</span >
-                                        </button >
-                                        <button class = "text-white/80 hover:text-white transition-custom share-btn"
-                                                onclick = "toggleShare({{ photo.id }}, this)" >
-                                            <i class = "fa-{% if photo.is_shared %}solid{% else %}regular{% endif %} fa-share-alt" ></i >
-                                            <span class = "share-text" >{% if photo.is_shared %}已分享{% else %}
-                                                                                                分享{% endif %}</span >
-                                        </button >
-                                        <button class = "delete-btn text-white/80 hover:text-white transition-custom"
-                                                onclick = "deletePhoto({{ photo.id }})" >
-                                            <i class = "fa-solid fa-trash" ></i > 删除
-                                        </button >
-                                    </div >
-                                </div >
                             </div >
                         </div >
                     {% endfor %}
@@ -754,133 +803,111 @@
         </div >
     </main >
 
-
-    <!-- 上传照片模态框 -->
-    <div class = "upload-container" id = "uploadContainer" >
-        <div class = "upload-box" >
-            <button id = "closeUploadBtn"
-                    class = "text-neutral-500 hover:text-neutral-700 transition-custom absolute top-4 right-4" >
-                <i class = "fa-solid fa-times" ></i >
-            </button >
-            <form id = "uploadForm" enctype = "multipart/form-data" method = "POST"
-                  action = "{% url 'photo_album' %}" >
-                {% csrf_token %}
-                <div id = "dropArea" class = "drop-area" >
-                    <i class = "fa-solid fa-cloud-upload text-4xl text-primary mb-2" ></i >
-                    <p class = "text-neutral-700 mb-1" >拖放照片到这里上传</p >
-                    <p class = "text-neutral-500 text-sm" >或者点击选择文件</p >
-                    <input type = "file" id = "fileInput" class = "hidden" multiple accept = "image/*" >
-                    <button id = "browseBtn"
-                            class = "mt-3 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90" >
-                        选择照片
+    <!-- 删除确认弹窗 -->
+    <div id = "deleteModal"
+         class = "fixed inset-0 bg-black/50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300" >
+        <div class = "bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300" >
+            <div class = "p-6" >
+                <div class = "flex justify-end" >
+                    <button id = "closeDeleteModal"
+                            class = "text-neutral-400 hover:text-neutral-600 transition-colors" >
+                        <i class = "fa-solid fa-times" ></i >
                     </button >
                 </div >
 
-                <div class = "mt-4" >
-                    <label class = "block text-neutral-700 mb-2" >照片描述</label >
-                    <textarea id = "photoDescription" rows = "3"
-                              class = "w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus"
-                              placeholder = "添加照片描述..." ></textarea >
-                </div >
+                <div class = "text-center py-4" >
+                    <div class = "w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4" >
+                        <i class = "fa-solid fa-trash text-2xl text-red-500" ></i >
+                    </div >
+                    <h3 class = "text-xl font-bold text-neutral-800 mb-2" >确认删除</h3 >
+                    <p class = "text-neutral-600 mb-6" >您确定要删除这张照片吗？此操作不可撤销。</p >
 
-                <div class = "mt-4" >
-                    <label class = "block text-neutral-700 mb-2" >照片标签</label >
-                    <div class = "flex flex-wrap gap-4 mb-4" >
-                        <!-- 使用复选框选择标签，name属性为tags，多个值会自动拼接 -->
-                        <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-travel" name = "tags" value = "旅行"
-                                   class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
-                            <label for = "tag-travel" class = "text-sm text-neutral-700" >旅行</label >
-                        </div >
-                        <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-food" name = "tags" value = "美食"
-                                   class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
-                            <label for = "tag-food" class = "text-sm text-neutral-700" >美食</label >
-                        </div >
-                        <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-anniversary" name = "tags" value = "纪念日"
-                                   class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
-                            <label for = "tag-anniversary" class = "text-sm text-neutral-700" >纪念日</label >
-                        </div >
-                        <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-daily" name = "tags" value = "日常"
-                                   class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
-                            <label for = "tag-daily" class = "text-sm text-neutral-700" >日常</label >
-                        </div >
-                        <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-gift" name = "tags" value = "礼物"
-                                   class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
-                            <label for = "tag-gift" class = "text-sm text-neutral-700" >礼物</label >
-                        </div >
-                        <div class = "flex items-center space-x-2" >
-                            <input type = "checkbox" id = "tag-selfie" name = "tags" value = "自拍"
-                                   class = "w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded" >
-                            <label for = "tag-selfie" class = "text-sm text-neutral-700" >自拍</label >
-                        </div >
+                    <div class = "flex space-x-3" >
+                        <button id = "cancelDelete"
+                                class = "flex-1 py-3 px-4 border border-neutral-300 rounded-lg font-medium text-neutral-700 hover:bg-neutral-50 transition-colors" >
+                            取消
+                        </button >
+                        <button id = "confirmDelete"
+                                class = "flex-1 py-3 px-4 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors" >
+                            确认删除
+                        </button >
                     </div >
                 </div >
+            </div >
+        </div >
+    </div >
 
-                <!-- 分享状态复选框（与模型字段is_shared对应） -->
+    <!-- 照片查看模态框 -->
+    <div class = "photo-modal" id = "photoModal" >
+        <div class = "modal-content" >
+            <span class = "close-modal" id = "closeModal" >&times;</span >
+            <button class = "carousel-btn prev-btn" id = "prevBtn" >
+                <i class = "fa-solid fa-chevron-left" ></i >
+            </button >
+            <img src = "" alt = "大图查看" id = "modalImage" class = "max-w-full max-h-[80vh] rounded-lg" >
+            <button class = "carousel-btn next-btn" id = "nextBtn" >
+                <i class = "fa-solid fa-chevron-right" ></i >
+            </button >
+                        <div class = "photo-count" id = "photoCount" >1 / 10</div >
+            <div class = "mt-4 text-white" >
+                <h3 id = "modalTitle" class = "text-xl font-semibold" ></h3 >
+                <p id = "modalDate" class = "text-sm text-white/80" ></p >
+            </div >
+            <div class = "flex justify-between items-center mt-4 text-white" >
+                <div >
+                    <button class = "text-white hover:text-primary transition-custom download-btn" >
+                        <i class = "fa-solid fa-download" ></i > 下载
+                    </button >
+                </div >
+            </div >
+        </div >
+    </div >
+
+    <!-- 照片上传模态框 -->
+    <div class = "upload-container" id = "uploadContainer" >
+        <div class = "upload-box" >
+            <div class = "flex justify-between items-center mb-4" >
+                <h3 class = "text-xl font-bold text-neutral-800" >上传照片</h3 >
+                <button id = "closeUpload" class = "text-neutral-500 hover:text-neutral-700" >
+                    <i class = "fa-solid fa-times" ></i >
+                </button >
+            </div >
+
+            <form id = "uploadForm" method = "POST" enctype = "multipart/form-data" action = "{% url 'photo_album' %}" >
+                {% csrf_token %}
+                <div class = "drop-area" id = "dropArea" >
+                    <input type = "file" id = "fileInput" name = "images" multiple accept = "image/*" class = "hidden" >
+                    <i class = "fa-solid fa-cloud-upload-alt text-4xl text-primary mb-3" ></i >
+                    <p class = "text-neutral-600 mb-2" >拖拽图片到这里上传</p >
+                    <p class = "text-neutral-400 text-sm" >或者</p >
+                    <button type = "button" id = "browseFiles"
+                            class = "mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom" >
+                        浏览文件
+                    </button >
+                    <p class = "text-neutral-400 text-xs mt-3" >支持JPG, PNG, GIF格式</p >
+                </div >
+
                 <div class = "mt-4" >
-                    <label class = "flex items-center" >
-                        <input type = "checkbox" id = "is_shared" name = "is_shared"
-                               class = "mr-2 h-4 w-4 text-primary focus:ring-primary border-neutral-300 rounded" >
-                        <span class = "text-neutral-700" >公开分享照片</span >
-                    </label >
+                    <label for = "description"
+                           class = "block text-neutral-700 font-medium mb-1" >照片描述 (选填)</label >
+                    <textarea id = "description" name = "description" rows = "3"
+                              class = "w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                              placeholder = "添加照片描述..." ></textarea >
                 </div >
 
                 <div class = "preview-container" id = "previewContainer" ></div >
 
-                <div class = "mt-6 flex justify-end space-x-3" >
-                    <button type = "button" id = "cancelUploadBtn"
-                            class = "px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-100 transition-custom" >
+                <div class = "flex justify-end mt-6" >
+                    <button type = "button" id = "cancelUpload"
+                            class = "px-4 py-2 mr-2 border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-custom" >
                         取消
                     </button >
-                    <button type = "submit" id = "submitUploadBtn"
+                    <button type = "submit"
                             class = "px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom" >
                         上传照片
                     </button >
                 </div >
             </form >
-        </div >
-    </div >
-
-    <!-- 分享确认模态框 -->
-    <div id = "share-confirm-modal"
-         class = "fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden opacity-0 pointer-events-none transition-all duration-300" >
-        <div class = "bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" >
-            <h3 class = "text-xl font-semibold text-neutral-900 mb-2" >分享照片</h3 >
-            <p class = "text-neutral-600 mb-6" >确定要分享<span
-                    class = "moment-title font-medium" ></span >到社区吗？</p >
-            <div class = "flex justify-end space-x-3" >
-                <button id = "cancel-share-btn"
-                        class = "px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-100 transition-custom" >
-                    取消
-                </button >
-                <button id = "confirm-share-btn"
-                        class = "px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom" >
-                    确认分享
-                </button >
-            </div >
-        </div >
-    </div >
-
-    <!-- 取消分享确认模态框 -->
-    <div id = "unshare-confirm-modal"
-         class = "fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden opacity-0 pointer-events-none transition-all duration-300" >
-        <div class = "bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" >
-            <h3 class = "text-xl font-semibold text-neutral-900 mb-2" >取消分享</h3 >
-            <p class = "text-neutral-600 mb-6" >确定要取消分享<span class = "moment-title font-medium" ></span >吗？</p >
-            <div class = "flex justify-end space-x-3" >
-                <button id = "cancel-unshare-btn"
-                        class = "px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-100 transition-custom" >
-                    取消
-                </button >
-                <button id = "confirm-unshare-btn"
-                        class = "px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-custom" >
-                    确认取消
-                </button >
-            </div >
         </div >
     </div >
 
@@ -895,622 +922,410 @@
                     <span class = "text-lg font-bold" >LoveSync</span >
                 </div >
                 <div class = "text-neutral-500 text-sm" >
-                    &copy; 2023 LoveSync. 用照片记录心动瞬间，让爱与回忆永不褪色。
+                    &copy; 2023 LoveSync. 我们的故事，正在相册里持续更新。
                 </div >
             </div >
         </div >
     </footer >
 
-    <!-- JavaScript交互逻辑 -->
+    <!-- JavaScript -->
     <script >
-        // 获取CSRF令牌
-        function getCSRFToken() {
-            const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-            return cookieValue ? cookieValue.pop() : '';
-        }
-
-        // 移动端菜单切换
-        document.getElementById('menu-toggle').addEventListener('click', function () {
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('hidden');
-                // 添加动画类
-                setTimeout(() => {
-                    mobileMenu.classList.add('translate-y-0', 'opacity-100');
-                }, 50);
-            } else {
-                // 移除动画类
-                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
-                // 等待动画完成后隐藏菜单
-                setTimeout(() => {
-                    mobileMenu.classList.add('hidden');
-                }, 200);
-            }
-        });
-
-        const userAvatar = document.getElementById('userAvatar');
-        const userOptions = document.getElementById('userOptions');
-        const userDropdown = document.getElementById('userDropdown');
-
-        let closeTimer;
-
-        // 鼠标经过头像时打开菜单
-        userAvatar.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标悬停在下拉菜单时保持菜单打开
-        userDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标离开下拉菜单时关闭菜单
-        userDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
-                userOptions.classList.add('hidden');
-            }, 500);
-        });
-
+        // 导航菜单交互
         document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
+            // 下拉菜单
+            const userOptions = document.getElementById('userOptions');
+            const userAvatar = document.getElementById('userAvatar');
+
             const moreDropdown = document.getElementById('moreDropdown');
+            const moreOptions = document.getElementById('moreOptions');
+            const moreButton = document.getElementById('moreButton');
 
-            let closeTimer;
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
 
-            // 鼠标经过按钮时打开菜单
-            moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
+            // 照片查看模态框
+            const photoModal = document.getElementById('photoModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDate = document.getElementById('modalDate');
+            const closeModal = document.getElementById('closeModal');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const photoCount = document.getElementById('photoCount');
+            const photoItems = document.querySelectorAll('.photo-item');
+
+            // 照片上传模态框
+            const uploadContainer = document.getElementById('uploadContainer');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const closeUpload = document.getElementById('closeUpload');
+            const cancelUpload = document.getElementById('cancelUpload');
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseFiles = document.getElementById('browseFiles');
+            const previewContainer = document.getElementById('previewContainer');
+            const uploadForm = document.getElementById('uploadForm');
+
+            // 滚动效果
+            const header = document.querySelector('header');
+
+            // 下拉菜单切换
+            userAvatar.addEventListener('click', function (e) {
+                e.stopPropagation();
+                userOptions.classList.toggle('hidden');
+                moreOptions.classList.add('hidden');
             });
 
-            // 鼠标悬停在下拉菜单时保持菜单打开
-            moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
+            moreButton.addEventListener('click', function (e) {
+                e.stopPropagation();
+                moreOptions.classList.toggle('hidden');
+                userOptions.classList.add('hidden');
             });
 
-            // 鼠标离开下拉菜单时关闭菜单
-            moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
-                    moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
-            });
-        });
-
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // 通用模态框设置函数
-        function setupModal(modalId, triggerSelector, cancelSelector, confirmSelector, callback) {
-            const modal = document.getElementById(modalId);
-            const triggers = document.querySelectorAll(triggerSelector);
-            const cancelBtn = modal.querySelector(cancelSelector);
-            const confirmBtn = modal.querySelector(confirmSelector);
-            let currentId = null;
-            let currentBtn = null;
-
-            // 打开模态框
-            triggers.forEach(trigger => {
-                trigger.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    // 获取momentId
-                    const momentId = this.closest('[data-moment-id]')?.dataset.momentId;
-                    if (!momentId) return;
-
-                    currentId = momentId;
-                    currentBtn = this;
-
-                    // 显示模态框并添加动画
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        modal.classList.add('opacity-100', 'pointer-events-auto');
-                    }, 10);
-
-                    // 可以在这里设置模态框内容
-                    const momentTitle = this.closest('.photo-item')?.querySelector('h4')?.textContent || '这张照片';
-                    modal.querySelector('.moment-title').textContent = momentTitle;
-                });
+            // 点击页面其他区域关闭下拉菜单
+            document.addEventListener('click', function () {
+                userOptions.classList.add('hidden');
+                moreOptions.classList.add('hidden');
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('opacity-100', 'translate-y-0');
             });
 
-            // 取消按钮
-            cancelBtn.addEventListener('click', () => {
-                closeModal();
+            // 移动端菜单
+            menuToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                mobileMenu.classList.toggle('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.toggle('opacity-100');
+                    mobileMenu.classList.toggle('translate-y-0');
+                }, 10);
             });
 
-            // 确认按钮
-            confirmBtn.addEventListener('click', () => {
-                if (currentId && callback) {
-                    // 显示加载状态
-                    confirmBtn.disabled = true;
-                    confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 处理中...';
-
-                    // 执行回调
-                    callback(currentId, currentBtn, modal);
+            // 滚动效果 - 导航栏
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 10) {
+                    header.classList.add('shadow-md');
+                    header.classList.remove('shadow-sm');
+                } else {
+                    header.classList.remove('shadow-md');
+                    header.classList.add('shadow-sm');
                 }
             });
 
-            // 点击模态框外部关闭
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
+            // 照片模态框
+            let currentPhotoIndex = 0;
+            const photos = Array.from(photoItems);
+
+            photoItems.forEach((item, index) => {
+                item.addEventListener('click', function (e) {
+                    if (e.target.closest('button')) return;
+
+                    currentPhotoIndex = index;
+                    openPhotoModal(index);
+                });
+            });
+
+            function openPhotoModal(index) {
+                const photo = photos[index];
+                const img = photo.querySelector('img');
+                const title = photo.querySelector('h4').textContent;
+                const date = photo.querySelector('p').textContent;
+
+                modalImage.src = img.src;
+                modalImage.alt = img.alt;
+                modalTitle.textContent = title;
+                modalDate.textContent = date;
+                photoCount.textContent = `${index + 1} / ${photos.length}`;
+
+                photoModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            closeModal.addEventListener('click', function () {
+                photoModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            prevBtn.addEventListener('click', function () {
+                currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+                openPhotoModal(currentPhotoIndex);
+            });
+
+            nextBtn.addEventListener('click', function () {
+                currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+                openPhotoModal(currentPhotoIndex);
+            });
+
+            // 键盘导航
+            document.addEventListener('keydown', function (e) {
+                if (!photoModal.classList.contains('active')) return;
+
+                if (e.key === 'Escape') {
+                    photoModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                } else if (e.key === 'ArrowLeft') {
+                    currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+                    openPhotoModal(currentPhotoIndex);
+                } else if (e.key === 'ArrowRight') {
+                    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+                    openPhotoModal(currentPhotoIndex);
+                }
+            });
+
+            // 照片上传模态框
+            uploadBtn.addEventListener('click', function () {
+                uploadContainer.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            function closeUploadModal() {
+                uploadContainer.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                dropArea.classList.remove('active');
+                fileInput.value = '';
+                previewContainer.innerHTML = '';
+            }
+
+            closeUpload.addEventListener('click', closeUploadModal);
+            cancelUpload.addEventListener('click', closeUploadModal);
+
+            // 文件拖拽上传
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('active');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('active');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+
+            browseFiles.addEventListener('click', function () {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', function () {
+                handleFiles(fileInput.files);
+            });
+
+            function handleFiles(files) {
+                Array.from(files).forEach(previewFile);
+            }
+
+            function previewFile(file) {
+                if (!file.type.match('image.*')) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const preview = document.createElement('div');
+                    preview.className = 'preview-item';
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = file.name;
+
+                    const removeBtn = document.createElement('div');
+                    removeBtn.className = 'remove-preview';
+                    removeBtn.innerHTML = '<i class="fa-solid fa-times"></i>';
+                    removeBtn.addEventListener('click', function () {
+                        preview.remove();
+                    });
+
+                    preview.appendChild(img);
+                    preview.appendChild(removeBtn);
+                    previewContainer.appendChild(preview);
+                }
+
+                reader.readAsDataURL(file);
+            }
+
+            // 删除确认弹窗元素
+            const deleteModal = document.getElementById('deleteModal');
+            const closeDeleteModal = document.getElementById('closeDeleteModal');
+            const cancelDelete = document.getElementById('cancelDelete');
+            const confirmDelete = document.getElementById('confirmDelete');
+
+            // 当前要删除的照片ID和元素
+            let currentPhotoId = null;
+            let currentPhotoItem = null;
+
+            // 删除照片功能 - 使用AJAX请求
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    currentPhotoId = this.getAttribute('data-photo-id');
+                    currentPhotoItem = this.closest('.photo-item');
+
+                    // 显示确认弹窗
+                    deleteModal.classList.remove('opacity-0', 'pointer-events-none');
+                    deleteModal.querySelector('.bg-white').classList.remove('scale-95');
+                    deleteModal.querySelector('.bg-white').classList.add('scale-100');
+                });
+            });
+
+            // 关闭弹窗
+            function closeModa() {
+                deleteModal.classList.add('opacity-0', 'pointer-events-none');
+                deleteModal.querySelector('.bg-white').classList.remove('scale-100');
+                deleteModal.querySelector('.bg-white').classList.add('scale-95');
+            }
+
+            closeDeleteModal.addEventListener('click', closeModa);
+            cancelDelete.addEventListener('click', closeModa);
+
+            // 确认删除
+            confirmDelete.addEventListener('click', function () {
+                if (currentPhotoId && currentPhotoItem) {
+                    // 显示加载状态
+                    confirmDelete.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 删除中...';
+                    confirmDelete.disabled = true;
+
+                    // 发送AJAX请求
+                    fetch(`{% url 'delete_photo' 0 %}`.replace('0', currentPhotoId), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({_method: 'DELETE'})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            // 恢复按钮状态
+                            confirmDelete.innerHTML = '确认删除';
+                            confirmDelete.disabled = false;
+
+                            if (data.status === 'success') {
+                                // 关闭弹窗
+                                closeModa();
+
+                                // 添加删除动画
+                                currentPhotoItem.classList.add('opacity-0', 'scale-90');
+                                currentPhotoItem.style.transition = 'all 0.3s ease';
+
+                                // 从DOM中移除元素
+                                setTimeout(() => {
+                                    currentPhotoItem.remove();
+                                    showToast('照片已成功删除');
+                                }, 300);
+                            } else {
+                                showToast(data.message || '删除失败，请重试', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            // 恢复按钮状态
+                            confirmDelete.innerHTML = '确认删除';
+                            confirmDelete.disabled = false;
+
+                            showToast('网络错误，请重试', 'error');
+                            console.error('删除失败:', error);
+                        });
+                }
+            });
+
+            // 点击弹窗外部关闭
+            deleteModal.addEventListener('click', function (e) {
+                if (e.target === deleteModal) {
                     closeModal();
                 }
             });
 
-            // 关闭模态框
-            function closeModal() {
-                modal.classList.remove('opacity-100', 'pointer-events-auto');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    confirmBtn.disabled = false;
-                    confirmBtn.innerHTML = modalId === 'share-confirm-modal' ? '确认分享' : '确认取消';
-                }, 300);
-            }
-        }
-
-        // 设置分享功能
-        setupModal(
-            'share-confirm-modal',
-            '.share-btn:not(.text-green-400)',
-            '#cancel-share-btn',
-            '#confirm-share-btn',
-            (momentId, btn, modal) => {
-                fetch(`/share-photo/${momentId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCSRFToken()
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // 更新UI
-                            const photoItem = document.querySelector(`[data-moment-id="${momentId}"]`);
-                            if (!photoItem) return;
-
-                            const shareBtn = photoItem.querySelector('.share-btn');
-                            const shareIcon = shareBtn.querySelector('i');
-                            const shareText = shareBtn.querySelector('.share-text');
-
-                            // 添加动画效果
-                            shareBtn.classList.add('like-animation');
-                            setTimeout(() => {
-                                shareBtn.classList.remove('like-animation');
-                            }, 500);
-
-                            // 更新图标和文本
-                            shareIcon.classList.remove('fa-regular');
-                            shareIcon.classList.add('fa-solid');
-                            shareText.textContent = '已分享';
-                            shareBtn.classList.add('text-green-400');
-
-                            // 更新data属性
-                            shareBtn.setAttribute('data-is-shared', 'true');
-
-                            // 显示成功提示
-                            showNotification('照片已成功分享！');
-
-                            // 关闭模态框
-                            modal.classList.remove('opacity-100', 'pointer-events-auto');
-                            setTimeout(() => {
-                                modal.classList.add('hidden');
-                            }, 300);
-                        } else {
-                            alert(data.error || '分享失败，请重试');
+            // 获取CSRF令牌的辅助函数
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('网络错误，请重试');
-                    })
-                    .finally(() => {
-                        const confirmBtn = modal.querySelector('#confirm-share-btn');
-                        confirmBtn.disabled = false;
-                        confirmBtn.innerHTML = '确认分享';
-                    });
-            }
-        );
-
-        // 设置取消分享功能
-        setupModal(
-            'unshare-confirm-modal',
-            '.share-btn.text-green-400',
-            '#cancel-unshare-btn',
-            '#confirm-unshare-btn',
-            (momentId, btn, modal) => {
-                fetch(`/unshare-photo/${momentId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCSRFToken()
                     }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // 更新UI
-                            const photoItem = document.querySelector(`[data-moment-id="${momentId}"]`);
-                            if (!photoItem) return;
-
-                            const shareBtn = photoItem.querySelector('.share-btn');
-                            const shareIcon = shareBtn.querySelector('i');
-                            const shareText = shareBtn.querySelector('.share-text');
-
-                            // 添加动画效果
-                            shareBtn.classList.add('like-animation');
-                            setTimeout(() => {
-                                shareBtn.classList.remove('like-animation');
-                            }, 500);
-
-                            // 更新图标和文本
-                            shareIcon.classList.remove('fa-solid');
-                            shareIcon.classList.add('fa-regular');
-                            shareText.textContent = '分享';
-                            shareBtn.classList.remove('text-green-400');
-
-                            // 更新data属性
-                            shareBtn.setAttribute('data-is-shared', 'false');
-
-                            // 显示成功提示
-                            showNotification('照片已取消分享');
-
-                            // 关闭模态框
-                            modal.classList.remove('opacity-100', 'pointer-events-auto');
-                            setTimeout(() => {
-                                modal.classList.add('hidden');
-                            }, 300);
-                        } else {
-                            alert(data.error || '取消分享失败，请重试');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('网络错误，请重试');
-                    })
-                    .finally(() => {
-                        const confirmBtn = modal.querySelector('#confirm-unshare-btn');
-                        confirmBtn.disabled = false;
-                        confirmBtn.innerHTML = '确认取消';
-                    });
-            }
-        );
-
-        // 上传照片模态框控制
-        const uploadBtn = document.getElementById('uploadBtn');
-        const uploadContainer = document.getElementById('uploadContainer');
-        const closeUploadBtn = document.getElementById('closeUploadBtn');
-        const cancelUploadBtn = document.getElementById('cancelUploadBtn');
-
-        uploadBtn.addEventListener('click', () => {
-            uploadContainer.classList.add('active');
-        });
-
-        function closeUploadModal() {
-            uploadContainer.classList.remove('active');
-            // 重置表单
-            document.getElementById('uploadForm').reset();
-            document.getElementById('previewContainer').innerHTML = '';
-        }
-
-        closeUploadBtn.addEventListener('click', closeUploadModal);
-        cancelUploadBtn.addEventListener('click', closeUploadModal);
-
-        // 拖放上传功能
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
-        const browseBtn = document.getElementById('browseBtn');
-
-        // 阻止默认拖放行为
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // 高亮拖放区域
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight() {
-            dropArea.classList.add('active');
-        }
-
-        function unhighlight() {
-            dropArea.classList.remove('active');
-        }
-
-        // 处理拖放文件
-        dropArea.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        // 处理选择文件
-        browseBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', function () {
-            handleFiles(this.files);
-        });
-
-        function handleFiles(files) {
-            // 清除之前的预览
-            const previewContainer = document.getElementById('previewContainer');
-            previewContainer.innerHTML = '';
-
-            // 处理每个文件
-            Array.from(files).forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const previewItem = document.createElement('div');
-                        previewItem.className = 'preview-item';
-                        previewItem.innerHTML = `
-                            <img src="${e.target.result}" alt="预览图">
-                            <div class="remove-preview">
-                                <i class="fa-solid fa-times"></i>
-                            </div>
-                        `;
-                        previewContainer.appendChild(previewItem);
-
-                        // 添加删除预览功能
-                        previewItem.querySelector('.remove-preview').addEventListener('click', function () {
-                            previewItem.remove();
-                        });
-                    };
-                    reader.readAsDataURL(file);
                 }
-            });
-        }
+                return cookieValue;
+            }
 
-        // 点赞功能
-        document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', function (e) {
+            // 显示通知提示
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-y-10 opacity-0 ${
+                    type === 'error' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+                }`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                // 显示动画
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-10', 'opacity-0');
+                }, 10);
+
+                // 3秒后隐藏
+                setTimeout(() => {
+                    toast.classList.add('translate-y-10', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // 图片悬停效果增强
+            document.querySelectorAll('.photo-item').forEach(item => {
+                item.addEventListener('mouseenter', function () {
+                    this.querySelector('.delete-btn').classList.add('scale-100');
+                    this.querySelector('.delete-btn').classList.remove('scale-0');
+                });
+
+                item.addEventListener('mouseleave', function () {
+                    this.querySelector('.delete-btn').classList.remove('scale-100');
+                    this.querySelector('.delete-btn').classList.add('scale-0');
+                });
+            });
+
+            // 上传表单提交
+            uploadForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                e.stopPropagation();
 
-                const momentId = this.closest('[data-moment-id]')?.dataset.momentId;
-                if (!momentId) return;
+                const formData = new FormData(this);
 
-                const likeIcon = this.querySelector('i');
-                const likeCount = this.querySelector('.like-count');
-                const currentCount = parseInt(likeCount.textContent);
-
-                // 检查是否已点赞
-                const isLiked = likeIcon.classList.contains('fa-heart');
-
-                // 添加动画效果
-                this.classList.add('like-animation');
-                setTimeout(() => {
-                    this.classList.remove('like-animation');
-                }, 500);
-
-                // 更新UI
-                if (isLiked) {
-                    likeIcon.classList.remove('fa-heart');
-                    likeIcon.classList.add('fa-heart-o');
-                    likeCount.textContent = currentCount - 1;
-                } else {
-                    likeIcon.classList.remove('fa-heart-o');
-                    likeIcon.classList.add('fa-heart');
-                    likeCount.textContent = currentCount + 1;
-                }
-
-                // 发送点赞请求
-                fetch(`/toggle-like/${momentId}/`, {
+                fetch(this.action, {
                     method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCSRFToken()
-                    }
+                    body: formData
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            // 如果请求失败，恢复UI
-                            if (isLiked) {
-                                likeIcon.classList.remove('fa-heart-o');
-                                likeIcon.classList.add('fa-heart');
-                                likeCount.textContent = currentCount;
-                            } else {
-                                likeIcon.classList.remove('fa-heart');
-                                likeIcon.classList.add('fa-heart-o');
-                                likeCount.textContent = currentCount;
-                            }
-                            alert(data.error || '操作失败，请重试');
+                    .then(response => {
+                        if (response.ok) {
+                            return response.text();
+                        } else {
+                            throw new Error('上传失败');
                         }
                     })
+                    .then(data => {
+                        window.location.reload();
+                    })
                     .catch(error => {
+                        alert('上传失败，请重试');
                         console.error('Error:', error);
-                        // 恢复UI
-                        if (isLiked) {
-                            likeIcon.classList.remove('fa-heart-o');
-                            likeIcon.classList.add('fa-heart');
-                            likeCount.textContent = currentCount;
-                        } else {
-                            likeIcon.classList.remove('fa-heart');
-                            likeIcon.classList.add('fa-heart-o');
-                            likeCount.textContent = currentCount;
-                        }
-                        alert('网络错误，请重试');
                     });
             });
-        });
-
-        // 删除照片功能
-        function deletePhoto(momentId) {
-            if (!confirm('确定要删除这张照片吗？此操作不可撤销。')) {
-                return;
-            }
-
-            fetch(`/delete-photo/${momentId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken()
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // 从UI中移除照片
-                        const photoItem = document.querySelector(`[data-moment-id="${momentId}"]`);
-                        if (photoItem) {
-                            // 添加删除动画
-                            photoItem.style.opacity = '0';
-                            photoItem.style.transform = 'translateY(20px) scale(0.95)';
-                            photoItem.style.transition = 'all 0.3s ease';
-
-                            setTimeout(() => {
-                                photoItem.remove();
-
-                                // 如果没有照片了，显示空相册提示
-                                const photos = document.querySelectorAll('.photo-item');
-                                if (photos.length === 0) {
-                                    document.querySelector('.photo-grid').innerHTML = `
-                                    <div class="w-full text-center">
-                                        <p class="text-gray-500 italic">你的相册还是空的，快去上传照片吧！</p>
-                                    </div>
-                                `;
-                                }
-                            }, 300);
-                        }
-
-                        showNotification('照片已成功删除');
-                    } else {
-                        alert(data.error || '删除失败，请重试');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('网络错误，请重试');
-                });
-        }
-
-        // 显示通知
-        function showNotification(message) {
-            // 创建通知元素
-            const notification = document.createElement('div');
-            notification.className = 'fixed bottom-4 right-4 bg-neutral-800 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-y-10 opacity-0 transition-all duration-300';
-            notification.textContent = message;
-
-            // 添加到页面
-            document.body.appendChild(notification);
-
-            // 显示通知
-            setTimeout(() => {
-                notification.classList.remove('translate-y-10', 'opacity-0');
-            }, 10);
-
-            // 3秒后隐藏通知
-            setTimeout(() => {
-                notification.classList.add('translate-y-10', 'opacity-0');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
-        }
-
-        // 上传表单提交
-        document.getElementById('uploadForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const form = this;
-            const formData = new FormData(form);
-            const submitBtn = document.getElementById('submitUploadBtn');
-            const description = document.getElementById('photoDescription').value;
-
-            // 检查是否有上传的文件
-            if (!fileInput.files.length) {
-                alert('请选择要上传的照片');
-                return;
-            }
-
-            // 添加加载状态
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 上传中...';
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // 关闭上传模态框
-                        closeUploadModal();
-
-                        // 显示成功通知
-                        showNotification('照片上传成功！');
-
-                        // 刷新页面或添加新照片到相册
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        alert(data.error || '上传失败，请重试');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('网络错误，请重试');
-                })
-                .finally(() => {
-                    // 恢复按钮状态
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '上传照片';
-                });
-        });
-
-        // 导航栏滚动效果
-        window.addEventListener('scroll', function () {
-            const header = document.querySelector('header');
-            if (window.scrollY > 10) {
-                header.classList.add('shadow-md');
-                header.classList.remove('shadow-sm');
-            } else {
-                header.classList.remove('shadow-md');
-                header.classList.add('shadow-sm');
-            }
-        });
-
-        // 加载更多照片
-        document.querySelector('.load-more-btn').addEventListener('click', function () {
-            // 显示加载中状态
-            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 加载中...';
-            this.disabled = true;
-
-            // 模拟加载延迟
-            setTimeout(() => {
-                // 恢复按钮状态
-                this.innerHTML = '加载更多照片 <i class="fa-solid fa-chevron-down ml-2"></i>';
-                this.disabled = false;
-
-                // 显示通知
-                showNotification('已经加载全部照片');
-            }, 1500);
         });
     </script >
 </body >

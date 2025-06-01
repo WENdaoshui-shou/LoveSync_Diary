@@ -38,6 +38,8 @@ urlpatterns = [
 
     # 相册
     path('photo_album/', photo_album, name='photo_album'),
+    # 删除照片
+    path('photo/<int:photo_id>/', delete_photo, name='delete_photo'),
 
     # 收藏
     path('favorites/', favorites, name='favorites'),

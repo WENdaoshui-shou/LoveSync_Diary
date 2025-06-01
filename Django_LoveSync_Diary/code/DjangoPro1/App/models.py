@@ -114,3 +114,17 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} 对 {self.parent.user.username if self.parent else '动态'} 的评论: {self.content[:20]}"
+
+
+class Photo(models.Model):
+    """照片模型"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='photos')
+    image = models.ImageField(upload_to='photos/%Y/%m/%d/')
+    description = models.TextField(blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Photo by {self.user.username} at {self.uploaded_at}"
+
+    class Meta:
+        ordering = ['-uploaded_at']

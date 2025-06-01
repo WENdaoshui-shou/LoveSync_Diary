@@ -116,7 +116,7 @@ def community(request):
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
 
         # 只显示已分享的动态
-        moment = Moment.objects.filter(is_shared=True).select_related('user__profile').all()
+        moment = Moment.objects.filter(is_shared=True).select_related('user__profile').order_by('-created_at')
 
         return render(request, 'community.html', {
             'user': request.user,
@@ -168,12 +168,65 @@ def photo_album(request):
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
 
-        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').order_by('-created_at')
+        photo = Photo.objects.filter(user=request.user).order_by('-uploaded_at')
 
         return render(request, 'photo_album.html', {
             'user': request.user,
             'moments': moment,
+            'photos': photo,
         })
+
+    if request.method == 'POST':
+        # 处理照片上传
+        description = request.POST.get('description', '').strip()
+        images = request.FILES.getlist('images')  # 获取上传的图片（多张）
+
+        photos = Photo.objects.filter(user=request.user).order_by('-uploaded_at')
+
+        # 验证至少上传了一张图片
+        if not images:
+            return render(request, 'photo_album.html', {
+                'error': '请选择至少一张图片上传',
+                'photos': photos
+            })
+
+        try:
+            # 为每张上传的图片创建Photo对象
+            for image in images:
+                Photo.objects.create(
+                    user=request.user,
+                    image=image,
+                    description=description,
+                )
+
+            return redirect('photo_album')
+
+        except Exception as e:
+            return render(request, 'photo_album.html', {
+                'error': f'上传失败: {str(e)}',
+                'photos': photos
+            })
+
+
+# 删除照片
+@login_required
+@require_http_methods(['DELETE', 'POST'])
+def delete_photo(request, photo_id):
+    # 获取当前用户的照片对象，不存在或非所有者则返回404
+    photo = get_object_or_404(Photo, id=photo_id, user=request.user)
+
+    try:
+        # 删除照片文件
+        if photo.image:
+            photo.image.delete(save=False)  # 先删除物理文件
+
+        # 删除数据库记录
+        photo.delete()
+
+        return JsonResponse({'status': 'success', 'message': '照片删除成功'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
 # 动态
@@ -184,7 +237,7 @@ def moments(request):
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
 
-        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').order_by('-created_at')
 
         return render(request, 'moments.html', {
             'user': request.user,
@@ -335,10 +388,10 @@ def settings_view(request, tab='profile'):
             # 处理头像上传
             if 'userAvatar' in request.FILES:
                 # # 删除旧头像
-                # if profile.userAvatar:
-                #     old_avatar_path = profile.userAvatar.path
-                #     if os.path.exists(old_avatar_path):
-                #         os.remove(old_avatar_path)
+                if profile.userAvatar:
+                    old_avatar_path = profile.userAvatar.path
+                    if os.path.exists(old_avatar_path):
+                        os.remove(old_avatar_path)
                 profile.userAvatar = request.FILES['userAvatar']
 
             profile.save()
