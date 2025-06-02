@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html lang = "zh-CN" >
-
 <head >
     <meta charset = "UTF-8" >
     <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
-    <title >相册 - LoveSync</title >
+    <title >爱情同步日记</title >
     <script src = "https://cdn.tailwindcss.com" ></script >
     <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
+    <script src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js" ></script >
     <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
           rel = "stylesheet" >
+
+    <!-- Tailwind配置 -->
     <script >
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF6B8B', // 爱情粉色作为主色调
-                        secondary: '#722ED1', // 紫色作为辅助色
+                        primary: '#FF6B8B', // 爱情粉色
+                        secondary: '#722ED1', // 紫色辅助色
+                        heart: '#FF6B8B',    // 心动
+                        happy: '#81E67F',    // 开心
+                        laugh: '#FFD700',    // 大笑
+                        sad: '#64748B',      // 难过
+                        angry: '#EF4444',    // 生气
+                        calm: '#9CA3AF',     // 平静
                         neutral: {
                             100: '#F9F9F9',
                             200: '#F0F0F0',
@@ -31,443 +39,102 @@
                     fontFamily: {
                         inter: ['Inter', 'sans-serif'],
                     },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {opacity: '0'},
+                            '100%': {opacity: '1'},
+                        },
+                        slideUp: {
+                            '0%': {transform: 'translateY(20px)', opacity: '0'},
+                            '100%': {transform: 'translateY(0)', opacity: '1'},
+                        }
+                    }
                 },
             }
         }
     </script >
+
     <style type = "text/tailwindcss" >
         @layer utilities {
             .content-auto {
                 content-visibility: auto;
             }
 
-            .text-shadow {
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
             }
 
-            .transition-custom {
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
             }
 
-            .bg-gradient-love {
-                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            .mood-gradient {
+                background: linear-gradient(135deg, var(--mood-color, #FF6B8B)/10%, transparent);
             }
 
-            .hover-scale {
-                transition: transform 0.3s ease;
-            }
-
-            .hover-scale:hover {
-                transform: scale(1.03);
-            }
-
-            .form-input-focus {
-                transition: all 0.3s ease;
-            }
-
-            .form-input-focus:focus {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
-            }
-
-            .btn-pulse {
-                animation: pulse 2s infinite;
-            }
-
-            @keyframes pulse {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
-                }
-                70% {
-                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
-                }
-                100% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
-                }
-            }
-            .float-animation {
-                animation: float 6s ease-in-out infinite;
-            }
-
-            @keyframes float {
-                0% {
-                    transform: translateY(0px);
-                }
-                50% {
-                    transform: translateY(-20px);
-                }
-                100% {
-                    transform: translateY(0px);
-                }
-            }
-            .post-card {
-                transition: all 0.3s ease;
-            }
-
-            .post-card:hover {
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                transform: translateY(-2px);
-            }
-
-            .like-animation {
-                animation: like 0.5s ease;
-            }
-
-            @keyframes like {
-                0% {
-                    transform: scale(1);
-                }
-                50% {
-                    transform: scale(1.3);
-                }
-                100% {
-                    transform: scale(1);
-                }
-            }
-            .comment-slide {
-                animation: slideUp 0.3s ease;
-            }
-
-            @keyframes slideUp {
-                from {
-                    transform: translateY(20px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-            .scroll-smooth {
-                scroll-behavior: smooth;
-            }
-
-            .skew-x-15 {
-                transform: skewX(15deg);
-            }
-
-            .skew-x--15 {
-                transform: skewX(-15deg);
-            }
-
-            .mask-custom {
-                mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
+            .blur-effect {
+                backdrop-filter: blur(2px);
+                transition: backdrop-filter 0.3s ease;
             }
 
             .timeline-line {
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                left: 50%;
                 width: 2px;
-                background-color: #FF6B8B;
-                transform: translateX(-50%);
-            }
-
-            .timeline-dot {
-                position: absolute;
+                background-color: var(--mood-color, #FF6B8B);
                 left: 50%;
-                width: 16px;
-                height: 16px;
-                background-color: #FF6B8B;
-                border-radius: 50%;
                 transform: translateX(-50%);
             }
 
-            .music-wave {
-                display: flex;
-                align-items: flex-end;
-                gap: 2px;
-                height: 20px;
-            }
-
-            .music-wave span {
-                width: 3px;
-                background-color: #FF6B8B;
-                animation: wave 1s infinite ease-in-out;
-            }
-
-            @keyframes wave {
-                0%, 100% {
-                    height: 5px;
-                }
-                50% {
-                    height: 15px;
-                }
-            }
-            .music-wave span:nth-child(2) {
-                animation-delay: 0.1s;
-            }
-
-            .music-wave span:nth-child(3) {
-                animation-delay: 0.2s;
-            }
-
-            .music-wave span:nth-child(4) {
-                animation-delay: 0.3s;
-            }
-
-            .music-wave span:nth-child(5) {
-                animation-delay: 0.4s;
-            }
-
-            .photo-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                grid-gap: 1.5rem;
-            }
-
-            .photo-item {
-                position: relative;
-                overflow: hidden;
-                border-radius: 1rem;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            .diary-card-hover {
                 transition: all 0.3s ease;
             }
 
-            .load-more-btn {
-                transition: all 0.3s ease;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .load-more-btn::before {
-                content: "";
-                position: absolute;
-                width: 100%;
-                height: 2px;
-                bottom: 0;
-                left: -100%;
-                background: #FF6B8B;
-                transition: left 0.3s ease;
-            }
-
-            .load-more-btn:hover::before {
-                left: 0;
-            }
-
-            .photo-item:hover {
+            .diary-card-hover:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
             }
 
-            .photo-overlay {
+            .mood-indicator {
                 position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-                padding: 1rem;
-                opacity: 0;
-                transform: translateY(10px);
-                transition: all 0.3s ease;
-            }
-
-            .photo-item:hover .photo-overlay {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            .photo-modal {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.9);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
-            }
-
-            .photo-modal.active {
-                opacity: 1;
-                pointer-events: auto;
-            }
-
-            .modal-content {
-                max-width: 90%;
-                max-height: 90%;
-                position: relative;
-            }
-
-            .close-modal {
-                position: absolute;
-                top: -2rem;
-                right: 0;
-                color: white;
-                font-size: 1.5rem;
-                cursor: pointer;
-            }
-
-            .carousel-btn {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                background-color: rgba(0, 0, 0, 0.5);
-                color: white;
-                width: 2.5rem;
-                height: 2.5rem;
+                left: -16px;
+                top: 12px;
+                width: 30px;
+                height: 30px;
                 border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: background-color 0.3s ease;
-            }
-
-            .carousel-btn:hover {
-                background-color: rgba(0, 0, 0, 0.8);
-            }
-
-            .prev-btn {
-                left: -3rem;
-            }
-
-            .next-btn {
-                right: -3rem;
-            }
-
-            .photo-count {
-                position: absolute;
-                bottom: -2rem;
-                left: 0;
-                color: white;
-                font-size: 0.9rem;
-            }
-
-            .comment-container {
-                max-height: 200px;
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: #FF6B8B transparent;
-            }
-
-            .comment-container::-webkit-scrollbar {
-                width: 4px;
-            }
-
-            .comment-container::-webkit-scrollbar-track {
-                background: transparent;
-            }
-
-            .comment-container::-webkit-scrollbar-thumb {
-                background-color: #FF6B8B;
-                border-radius: 20px;
-            }
-
-            .upload-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.7);
-                z-Index: 9999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
-            }
-
-            .upload-container.active {
-                opacity: 1;
-                pointer-events: auto;
-            }
-
-            .upload-box {
                 background-color: white;
-                border-radius: 1rem;
-                padding: 2rem;
-                width: 90%;
-                max-width: 500px;
-                transform: scale(0.9);
-                transition: transform 0.3s ease;
-            }
-
-            .upload-container.active .upload-box {
-                transform: scale(1);
-            }
-
-            .drop-area {
-                border: 2px dashed #FF6B8B;
-                border-radius: 0.5rem;
-                padding: 2rem;
-                text-align: center;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .drop-area:hover {
-                background-color: #FF6B8B10;
-            }
-
-            .drop-area.active {
-                background-color: #FF6B8B20;
-                border-color: #722ED1;
-            }
-
-            .preview-container {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 1rem;
-                margin-top: 1rem;
-            }
-
-            .preview-item {
-                position: relative;
-                width: 100px;
-                height: 100px;
-                border-radius: 0.5rem;
-                overflow: hidden;
-            }
-
-            .preview-item img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-            .remove-preview {
-                position: absolute;
-                top: 5px;
-                right: 5px;
-                width: 20px;
-                height: 20px;
-                background-color: rgba(0, 0, 0, 0.7);
-                color: white;
-                border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                cursor: pointer;
-                opacity: 0;
-                transition: opacity 0.3s ease;
+                box-shadow: 0 0 0 2px var(--mood-color, #FF6B8B);
             }
 
-            .preview-item:hover .remove-preview {
-                opacity: 1;
+            .mood-indicator::after {
+                content: attr(data-icon);
+                font-size: 18px;
+                color: var(--mood-color, #FF6B8B);
+            }
+
+            .partner-card .mood-indicator {
+                left: auto;
+                right: -16px;
             }
         }
     </style >
 </head >
-
-<body
-        class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
-    <!-- 背景装饰元素 -->
+<body class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
+    <!-- 背景装饰 -->
     <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
-        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" >
-        </div >
-        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl animate-pulse-slow" ></div >
+        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl animate-pulse-slow"
              style = "animation-delay: -2s;" ></div >
-        <div class = "absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
-             style = "animation-delay: -4s;" ></div >
     </div >
 
     <!-- 导航栏 -->
@@ -475,12 +142,12 @@
         <div class = "container mx-auto px-4 flex items-center justify-between" >
             <!-- 品牌标识 -->
             <a href = "#" class = "flex items-center space-x-2" >
-                <div
-                        class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md" >
-                    <i class = "fa-solid fa-heart text-xl" ></i >
+                <div class = "w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white shadow-md" >
+                    <i class = "fa-solid fa-book text-xl" ></i >
                 </div >
                 <span class = "text-xl font-bold text-neutral-800 tracking-tight" >LoveSync</span >
             </a >
+
             <!-- 桌面端导航菜单 -->
             <nav class = "hidden md:flex items-center space-x-6" >
                 <a href = "{% url 'index' %}"
@@ -493,58 +160,7 @@
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >相册</a >
                 <a href = "{% url 'favorites' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >收藏</a >
-
-                <!-- 更多下拉菜单 -->
-                <div class = "relative" id = "moreDropdown" >
-                    <button
-                            class = "text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
-                            id = "moreButton" >
-                        更多 <i class = "fa-solid fa-chevron-down ml-1 text-xs" ></i >
-                    </button >
-                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                         id = "moreOptions" >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-calendar-heart mr-2 w-5 text-center" ></i >纪念日提醒
-                        </a >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-gift mr-2 w-5 text-center" ></i >礼物推荐
-                        </a >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-map-marker-heart mr-2 w-5 text-center" ></i >情侣地点
-                        </a >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-question-circle mr-2 w-5 text-center" ></i >爱情测试
-                        </a >
-                    </div >
-                </div >
             </nav >
-
-            <!-- 内容过滤器 -->
-            <div
-                    class = "bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale" >
-                <div class = "flex space-x-2" >
-                    <button class = "px-4 py-2 rounded-full bg-primary text-white text-sm font-medium" >
-                        推荐
-                    </button >
-                    <button
-                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
-                        最新
-                    </button >
-                    <button
-                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
-                        热门
-                    </button >
-                </div >
-                <div class = "relative" >
-                    <input type = "text" placeholder = "LoveSync: 搜索..."
-                           class = "pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
-                    <i class = "fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" ></i >
-                </div >
-            </div >
 
             <!-- 用户操作区 -->
             <div class = "flex items-center space-x-4" >
@@ -554,11 +170,17 @@
                     <span >发布动态</span >
                 </a >
 
+                <button id = "new-diary-btn"
+                        class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg" >
+                    <i class = "fa-solid fa-plus" ></i >
+                    <span >写日记</span >
+                </button >
+
                 <!-- 用户头像与下拉菜单 -->
                 <div class = "relative" id = "userDropdown" >
                     <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
                          id = "userAvatar" >
-                        <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
+                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
                              class = "w-full h-full object-cover" >
                     </div >
                     <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
@@ -616,19 +238,6 @@
                     <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >收藏
                 </a >
                 <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-calendar-heart mr-3 w-5 text-center" ></i >纪念日提醒
-                </a >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-gift mr-3 w-5 text-center" ></i >礼物推荐
-                </a >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-map-marker-heart mr-3 w-5 text-center" ></i >情侣地点
-                </a >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-question-circle mr-3 w-5 text-center" ></i >爱情测试
-                </a >
-                <div class = "border-t border-neutral-200 my-1" ></div >
                 <a href = "{% url 'personal_center' %}"
                    class = "text-neutral-700 py-2 transition-custom flex items-center" >
                     <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >个人主页
@@ -636,11 +245,11 @@
                 <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
                     <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >消息中心
                 </a >
-                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                <a href = "{% url 'settings' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
                     <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置中心
                 </a >
                 <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'login' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
+                <a href = "{% url 'logout' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
                     <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
                 </a >
             </div >
@@ -650,864 +259,497 @@
     <!-- 主内容区 -->
     <main class = "flex-grow pt-24 pb-16 relative z-10" >
         <div class = "container mx-auto px-4" >
-            <!-- 个人信息展示 -->
-            <div class = "bg-white rounded-xl shadow-lg overflow-hidden hover-scale" >
-                <div class = "h-32 bg-gradient-love relative" >
-                    <div class = "absolute -bottom-8 left-6 w-16 h-16 rounded-full border-4 border-white overflow-hidden" >
-                        <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
-                             class = "w-full h-full object-cover" >
+            <!-- 顶部数据概览 -->
+            <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in" >
+                <div class = "flex flex-col md:flex-row items-center justify-between" >
+                    <div class = "mb-4 md:mb-0" >
+                        <h2 class = "text-2xl font-bold text-neutral-800 mb-1" >我们的爱情日记</h2 >
+                        <p class = "text-neutral-600" >已共同记录 <span class = "text-primary font-semibold" >42</span > 篇日记 · 相恋 <span
+                                class = "text-primary font-semibold" >365</span > 天</p >
+                    </div >
+
+                    <div class = "flex space-x-4" >
+                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
+                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
+                                     class = "w-full h-full object-cover" >
+                            </div >
+                            <div >
+                                <p class = "text-sm font-medium" >我</p >
+                                <p class = "text-xs text-neutral-500" >已写 23 篇</p >
+                            </div >
+                        </div >
+
+                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
+                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                <img src = "https://picsum.photos/200/200?random=2" alt = "伴侣头像"
+                                     class = "w-full h-full object-cover" >
+                            </div >
+                            <div >
+                                <p class = "text-sm font-medium" >TA</p >
+                                <p class = "text-xs text-neutral-500" >已写 19 篇</p >
+                            </div >
+                        </div >
                     </div >
                 </div >
-                <div class = "pt-10 pb-6 px-6" >
-                    <h3 class = "text-lg font-semibold text-neutral-900" >{{ user.name }}</h3 >
-                    <p class = "text-neutral-600 text-sm mt-1" >分享我们的爱情故事</p >
-                    <div class = "flex justify-between mt-4 pt-4 border-t border-neutral-200" >
-                        <div class = "text-center" >
-                            <p class = "text-neutral-900 font-semibold" >24</p >
-                            <p class = "text-neutral-500 text-xs" >动态</p >
+
+                <!-- 本周心情统计 -->
+                <div class = "mt-6 pt-6 border-t border-neutral-200" >
+                    <h3 class = "text-lg font-semibold text-neutral-800 mb-4" >本周心情</h3 >
+                    <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
+                        <div class = "bg-heart/10 rounded-lg p-3 text-center" >
+                            <div class = "text-2xl mb-1" >❤️</div >
+                            <p class = "text-sm font-medium" >心动</p >
+                            <p class = "text-xs text-heart" >3 次</p >
                         </div >
-                        <div class = "text-center" >
-                            <p class = "text-neutral-900 font-semibold" >128</p >
-                            <p class = "text-neutral-500 text-xs" >粉丝</p >
+                        <div class = "bg-happy/10 rounded-lg p-3 text-center" >
+                            <div class = "text-2xl mb-1" >😊</div >
+                            <p class = "text-sm font-medium" >开心</p >
+                            <p class = "text-xs text-happy" >5 次</p >
                         </div >
-                        <div class = "text-center" >
-                            <p class = "text-neutral-900 font-semibold" >64</p >
-                            <p class = "text-neutral-500 text-xs" >关注</p >
+                        <div class = "bg-laugh/10 rounded-lg p-3 text-center" >
+                            <div class = "text-2xl mb-1" >😆</div >
+                            <p class = "text-sm font-medium" >大笑</p >
+                            <p class = "text-xs text-laugh" >2 次</p >
+                        </div >
+                        <div class = "bg-sad/10 rounded-lg p-3 text-center" >
+                            <div class = "text-2xl mb-1" >😢</div >
+                            <p class = "text-sm font-medium" >难过</p >
+                            <p class = "text-xs text-sad" >1 次</p >
+                        </div >
+                        <div class = "bg-angry/10 rounded-lg p-3 text-center" >
+                            <div class = "text-2xl mb-1" >😤</div >
+                            <p class = "text-sm font-medium" >生气</p >
+                            <p class = "text-xs text-angry" >0 次</p >
+                        </div >
+                        <div class = "bg-calm/10 rounded-lg p-3 text-center" >
+                            <div class = "text-2xl mb-1" >😐</div >
+                            <p class = "text-sm font-medium" >平静</p >
+                            <p class = "text-xs text-calm" >2 次</p >
                         </div >
                     </div >
                 </div >
             </div >
 
-            <!-- 相册页面 -->
-            <div class = "mt-8 bg-white rounded-xl shadow-lg p-6 hover-scale" >
-                <div class = "flex justify-between items-center mb-6" >
-                    <h3 class = "text-lg font-semibold text-neutral-900" >我们的相册</h3 >
-                    <div class = "flex space-x-3" >
-                        <div class = "relative" >
-                            <input type = "text" placeholder = "搜索照片..."
-                                   class = "pl-10 pr-4 py-2 rounded-lg border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus" >
-                            <i class = "fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" ></i >
-                        </div >
-                        <button id = "uploadBtn"
-                                class = "px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-upload mr-2" ></i >
-                            <span >上传照片</span >
+            <!-- 写日记模态框 -->
+            <div id = "new-diary-modal" class = "fixed inset-0 z-50 flex items-center justify-center hidden" >
+                <div class = "absolute inset-0 bg-black/50 backdrop-blur-sm" id = "modal-backdrop" ></div >
+                <div class = "bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative z-10" >
+                    <div class = "p-6 border-b border-neutral-200 flex justify-between items-center" >
+                        <h3 class = "text-xl font-bold text-neutral-800" >写日记</h3 >
+                        <button id = "close-modal" class = "text-neutral-500 hover:text-neutral-800" >
+                            <i class = "fa-solid fa-times" ></i >
                         </button >
                     </div >
+
+                    <form id = "diary-form" method = "POST" enctype = "multipart/form-data" class = "p-6" >
+                        {% csrf_token %}
+
+                        <!-- 今日心情选择 -->
+                        <div class = "mb-6" >
+                            <label class = "block text-sm font-medium text-neutral-700 mb-2" >今日心情</label >
+                            <div class = "flex space-x-4 overflow-x-auto scrollbar-hide" >
+                                <button type = "button" class = "mood-btn active" data-mood = "heart"
+                                        data-color = "#FF6B8B" data-icon = "❤️" >
+                                    <div class = "w-12 h-12 rounded-full bg-heart/10 flex items-center justify-center" >
+                                        <i class = "fa-solid fa-heart text-xl text-heart" ></i >
+                                    </div >
+                                    <span class = "text-xs mt-1" >心动</span >
+                                </button >
+                                <button type = "button" class = "mood-btn" data-mood = "happy" data-color = "#81E67F"
+                                        data-icon = "😊" >
+                                    <div class = "w-12 h-12 rounded-full bg-happy/10 flex items-center justify-center" >
+                                        <i class = "fa-solid fa-smile text-xl text-happy" ></i >
+                                    </div >
+                                    <span class = "text-xs mt-1" >开心</span >
+                                </button >
+                                <button type = "button" class = "mood-btn" data-mood = "laugh" data-color = "#FFD700"
+                                        data-icon = "😆" >
+                                    <div class = "w-12 h-12 rounded-full bg-laugh/10 flex items-center justify-center" >
+                                        <i class = "fa-solid fa-laugh text-xl text-laugh" ></i >
+                                    </div >
+                                    <span class = "text-xs mt-1" >大笑</span >
+                                </button >
+                                <button type = "button" class = "mood-btn" data-mood = "sad" data-color = "#64748B"
+                                        data-icon = "😢" >
+                                    <div class = "w-12 h-12 rounded-full bg-sad/10 flex items-center justify-center" >
+                                        <i class = "fa-solid fa-frown text-xl text-sad" ></i >
+                                    </div >
+                                    <span class = "text-xs mt-1" >难过</span >
+                                </button >
+                                <button type = "button" class = "mood-btn" data-mood = "angry" data-color = "#EF4444"
+                                        data-icon = "😤" >
+                                    <div class = "w-12 h-12 rounded-full bg-angry/10 flex items-center justify-center" >
+                                        <i class = "fa-solid fa-angry text-xl text-angry" ></i >
+                                    </div >
+                                    <span class = "text-xs mt-1" >生气</span >
+                                </button >
+                                <button type = "button" class = "mood-btn" data-mood = "calm" data-color = "#9CA3AF"
+                                        data-icon = "😐" >
+                                    <div class = "w-12 h-12 rounded-full bg-calm/10 flex items-center justify-center" >
+                                        <i class = "fa-solid fa-meh text-xl text-calm" ></i >
+                                    </div >
+                                    <span class = "text-xs mt-1" >平静</span >
+                                </button >
+                            </div >
+                            <input type = "hidden" name = "mood" id = "mood-input" value = "heart" >
+                        </div >
+
+                        <!-- 日记内容 -->
+                        <div class = "mb-6" >
+                            <label for = "content"
+                                   class = "block text-sm font-medium text-neutral-700 mb-2" >今天发生了什么？</label >
+                            <textarea id = "content" name = "content" rows = "6"
+                                      class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
+                                      placeholder = "记录今天的心情和故事..." ></textarea >
+                        </div >
+
+                        <!-- 上传照片 -->
+                        <div class = "mb-6" >
+                            <label class = "block text-sm font-medium text-neutral-700 mb-2" >上传照片（可选）</label >
+                            <div class = "border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer"
+                                 id = "photo-upload-area" >
+                                <input type = "file" id = "photo-input" name = "photos" multiple accept = "image/*"
+                                       class = "hidden" >
+                                <i class = "fa-solid fa-cloud-upload-alt text-3xl text-neutral-400 mb-3" ></i >
+                                <p class = "text-neutral-600 mb-2" >点击或拖拽照片到这里</p >
+                                <p class = "text-neutral-500 text-sm" >支持 JPG, PNG, GIF 格式</p >
+                            </div >
+                            <div id = "photo-preview-container" class = "grid grid-cols-3 gap-2 mt-3 hidden" ></div >
+                        </div >
+
+                        <!-- 底部操作区 -->
+                        <div class = "flex justify-end space-x-3" >
+                            <button type = "button" id = "cancel-diary"
+                                    class = "px-4 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
+                                取消
+                            </button >
+                            <button type = "submit"
+                                    class = "px-6 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center" >
+                                <i class = "fa-solid fa-paper-plane mr-2" ></i >
+                                <span >发布日记</span >
+                            </button >
+                        </div >
+                    </form >
                 </div >
+            </div >
 
-                <!-- 相册分类标签 -->
-                <div class = "flex flex-wrap gap-2 mb-6" >
-                    <button class = "px-4 py-2 bg-primary text-white rounded-full text-sm" >全部照片</button >
-                    <button
-                            class = "px-4 py-2 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-full text-sm transition-custom" >旅行</button >
-                    <button
-                            class = "px-4 py-2 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-full text-sm transition-custom" >美食</button >
-                    <button
-                            class = "px-4 py-2 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-full text-sm transition-custom" >日常</button >
-                    <button
-                            class = "px-4 py-2 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-full text-sm transition-custom" >纪念日</button >
-                    <button
-                            class = "px-4 py-2 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-full text-sm transition-custom" >自拍</button >
-                </div >
+            <!-- 移动端快速写日记按钮 -->
+            <button id = "mobile-new-diary-btn"
+                    class = "fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-primary to-secondary rounded-full shadow-lg flex items-center justify-center text-white z-40 md:hidden animate-pulse-slow" >
+                <i class = "fa-solid fa-plus text-xl" ></i >
+            </button >
 
-                <!-- 照片网格 -->
-                <div class = "photo-grid" >
-                    <!-- 照片1 -->
-                    <div class = "photo-item" data-category = "日常" data-index = "0" >
-                        <img src = "https://picsum.photos/600/800?random=100" alt = "第一次约会"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >第一次约会</h4 >
-                            <p class = "text-white/80 text-sm" >2022年4月20日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >24</span >
-                                    </button >
+            <!-- 时间轴双视角布局 -->
+            <div class = "relative" >
+                <!-- 时间轴分割线 -->
+                <div class = "hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2" ></div >
+
+                <!-- 时间轴条目 -->
+                <div class = "space-y-12" >
+                    <!-- 今天的日记 -->
+                    <div class = "relative" >
+                        <div class = "text-center mb-8" >
+                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
+                                <i class = "fa-solid fa-calendar-day mr-2" ></i >今天
+                            </span >
+                        </div >
+
+                        <!-- TA的日记 -->
+                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card" >
+                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
+                                 style = "--mood-color: #81E67F;" data-mood = "happy" >
+                                <div class = "mood-indicator" data-icon = "😊" ></div >
+                                <div class = "flex justify-between items-start mb-3" >
+                                    <div class = "flex items-center" >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
+                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <span class = "font-medium" >TA</span >
+                                    </div >
+                                    <span class = "text-sm text-neutral-500" >10:23</span >
                                 </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >5</span >
-                                </button >
+                                <p class = "text-neutral-700 mb-4" >今天早上收到了你的早餐惊喜，太开心了！鸡蛋煎得刚刚好，咖啡也是我喜欢的甜度。有你真好❤️</p >
+                                <div class = "rounded-lg overflow-hidden mb-4" >
+                                    <img src = "https://picsum.photos/600/400?random=10" alt = "早餐照片"
+                                         class = "w-full h-auto" >
+                                </div >
+                                <div class = "flex justify-between items-center" >
+                                    <span class = "text-xs text-happy bg-happy/10 px-2 py-1 rounded-full" >开心的一天</span >
+                                    <div class = "flex items-center space-x-3" >
+                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
+                                            <i class = "fa-solid fa-heart" ></i >
+                                        </button >
+                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
+                                                data-diary-id = "1" >
+                                            <i class = "fa-solid fa-reply" ></i >
+                                        </button >
+                                    </div >
+                                </div >
+
+                                <!-- 回应区域 -->
+                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
+                                    <div class = "flex items-start mb-2" >
+                                        <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
+                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <div class = "flex-1" >
+                                            <div class = "bg-neutral-100 rounded-lg p-3" >
+                                                <p class = "text-sm text-neutral-700" >看到你开心我也很满足呀～下次给你做你最爱吃的华夫饼！</p >
+                                            </div >
+                                        </div >
+                                    </div >
+                                </div >
                             </div >
                         </div >
                     </div >
 
-                    <!-- 照片2 -->
-                    <div class = "photo-item" data-category = "旅行" data-index = "1" >
-                        <img src = "https://picsum.photos/600/800?random=101" alt = "海边漫步"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >海边漫步</h4 >
-                            <p class = "text-white/80 text-sm" >2022年5月15日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >36</span >
-                                    </button >
+                    <!-- 昨天的日记 -->
+                    <div class = "relative" >
+                        <div class = "text-center mb-8" >
+                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
+                                <i class = "fa-solid fa-calendar-day mr-2" ></i >昨天
+                            </span >
+                        </div >
+
+                        <!-- 我的日记 -->
+                        <div class = "md:w-1/2 md:pl-12" >
+                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
+                                 style = "--mood-color: #FF6B8B;" data-mood = "heart" >
+                                <div class = "mood-indicator" data-icon = "❤️" ></div >
+                                <div class = "flex justify-between items-start mb-3" >
+                                    <div class = "flex items-center" >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
+                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <span class = "font-medium" >我</span >
+                                    </div >
+                                    <span class = "text-sm text-neutral-500" >21:45</span >
                                 </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >8</span >
-                                </button >
+                                <p class = "text-neutral-700 mb-4" >今天陪你去看了你最喜欢的乐队演出，现场气氛太赞了！你跟着音乐摇摆的样子真的好可爱，那一刻觉得能和你在一起真的好幸福。</p >
+                                <div class = "grid grid-cols-2 gap-2 mb-4" >
+                                    <img src = "https://picsum.photos/300/300?random=11" alt = "演出照片1"
+                                         class = "w-full h-32 object-cover rounded-lg" >
+                                    <img src = "https://picsum.photos/300/300?random=12" alt = "演出照片2"
+                                         class = "w-full h-32 object-cover rounded-lg" >
+                                </div >
+                                <div class = "flex justify-between items-center" >
+                                    <span class = "text-xs text-heart bg-heart/10 px-2 py-1 rounded-full" >心动时刻</span >
+                                    <div class = "flex items-center space-x-3" >
+                                        <button class = "text-primary transition-custom" >
+                                            <i class = "fa-solid fa-heart" ></i > 5
+                                        </button >
+                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
+                                                data-diary-id = "2" >
+                                            <i class = "fa-solid fa-reply" ></i >
+                                        </button >
+                                    </div >
+                                </div >
+
+                                <!-- 回应区域 -->
+                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
+                                    <div class = "flex items-start mb-2" >
+                                        <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
+                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <div class = "flex-1" >
+                                            <div class = "bg-neutral-100 rounded-lg p-3" >
+                                                <p class = "text-sm text-neutral-700" >哈哈，我也很开心你能陪我去！这是我今年最棒的一次体验，谢谢你～❤️</p >
+                                            </div >
+                                        </div >
+                                    </div >
+                                </div >
+                            </div >
+                        </div >
+
+                        <!-- TA的日记 -->
+                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card mt-8 md:mt-0" >
+                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
+                                 style = "--mood-color: #FFD700;" data-mood = "laugh" >
+                                <div class = "mood-indicator" data-icon = "😆" ></div >
+                                <div class = "flex justify-between items-start mb-3" >
+                                    <div class = "flex items-center" >
+                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
+                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
+                                                 class = "w-full h-full object-cover" >
+                                        </div >
+                                        <span class = "font-medium" >TA</span >
+                                    </div >
+                                    <span class = "text-sm text-neutral-500" >23:15</span >
+                                </div >
+                                <p class = "text-neutral-700 mb-4" >演出结束后我们去吃夜宵，你把芥末当成了番茄酱，那表情真的太好笑了！哈哈哈哈，不过看你为了我硬吃下去的样子，心里还是暖暖的～</p >
+                                <div class = "rounded-lg overflow-hidden mb-4" >
+                                    <img src = "https://picsum.photos/600/400?random=13" alt = "夜宵照片"
+                                         class = "w-full h-auto" >
+                                </div >
+                                <div class = "flex justify-between items-center" >
+                                    <span class = "text-xs text-laugh bg-laugh/10 px-2 py-1 rounded-full" >欢乐时刻</span >
+                                    <div class = "flex items-center space-x-3" >
+                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
+                                            <i class = "fa-solid fa-heart" ></i >
+                                        </button >
+                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
+                                                data-diary-id = "3" >
+                                            <i class = "fa-solid fa-reply" ></i >
+                                        </button >
+                                    </div >
+                                </div >
                             </div >
                         </div >
                     </div >
 
-                    <!-- 照片3 -->
-                    <div class = "photo-item" data-category = "纪念日" data-index = "2" >
-                        <img src = "https://picsum.photos/600/800?random=102" alt = "生日惊喜"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >生日惊喜</h4 >
-                            <p class = "text-white/80 text-sm" >2022年6月3日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >42</span >
-                                    </button >
-                                </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >12</span >
-                                </button >
-                            </div >
+                    <!-- 其他日期的日记 -->
+                    <div class = "relative" >
+                        <div class = "text-center mb-8" >
+                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
+                                <i class = "fa-solid fa-calendar-day mr-2" ></i >5月28日
+                            </span>
                         </div >
-                    </div >
-
-                    <!-- 照片4 -->
-                    <div class = "photo-item" data-category = "旅行" data-index = "3" >
-                        <img src = "https://picsum.photos/600/800?random=103" alt = "旅行中的风景"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >旅行中的风景</h4 >
-                            <p class = "text-white/80 text-sm" >2022年7月15日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >56</span >
-                                    </button >
-                                </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >7</span >
-                                </button >
-                            </div >
-                        </div >
-                    </div >
-
-                    <!-- 照片5 -->
-                    <div class = "photo-item" data-category = "日常" data-index = "4" >
-                        <img src = "https://picsum.photos/600/800?random=104" alt = "冬日雪景"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >冬日雪景</h4 >
-                            <p class = "text-white/80 text-sm" >2022年12月25日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >48</span >
-                                    </button >
-                                </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >4</span >
-                                </button >
-                            </div >
-                        </div >
-                    </div >
-
-                    <!-- 照片6 -->
-                    <div class = "photo-item" data-category = "纪念日" data-index = "5" >
-                        <img src = "https://picsum.photos/600/800?random=105" alt = "浪漫晚餐"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >浪漫晚餐</h4 >
-                            <p class = "text-white/80 text-sm" >2023年2月14日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >64</span >
-                                    </button >
-                                </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >15</span >
-                                </button >
-                            </div >
-                        </div >
-                    </div >
-
-                    <!-- 照片7 -->
-                    <div class = "photo-item" data-category = "日常" data-index = "6" >
-                        <img src = "https://picsum.photos/600/800?random=106" alt = "一起做饭"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >一起做饭</h4 >
-                            <p class = "text-white/80 text-sm" >2023年3月5日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >32</span >
-                                    </button >
-                                </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >6</span >
-                                </button >
-                            </div >
-                        </div >
-                    </div >
-
-                    <!-- 照片8 -->
-                    <div class = "photo-item" data-category = "旅行" data-index = "7" >
-                        <img src = "https://picsum.photos/600/800?random=107" alt = "周末露营"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "photo-overlay" >
-                            <h4 class = "text-white font-medium" >周末露营</h4 >
-                            <p class = "text-white/80 text-sm" >2023年4月10日</p >
-                            <div class = "flex justify-between items-center mt-2" >
-                                <div class = "flex items-center space-x-2" >
-                                    <button class = "text-white/80 hover:text-white transition-custom like-btn" >
-                                        <i class = "fa-regular fa-heart" ></i >
-                                        <span class = "like-count" >45</span >
-                                    </button >
-                                </div >
-                                <button class = "text-white/80 hover:text-white transition-custom comment-btn" >
-                                    <i class = "fa-regular fa-comment" ></i >
-                                    <span class = "comment-count" >9</span >
-                                </button >
-                            </div >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 加载更多按钮 -->
-                <div class = "mt-12 text-center" >
-                    <button class = "px-8 py-3 bg-white border border-primary text-primary rounded-full load-more-btn" >
-                        加载更多照片 <i class = "fa-solid fa-chevron-down ml-2" ></i >
-                    </button >
+                    </div>
                 </div >
             </div >
         </div >
     </main >
-
-    <!-- 照片查看模态框 -->
-    <div class = "photo-modal" id = "photoModal" >
-        <div class = "modal-content" >
-            <span class = "close-modal" id = "closeModal" >&times;</span >
-            <button class = "carousel-btn prev-btn" id = "prevBtn" >
-                <i class = "fa-solid fa-chevron-left" ></i >
-            </button >
-            <img src = "" alt = "大图查看" id = "modalImage" class = "max-w-full max-h-[80vh] rounded-lg" >
-            <button class = "carousel-btn next-btn" id = "nextBtn" >
-                <i class = "fa-solid fa-chevron-right" ></i >
-            </button >
-            <div class = "photo-count" id = "photoCount" >1/8</div >
-            <div class = "mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3" >
-                <h4 class = "text-white font-medium" id = "modalTitle" ></h4 >
-                <p class = "text-white/80 text-sm" id = "modalDate" ></p >
-                <div class = "flex space-x-3 mt-2" >
-                    <button class = "text-white/80 hover:text-white transition-custom like-btn-modal" >
-                        <i class = "fa-regular fa-heart" ></i >
-                        <span class = "like-count-modal" >24</span >
-                    </button >
-                    <button class = "text-white/80 hover:text-white transition-custom" >
-                        <i class = "fa-solid fa-share-from-square" ></i >
-                    </button >
-                </div >
-
-                <!-- 评论区 -->
-                <div class = "mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3" >
-                    <div class = "flex justify-between items-center mb-2" >
-                        <h5 class = "text-white font-medium" >评论</h5 >
-                        <span class = "text-white/60 text-sm comment-count-modal" >5 条评论</span >
-                    </div >
-
-                    <div class = "comment-container mb-3" >
-                        <div class = "flex items-start space-x-2 mb-3 comment-slide" >
-                            <div class = "w-8 h-8 rounded-full overflow-hidden flex-shrink-0" >
-                                <img src = "https://picsum.photos/100/100?random=1" alt = "评论用户头像"
-                                     class = "w-full h-full object-cover" >
-                            </div >
-                            <div class = "bg-white/20 rounded-lg p-2 flex-grow" >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-white font-medium text-sm" >小甜甜</span >
-                                    <span class = "text-white/60 text-xs" >2小时前</span >
-                                </div >
-                                <p class = "text-white text-sm mt-1" >第一次约会的地方，还记得那天你紧张得说话都结巴了~</p >
-                            </div >
-                        </div >
-
-                        <div class = "flex items-start space-x-2 mb-3 comment-slide" style = "animation-delay: 0.1s;" >
-                            <div class = "w-8 h-8 rounded-full overflow-hidden flex-shrink-0" >
-                                <img src = "https://picsum.photos/100/100?random=2" alt = "评论用户头像"
-                                     class = "w-full h-full object-cover" >
-                            </div >
-                            <div class = "bg-white/20 rounded-lg p-2 flex-grow" >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-white font-medium text-sm" >小帅帅</span >
-                                    <span class = "text-white/60 text-xs" >1小时前</span >
-                                </div >
-                                <p class = "text-white text-sm mt-1" >哈哈，那是因为太喜欢你了呀~</p >
-                            </div >
-                        </div >
-
-                        <div class = "flex items-start space-x-2 mb-3 comment-slide" style = "animation-delay: 0.2s;" >
-                            <div class = "w-8 h-8 rounded-full overflow-hidden flex-shrink-0" >
-                                <img src = "https://picsum.photos/100/100?random=3" alt = "评论用户头像"
-                                     class = "w-full h-full object-cover" >
-                            </div >
-                            <div class = "bg-white/20 rounded-lg p-2 flex-grow" >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-white font-medium text-sm" >闺蜜小美</span >
-                                    <span class = "text-white/60 text-xs" >3小时前</span >
-                                </div >
-                                <p class = "text-white text-sm mt-1" >太甜蜜了！第一次约会就这么浪漫，祝福你们！</p >
-                            </div >
-                        </div >
-                    </div >
-
-                    <div class = "flex space-x-2" >
-                        <div class = "w-8 h-8 rounded-full overflow-hidden flex-shrink-0" >
-                            <img src = "https://picsum.photos/100/100?random=1" alt = "当前用户头像"
-                                 class = "w-full h-full object-cover" >
-                        </div >
-                        <div class = "flex-grow" >
-                            <input type = "text" placeholder = "添加评论..."
-                                   class = "w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:border-primary" >
-                        </div >
-                        <button
-                                class = "bg-primary hover:bg-primary/90 text-white rounded-lg px-3 py-2 transition-custom" >
-                            发送
-                        </button >
-                    </div >
-                </div >
-            </div >
-        </div >
-    </div >
-
-    <!-- 上传照片模态框 -->
-    <div class = "upload-container" id = "uploadContainer" >
-        <div class = "upload-box" >
-            <div class = "flex justify-between items-center mb-4" >
-                <h3 class = "text-lg font-semibold text-neutral-900" >上传照片</h3 >
-                <button id = "closeUploadBtn" class = "text-neutral-500 hover:text-neutral-700 transition-custom" >
-                    <i class = "fa-solid fa-times" ></i >
-                </button >
-            </div >
-
-            <div class = "drop-area" id = "dropArea" >
-                <i class = "fa-solid fa-cloud-upload text-4xl text-primary mb-2" ></i >
-                <p class = "text-neutral-700 mb-1" >拖放照片到这里上传</p >
-                <p class = "text-neutral-500 text-sm" >或者点击选择文件</p >
-                <input type = "file" id = "fileInput" class = "hidden" multiple accept = "image/*" >
-                <button id = "browseBtn"
-                        class = "mt-3 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom" >
-                    选择照片
-                </button >
-            </div >
-
-            <div class = "mt-4" >
-                <label class = "block text-neutral-700 mb-2" >照片描述</label >
-                <input type = "text" id = "photoTitle" placeholder = "输入照片标题..."
-                       class = "w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50" >
-            </div >
-
-            <div class = "mt-4" >
-                <label class = "block text-neutral-700 mb-2" >照片分类</label >
-                <select id = "photoCategory"
-                        class = "w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50" >
-                    <option value = "日常" >日常</option >
-                    <option value = "旅行" >旅行</option >
-                    <option value = "美食" >美食</option >
-                    <option value = "纪念日" >纪念日</option >
-                    <option value = "自拍" >自拍</option >
-                </select >
-            </div >
-
-            <div class = "preview-container" id = "previewContainer" ></div >
-
-            <div class = "mt-6 flex justify-end space-x-3" >
-                <button id = "cancelUploadBtn"
-                        class = "px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-custom" >
-                    取消
-                </button >
-                <button id = "confirmUploadBtn"
-                        class = "px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom" >
-                    上传照片
-                </button >
-            </div >
-        </div >
-    </div >
 
     <!-- 页脚 -->
     <footer class = "bg-white border-t border-neutral-200 py-8" >
         <div class = "container mx-auto px-4" >
             <div class = "flex flex-col md:flex-row justify-between items-center" >
                 <div class = "flex items-center space-x-2" >
-                    <div class = "w-8 h-8 bg-gradient-love rounded-full text-white" >
+                    <div class = "w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full text-white" >
                         <i class = "fa-solid fa-heart" ></i >
                     </div >
-                    <span class = "text-lg font-bold" >LoveSync</span >
+                    <span class = "text-lg font-bold" >LoveSync日记</span >
                 </div >
                 <div class = "text-neutral-500 text-sm" >
-                    &copy; 2023 LoveSync. 用照片记录心动瞬间，让爱与回忆永不褪色。
+                    &copy; 2025 LoveSync. 记录每一刻心动时光
                 </div >
             </div >
         </div >
     </footer >
 
-    <!-- JavaScript交互逻辑 -->
+    <!-- 交互逻辑 -->
     <script >
-        // 照片数据
-        const photos = [
-            {
-                src: "https://picsum.photos/600/800?random=100",
-                title: "第一次约会",
-                date: "2022年4月20日",
-                likes: 24,
-                category: "日常",
-                index: 0,
-                comments: [
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "第一次约会的地方，还记得那天你紧张得说话都结巴了~",
-                        time: "2小时前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "哈哈，那是因为太喜欢你了呀~",
-                        time: "1小时前"
-                    },
-                    {
-                        user: "闺蜜小美",
-                        avatar: "https://picsum.photos/100/100?random=3",
-                        content: "太甜蜜了！第一次约会就这么浪漫，祝福你们！",
-                        time: "3小时前"
-                    }
-                ]
-            },
-            {
-                src: "https://picsum.photos/600/800?random=101",
-                title: "海边漫步",
-                date: "2022年5月15日",
-                likes: 36,
-                category: "旅行",
-                index: 1,
-                comments: [
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "好喜欢这片海，还有海边的你~",
-                        time: "1天前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "下次我们一起去看更多的海！",
-                        time: "1天前"
-                    },
-                    {
-                        user: "朋友小明",
-                        avatar: "https://picsum.photos/100/100?random=4",
-                        content: "这张照片拍得真美，风景和人都美~",
-                        time: "2天前"
-                    },
-                    {
-                        user: "表妹小丽",
-                        avatar: "https://picsum.photos/100/100?random=5",
-                        content: "羡慕你们的二人世界！",
-                        time: "2天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "@小帅帅 我们下次去三亚好不好？",
-                        time: "1天前"
-                    }
-                ]
-            },
-            {
-                src: "https://picsum.photos/600/800?random=102",
-                title: "生日惊喜",
-                date: "2022年6月3日",
-                likes: 42,
-                category: "纪念日",
-                index: 2,
-                comments: [
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "看到你惊喜的表情，我就知道这次生日策划成功了~",
-                        time: "3天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "这是我过得最难忘的一个生日，谢谢你的用心~",
-                        time: "3天前"
-                    },
-                    {
-                        user: "闺蜜小美",
-                        avatar: "https://picsum.photos/100/100?random=3",
-                        content: "这个蛋糕看起来好好吃，好羡慕你有这么贴心的男朋友！",
-                        time: "2天前"
-                    },
-                    {
-                        user: "妈妈",
-                        avatar: "https://picsum.photos/100/100?random=6",
-                        content: "宝贝生日快乐！越来越漂亮！",
-                        time: "3天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "特别喜欢这个气球布置，拍了好多美美的照片~",
-                        time: "3天前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "@小甜甜 只要你喜欢，以后每年都给你这样庆祝~",
-                        time: "3天前"
-                    },
-                    {
-                        user: "朋友小张",
-                        avatar: "https://picsum.photos/100/100?random=7",
-                        content: "哇，这个惊喜做得太用心了！",
-                        time: "2天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "还有那个定制的项链，我很喜欢，谢谢亲爱的~",
-                        time: "3天前"
-                    }
-                ]
-            },
-            {
-                src: "https://picsum.photos/600/800?random=103",
-                title: "旅行中的风景",
-                date: "2022年7月15日",
-                likes: 56,
-                category: "旅行",
-                index: 3,
-                comments: [
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "这里的风景真美，感觉像走进了画里~",
-                        time: "4天前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "有你的地方，风景更美~",
-                        time: "4天前"
-                    },
-                    {
-                        user: "摄影师小王",
-                        avatar: "https://picsum.photos/100/100?random=8",
-                        content: "这张照片构图和光线都很棒，是你拍的吗？",
-                        time: "3天前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "@摄影师小王 是的，谢谢夸奖！我最近在学摄影~",
-                        time: "3天前"
-                    },
-                    {
-                        user: "表姐",
-                        avatar: "https://picsum.photos/100/100?random=9",
-                        content: "请问这是哪里呀？风景太美了，想和老公一起去~",
-                        time: "2天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "@表姐 这是黄山，真的很值得一去！",
-                        time: "2天前"
-                    }
-                ]
-            },
-            {
-                src: "https://picsum.photos/600/800?random=104",
-                title: "冬日雪景",
-                date: "2022年12月25日",
-                likes: 48,
-                category: "日常",
-                index: 4,
-                comments: [
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "第一次和你一起看雪，感觉整个世界都变得浪漫了~",
-                        time: "5天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "雪地里真的好冷，但是有你在身边就很温暖~",
-                        time: "5天前"
-                    },
-                    {
-                        user: "同学小李",
-                        avatar: "https://picsum.photos/100/100?random=10",
-                        content: "雪景好美，你们两个也很配~",
-                        time: "4天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "我们堆的雪人还在那里，不知道现在融化了没有~",
-                        time: "4天前"
-                    }
-                ]
-            },
-            {
-                src: "https://picsum.photos/600/800?random=105",
-                title: "浪漫晚餐",
-                date: "2023年2月14日",
-                likes: 64,
-                category: "纪念日",
-                index: 5,
-                comments: [
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "情人节的浪漫晚餐，谢谢亲爱的精心安排~",
-                        time: "1周前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "只要是和你一起，每天都是情人节~",
-                        time: "1周前"
-                    },
-                    {
-                        user: "闺蜜小美",
-                        avatar: "https://picsum.photos/100/100?random=3",
-                        content: "这也太浪漫了吧！这个餐厅在哪里呀？",
-                        time: "6天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "@闺蜜小美 在市中心的那家法式餐厅，叫Le Jardin~",
-                        time: "6天前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "下次我们可以一起去，我来订位置~",
-                        time: "6天前"
-                    },
-                    {
-                        user: "同事小张",
-                        avatar: "https://picsum.photos/100/100?random=11",
-                        content: "好羡慕你们，情人节还能在一起浪漫~",
-                        time: "5天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "红酒和蜡烛，营造出完美的氛围~",
-                        time: "1周前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "最重要的是有你在我身边~",
-                        time: "1周前"
-                    },
-                    {
-                        user: "表姐",
-                        avatar: "https://picsum.photos/100/100?random=9",
-                        content: "这个蛋糕看起来好好吃，是什么口味的？",
-                        time: "5天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "@表姐 是巧克力慕斯，超好吃的！",
-                        time: "5天前"
-                    }
-                ]
-            },
-            {
-                src: "https://picsum.photos/600/800?random=106",
-                title: "一起做饭",
-                date: "2023年3月5日",
-                likes: 32,
-                category: "日常",
-                index: 6,
-                comments: [
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "第一次尝试做意大利面，没想到成功了！",
-                        time: "8天前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "主要是你厉害，我只是打下手的~",
-                        time: "8天前"
-                    },
-                    {
-                        user: "闺蜜小美",
-                        avatar: "https://picsum.photos/100/100?random=3",
-                        content: "看起来很好吃，下次我要来蹭饭~",
-                        time: "7天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "@闺蜜小美 随时欢迎，不过你要带酒来~",
-                        time: "7天前"
-                    },
-                    {
-                        user: "妈妈",
-                        avatar: "https://picsum.photos/100/100?random=6",
-                        content: "看起来很美味，宝贝厨艺不错嘛~",
-                        time: "7天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "@妈妈 谢谢妈妈夸奖，都是跟你学的~",
-                        time: "7天前"
-                    }
-                ]
-            },
-            {
-                src: "https://picsum.photos/600/800?random=107",
-                title: "周末露营",
-                date: "2023年4月10日",
-                likes: 45,
-                category: "旅行",
-                index: 7,
-                comments: [
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "第一次露营，虽然有点累，但是很开心~",
-                        time: "9天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "星空真的好美，晚上听着虫鸣入睡，很特别的体验~",
-                        time: "9天前"
-                    },
-                    {
-                        user: "朋友小王",
-                        avatar: "https://picsum.photos/100/100?random=12",
-                        content: "这个露营地在哪里呀？看起来不错~",
-                        time: "8天前"
-                    },
-                    {
-                        user: "小帅帅",
-                        avatar: "https://picsum.photos/100/100?random=2",
-                        content: "@朋友小王 在郊区的明月湖露营地，我们是跟团去的~",
-                        time: "8天前"
-                    },
-                    {
-                        user: "同事小李",
-                        avatar: "https://picsum.photos/100/100?random=13",
-                        content: "晚上冷不冷呀？需要带什么装备？",
-                        time: "7天前"
-                    },
-                    {
-                        user: "小甜甜",
-                        avatar: "https://picsum.photos/100/100?random=1",
-                        content: "@同事小李 晚上有点冷，要带厚外套和睡袋。其他的帐篷、炉具营地都有提供~",
-                        time: "7天前"
-                    }
-                ]
-            }
-        ];
+        // 全局变量
+        let currentMood = 'heart';
+        const moodIcons = {
+            heart: '❤️',
+            happy: '😊',
+            laugh: '😆',
+            sad: '😢',
+            angry: '😤',
+            calm: '😐'
+        };
+
+        // 打开写日记模态框
+        const newDiaryBtn = document.getElementById('new-diary-btn');
+        const mobileNewDiaryBtn = document.getElementById('mobile-new-diary-btn');
+        const newDiaryModal = document.getElementById('new-diary-modal');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+
+        function openModal() {
+            newDiaryModal.classList.remove('hidden');
+            modalBackdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            newDiaryModal.classList.add('hidden');
+            modalBackdrop.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            resetForm();
+        }
+
+        newDiaryBtn?.addEventListener('click', openModal);
+        mobileNewDiaryBtn?.addEventListener('click', openModal);
+        document.getElementById('close-modal')?.addEventListener('click', closeModal);
+        modalBackdrop?.addEventListener('click', closeModal);
+
+        // 心情选择器
+        document.querySelectorAll('.mood-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                document.querySelectorAll('.mood-btn.active').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                currentMood = this.dataset.mood;
+                document.getElementById('mood-input').value = currentMood;
+            });
+        });
+
+        // 照片上传预览
+        const photoUploadArea = document.getElementById('photo-upload-area');
+        const photoInput = document.getElementById('photo-input');
+        const photoPreviewContainer = document.getElementById('photo-preview-container');
+
+        function handlePhotoUpload(e) {
+            const files = e.target.files;
+            previewPhotos(files);
+        }
+
+        function previewPhotos(files) {
+            photoPreviewContainer.innerHTML = '';
+            if (!files.length) return;
+
+            photoPreviewContainer.classList.remove('hidden');
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'w-full h-24 object-cover rounded-lg';
+                photoPreviewContainer.appendChild(img);
+            });
+        }
+
+        photoUploadArea.addEventListener('click', () => photoInput.click());
+        photoInput.addEventListener('change', handlePhotoUpload);
+
+        // 表单提交
+        const diaryForm = document.getElementById('diary-form');
+        diaryForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            // 这里添加实际提交逻辑（如AJAX或表单提交）
+            alert('日记已保存！');
+            closeModal();
+        });
 
         // 移动端菜单切换
-        document.getElementById('menu-toggle').addEventListener('click', function () {
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('hidden');
-                // 添加动画类
-                setTimeout(() => {
-                    mobileMenu.classList.add('translate-y-0', 'opacity-100');
-                }, 50);
-            } else {
-                // 移除动画类
-                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
-                // 等待动画完成后隐藏菜单
-                setTimeout(() => {
-                    mobileMenu.classList.add('hidden');
-                }, 200);
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', function () {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('translate-y-0');
+            mobileMenu.classList.toggle('opacity-100');
+        });
+
+        // 日记卡片互动
+        document.querySelectorAll('.response-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const diaryId = this.dataset.diaryId;
+                alert(`回复日记 ${diaryId}`);
+            });
+        });
+
+        // 动态心情动画
+        function updateBodyMoodColor(color) {
+            document.body.style.setProperty('--mood-color', color);
+            if (color === '#FFD700') {
+                confetti({particleCount: 30, spread: 360, startVelocity: 30});
+            } else if (color === '#EF4444') {
+                document.body.classList.add('blur-effect');
+                setTimeout(() => document.body.classList.remove('blur-effect'), 2000);
             }
-        });
+        }
 
-        const userAvatar = document.getElementById('userAvatar');
-        const userOptions = document.getElementById('userOptions');
-        const userDropdown = document.getElementById('userDropdown');
-
-        let closeTimer;
-
-        // 鼠标经过头像时打开菜单
-        userAvatar.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标悬停在下拉菜单时保持菜单打开
-        userDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标离开下拉菜单时关闭菜单
-        userDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
-                userOptions.classList.add('hidden');
-            }, 500);
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
-
-            let closeTimer;
-
-            // 鼠标经过按钮时打开菜单
-            moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标悬停在下拉菜单时保持菜单打开
-            moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标离开下拉菜单时关闭菜单
-            moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
-                    moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
-            });
-        });
+        // 初始化心情颜色
+        updateBodyMoodColor('#FF6B8B');
     </script >
+
+    <!-- 粒子动画库（可选） -->
+    <script src = "https://unpkg.com/confetti-js@1.0.5/dist/confetti.browser.min.js" ></script >
+</body >
+</html >

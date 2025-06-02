@@ -178,7 +178,7 @@
     <header class = "fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3" >
         <div class = "container mx-auto px-4 flex items-center justify-between" >
             <!-- 品牌标识 -->
-            <a href = "#" class = "flex items-center space-x-2" >
+            <a href = "{% url 'index' %}" class = "flex items-center space-x-2" >
                 <div
                         class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md" >
                     <i class = "fa-solid fa-heart text-xl" ></i >
@@ -187,16 +187,14 @@
             </a >
             <!-- 桌面端导航菜单 -->
             <nav class = "hidden md:flex items-center space-x-6" >
-                <a href = "{% url 'index' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
                 <a href = "{% url 'community' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >社区</a >
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >爱享公社</a >
                 <a href = "{% url 'moments' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >我们的动态</a >
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心动轨迹</a >
                 <a href = "{% url 'photo_album' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >相册</a >
-                <a href = "{% url 'favorites' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >收藏</a >
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心跳相簿</a >
+                <a href = "{% url 'lovesync' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
 
                 <!-- 更多下拉菜单 -->
                 <div class = "relative" id = "moreDropdown" >
@@ -299,25 +297,21 @@
              class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
              style = "top: 100%;" >
             <div class = "container mx-auto px-4 py-3 flex flex-col space-y-3" >
-                <a href = "{% url 'index' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-book-open mr-3 w-5 text-center" ></i >双人日记
-                </a >
                 <a href = "{% url 'community' %}"
                    class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-users mr-3 w-5 text-center" ></i >社区
+                    <i class = "fa-solid fa-users mr-3 w-5 text-center" ></i >爱享公社
                 </a >
                 <a href = "{% url 'moments' %}"
                    class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >我们的动态
+                    <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >心动轨迹
                 </a >
                 <a href = "{% url 'photo_album' %}"
                    class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >相册
+                    <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >心跳相簿
                 </a >
-                <a href = "{% url 'favorites' %}"
+                <a href = "{% url 'lovesync' %}"
                    class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >收藏
+                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >双人日记
                 </a >
                 <div class = "border-t border-neutral-200 my-1" ></div >
                 <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
@@ -335,16 +329,16 @@
                 <div class = "border-t border-neutral-200 my-1" ></div >
                 <a href = "{% url 'personal_center' %}"
                    class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >个人主页
+                    <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >主页
                 </a >
                 <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >消息中心
+                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >消息
                 </a >
                 <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置中心
+                    <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置
                 </a >
                 <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'login' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
+                <a href = "{% url 'logout' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
                     <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
                 </a >
             </div >

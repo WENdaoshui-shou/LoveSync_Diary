@@ -355,50 +355,44 @@
                 <div class = "mt-6 pt-6 border-t border-neutral-200" >
                     <h3 class = "text-lg font-semibold text-neutral-800 mb-4" >本周心情</h3 >
                     <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
-                        <!-- 心动心情触发 -->
                         <div class = "bg-heart/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "heart" >
+                             data-mood = "heart" data-color = "#FF6B8B" >
                             <div class = "text-2xl mb-1" >❤️</div >
                             <p class = "text-sm font-medium" >心动</p >
                             <p class = "text-xs text-heart" >3 次</p >
-                                <p class = "mt-1 text-xs text-primary" >点击写日记</p >
+                            <p class = "mt-1 text-xs text-primary" >点击写日记</p >
                         </div >
 
-                        <!-- 开心心情触发 -->
                         <div class = "bg-happy/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "happy" >
-                                <div class = "text-2xl mb-1" >😊</div >
-                                <p class = "text-sm font-medium" >开心</p >
-                                <p class = "text-xs text-happy" >5 次</p >
+                             data-mood = "happy" data-color = "#81E67F" >
+                            <div class = "text-2xl mb-1" >😊</div >
+                            <p class = "text-sm font-medium" >开心</p >
+                            <p class = "text-xs text-happy" >5 次</p >
                         </div >
 
-                        <!-- 大笑心情触发 -->
                         <div class = "bg-laugh/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "laugh" >
+                             data-mood = "laugh" data-color = "#FFD700" >
                             <div class = "text-2xl mb-1" >😆</div >
                             <p class = "text-sm font-medium" >大笑</p >
                             <p class = "text-xs text-laugh" >2 次</p >
                         </div >
 
-                        <!-- 难过心情触发 -->
                         <div class = "bg-sad/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "sad" >
+                             data-mood = "sad" data-color = "#3B82F6" >
                             <div class = "text-2xl mb-1" >😢</div >
                             <p class = "text-sm font-medium" >难过</p >
                             <p class = "text-xs text-sad" >1 次</p >
                         </div >
 
-                        <!-- 生气心情触发 -->
                         <div class = "bg-angry/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "angry" >
+                             data-mood = "angry" data-color = "#8B008B" >
                             <div class = "text-2xl mb-1" >😤</div >
                             <p class = "text-sm font-medium" >生气</p >
                             <p class = "text-xs text-angry" >0 次</p >
                         </div >
 
-                        <!-- 平静心情触发 -->
                         <div class = "bg-calm/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "calm" >
+                             data-mood = "calm" data-color = "#64748B" >
                             <div class = "text-2xl mb-1" >😐</div >
                             <p class = "text-sm font-medium" >平静</p >
                             <p class = "text-xs text-calm" >2 次</p >
@@ -420,6 +414,7 @@
                         <form id = "diary-form" method = "POST" enctype = "multipart/form-data" class = "p-6" >
                             {% csrf_token %}
                             <input type = "hidden" name = "mood" id = "mood-input" >
+                            <input type = "hidden" id = "mood-color-input" >
 
                             <!-- 日记内容 -->
                             <div class = "mb-6" >
@@ -447,13 +442,11 @@
                             <!-- 提交按钮 -->
                             <div class = "flex justify-end space-x-3" >
                                 <button type = "button" id = "cancel-diary"
-                                        class = "px-4 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
+                                        class = "px-6 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
                                     取消
                                 </button >
-                                <button
-                                        type = "submit"
-                                        class = "px-6 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg flex items-center"
-                                        id = "saveButton" >
+                                <button type = "submit" id = "saveButton"
+                                        class = "px-6 py-2 text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center" >
                                     <i class = "fa-solid fa-paper-plane mr-2" ></i >
                                     <span >保存日记</span >
                                 </button >
@@ -463,7 +456,7 @@
                 </div >
 
                 <!-- 时间轴双视角布局 -->
-            <div class = "relative" >
+                <div class = "relative" >
                 <!-- 时间轴分割线 -->
                 <div class = "hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2" ></div >
 
@@ -634,6 +627,7 @@
                     </div >
                 </div >
             </div >
+
             </div >
         </div >
     </main >
@@ -657,173 +651,171 @@
 
     <!-- 交互逻辑 -->
     <script >
-    // 全局变量
-    const moodIcons = {
-        heart: '❤️',
-        happy: '😊',
-        laugh: '😆',
-        sad: '😢',
-        angry: '😤',
-        calm: '😐'
-    };
-
-    // 心情颜色映射
-    const moodColors = {
-        heart: '#FF6B8B',    // 心动 - 粉色
-        happy: '#81E67F',    // 开心 - 绿色
-        laugh: '#FFD700',    // 大笑 - 金色
-        sad: '#3B82F6',      // 难过 - 蓝色
-        angry: '#8B008B',    // 生气 - 深紫红色
-        calm: '#10B981',     // 平静 - 绿色
-    };
-
-    // DOM加载后初始化
-    document.addEventListener('DOMContentLoaded', () => {
-        initMoodTriggers();
-        initDiaryModal();
-        initPhotoUpload();
-        initNavDropdowns();
-        initMobileMenu();
-    });
-
-    // 初始化心情触发日记表单
-    function initMoodTriggers() {
-        const triggers = document.querySelectorAll('.diary-trigger');
-        const moodInput = document.getElementById('mood-input');
-
-        triggers.forEach(trigger => {
-            trigger.addEventListener('click', () => {
-                const mood = trigger.dataset.mood;
-                moodInput.value = mood; // 设置隐藏字段的值
-                openDiaryModal();
-            });
+        const moodColors = {};
+        document.querySelectorAll('.diary-trigger').forEach(trigger => {
+            moodColors[trigger.dataset.mood] = trigger.dataset.color;
         });
-    }
 
-    // 打开日记模态框
-    function openDiaryModal() {
-        const modal = document.getElementById('new-diary-modal');
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
+        let currentMoodColor = '#FF6B8B';
 
-    // 关闭日记模态框
-    function closeDiaryModal() {
-        const modal = document.getElementById('new-diary-modal');
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        resetForm();
-    }
+        // DOM加载后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initMoodTriggers();
+            initDiaryModal();
+            initPhotoUpload();
+            initNavDropdowns();
+            initMobileMenu();
+        });
 
-    // 初始化模态框
-    function initDiaryModal() {
-        document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
-        document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
+        // 初始化心情触发
+        function initMoodTriggers() {
+            const triggers = document.querySelectorAll('.diary-trigger');
+            const moodInput = document.getElementById('mood-input');
+            const moodColorInput = document.getElementById('mood-color-input');
 
-        const saveButton = document.getElementById('saveButton');
-        if (saveButton) {
-            saveButton.addEventListener('click', function () {
-                const moodInput = document.getElementById('mood-input');
-                const mood = moodInput.value;
-                const originalBackground = this.style.backgroundColor; // 保存原始背景色
-
-                if (mood && moodColors[mood]) {
-                    // 临时设置心情颜色
-                    this.style.backgroundColor = moodColors[mood];
-                    this.style.backgroundImage = 'none'; // 移除渐变
-
-                    // 200ms后恢复原始样式
-                    setTimeout(() => {
-                        this.style.backgroundColor = originalBackground;
-                        this.style.backgroundImage = 'linear-gradient(to right, #FF6B8B, #722ED1)'; // 恢复渐变
-                    }, 200);
-                }
+            triggers.forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const mood = trigger.dataset.mood;
+                    currentMoodColor = moodColors[mood];
+                    moodInput.value = mood;
+                    moodColorInput.value = currentMoodColor;
+                    updateSaveButtonColor();
+                    openDiaryModal();
+                });
             });
         }
-    }
 
-    // 初始化照片上传
-    function initPhotoUpload() {
-        const uploadArea = document.getElementById('photo-upload-area');
-        const input = document.getElementById('photo-input');
-        const previewContainer = document.getElementById('photo-preview-container');
+        // 更新保存按钮颜色
+        function updateSaveButtonColor() {
+            const saveButton = document.getElementById('saveButton');
+            saveButton.style.backgroundColor = currentMoodColor;
+            saveButton.style.backgroundImage = `linear-gradient(135deg, ${currentMoodColor} 0%, ${currentMoodColor} 100%)`;
+            saveButton.classList.remove('bg-gradient-love');
+        }
 
-        uploadArea.addEventListener('click', () => input.click());
-        input.addEventListener('change', (e) => previewPhotos(e.target.files, previewContainer));
-    }
+        // 初始化模态框
+        function initDiaryModal() {
+            document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
+            document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
 
-    // 预览照片
-    function previewPhotos(files, container) {
-        container.innerHTML = '';
-        if (!files.length) return container.classList.add('hidden');
+            const saveButton = document.getElementById('saveButton');
+            saveButton.addEventListener('click', function () {
+                this.classList.add('bg-gradient-love');
+            });
+        }
 
-        container.classList.remove('hidden');
-        Array.from(files).forEach(file => {
-            if (!file.type.startsWith('image/')) return;
+        // 打开日记模态框
+        function openDiaryModal() {
+            const modal = document.getElementById('new-diary-modal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
-            img.className = 'w-full h-24 object-cover rounded-lg';
-            container.appendChild(img);
-        });
-    }
+        // 关闭日记模态框
+        function closeDiaryModal() {
+            const modal = document.getElementById('new-diary-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            resetForm();
+        }
 
-    // 初始化导航下拉菜单
-    function initNavDropdowns() {
+        // 初始化模态框
+        function initDiaryModal() {
+            document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
+            document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
+        }
+
+        // 初始化照片上传
+        function initPhotoUpload() {
+            const uploadArea = document.getElementById('photo-upload-area');
+            const input = document.getElementById('photo-input');
+            const previewContainer = document.getElementById('photo-preview-container');
+
+            uploadArea.addEventListener('click', () => input.click());
+            input.addEventListener('change', (e) => previewPhotos(e.target.files, previewContainer));
+        }
+
+        // 预览照片
+        function previewPhotos(files, container) {
+            container.innerHTML = '';
+            if (!files.length) return container.classList.add('hidden');
+
+            container.classList.remove('hidden');
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'w-full h-24 object-cover rounded-lg';
+                container.appendChild(img);
+            });
+        }
+
         const userAvatar = document.getElementById('userAvatar');
         const userOptions = document.getElementById('userOptions');
-        let userCloseTimer;
+        const userDropdown = document.getElementById('userDropdown');
 
-        userAvatar.addEventListener('mouseenter', () => {
-            clearTimeout(userCloseTimer);
+        let closeTimer;
+
+        // 鼠标经过头像时打开菜单
+        userAvatar.addEventListener('mouseenter', function () {
+            clearTimeout(closeTimer); // 清除之前的定时器
             userOptions.classList.remove('hidden');
         });
 
-        userOptions.addEventListener('mouseleave', () => {
-            userCloseTimer = setTimeout(() => {
+        // 鼠标悬停在下拉菜单时保持菜单打开
+        userDropdown.addEventListener('mouseenter', function () {
+            clearTimeout(closeTimer); // 清除之前的定时器
+            userOptions.classList.remove('hidden');
+        });
+
+        // 鼠标离开下拉菜单时关闭菜单
+        userDropdown.addEventListener('mouseleave', function () {
+            closeTimer = setTimeout(() => {
                 userOptions.classList.add('hidden');
-            }, 300);
+            }, 500);
         });
 
-        const moreButton = document.getElementById('moreButton');
-        const moreOptions = document.getElementById('moreOptions');
-        let moreCloseTimer;
+        document.addEventListener('DOMContentLoaded', function () {
+            const moreButton = document.getElementById('moreButton');
+            const moreOptions = document.getElementById('moreOptions');
+            const moreDropdown = document.getElementById('moreDropdown');
 
-        moreButton.addEventListener('mouseenter', () => {
-            clearTimeout(moreCloseTimer);
-            moreOptions.classList.remove('hidden');
+            let closeTimer;
+
+            // 鼠标经过按钮时打开菜单
+            moreButton.addEventListener('mouseenter', function () {
+                clearTimeout(closeTimer); // 清除之前的定时器
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标悬停在下拉菜单时保持菜单打开
+            moreDropdown.addEventListener('mouseenter', function () {
+                clearTimeout(closeTimer); // 清除之前的定时器
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标离开下拉菜单时关闭菜单
+            moreDropdown.addEventListener('mouseleave', function () {
+                closeTimer = setTimeout(() => {
+                    moreOptions.classList.add('hidden');
+                }, 500); // 延迟200毫秒
+            });
         });
 
-        moreOptions.addEventListener('mouseleave', () => {
-            moreCloseTimer = setTimeout(() => {
-                moreOptions.classList.add('hidden');
-            }, 300);
-        });
-    }
+        // 初始化移动端菜单
+        function initMobileMenu() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
 
-    // 初始化移动端菜单
-    function initMobileMenu() {
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        menuToggle.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            mobileMenu.classList.toggle('translate-y-0');
-            mobileMenu.classList.toggle('opacity-100');
-        });
-    }
-
-    // 重置表单
-    function resetForm() {
-        const form = document.getElementById('diary-form');
-        if (form) form.reset();
-
-        const previewContainer = document.getElementById('photo-preview-container');
-        if (previewContainer) {
-            previewContainer.innerHTML = '';
-            previewContainer.classList.add('hidden');
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                mobileMenu.classList.toggle('translate-y-0');
+                mobileMenu.classList.toggle('opacity-100');
+            });
         }
-    }
-</script >
+
+
+    </script >
 </body >
 </html >

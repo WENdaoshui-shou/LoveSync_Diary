@@ -338,6 +338,23 @@ def delete_moment(request, moment_id):
     return JsonResponse({'status': 'success'})
 
 
+# 双人日记
+@login_required
+def lovesync(request):
+    if request.method == 'GET':
+        user = request.user
+
+        print(f"用户ID: {user.id}")
+        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+
+        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+
+        return render(request, 'lovesync.html', {
+            'user': request.user,
+            'moments': moment,
+        })
+
+
 # 主页
 @login_required
 def personal_center(request):

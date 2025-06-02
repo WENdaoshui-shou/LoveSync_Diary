@@ -44,6 +44,9 @@ urlpatterns = [
     # 收藏
     path('favorites/', favorites, name='favorites'),
 
+    # 双人日记
+    path('lovesync/', lovesync, name='lovesync'),
+
     # 动态
     path('moments/', moments, name='moments'),
     # 分享动态
