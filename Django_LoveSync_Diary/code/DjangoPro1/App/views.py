@@ -112,7 +112,7 @@ def community(request):
     if request.method == 'GET':
         user = request.user
 
-        print(f"用户ID: {user.id}")
+        print(f"用户ID: {user.id} ")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
 
         # 只显示已分享的动态
