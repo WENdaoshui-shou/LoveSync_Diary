@@ -43,47 +43,47 @@
             .content-auto {
                 content-visibility: auto;
             }
-
+    
             .text-shadow {
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
-
+    
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-
+    
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
-
+    
             .hover-scale {
                 transition: transform 0.3s ease;
             }
-
+    
             .hover-scale:hover {
                 transform: translateY(-2px);
             }
-
+    
             .form-input-focus {
                 transition: all 0.3s ease;
             }
-
+    
             .error-message {
                 color: #FF4D4F;
                 font-size: 0.875rem;
                 margin-top: 0.25rem;
                 display: none;
             }
-
+    
             .form-input-focus:focus {
                 transform: translateY(-2px);
                 box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
             }
-
+    
             .btn-pulse {
                 animation: pulse 2s infinite;
             }
-
+    
             @keyframes pulse {
                 0% {
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
@@ -95,11 +95,11 @@
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
                 }
             }
-
+    
             .float-animation {
                 animation: float 6s ease-in-out infinite;
             }
-
+    
             @keyframes float {
                 0% {
                     transform: translateY(0px);
@@ -111,33 +111,33 @@
                     transform: translateY(0px);
                 }
             }
-
+    
             .password-strength-bar {
                 height: 4px;
                 transition: width 0.3s ease;
             }
-
+    
             .checkbox-custom {
                 transition: all 0.2s ease;
             }
-
+    
             .checkbox-custom:checked {
                 background-color: theme('colors.primary');
                 border-color: theme('colors.primary');
             }
-
+    
             .terms-label {
                 transition: all 0.2s ease;
             }
-
+    
             .terms-error .terms-label {
                 color: theme('colors.red.500');
             }
-
+    
             .terms-error .checkbox-custom {
                 border-color: theme('colors.red.500');
             }
-
+    
             .password-toggle {
                 position: absolute;
                 right: 1rem;
@@ -148,27 +148,27 @@
                 color: theme('colors.neutral-400');
                 z-index: 10;
             }
-
+    
             .password-toggle:hover {
                 color: theme('colors.primary');
                 transform: translateY(-50%) scale(1.1);
             }
-
+    
             .page-transition {
                 opacity: 0;
                 transform: translateY(20px);
                 transition: opacity 0.5s ease, transform 0.5s ease;
             }
-
+    
             .page-loaded {
                 opacity: 1;
                 transform: translateY(0);
             }
-
+    
             .link-underline {
                 position: relative;
             }
-
+    
             .link-underline::after {
                 content: '';
                 position: absolute;
@@ -179,16 +179,16 @@
                 background-color: theme('colors.primary');
                 transition: width 0.3s ease;
             }
-
+    
             .link-underline:hover::after {
                 width: 100%;
             }
-
+    
             .btn-slide {
                 position: relative;
                 overflow: hidden;
             }
-
+    
             .btn-slide::before {
                 content: '';
                 position: absolute;
@@ -199,15 +199,15 @@
                 background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
                 transition: left 0.6s ease;
             }
-
+    
             .btn-slide:hover::before {
                 left: 100%;
             }
-
+    
             .card-float {
                 transition: transform 0.5s ease, box-shadow 0.5s ease;
             }
-
+    
             .card-float:hover {
                 transform: translateY(-8px);
                 box-shadow: 0 20px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
@@ -378,7 +378,7 @@
                                 </div >
                                 <p id = "passwordError" class = "error-message" ><i
                                         class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的手机号</p >
-
+    
                                 <!-- 密码强度指示器 -->
                                 <div id = "passwordStrength" class = "mt-2" >
                                     <div class = "flex justify-between text-xs text-neutral-500 mb-1" >
@@ -407,6 +407,33 @@
                                 </div >
                                 <p id = "confirmPasswordError" class = "error-message" ><i
                                         class = "fa-solid fa-exclamation-circle mr-1" ></i > 请输入有效的手机号</p >
+                            </div >
+                            
+                            <div >
+                                <label for = "verify_code" class = "block text-sm font-medium text-neutral-700 mb-1" >验证码</label >
+                                <div class = "flex items-center space-x-3" >
+                                    <div class = "relative flex-grow" >
+                                        <div class = "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" >
+                                            <i class = "fa-solid fa-shield text-neutral-400" ></i >
+                                        </div >
+                                        <input type = "text" id = "verify_code" name = "verify_code"
+                                               class = "block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                               placeholder = "请输入验证码" maxlength = "4" >
+                                    </div >
+                                    <div class = "w-32 h-12" >
+                                        <img src = "{% url 'verify_code' %}" alt = "验证码"
+                                             class = "w-full h-full object-cover rounded-lg cursor-pointer"
+                                             id = "verifyCodeImg" >
+                                    </div >
+                                </div >
+                                {% if messages %}
+                                    <div class = "mt-2" >
+                                        {% for message in messages %}
+                                            <p class = "error-message" ><i
+                                                    class = "fa-solid fa-exclamation-circle mr-1" ></i >{{ message }}</p >
+                                        {% endfor %}
+                                    </div >
+                                {% endif %}
                             </div >
 
                             <!-- 同意条款 -->
@@ -623,7 +650,7 @@
             setTimeout(() => {
                 document.body.classList.add('page-loaded');
             }, 100);
-
+    
             // 导航栏滚动效果
             const navbar = document.querySelector('header');
             window.addEventListener('scroll', function () {
@@ -635,7 +662,7 @@
                     navbar.classList.remove('py-2', 'shadow-md');
                 }
             });
-
+    
             // 表单元素动画效果
             const formInputs = document.querySelectorAll('input');
             formInputs.forEach(input => {
@@ -646,7 +673,7 @@
                     this.parentElement.classList.remove('scale-105');
                 });
             });
-
+    
             // 正则表达式集合
             const regex = {
                 email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -654,7 +681,7 @@
                 username: /^[a-zA-Z0-9_\u4e00-\u9fa5]{1,20}$/, // 用户名允许中文、字母、数字和下划线，长度1-20
                 password: /^(?=.*\d)(?=.*[^\w\s:])(\S){6,20}$/ // 密码包含大写字母、数字、特殊字符，长度6-20
             };
-
+    
             // 表单验证模块
             const formValidator = {
                 // 显示错误信息
@@ -665,20 +692,20 @@
                     input.classList.add('border-red-500');
                     input.classList.remove('border-green-500');
                 },
-
+        
                 // 隐藏错误信息
                 hideError(input, errorElement) {
                     input.classList.remove('input-error');
                     errorElement.style.display = 'none';
                     input.classList.remove('border-red-500');
                 },
-
+        
                 // 验证用户名
                 validateUsername() {
                     const usernameInput = document.getElementById('username');
                     const usernameError = document.getElementById('usernameError');
                     const value = usernameInput.value.trim();
-
+            
                     if (value === '') {
                         this.showError(usernameInput, usernameError, '请输入用户名');
                         return false;
@@ -691,13 +718,13 @@
                         return true;
                     }
                 },
-
+        
                 // 验证邮箱
                 validateEmail() {
                     const emailInput = document.getElementById('email');
                     const emailError = document.getElementById('emailError');
                     const value = emailInput.value.trim();
-
+            
                     if (value === '') {
                         this.showError(emailInput, emailError, '请输入邮箱');
                         return false;
@@ -710,13 +737,13 @@
                         return true;
                     }
                 },
-
+        
                 // 验证手机号
                 validatePhone() {
                     const phoneInput = document.getElementById('phone');
                     const phoneError = document.getElementById('phoneError');
                     const value = phoneInput.value.trim();
-
+            
                     if (value === '') {
                         this.showError(phoneInput, phoneError, '请输入手机号');
                         return false;
@@ -729,13 +756,13 @@
                         return true;
                     }
                 },
-
+        
                 // 验证密码
                 validatePassword() {
                     const passwordInput = document.getElementById('password');
                     const passwordError = document.getElementById('passwordError');
                     const value = passwordInput.value;
-
+            
                     if (value === '') {
                         this.showError(passwordInput, passwordError, '请输入密码');
                         return false;
@@ -749,14 +776,14 @@
                         return true;
                     }
                 },
-
+        
                 // 验证确认密码
                 validateConfirmPassword() {
                     const passwordInput = document.getElementById('password');
                     const confirmPasswordInput = document.getElementById('confirm-password');
                     const confirmPasswordError = document.getElementById('confirmPasswordError');
                     const value = confirmPasswordInput.value;
-
+            
                     if (value === '') {
                         this.showError(confirmPasswordInput, confirmPasswordError, '请确认密码');
                         return false;
@@ -769,13 +796,13 @@
                         return true;
                     }
                 },
-
+        
                 // 验证条款同意
                 validateTerms() {
                     const termsCheckbox = document.getElementById('terms');
                     const termsError = document.getElementById('termsError');
                     const termsContainer = document.getElementById('termsContainer');
-
+            
                     if (!termsCheckbox.checked) {
                         termsError.style.display = 'block';
                         termsContainer.classList.add('terms-error');
@@ -786,7 +813,7 @@
                         return true;
                     }
                 },
-
+        
                 // 验证所有字段
                 validateAll() {
                     const isUsernameValid = this.validateUsername();
@@ -794,12 +821,12 @@
                     const isPasswordValid = this.validatePassword();
                     const isConfirmPasswordValid = this.validateConfirmPassword();
                     const isTermsValid = this.validateTerms();
-
+            
                     return isUsernameValid && isEmailValid &&
-                        isPasswordValid && isConfirmPasswordValid && isTermsValid;
+                            isPasswordValid && isConfirmPasswordValid && isTermsValid;
                 }
             };
-
+    
             // 注册表单处理
             const registerForm = document.getElementById('registerForm');
             if (registerForm) {
@@ -813,11 +840,11 @@
                 });
                 document.getElementById('confirm-password').addEventListener('input', () => formValidator.validateConfirmPassword());
                 document.getElementById('terms').addEventListener('change', () => formValidator.validateTerms());
-
+        
                 // 表单提交验证
                 registerForm.addEventListener('submit', function (e) {
                     e.preventDefault();
-
+            
                     if (formValidator.validateAll()) {
                         // 所有验证通过，提交表单
                         this.submit();
@@ -830,12 +857,16 @@
                     }
                 });
             }
-
+    
+            document.getElementById('verifyCodeImg').addEventListener('click', function () {
+                this.src = "{% url 'verify_code' %}?t=" + Math.random();
+            });
+    
             // 密码强度检测
             function updatePasswordStrength(password) {
                 const strengthBar = document.getElementById('strengthBar');
                 const strengthText = document.getElementById('strengthText');
-
+        
                 if (password.length === 0) {
                     // 没有输入时重置为初始状态
                     strengthBar.className = 'password-strength-bar bg-neutral-300 rounded-full h-1.5';
@@ -844,17 +875,17 @@
                     strengthText.className = 'text-xs font-medium text-neutral-500';
                     return;
                 }
-
+        
                 // 计算密码强度得分
                 let score = 0;
                 if (password.length >= 8) score += 1;
                 if (/[A-Z]/.test(password)) score += 1;
                 if (/[0-9]/.test(password)) score += 1;
                 if (/[^A-Za-z0-9]/.test(password)) score += 1;
-
+        
                 // 显示密码强度
                 let strengthClass, strengthLabel, width;
-
+        
                 switch (score) {
                     case 0:
                     case 1:
@@ -878,13 +909,13 @@
                         width = '100%';
                         break;
                 }
-
+        
                 strengthBar.className = `password-strength-bar rounded-full h-1.5 ${strengthClass}`;
                 strengthBar.style.width = width;
                 strengthText.textContent = strengthLabel;
                 strengthText.className = `text-xs font-medium ${strengthLabel === '弱' ? 'text-red-500' :
-                    strengthLabel === '中' ? 'text-yellow-500' :
-                        strengthLabel === '强' ? 'text-blue-500' : 'text-green-500'}`;
+                        strengthLabel === '中' ? 'text-yellow-500' :
+                                strengthLabel === '强' ? 'text-blue-500' : 'text-green-500'}`;
             }
         });
     </script >

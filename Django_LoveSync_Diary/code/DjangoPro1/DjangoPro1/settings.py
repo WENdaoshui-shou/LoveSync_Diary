@@ -70,6 +70,15 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",  # Redis地址和数据库编号
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -127,6 +136,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # 上传文件大小
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB
+
+# 验证码过期时间（秒）
+VERIFY_CODE_EXPIRE = 60
 
 # 实时共同编辑：
 # 通过 WebSocket 实现实时通信

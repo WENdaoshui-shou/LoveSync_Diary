@@ -3,16 +3,39 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from App.models import *
-from django.contrib import messages
 from django.db import IntegrityError
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods, require_POST
+import uuid
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.http import HttpResponse
+from django.core.cache import cache
+from django.conf import settings
+from .utils import generate_verify_code, create_verify_image
 
 
 # 首页
 def user_index(request):
     return render(request, 'index.html')
+
+
+# 生成验证码视图
+def verify_code(request):
+    # 生成随机验证码文本
+    code = generate_verify_code()
+    # 生成唯一标识（用于Redis存储键）
+    code_id = str(uuid.uuid4())
+    # 存储验证码到Redis（键：verify_code:{code_id}，值：code）
+    cache_key = f"verify_code:{code_id}"
+    cache.set(cache_key, code, timeout=settings.VERIFY_CODE_EXPIRE)
+    # 生成验证码图片
+    image_buffer = create_verify_image(code)
+    # 将code_id存入cookie，用于前端提交时关联
+    response = HttpResponse(image_buffer, content_type="image/png")
+    response.set_cookie("code_id", code_id, max_age=settings.VERIFY_CODE_EXPIRE)
+    return response
 
 
 # 登录
@@ -23,28 +46,47 @@ def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username').strip()
         password = request.POST.get('password').strip()
+        user_verify_code = request.POST.get('verify_code', '').upper()  # 获取用户输入的验证码并转为大写
+        code_id = request.COOKIES.get('code_id')  # 从cookie获取验证码ID
 
-        # 使用Django内置认证系统验证用户
+        # 验证码验证
+        if not code_id:
+            messages.error(request, '验证码已过期，请刷新重试')
+            return render(request, 'login.html')
+
+        cache_key = f"verify_code:{code_id}"
+        real_code = cache.get(cache_key)
+
+        if real_code is None:
+            messages.error(request, '验证码已过期，请刷新重试')
+            return render(request, 'login.html')
+
+        if not user_verify_code:
+            messages.error(request, '请填写验证码')
+            return render(request, 'login.html')
+
+        if user_verify_code.upper() != real_code.upper():
+            messages.error(request, '验证码错误')
+            return render(request, 'login.html')
+
+        # 验证码验证通过后删除缓存
+        cache.delete(cache_key)
+
+        # 继续原有用户认证逻辑
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-
-            # 可选：根据是否勾选“记住我”设置不同有效期
             if request.POST.get('remember-me'):
-                # 设置会话有效期为 7 天（单位：秒）
                 request.session.set_expiry(7 * 24 * 3600)
             else:
-                # 关闭浏览器后会话过期（等价于 SESSION_EXPIRE_AT_BROWSER_CLOSE = True）
                 request.session.set_expiry(0)
 
-            # 跳转至目标页面或默认社区页面
             next_url = request.POST.get('next') or request.GET.get('next')
             return redirect(next_url or 'community')
         else:
             messages.error(request, '用户名或密码错误，请重新输入')
-            return redirect('login')  # 验证失败返回登录页
+            return redirect('login')
 
-        # 处理GET请求，渲染登录页面
     return render(request, 'login.html', {
         'next': request.GET.get('next')
     })
@@ -53,7 +95,7 @@ def user_login(request):
 # 退出登录
 @login_required
 def user_logout(request):
-    logout(request)  # 使用Django内置logout函数自动处理会话清除
+    logout(request)
     # 清除会话数据
     request.session.flush()
 
@@ -77,33 +119,61 @@ def user_register(request):
         phone = request.POST.get('username')
         passwd = request.POST.get('password')
         email = request.POST.get('email')
+        user_verify_code = request.POST.get('verify_code', '').upper()
+        code_id = request.COOKIES.get('code_id')
+
+        # 验证码验证
+        if not code_id:
+            messages.error(request, '验证码已过期，请刷新重试')
+            return render(request, 'register.html')
+
+        cache_key = f"verify_code:{code_id}"
+        real_code = cache.get(cache_key)
+
+        if real_code is None:
+            messages.error(request, '验证码已过期，请刷新重试')
+            return render(request, 'register.html')
+
+        if not user_verify_code:
+            messages.error(request, '请填写验证码')
+            return render(request, 'register.html')
+
+        if user_verify_code.upper() != real_code.upper():
+            messages.error(request, '验证码错误')
+            return render(request, 'register.html')
+
+        # 验证通过后删除缓存
+        cache.delete(cache_key)
 
         # 检查用户名是否存在
         user_exists = User.objects.filter(username=phone).exists()
         if user_exists:
-            return render(request, 'register.html', {'messages': '该用户名已被注册'})
+            messages.error(request, '该手机号已被注册')
+            return render(request, 'register.html')
 
         try:
-            # 创建用户
-            create_user = User.objects.create_user
-            user = create_user(
+            user = User.objects.create_user(
                 username=phone,
                 password=passwd,
-                name=name,
                 email=email,
             )
-            login_user = login
-            login_user(request, user)
+            if hasattr(user, 'name'):
+                user.name = name
+                user.save()
 
+            login(request, user)
             return redirect('community')
 
         except IntegrityError as e:
             if 'unique constraint' in str(e).lower():
-                return render(request, 'register.html', {'messages': '手机号被注册'})
-            return render(request, 'register.html', {'messages': '注册失败，请重试'})
-        except Exception:
-            # 捕获其他异常
-            return render(request, 'register.html', {'messages': '注册过程中发生错误, 请稍后再试'})
+                messages.error(request, '手机号已被注册')
+            else:
+                messages.error(request, '注册失败，请重试')
+            return render(request, 'register.html')
+        except Exception as e:
+            logger.error(f"注册异常: {str(e)}")
+            messages.error(request, '注册过程中发生错误, 请稍后再试')
+            return render(request, 'register.html')
 
 
 # 社区（需登录，同步视图）

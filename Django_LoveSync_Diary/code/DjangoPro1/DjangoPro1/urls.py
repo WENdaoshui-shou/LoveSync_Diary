@@ -13,6 +13,8 @@ urlpatterns = [
 
     # 登录
     path('login/', user_login, name='login'),
+    # 添加验证码路由
+    path('verify_code/', verify_code, name='verify_code'),
 
     # 退出登录
     path('logout/', user_logout, name='logout'),
