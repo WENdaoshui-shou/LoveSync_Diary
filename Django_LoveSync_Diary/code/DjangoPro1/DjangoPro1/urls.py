@@ -58,6 +58,13 @@ urlpatterns = [
     # 删除动态
     path('moments/<int:moment_id>/delete/', delete_moment, name='delete_moment'),
 
+    # 购物商城
+    path('mall/', mall, name='mall'),
+    # 购物车
+    path('mallcart/', mallcart, name='mallcart'),
+    # 收藏
+    path('mallmark/', mallmark, name='mallmark'),
+
     path('admin/', admin.site.urls),
 ]
 

@@ -1,755 +1,1031 @@
 <!DOCTYPE html>
-<html lang = "zh-CN" >
-<head >
-    <meta charset = "UTF-8" >
-    <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
-    <title >爱情同步日记</title >
-    <script src = "https://cdn.tailwindcss.com" ></script >
-    <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
-    <script src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js" ></script >
-    <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel = "stylesheet" >
-
-    <!-- Tailwind配置 -->
-    <script >
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEase - 高品质购物体验</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF6B8B', // 爱情粉色
-                        secondary: '#722ED1', // 紫色辅助色
-                        heart: '#FF6B8B',    // 心动
-                        happy: '#81E67F',    // 开心
-                        laugh: '#FFD700',    // 大笑
-                        sad: '#64748B',      // 难过
-                        angry: '#EF4444',    // 生气
-                        calm: '#9CA3AF',     // 平静
-                        neutral: {
-                            100: '#F9F9F9',
-                            200: '#F0F0F0',
-                            300: '#E0E0E0',
-                            400: '#BDBDBD',
-                            500: '#9E9E9E',
-                            600: '#757575',
-                            700: '#616161',
-                            800: '#424242',
-                            900: '#212121',
-                        }
+                        primary: '#3B82F6',
+                        secondary: '#F97316',
+                        neutral: '#F3F4F6',
+                        dark: '#1E293B',
                     },
                     fontFamily: {
-                        inter: ['Inter', 'sans-serif'],
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
                     },
-                    animation: {
-                        'fade-in': 'fadeIn 0.3s ease-in-out',
-                        'slide-up': 'slideUp 0.3s ease-out',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': {opacity: '0'},
-                            '100%': {opacity: '1'},
-                        },
-                        slideUp: {
-                            '0%': {transform: 'translateY(20px)', opacity: '0'},
-                            '100%': {transform: 'translateY(0)', opacity: '1'},
-                        }
-                    }
-                },
+                }
             }
         }
-    </script >
-
-    <style type = "text/tailwindcss" >
+    </script>
+    <style type="text/tailwindcss">
         @layer utilities {
             .content-auto {
                 content-visibility: auto;
             }
-
-            .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
+            .btn-hover {
+                @apply transition-all duration-300 hover:shadow-lg;
             }
-
-            .scrollbar-hide::-webkit-scrollbar {
-                display: none;
+            .scale-hover {
+                @apply transition-transform duration-300 hover:scale-105 active:scale-95;
             }
-
-            .mood-gradient {
-                background: linear-gradient(135deg, var(--mood-color, #FF6B8B)/10%, transparent);
+            .pulse-animation {
+                animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             }
-
-            .blur-effect {
-                backdrop-filter: blur(2px);
-                transition: backdrop-filter 0.3s ease;
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
             }
-
-            .timeline-line {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background-color: var(--mood-color, #FF6B8B);
-                left: 50%;
-                transform: translateX(-50%);
+            .bounce-in {
+                animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
-
-            .diary-card-hover {
-                transition: all 0.3s ease;
+            @keyframes bounce-in {
+                0% {
+                    transform: scale(0.8);
+                    opacity: 0;
+                }
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
             }
-
-            .diary-card-hover:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+            .float-up {
+                animation: float-up 0.5s ease-out forwards;
             }
-
-            .mood-indicator {
-                position: absolute;
-                left: -16px;
-                top: 12px;
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-                background-color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 0 0 2px var(--mood-color, #FF6B8B);
+            @keyframes float-up {
+                0% {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-20px);
+                    opacity: 0;
+                }
             }
-
-            .mood-indicator::after {
-                content: attr(data-icon);
-                font-size: 18px;
-                color: var(--mood-color, #FF6B8B);
+            .slide-in {
+                animation: slide-in 0.5s ease-out forwards;
             }
-
-            .partner-card .mood-indicator {
-                left: auto;
-                right: -16px;
+            @keyframes slide-in {
+                0% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            .fade-in {
+                animation: fade-in 0.5s ease-out forwards;
+            }
+            @keyframes fade-in {
+                0% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
             }
         }
-    </style >
-</head >
-<body class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
-    <!-- 背景装饰 -->
-    <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
-        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl animate-pulse-slow" ></div >
-        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl animate-pulse-slow"
-             style = "animation-delay: -2s;" ></div >
-    </div >
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white shadow-sm transition-all duration-300">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16 md:h-20">
+                <!-- 品牌标识 -->
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-bold text-primary flex items-center">
+                        <i class="fa fa-shopping-bag mr-2"></i>
+                        <span>ShopEase</span>
+                    </a>
+                </div>
 
-    <!-- 导航栏 -->
-    <header class = "fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3" >
-        <div class = "container mx-auto px-4 flex items-center justify-between" >
-            <!-- 品牌标识 -->
-            <a href = "#" class = "flex items-center space-x-2" >
-                <div class = "w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white shadow-md" >
-                    <i class = "fa-solid fa-book text-xl" ></i >
-                </div >
-                <span class = "text-xl font-bold text-neutral-800 tracking-tight" >LoveSync</span >
-            </a >
+                <!-- 导航菜单 - 桌面版 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="text-dark hover:text-primary font-medium transition-colors">首页</a>
+                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">商品分类</a>
+                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">热卖商品</a>
+                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">关于我们</a>
+                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">联系客服</a>
+                </nav>
 
-            <!-- 桌面端导航菜单 -->
-            <nav class = "hidden md:flex items-center space-x-6" >
-                <a href = "{% url 'index' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
-                <a href = "{% url 'community' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >社区</a >
-                <a href = "{% url 'moments' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >我们的动态</a >
-                <a href = "{% url 'photo_album' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >相册</a >
-                <a href = "{% url 'favorites' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >收藏</a >
-            </nav >
-
-            <!-- 用户操作区 -->
-            <div class = "flex items-center space-x-4" >
-                <a href = "{% url 'moments' %}" id = "createPostLink"
-                   class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg" >
-                    <i class = "fa-solid fa-pencil" ></i >
-                    <span >发布动态</span >
-                </a >
-
-                <button id = "new-diary-btn"
-                        class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg" >
-                    <i class = "fa-solid fa-plus" ></i >
-                    <span >写日记</span >
-                </button >
-
-                <!-- 用户头像与下拉菜单 -->
-                <div class = "relative" id = "userDropdown" >
-                    <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
-                         id = "userAvatar" >
-                        <img src = "https://picsum.photos/200/200?random=1" alt = "用户头像"
-                             class = "w-full h-full object-cover" >
-                    </div >
-                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                         id = "userOptions" >
-                        <a href = "{% url 'personal_center' %}"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-user mr-2 w-5 text-center" ></i >主页
-                        </a >
-                        <a href = "{% url 'message' %}"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-bookmark mr-2 w-5 text-center" ></i >消息
-                        </a >
-                        <a href = "{% url 'settings' %}"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-cog mr-2 w-5 text-center" ></i >设置
-                        </a >
-                        <div class = "border-t border-neutral-200 my-1" ></div >
-                        <a href = "{% url 'logout' %}"
-                           class = "block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-sign-out mr-2 w-5 text-center" ></i >退出登录
-                        </a >
-                    </div >
-                </div >
-
-                <!-- 移动端菜单按钮 -->
-                <button class = "md:hidden text-neutral-700 focus:outline-none" id = "menu-toggle" >
-                    <i class = "fa-solid fa-bars text-xl" ></i >
-                </button >
-            </div >
-        </div >
-
-        <!-- 移动端菜单 -->
-        <div id = "mobile-menu"
-             class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
-             style = "top: 100%;" >
-            <div class = "container mx-auto px-4 py-3 flex flex-col space-y-3" >
-                <a href = "{% url 'index' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-book-open mr-3 w-5 text-center" ></i >双人日记
-                </a >
-                <a href = "{% url 'community' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-users mr-3 w-5 text-center" ></i >社区
-                </a >
-                <a href = "{% url 'moments' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >我们的动态
-                </a >
-                <a href = "{% url 'photo_album' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >相册
-                </a >
-                <a href = "{% url 'favorites' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >收藏
-                </a >
-                <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'personal_center' %}"
-                   class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >个人主页
-                </a >
-                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >消息中心
-                </a >
-                <a href = "{% url 'settings' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置中心
-                </a >
-                <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'logout' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
-                </a >
-            </div >
-        </div >
-    </header >
+                <!-- 用户操作区 -->
+                <div class="flex items-center space-x-4">
+                    <button class="md:hidden text-gray-600 hover:text-primary">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                    <div class="relative hidden md:block">
+                        <input type="text" placeholder="搜索商品..." class="w-64 pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <button class="text-gray-600 hover:text-primary relative scale-hover">
+                        <i class="fa fa-heart-o text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
+                    </button>
+                    <button id="cartBtn" class="text-gray-600 hover:text-primary relative scale-hover">
+                        <i class="fa fa-shopping-cart text-xl"></i>
+                        <span id="cartCount" class="absolute -top-1 -right-1 bg-secondary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                    </button>
+                    <button class="text-gray-600 hover:text-primary scale-hover">
+                        <i class="fa fa-user-o text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <!-- 主内容区 -->
-    <main class = "flex-grow pt-24 pb-16 relative z-10" >
-        <div class = "container mx-auto px-4" >
-            <!-- 顶部数据概览 -->
-            <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in" >
-                <div class = "flex flex-col md:flex-row items-center justify-between" >
-                    <div class = "mb-4 md:mb-0" >
-                        <h2 class = "text-2xl font-bold text-neutral-800 mb-1" >我们的爱情日记</h2 >
-                        <p class = "text-neutral-600" >已共同记录 <span class = "text-primary font-semibold" >42</span > 篇日记 · 相恋 <span
-                                class = "text-primary font-semibold" >365</span > 天</p >
-                    </div >
-
-                    <div class = "flex space-x-4" >
-                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
-                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
-                                     class = "w-full h-full object-cover" >
-                            </div >
-                            <div >
-                                <p class = "text-sm font-medium" >我</p >
-                                <p class = "text-xs text-neutral-500" >已写 23 篇</p >
-                            </div >
-                        </div >
-
-                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
-                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = "https://picsum.photos/200/200?random=2" alt = "伴侣头像"
-                                     class = "w-full h-full object-cover" >
-                            </div >
-                            <div >
-                                <p class = "text-sm font-medium" >TA</p >
-                                <p class = "text-xs text-neutral-500" >已写 19 篇</p >
-                            </div >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 本周心情统计 -->
-                <div class = "mt-6 pt-6 border-t border-neutral-200" >
-                    <h3 class = "text-lg font-semibold text-neutral-800 mb-4" >本周心情</h3 >
-                    <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
-                        <div class = "bg-heart/10 rounded-lg p-3 text-center" >
-                            <div class = "text-2xl mb-1" >❤️</div >
-                            <p class = "text-sm font-medium" >心动</p >
-                            <p class = "text-xs text-heart" >3 次</p >
-                        </div >
-                        <div class = "bg-happy/10 rounded-lg p-3 text-center" >
-                            <div class = "text-2xl mb-1" >😊</div >
-                            <p class = "text-sm font-medium" >开心</p >
-                            <p class = "text-xs text-happy" >5 次</p >
-                        </div >
-                        <div class = "bg-laugh/10 rounded-lg p-3 text-center" >
-                            <div class = "text-2xl mb-1" >😆</div >
-                            <p class = "text-sm font-medium" >大笑</p >
-                            <p class = "text-xs text-laugh" >2 次</p >
-                        </div >
-                        <div class = "bg-sad/10 rounded-lg p-3 text-center" >
-                            <div class = "text-2xl mb-1" >😢</div >
-                            <p class = "text-sm font-medium" >难过</p >
-                            <p class = "text-xs text-sad" >1 次</p >
-                        </div >
-                        <div class = "bg-angry/10 rounded-lg p-3 text-center" >
-                            <div class = "text-2xl mb-1" >😤</div >
-                            <p class = "text-sm font-medium" >生气</p >
-                            <p class = "text-xs text-angry" >0 次</p >
-                        </div >
-                        <div class = "bg-calm/10 rounded-lg p-3 text-center" >
-                            <div class = "text-2xl mb-1" >😐</div >
-                            <p class = "text-sm font-medium" >平静</p >
-                            <p class = "text-xs text-calm" >2 次</p >
-                        </div >
-                    </div >
-                </div >
-            </div >
-
-            <!-- 写日记模态框 -->
-            <div id = "new-diary-modal" class = "fixed inset-0 z-50 flex items-center justify-center hidden" >
-                <div class = "absolute inset-0 bg-black/50 backdrop-blur-sm" id = "modal-backdrop" ></div >
-                <div class = "bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative z-10" >
-                    <div class = "p-6 border-b border-neutral-200 flex justify-between items-center" >
-                        <h3 class = "text-xl font-bold text-neutral-800" >写日记</h3 >
-                        <button id = "close-modal" class = "text-neutral-500 hover:text-neutral-800" >
-                            <i class = "fa-solid fa-times" ></i >
-                        </button >
-                    </div >
-
-                    <form id = "diary-form" method = "POST" enctype = "multipart/form-data" class = "p-6" >
-                        {% csrf_token %}
-
-                        <!-- 今日心情选择 -->
-                        <div class = "mb-6" >
-                            <label class = "block text-sm font-medium text-neutral-700 mb-2" >今日心情</label >
-                            <div class = "flex space-x-4 overflow-x-auto scrollbar-hide" >
-                                <button type = "button" class = "mood-btn active" data-mood = "heart"
-                                        data-color = "#FF6B8B" data-icon = "❤️" >
-                                    <div class = "w-12 h-12 rounded-full bg-heart/10 flex items-center justify-center" >
-                                        <i class = "fa-solid fa-heart text-xl text-heart" ></i >
-                                    </div >
-                                    <span class = "text-xs mt-1" >心动</span >
-                                </button >
-                                <button type = "button" class = "mood-btn" data-mood = "happy" data-color = "#81E67F"
-                                        data-icon = "😊" >
-                                    <div class = "w-12 h-12 rounded-full bg-happy/10 flex items-center justify-center" >
-                                        <i class = "fa-solid fa-smile text-xl text-happy" ></i >
-                                    </div >
-                                    <span class = "text-xs mt-1" >开心</span >
-                                </button >
-                                <button type = "button" class = "mood-btn" data-mood = "laugh" data-color = "#FFD700"
-                                        data-icon = "😆" >
-                                    <div class = "w-12 h-12 rounded-full bg-laugh/10 flex items-center justify-center" >
-                                        <i class = "fa-solid fa-laugh text-xl text-laugh" ></i >
-                                    </div >
-                                    <span class = "text-xs mt-1" >大笑</span >
-                                </button >
-                                <button type = "button" class = "mood-btn" data-mood = "sad" data-color = "#64748B"
-                                        data-icon = "😢" >
-                                    <div class = "w-12 h-12 rounded-full bg-sad/10 flex items-center justify-center" >
-                                        <i class = "fa-solid fa-frown text-xl text-sad" ></i >
-                                    </div >
-                                    <span class = "text-xs mt-1" >难过</span >
-                                </button >
-                                <button type = "button" class = "mood-btn" data-mood = "angry" data-color = "#EF4444"
-                                        data-icon = "😤" >
-                                    <div class = "w-12 h-12 rounded-full bg-angry/10 flex items-center justify-center" >
-                                        <i class = "fa-solid fa-angry text-xl text-angry" ></i >
-                                    </div >
-                                    <span class = "text-xs mt-1" >生气</span >
-                                </button >
-                                <button type = "button" class = "mood-btn" data-mood = "calm" data-color = "#9CA3AF"
-                                        data-icon = "😐" >
-                                    <div class = "w-12 h-12 rounded-full bg-calm/10 flex items-center justify-center" >
-                                        <i class = "fa-solid fa-meh text-xl text-calm" ></i >
-                                    </div >
-                                    <span class = "text-xs mt-1" >平静</span >
-                                </button >
-                            </div >
-                            <input type = "hidden" name = "mood" id = "mood-input" value = "heart" >
-                        </div >
-
-                        <!-- 日记内容 -->
-                        <div class = "mb-6" >
-                            <label for = "content"
-                                   class = "block text-sm font-medium text-neutral-700 mb-2" >今天发生了什么？</label >
-                            <textarea id = "content" name = "content" rows = "6"
-                                      class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
-                                      placeholder = "记录今天的心情和故事..." ></textarea >
-                        </div >
-
-                        <!-- 上传照片 -->
-                        <div class = "mb-6" >
-                            <label class = "block text-sm font-medium text-neutral-700 mb-2" >上传照片（可选）</label >
-                            <div class = "border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer"
-                                 id = "photo-upload-area" >
-                                <input type = "file" id = "photo-input" name = "photos" multiple accept = "image/*"
-                                       class = "hidden" >
-                                <i class = "fa-solid fa-cloud-upload-alt text-3xl text-neutral-400 mb-3" ></i >
-                                <p class = "text-neutral-600 mb-2" >点击或拖拽照片到这里</p >
-                                <p class = "text-neutral-500 text-sm" >支持 JPG, PNG, GIF 格式</p >
-                            </div >
-                            <div id = "photo-preview-container" class = "grid grid-cols-3 gap-2 mt-3 hidden" ></div >
-                        </div >
-
-                        <!-- 底部操作区 -->
-                        <div class = "flex justify-end space-x-3" >
-                            <button type = "button" id = "cancel-diary"
-                                    class = "px-4 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
-                                取消
-                            </button >
-                            <button type = "submit"
-                                    class = "px-6 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center" >
-                                <i class = "fa-solid fa-paper-plane mr-2" ></i >
-                                <span >发布日记</span >
-                            </button >
-                        </div >
-                    </form >
-                </div >
-            </div >
-
-            <!-- 移动端快速写日记按钮 -->
-            <button id = "mobile-new-diary-btn"
-                    class = "fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-primary to-secondary rounded-full shadow-lg flex items-center justify-center text-white z-40 md:hidden animate-pulse-slow" >
-                <i class = "fa-solid fa-plus text-xl" ></i >
-            </button >
-
-            <!-- 时间轴双视角布局 -->
-            <div class = "relative" >
-                <!-- 时间轴分割线 -->
-                <div class = "hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2" ></div >
-
-                <!-- 时间轴条目 -->
-                <div class = "space-y-12" >
-                    <!-- 今天的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >今天
-                            </span >
-                        </div >
-
-                        <!-- TA的日记 -->
-                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #81E67F;" data-mood = "happy" >
-                                <div class = "mood-indicator" data-icon = "😊" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >TA</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >10:23</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >今天早上收到了你的早餐惊喜，太开心了！鸡蛋煎得刚刚好，咖啡也是我喜欢的甜度。有你真好❤️</p >
-                                <div class = "rounded-lg overflow-hidden mb-4" >
-                                    <img src = "https://picsum.photos/600/400?random=10" alt = "早餐照片"
-                                         class = "w-full h-auto" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-happy bg-happy/10 px-2 py-1 rounded-full" >开心的一天</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i >
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "1" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-
-                                <!-- 回应区域 -->
-                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
-                                    <div class = "flex items-start mb-2" >
-                                        <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <div class = "flex-1" >
-                                            <div class = "bg-neutral-100 rounded-lg p-3" >
-                                                <p class = "text-sm text-neutral-700" >看到你开心我也很满足呀～下次给你做你最爱吃的华夫饼！</p >
-                                            </div >
-                                        </div >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-                    </div >
-
-                    <!-- 昨天的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >昨天
-                            </span >
-                        </div >
-
-                        <!-- 我的日记 -->
-                        <div class = "md:w-1/2 md:pl-12" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #FF6B8B;" data-mood = "heart" >
-                                <div class = "mood-indicator" data-icon = "❤️" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >我</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >21:45</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >今天陪你去看了你最喜欢的乐队演出，现场气氛太赞了！你跟着音乐摇摆的样子真的好可爱，那一刻觉得能和你在一起真的好幸福。</p >
-                                <div class = "grid grid-cols-2 gap-2 mb-4" >
-                                    <img src = "https://picsum.photos/300/300?random=11" alt = "演出照片1"
-                                         class = "w-full h-32 object-cover rounded-lg" >
-                                    <img src = "https://picsum.photos/300/300?random=12" alt = "演出照片2"
-                                         class = "w-full h-32 object-cover rounded-lg" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-heart bg-heart/10 px-2 py-1 rounded-full" >心动时刻</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i > 5
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "2" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-
-                                <!-- 回应区域 -->
-                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
-                                    <div class = "flex items-start mb-2" >
-                                        <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <div class = "flex-1" >
-                                            <div class = "bg-neutral-100 rounded-lg p-3" >
-                                                <p class = "text-sm text-neutral-700" >哈哈，我也很开心你能陪我去！这是我今年最棒的一次体验，谢谢你～❤️</p >
-                                            </div >
-                                        </div >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-
-                        <!-- TA的日记 -->
-                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card mt-8 md:mt-0" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #FFD700;" data-mood = "laugh" >
-                                <div class = "mood-indicator" data-icon = "😆" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >TA</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >23:15</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >演出结束后我们去吃夜宵，你把芥末当成了番茄酱，那表情真的太好笑了！哈哈哈哈，不过看你为了我硬吃下去的样子，心里还是暖暖的～</p >
-                                <div class = "rounded-lg overflow-hidden mb-4" >
-                                    <img src = "https://picsum.photos/600/400?random=13" alt = "夜宵照片"
-                                         class = "w-full h-auto" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-laugh bg-laugh/10 px-2 py-1 rounded-full" >欢乐时刻</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i >
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "3" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-                    </div >
-
-                    <!-- 其他日期的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >5月28日
-                            </span>
-                        </div >
+    <main class="container mx-auto px-4 py-8">
+        <!-- 轮播图 -->
+        <section class="mb-12">
+            <div class="relative rounded-2xl overflow-hidden shadow-lg">
+                <div class="aspect-w-16 aspect-h-6 bg-gradient-to-r from-blue-500 to-indigo-600">
+                    <img src="https://picsum.photos/1200/450?random=10" alt="夏季大促" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent flex flex-col justify-center pl-12 md:pl-20">
+                        <h2 class="text-[clamp(1.5rem,4vw,3rem)] font-bold text-white mb-4 max-w-xl">夏季新品大促</h2>
+                        <p class="text-white/90 text-lg md:text-xl mb-8 max-w-lg">精选夏季新品，限时折扣，低至5折起</p>
+                        <button class="bg-white text-primary font-medium py-3 px-8 rounded-lg btn-hover scale-hover inline-flex items-center">
+                            <span>立即抢购</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
                     </div>
-                </div >
-            </div >
-        </div >
-    </main >
+                </div>
+                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors"></button>
+                    <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors"></button>
+                    <button class="w-3 h-3 rounded-full bg-white transition-colors"></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 分类导航 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-dark mb-6">热门分类</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
+                    <div class="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa fa-laptop text-primary text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-800">电子产品</span>
+                </a>
+                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
+                    <div class="w-16 h-16 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa fa-gift text-pink-500 text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-800">礼品专区</span>
+                </a>
+                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
+                    <div class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa fa-leaf text-green-500 text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-800">家居用品</span>
+                </a>
+                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
+                    <div class="w-16 h-16 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa fa-cutlery text-yellow-500 text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-800">厨房用具</span>
+                </a>
+                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
+                    <div class="w-16 h-16 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa fa-diamond text-purple-500 text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-800">珠宝首饰</span>
+                </a>
+                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
+                    <div class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa fa-tshirt text-red-500 text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-800">服装鞋帽</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- 商品展示区 -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-dark">热销商品</h2>
+                <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                    <span>查看全部</span>
+                    <i class="fa fa-angle-right ml-1"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- 商品卡片 1 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
+                    <div class="relative">
+                        <img src="https://picsum.photos/400/300?random=2" alt="高级智能手表" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-secondary text-white text-xs px-2 py-1 rounded">热销</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                <i class="fa fa-heart-o text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">高级智能手表</h3>
+                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">全天候健康监测，精准运动追踪</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">¥1,299</span>
+                                <span class="text-gray-400 text-sm line-through ml-1">¥1,599</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-gray-600 text-xs ml-1">4.8 (120)</span>
+                            </div>
+                        </div>
+                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
+                            <i class="fa fa-shopping-cart mr-2"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 商品卡片 2 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
+                    <div class="relative">
+                        <img src="https://picsum.photos/400/300?random=3" alt="无线蓝牙耳机" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-primary text-white text-xs px-2 py-1 rounded">新品</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                <i class="fa fa-heart-o text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">无线蓝牙耳机</h3>
+                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">主动降噪，HiFi音质，长效续航</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">¥799</span>
+                                <span class="text-gray-400 text-sm line-through ml-1">¥999</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-gray-600 text-xs ml-1">4.6 (85)</span>
+                            </div>
+                        </div>
+                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
+                            <i class="fa fa-shopping-cart mr-2"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 商品卡片 3 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
+                    <div class="relative">
+                        <img src="https://picsum.photos/400/300?random=4" alt="智能扫地机器人" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">限时优惠</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                <i class="fa fa-heart-o text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">智能扫地机器人</h3>
+                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">激光导航，自动集尘，APP控制</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">¥2,499</span>
+                                <span class="text-gray-400 text-sm line-through ml-1">¥2,999</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-gray-600 text-xs ml-1">4.9 (156)</span>
+                            </div>
+                        </div>
+                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
+                            <i class="fa fa-shopping-cart mr-2"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 商品卡片 4 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
+                    <div class="relative">
+                        <img src="https://picsum.photos/400/300?random=5" alt="便携式投影仪" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-3 right-3">
+                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                <i class="fa fa-heart-o text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">便携式投影仪</h3>
+                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">1080P高清，智能对焦，大屏观影</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">¥1,899</span>
+                                <span class="text-gray-400 text-sm line-through ml-1">¥2,299</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-gray-600 text-xs ml-1">4.7 (92)</span>
+                            </div>
+                        </div>
+                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
+                            <i class="fa fa-shopping-cart mr-2"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 促销区域 -->
+        <section class="mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg relative">
+                    <img src="https://picsum.photos/600/300?random=6" alt="限时折扣" class="w-full h-64 object-cover opacity-70">
+                    <div class="absolute inset-0 flex flex-col justify-center p-8">
+                        <h3 class="text-white text-2xl font-bold mb-2">限时特惠</h3>
+                        <p class="text-white/90 mb-4">精选商品，低至3折起</p>
+                        <div class="flex space-x-2 mb-6">
+                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
+                                <span class="text-white font-bold text-lg">08</span>
+                                <span class="text-white/80 text-xs">小时</span>
+                            </div>
+                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
+                                <span class="text-white font-bold text-lg">45</span>
+                                <span class="text-white/80 text-xs">分钟</span>
+                            </div>
+                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
+                                <span class="text-white font-bold text-lg">33</span>
+                                <span class="text-white/80 text-xs">秒</span>
+                            </div>
+                        </div>
+                        <button class="bg-white text-primary font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
+                            <span>立即抢购</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl overflow-hidden shadow-lg relative">
+                    <img src="https://picsum.photos/600/300?random=7" alt="会员专享" class="w-full h-64 object-cover opacity-70">
+                    <div class="absolute inset-0 flex flex-col justify-center p-8">
+                        <h3 class="text-white text-2xl font-bold mb-2">会员专享</h3>
+                        <p class="text-white/90 mb-4">会员日额外9折，满减优惠</p>
+                        <button class="bg-white text-green-600 font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
+                            <span>了解详情</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 推荐商品 -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-dark">为您推荐</h2>
+                <div class="flex space-x-2">
+                    <button id="prevSlide" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-angle-left"></i>
+                    </button>
+                    <button id="nextSlide" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div id="recommendedProducts" class="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                    <!-- 推荐商品 1 -->
+                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
+                        <div class="relative">
+                            <img src="https://picsum.photos/400/300?random=8" alt="无线充电器" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                    <i class="fa fa-heart-o text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">无线充电器</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-gray-900">¥129</span>
+                                <div class="flex items-center">
+                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                    <span class="text-gray-600 text-xs ml-1">4.5</span>
+                                </div>
+                            </div>
+                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 推荐商品 2-6 (类似结构) -->
+                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
+                        <div class="relative">
+                            <img src="https://picsum.photos/400/300?random=9" alt="智能体重秤" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                    <i class="fa fa-heart-o text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">智能体重秤</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-gray-900">¥159</span>
+                                <div class="flex items-center">
+                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                    <span class="text-gray-600 text-xs ml-1">4.7</span>
+                                </div>
+                            </div>
+                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
+                        <div class="relative">
+                            <img src="https://picsum.photos/400/300?random=10" alt="蓝牙音箱" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                    <i class="fa fa-heart-o text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">蓝牙音箱</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-gray-900">¥399</span>
+                                <div class="flex items-center">
+                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                    <span class="text-gray-600 text-xs ml-1">4.8</span>
+                                </div>
+                            </div>
+                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
+                        <div class="relative">
+                            <img src="https://picsum.photos/400/300?random=11" alt="运动手环" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                    <i class="fa fa-heart-o text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">运动手环</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-gray-900">¥249</span>
+                                <div class="flex items-center">
+                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                    <span class="text-gray-600 text-xs ml-1">4.6</span>
+                                </div>
+                            </div>
+                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
+                        <div class="relative">
+                            <img src="https://picsum.photos/400/300?random=12" alt="智能插座" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                    <i class="fa fa-heart-o text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">智能插座</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-gray-900">¥79</span>
+                                <div class="flex items-center">
+                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                    <span class="text-gray-600 text-xs ml-1">4.4</span>
+                                </div>
+                            </div>
+                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
+                        <div class="relative">
+                            <img src="https://picsum.photos/400/300?random=13" alt="便携式充电宝" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
+                                    <i class="fa fa-heart-o text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">便携式充电宝</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-gray-900">¥199</span>
+                                <div class="flex items-center">
+                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
+                                    <span class="text-gray-600 text-xs ml-1">4.9</span>
+                                </div>
+                            </div>
+                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 用户评价 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-dark mb-6">用户评价</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 评价 1 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/100/100?random=14" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="ml-3">
+                            <h4 class="font-medium text-gray-900">李明</h4>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"这款智能手表的功能非常强大，续航也很好，使用了一周才充一次电。健康监测很准确，推荐购买！"</p>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="text-gray-500 text-sm">2023-06-15</span>
+                        <span class="text-gray-500 text-sm">高级智能手表</span>
+                    </div>
+                </div>
+
+                <!-- 评价 2 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/100/100?random=15" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="ml-3">
+                            <h4 class="font-medium text-gray-900">王芳</h4>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star-o text-yellow-400 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"无线蓝牙耳机的音质不错，佩戴也很舒适，唯一缺点是充电盒有点大，携带不太方便。总体来说还是很满意的。"</p>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="text-gray-500 text-sm">2023-06-10</span>
+                        <span class="text-gray-500 text-sm">无线蓝牙耳机</span>
+                    </div>
+                </div>
+
+                <!-- 评价 3 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/100/100?random=16" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="ml-3">
+                            <h4 class="font-medium text-gray-900">张伟</h4>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star text-yellow-400 text-sm"></i>
+                                <i class="fa fa-star-half-o text-yellow-400 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"扫地机器人很好用，解放了双手，家里的灰尘和毛发都能清理得很干净。APP控制也很方便，可以预约清扫时间。"</p>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="text-gray-500 text-sm">2023-06-05</span>
+                        <span class="text-gray-500 text-sm">智能扫地机器人</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 品牌优势 -->
+        <section class="mb-12 bg-white py-10">
+            <div class="container mx-auto px-4">
+                <h2 class="text-2xl font-bold text-dark mb-8 text-center">我们的优势</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-truck text-primary text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-900 mb-2">快速配送</h3>
+                        <p class="text-gray-600">全国大部分地区24-48小时送达</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-shield text-green-500 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-900 mb-2">正品保障</h3>
+                        <p class="text-gray-600">100%正品，假一赔十</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-refresh text-yellow-500 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-900 mb-2">七天无理由退换</h3>
+                        <p class="text-gray-600">收货后七天内可无理由退换</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-headphones text-red-500 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-900 mb-2">24小时客服</h3>
+                        <p class="text-gray-600">专业客服团队，随时为您服务</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 订阅区域 -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-primary to-indigo-600 rounded-2xl p-8 md:p-12 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+
+                <div class="relative z-10 max-w-2xl mx-auto text-center">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">订阅我们的通讯</h2>
+                    <p class="text-white/80 mb-8">获取最新产品信息、促销活动和独家优惠</p>
+
+                    <div class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                        <input type="email" placeholder="输入您的邮箱地址" class="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30">
+                        <button class="bg-white text-primary font-medium py-3 px-6 rounded-lg btn-hover scale-hover">
+                            立即订阅
+                        </button>
+                    </div>
+
+                    <p class="text-white/60 text-sm mt-4">我们尊重您的隐私，绝不会分享您的个人信息</p>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- 页脚 -->
-    <footer class = "bg-white border-t border-neutral-200 py-8" >
-        <div class = "container mx-auto px-4" >
-            <div class = "flex flex-col md:flex-row justify-between items-center" >
-                <div class = "flex items-center space-x-2" >
-                    <div class = "w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full text-white" >
-                        <i class = "fa-solid fa-heart" ></i >
-                    </div >
-                    <span class = "text-lg font-bold" >LoveSync日记</span >
-                </div >
-                <div class = "text-neutral-500 text-sm" >
-                    &copy; 2025 LoveSync. 记录每一刻心动时光
-                </div >
-            </div >
-        </div >
-    </footer >
+    <footer class="bg-dark text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa fa-shopping-bag mr-2"></i>
+                        <span>ShopEase</span>
+                    </h3>
+                    <p class="text-gray-400 mb-4">提供高品质的购物体验，让您的生活更便捷</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
 
-    <!-- 交互逻辑 -->
-    <script >
-        // 全局变量
-        let currentMood = 'heart';
-        const moodIcons = {
-            heart: '❤️',
-            happy: '😊',
-            laugh: '😆',
-            sad: '😢',
-            angry: '😤',
-            calm: '😐'
-        };
+                <div>
+                    <h4 class="font-medium text-lg mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">商品分类</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">热卖商品</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+                    </ul>
+                </div>
 
-        // 打开写日记模态框
-        const newDiaryBtn = document.getElementById('new-diary-btn');
-        const mobileNewDiaryBtn = document.getElementById('mobile-new-diary-btn');
-        const newDiaryModal = document.getElementById('new-diary-modal');
-        const modalBackdrop = document.getElementById('modal-backdrop');
+                <div>
+                    <h4 class="font-medium text-lg mb-4">客户服务</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">配送信息</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">退换政策</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">用户协议</a></li>
+                    </ul>
+                </div>
 
-        function openModal() {
-            newDiaryModal.classList.remove('hidden');
-            modalBackdrop.classList.remove('hidden');
+                <div>
+                    <h4 class="font-medium text-lg mb-4">联系我们</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker text-gray-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">北京市朝阳区建国路88号</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone text-gray-400 mr-3"></i>
+                            <span class="text-gray-400">400-888-8888</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope text-gray-400 mr-3"></i>
+                            <span class="text-gray-400">support@shopease.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-clock-o text-gray-400 mr-3"></i>
+                            <span class="text-gray-400">周一至周日 9:00-22:00</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-6 mt-6 text-center text-gray-500 text-sm">
+                <p>&copy; 2023 ShopEase. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 购物车侧边栏 -->
+    <div id="cartSidebar" class="fixed top-0 right-0 w-full sm:w-96 h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex flex-col h-full">
+            <div class="p-6 border-b flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">购物车</h3>
+                <button id="closeCart" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- 购物车为空时显示 -->
+                <div id="emptyCart" class="flex flex-col items-center justify-center h-full">
+                    <i class="fa fa-shopping-cart text-gray-300 text-6xl mb-4"></i>
+                    <p class="text-gray-500">您的购物车是空的</p>
+                    <button class="mt-4 text-primary hover:text-primary/80 font-medium">继续购物</button>
+                </div>
+
+                <!-- 购物车有商品时显示 (初始隐藏) -->
+                <!-- 示例商品 -->
+                <div class="cart-item hidden flex items-center pb-4 border-b">
+                    <img src="https://picsum.photos/100/100?random=2" alt="高级智能手表" class="w-16 h-16 object-cover rounded-lg">
+                    <div class="ml-4 flex-1">
+                        <h4 class="font-medium text-gray-900">高级智能手表</h4>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center border rounded-lg">
+                                <button class="quantity-minus px-2 py-1 text-gray-500 hover:text-gray-700">-</button>
+                                <span class="quantity-value px-2">1</span>
+                                <button class="quantity-plus px-2 py-1 text-gray-500 hover:text-gray-700">+</button>
+                            </div>
+                            <span class="font-medium text-gray-900">¥1,299</span>
+                        </div>
+                    </div>
+                    <button class="remove-item text-gray-400 hover:text-red-500">
+                        <i class="fa fa-trash-o"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 border-t">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-600">小计</span>
+                    <span class="font-medium text-gray-900">¥0</span>
+                </div>
+                <div class="flex items-center justify-between mb-6">
+                    <span class="text-gray-600">配送费</span>
+                    <span class="font-medium text-gray-900">¥0</span>
+                </div>
+                <div class="flex items-center justify-between mb-6">
+                    <span class="font-medium text-gray-900">总计</span>
+                    <span class="font-bold text-lg text-gray-900">¥0</span>
+                </div>
+                <button class="w-full bg-secondary text-white py-3 rounded-lg btn-hover scale-hover mb-3">
+                    结算
+                </button>
+                <button class="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg btn-hover scale-hover">
+                    继续购物
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 购物车遮罩 -->
+    <div id="cartOverlay" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 z-40"></div>
+
+    <!-- 通知系统 -->
+    <div id="notificationContainer" class="fixed bottom-6 right-6 flex flex-col space-y-3 z-50"></div>
+
+    <script>
+        // 购物车计数
+        let cartCount = 0;
+        const cartCountEl = document.getElementById('cartCount');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const cartBtn = document.getElementById('cartBtn');
+        const closeCart = document.getElementById('closeCart');
+        const emptyCart = document.getElementById('emptyCart');
+        const cartItems = document.getElementById('cartItems');
+        const notificationContainer = document.getElementById('notificationContainer');
+
+        // 初始化时隐藏购物车商品
+        document.querySelectorAll('.cart-item').forEach(item => {
+            item.classList.add('hidden');
+        });
+
+        // 打开购物车
+        cartBtn.addEventListener('click', function() {
+            cartSidebar.classList.remove('translate-x-full');
+            cartOverlay.classList.remove('opacity-0', 'pointer-events-none');
             document.body.style.overflow = 'hidden';
-        }
+        });
 
-        function closeModal() {
-            newDiaryModal.classList.add('hidden');
-            modalBackdrop.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            resetForm();
-        }
+        // 关闭购物车
+        closeCart.addEventListener('click', function() {
+            cartSidebar.classList.add('translate-x-full');
+            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
+            document.body.style.overflow = '';
+        });
 
-        newDiaryBtn?.addEventListener('click', openModal);
-        mobileNewDiaryBtn?.addEventListener('click', openModal);
-        document.getElementById('close-modal')?.addEventListener('click', closeModal);
-        modalBackdrop?.addEventListener('click', closeModal);
+        // 点击遮罩关闭购物车
+        cartOverlay.addEventListener('click', function() {
+            cartSidebar.classList.add('translate-x-full');
+            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
+            document.body.style.overflow = '';
+        });
 
-        // 心情选择器
-        document.querySelectorAll('.mood-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                document.querySelectorAll('.mood-btn.active').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                currentMood = this.dataset.mood;
-                document.getElementById('mood-input').value = currentMood;
+        // 加入购物车动画
+        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 更新购物车计数
+                cartCount++;
+                cartCountEl.textContent = cartCount;
+
+                // 添加按钮动画
+                this.classList.add('scale-95');
+                setTimeout(() => {
+                    this.classList.remove('scale-95');
+                }, 200);
+
+                // 显示通知
+                showNotification('加入购物车成功', '商品已添加到购物车');
+
+                // 更新购物车
+                updateCart();
             });
         });
 
-        // 照片上传预览
-        const photoUploadArea = document.getElementById('photo-upload-area');
-        const photoInput = document.getElementById('photo-input');
-        const photoPreviewContainer = document.getElementById('photo-preview-container');
+        // 收藏按钮动画
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = btn.querySelector('i');
 
-        function handlePhotoUpload(e) {
-            const files = e.target.files;
-            previewPhotos(files);
-        }
+                if (icon.classList.contains('fa-heart-o')) {
+                    // 添加收藏
+                    icon.classList.remove('fa-heart-o', 'text-gray-600');
+                    icon.classList.add('fa-heart', 'text-pink-500');
 
-        function previewPhotos(files) {
-            photoPreviewContainer.innerHTML = '';
-            if (!files.length) return;
+                    // 添加按钮动画
+                    btn.classList.add('scale-110');
+                    setTimeout(() => {
+                        btn.classList.remove('scale-110');
+                    }, 200);
 
-            photoPreviewContainer.classList.remove('hidden');
-            Array.from(files).forEach(file => {
-                if (!file.type.startsWith('image/')) return;
-
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.className = 'w-full h-24 object-cover rounded-lg';
-                photoPreviewContainer.appendChild(img);
-            });
-        }
-
-        photoUploadArea.addEventListener('click', () => photoInput.click());
-        photoInput.addEventListener('change', handlePhotoUpload);
-
-        // 表单提交
-        const diaryForm = document.getElementById('diary-form');
-        diaryForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            // 这里添加实际提交逻辑（如AJAX或表单提交）
-            alert('日记已保存！');
-            closeModal();
-        });
-
-        // 移动端菜单切换
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        menuToggle.addEventListener('click', function () {
-            mobileMenu.classList.toggle('hidden');
-            mobileMenu.classList.toggle('translate-y-0');
-            mobileMenu.classList.toggle('opacity-100');
-        });
-
-        // 日记卡片互动
-        document.querySelectorAll('.response-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const diaryId = this.dataset.diaryId;
-                alert(`回复日记 ${diaryId}`);
+                    // 显示通知
+                    showNotification('已添加到收藏', '商品已添加到您的收藏夹');
+                } else {
+                    // 取消收藏
+                    icon.classList.remove('fa-heart', 'text-pink-500');
+                    icon.classList.add('fa-heart-o', 'text-gray-600');
+                }
             });
         });
 
-        // 动态心情动画
-        function updateBodyMoodColor(color) {
-            document.body.style.setProperty('--mood-color', color);
-            if (color === '#FFD700') {
-                confetti({particleCount: 30, spread: 360, startVelocity: 30});
-            } else if (color === '#EF4444') {
-                document.body.classList.add('blur-effect');
-                setTimeout(() => document.body.classList.remove('blur-effect'), 2000);
+        // 显示通知
+        function showNotification(title, message) {
+            const notification = document.createElement('div');
+            notification.className = 'bg-white rounded-lg shadow-xl p-4 flex items-center max-w-xs slide-in';
+            notification.innerHTML = `
+                <div class="bg-green-100 p-3 rounded-full mr-3">
+                    <i class="fa fa-check text-green-500"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-medium text-gray-900">${title}</h3>
+                    <p class="text-sm text-gray-500">${message}</p>
+                </div>
+                <button class="ml-4 text-gray-400 hover:text-gray-600 close-notification">
+                    <i class="fa fa-times"></i>
+                </button>
+            `;
+
+            notificationContainer.appendChild(notification);
+
+            // 3秒后自动关闭
+            setTimeout(() => {
+                notification.classList.add('fade-in');
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+
+            // 点击关闭按钮
+            notification.querySelector('.close-notification').addEventListener('click', function() {
+                notification.classList.add('fade-in');
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+        }
+
+        // 更新购物车
+        function updateCart() {
+            if (cartCount > 0) {
+                emptyCart.classList.add('hidden');
+                const cartItem = document.querySelector('.cart-item');
+                if (cartItem) {
+                    cartItem.classList.remove('hidden');
+                }
+                // 更新购物车金额
+                updateCartTotal();
+            } else {
+                emptyCart.classList.remove('hidden');
+                document.querySelectorAll('.cart-item').forEach(item => {
+                    item.classList.add('hidden');
+                });
             }
         }
 
-        // 初始化心情颜色
-        updateBodyMoodColor('#FF6B8B');
-    </script >
+        // 更新购物车总金额
+        function updateCartTotal() {
+            // 这里简化处理，实际项目中应根据商品数量和价格计算
+            const subtotalEl = document.querySelector('#cartSidebar .flex.items-center.justify-between:nth-child(1) span:last-child');
+            const shippingEl = document.querySelector('#cartSidebar .flex.items-center.justify-between:nth-child(2) span:last-child');
+            const totalEl = document.querySelector('#cartSidebar .flex.items-center.justify-between:nth-child(3) span:last-child');
 
-    <!-- 粒子动画库（可选） -->
-    <script src = "https://unpkg.com/confetti-js@1.0.5/dist/confetti.browser.min.js" ></script >
-</body >
-</html >
+            const subtotal = cartCount * 1299;
+            const shipping = subtotal > 0 ? 0 : 0;
+            const total = subtotal + shipping;
+
+            subtotalEl.textContent = `¥${subtotal}`;
+            shippingEl.textContent = `¥${shipping}`;
+            totalEl.textContent = `¥${total}`;
+        }
+
+        // 推荐商品滑动控制
+        const recommendedProducts = document.getElementById('recommendedProducts');
+        const prevSlide = document.getElementById('prevSlide');
+        const nextSlide = document.getElementById('nextSlide');
+
+        prevSlide.addEventListener('click', function() {
+            recommendedProducts.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+
+        nextSlide.addEventListener('click', function() {
+            recommendedProducts.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('shadow-md');
+                header.classList.remove('shadow-sm');
+            } else {
+                header.classList.remove('shadow-md');
+                header.classList.add('shadow-sm');
+            }
+        });
+    </script>
+</body>
+</html>

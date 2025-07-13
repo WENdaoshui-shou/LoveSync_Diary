@@ -556,3 +556,18 @@ def delete_comment(request, comment_id):
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+# 购物商城
+def mall(request):
+    return render(request, 'mall.html')
+
+
+# 购物车
+def mallcart(request):
+    return render(request, 'mallcart.html')
+
+
+# 收藏
+def mallmark(request):
+    return render(request, 'mallmark.html')

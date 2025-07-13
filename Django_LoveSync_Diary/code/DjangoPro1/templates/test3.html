@@ -1,817 +1,679 @@
 <!DOCTYPE html>
-<html lang = "zh-CN" >
-<head >
-    <meta charset = "UTF-8" >
-    <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
-    <title >LoveSync 双人日记</title >
-    <script src = "https://cdn.tailwindcss.com" ></script >
-    <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
-    <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel = "stylesheet" >
-
-    <!-- Tailwind 配置 -->
-    <script >
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现代购物商城</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF6B8B', // 爱情粉色
-                        secondary: '#722ED1', // 紫色辅助色
-                        heart: '#FF6B8B',    // 心动
-                        happy: '#81E67F',    // 开心
-                        laugh: '#FFD700',    // 大笑
-                        sad: '#3B82F6',      // 难过
-                        angry: '#8B008B',    // 生气
-                        calm: '#64748B',     // 平静
-                        neutral: {
-                            100: '#F9F9F9',
-                            200: '#F0F0F0',
-                            300: '#E0E0E0',
-                            400: '#BDBDBD',
-                            500: '#9E9E9E',
-                            600: '#757575',
-                            700: '#616161',
-                            800: '#424242',
-                            900: '#212121',
-                        }
+                        primary: '#3B82F6',
+                        secondary: '#F97316',
+                        neutral: '#F3F4F6',
+                        dark: '#1F2937'
                     },
                     fontFamily: {
-                        inter: ['Inter', 'sans-serif'],
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
                     },
-                    animation: {
-                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    }
-                },
+                }
             }
         }
-    </script >
-
-    <style type = "text/tailwindcss" >
+    </script>
+    <style type="text/tailwindcss">
         @layer utilities {
-            .diary-trigger {
-                transition: all 0.3s ease;
+            .content-auto {
+                content-visibility: auto;
             }
-
-            .diary-trigger:hover {
-                transform: scale(1.02);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            .btn-hover {
+                @apply transition-all duration-300 hover:shadow-lg;
             }
-
-            .mood-modal {
-                background-color: var(--mood-color, #FF6B8B);
+            .scale-hover {
+                @apply transition-transform duration-300 hover:scale-105 active:scale-95;
             }
-
-            .blur-effect {
-                backdrop-filter: blur(4px);
+            .pulse-animation {
+                animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             }
-
-            .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
             }
-
-            .scrollbar-hide::-webkit-scrollbar {
-                display: none;
+            .bounce-in {
+                animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
-
-            .transition-custom {
-                transition: all 0.3s ease;
+            @keyframes bounce-in {
+                0% {
+                    transform: scale(0.8);
+                    opacity: 0;
+                }
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
             }
-
-            .hover-scale {
-                transition: transform 0.3s ease;
+            .float-up {
+                animation: float-up 0.5s ease-out forwards;
             }
-
-            .hover-scale:hover {
-                transform: scale(1.02);
+            @keyframes float-up {
+                0% {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-20px);
+                    opacity: 0;
+                }
             }
-
-            .bg-gradient-love {
-                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
-            }
-
-            .diary-trigger {
-                position: relative;
-            }
-
-            .diary-trigger:hover::after {
-                position: absolute;
-                bottom: -24px;
-                left: 50%;
-                transform: translateX(-50%);
-                background-color: rgba(0, 0, 0, 0.8);
-                color: white;
-                font-size: 0.875rem;
-                padding: 2px 8px;
-                border-radius: 4px;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease;
-            }
-
-            .diary-trigger:hover::after {
-                opacity: 1;
-                visibility: visible;
+            .sidebar-slide {
+                @apply transition-transform duration-300 ease-in-out;
             }
         }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-2px);
-            }
-        }
-
-        .animate-bounce {
-            animation: bounce 1.5s infinite;
-        }
-    </style >
-</head >
-
-<body
-        class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
-    <!-- 背景装饰元素 -->
-    <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
-        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" >
-        </div >
-        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
-             style = "animation-delay: -2s;" ></div >
-        <div class = "absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
-             style = "animation-delay: -4s;" ></div >
-    </div >
-
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
     <!-- 导航栏 -->
-    <header class = "fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3" >
-        <div class = "container mx-auto px-4 flex items-center justify-between" >
-            <!-- 品牌标识 -->
-            <a href = "{% url 'index' %}" class = "flex items-center space-x-2" >
-                <div
-                        class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md" >
-                    <i class = "fa-solid fa-heart text-xl" ></i >
-                </div >
-                <span class = "text-xl font-bold text-neutral-800 tracking-tight" >LoveSync</span >
-            </a >
-            <!-- 桌面端导航菜单 -->
-            <nav class = "hidden md:flex items-center space-x-6" >
-                <a href = "{% url 'community' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >爱享公社</a >
-                <a href = "{% url 'moments' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心动轨迹</a >
-                <a href = "{% url 'photo_album' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心跳相簿</a >
-                <a href = "{% url 'lovesync' %}"
-                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-primary font-bold text-2xl">ShopEase</a>
+                    <nav class="hidden md:ml-10 md:flex space-x-8">
+                        <a href="#" class="text-gray-700 hover:text-primary px-3 py-2 font-medium">首页</a>
+                        <a href="#" class="text-gray-700 hover:text-primary px-3 py-2 font-medium">商品分类</a>
+                        <a href="#" class="text-gray-700 hover:text-primary px-3 py-2 font-medium">特惠活动</a>
+                        <a href="#" class="text-gray-700 hover:text-primary px-3 py-2 font-medium">关于我们</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative hidden md:block">
+                        <input type="text" placeholder="搜索商品..." class="w-64 pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <button class="relative p-2 text-gray-700 hover:text-primary">
+                        <i class="fa fa-heart-o text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-secondary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
+                    </button>
+                    <button id="cartToggle" class="relative p-2 text-gray-700 hover:text-primary">
+                        <i class="fa fa-shopping-cart text-xl"></i>
+                        <span id="cartCount" class="absolute -top-1 -right-1 bg-secondary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                    </button>
+                    <button class="p-2 text-gray-700 hover:text-primary md:hidden">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
 
-                <!-- 更多下拉菜单 -->
-                <div class = "relative" id = "moreDropdown" >
-                    <button
-                            class = "text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
-                            id = "moreButton" >
-                        更多 <i class = "fa-solid fa-chevron-down ml-1 text-xs" ></i >
-                    </button >
-                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                         id = "moreOptions" >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-calendar-heart mr-2 w-5 text-center" ></i >纪念日提醒
-                        </a >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-gift mr-2 w-5 text-center" ></i >礼物推荐
-                        </a >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-map-marker-heart mr-2 w-5 text-center" ></i >情侣地点
-                        </a >
-                        <a href = "#"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-question-circle mr-2 w-5 text-center" ></i >爱情测试
-                        </a >
-                    </div >
-                </div >
-            </nav >
-
-            <!-- 内容过滤器 -->
-            <div
-                    class = "bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale" >
-                <div class = "flex space-x-2" >
-                    <button class = "px-4 py-2 rounded-full bg-primary text-white text-sm font-medium" >
-                        推荐
-                    </button >
-                    <button
-                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
-                        最新
-                    </button >
-                    <button
-                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
-                        热门
-                    </button >
-                </div >
-                <div class = "relative" >
-                    <input type = "text" placeholder = "LoveSync: 搜索..."
-                           class = "pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
-                    <i class = "fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" ></i >
-                </div >
-            </div >
-
-            <!-- 用户操作区 -->
-            <div class = "flex items-center space-x-4" >
-                <a href = "{% url 'moments' %}" id = "createPostLink"
-                   class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg" >
-                    <i class = "fa-solid fa-pencil" ></i >
-                    <span >发布动态</span >
-                </a >
-
-                <!-- 用户头像与下拉菜单 -->
-                <div class = "relative" id = "userDropdown" >
-                    <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
-                         id = "userAvatar" >
-                        <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
-                             class = "w-full h-full object-cover" >
-                    </div >
-                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                         id = "userOptions" >
-                        <a href = "{% url 'personal_center' %}"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-user mr-2 w-5 text-center" ></i >主页
-                        </a >
-                        <a href = "{% url 'message' %}"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-bookmark mr-2 w-5 text-center" ></i >消息
-                        </a >
-                        <a href = "{% url 'settings' %}"
-                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-cog mr-2 w-5 text-center" ></i >设置
-                        </a >
-                        <div class = "border-t border-neutral-200 my-1" ></div >
-                        <a href = "{% url 'logout' %}"
-                           class = "block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-sign-out mr-2 w-5 text-center" ></i >退出登录
-                        </a >
-                    </div >
-                </div >
-
-                <!-- 移动端菜单按钮 -->
-                <button class = "md:hidden text-neutral-700 focus:outline-none" id = "menu-toggle" >
-                    <i class = "fa-solid fa-bars text-xl" ></i >
-                </button >
-            </div >
-        </div >
-
-        <!-- 移动端菜单 -->
-        <div id = "mobile-menu"
-             class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
-             style = "top: 100%;" >
-            <div class = "container mx-auto px-4 py-3 flex flex-col space-y-3" >
-                <a href = "{% url 'community' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-users mr-3 w-5 text-center" ></i >爱享公社
-                </a >
-                <a href = "{% url 'moments' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >心动轨迹
-                </a >
-                <a href = "{% url 'photo_album' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >心跳相簿
-                </a >
-                <a href = "{% url 'lovesync' %}"
-                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
-                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >双人日记
-                </a >
-                <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-calendar-heart mr-3 w-5 text-center" ></i >纪念日提醒
-                </a >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-gift mr-3 w-5 text-center" ></i >礼物推荐
-                </a >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-map-marker-heart mr-3 w-5 text-center" ></i >情侣地点
-                </a >
-                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-question-circle mr-3 w-5 text-center" ></i >爱情测试
-                </a >
-                <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'personal_center' %}"
-                   class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >主页
-                </a >
-                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >消息
-                </a >
-                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置
-                </a >
-                <div class = "border-t border-neutral-200 my-1" ></div >
-                <a href = "{% url 'logout' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
-                    <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
-                </a >
-            </div >
-        </div >
-    </header >
-
-
-    <!-- 主内容区 -->
-    <main class = "flex-grow pt-24 pb-16 relative z-10" >
-        <div class = "container mx-auto px-4" >
-            <!-- 顶部数据概览 -->
-            <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in" >
-                <div class = "flex flex-col md:flex-row items-center justify-between" >
-                    <div class = "mb-4 md:mb-0" >
-                        <h2 class = "text-2xl font-bold text-neutral-800 mb-1" >我们的爱情日记</h2 >
-                        <p class = "text-neutral-600" >已共同记录 <span class = "text-primary font-semibold" >42</span > 篇日记 · 相恋 <span
-                                class = "text-primary font-semibold" >365</span > 天</p >
-                    </div >
-
-                    <div class = "flex space-x-4" >
-                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
-                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
-                                     class = "w-full h-full object-cover" >
-                            </div >
-                            <div >
-                                <p class = "text-sm font-medium" >我</p >
-                                <p class = "text-xs text-neutral-500" >已写 23 篇</p >
-                            </div >
-                        </div >
-
-                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
-                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = "https://picsum.photos/200/200?random=2" alt = "伴侣头像"
-                                     class = "w-full h-full object-cover" >
-                            </div >
-                            <div >
-                                <p class = "text-sm font-medium" >TA</p >
-                                <p class = "text-xs text-neutral-500" >已写 19 篇</p >
-                            </div >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 本周心情统计（触发日记表单） -->
-                <div class = "mt-6 pt-6 border-t border-neutral-200" >
-                    <h3 class = "text-lg font-semibold text-neutral-800 mb-4" >本周心情</h3 >
-                    <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
-                        <!-- 心动心情触发 -->
-                        <div class = "bg-heart/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "heart" >
-                            <div class = "text-2xl mb-1" >❤️</div >
-                            <p class = "text-sm font-medium" >心动</p >
-                            <p class = "text-xs text-heart" >3 次</p >
-                                <p class="mt-1 text-xs text-primary">点击写日记</p>
-                        </div >
-
-                        <!-- 开心心情触发 -->
-                        <div class = "bg-happy/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "happy" >
-                                <div class = "text-2xl mb-1" >😊</div >
-                                <p class = "text-sm font-medium" >开心</p >
-                                <p class = "text-xs text-happy" >5 次</p >
-                        </div >
-
-                        <!-- 大笑心情触发 -->
-                        <div class = "bg-laugh/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "laugh" >
-                            <div class = "text-2xl mb-1" >😆</div >
-                            <p class = "text-sm font-medium" >大笑</p >
-                            <p class = "text-xs text-laugh" >2 次</p >
-                        </div >
-
-                        <!-- 难过心情触发 -->
-                        <div class = "bg-sad/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "sad" >
-                            <div class = "text-2xl mb-1" >😢</div >
-                            <p class = "text-sm font-medium" >难过</p >
-                            <p class = "text-xs text-sad" >1 次</p >
-                        </div >
-
-                        <!-- 生气心情触发 -->
-                        <div class = "bg-angry/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "angry" >
-                            <div class = "text-2xl mb-1" >😤</div >
-                            <p class = "text-sm font-medium" >生气</p >
-                            <p class = "text-xs text-angry" >0 次</p >
-                        </div >
-
-                        <!-- 平静心情触发 -->
-                        <div class = "bg-calm/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "calm" >
-                            <div class = "text-2xl mb-1" >😐</div >
-                            <p class = "text-sm font-medium" >平静</p >
-                            <p class = "text-xs text-calm" >2 次</p >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 日记模态框 -->
-                <div id = "new-diary-modal" class = "fixed inset-0 z-50 flex items-center justify-center hidden" >
-                    <div class = "absolute inset-0 bg-black/50 backdrop-blur-sm" ></div >
-                    <div class = "bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative z-10" >
-                        <div class = "p-6 border-b border-neutral-200 flex justify-between items-center" >
-                            <h3 class = "text-xl font-bold text-neutral-800" >写日记</h3 >
-                            <button id = "close-diary-modal" class = "text-neutral-500 hover:text-neutral-800" >
-                                <i class = "fa-solid fa-times" ></i >
+    <main class="container mx-auto px-4 py-8">
+        <!-- 轮播图 -->
+        <div class="relative mb-12 rounded-xl overflow-hidden shadow-lg">
+            <div class="flex transition-transform duration-500 ease-in-out" style="transform: translateX(0%);">
+                <div class="min-w-full">
+                    <img src="https://picsum.photos/1200/400?random=10" alt="夏季大促销" class="w-full h-64 md:h-80 object-cover">
+                    <div class = "absolute inset-0 bg-gradient-to-r from-black/40 to-transparent flex items-center" >
+                        <div class = "px-8 md:px-16 max-w-lg" >
+                            <h2 class = "text-[clamp(1.8rem,4vw,3rem)] font-bold text-white leading-tight" >情侣夏日特惠</h2 >
+                            <p class = "text-white/90 mt-4 text-lg md:text-xl" >精选情侣装、首饰和家居用品，全场低至5折</p >
+                            <button class = "mt-6 px-8 py-3 bg-gradient-love text-white rounded-full font-medium hover:opacity-90 transition-custom shadow-lg" >
+                                立即抢购 <i class = "fa-solid fa-arrow-right ml-2" ></i >
                             </button >
                         </div >
-
-                        <form id = "diary-form" method = "POST" enctype = "multipart/form-data" class = "p-6" >
-                            {% csrf_token %}
-                            <input type = "hidden" name = "mood" id = "mood-input" >
-
-                            <!-- 日记内容 -->
-                            <div class = "mb-6" >
-                                <label class = "block text-sm font-medium text-neutral-700 mb-2" >记录今日心动</label >
-                                <textarea id = "content" name = "content" rows = "6"
-                                          class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
-                                          placeholder = "记录今天的心情和故事..." ></textarea >
-                            </div >
-
-                            <!-- 上传照片 -->
-                            <div class = "mb-6" >
-                                <label class = "block text-sm font-medium text-neutral-700 mb-2" >上传照片（可选）</label >
-                                <div class = "border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer"
-                                     id = "photo-upload-area" >
-                                    <input type = "file" id = "photo-input" name = "photos" multiple accept = "image/*"
-                                           class = "hidden" >
-                                    <i class = "fa-solid fa-cloud-upload-alt text-3xl text-neutral-400 mb-3" ></i >
-                                    <p class = "text-neutral-600 mb-2" >点击或拖拽照片到这里</p >
-                                    <p class = "text-neutral-500 text-sm" >支持 JPG, PNG, GIF 格式</p >
-                                </div >
-                                <div id = "photo-preview-container"
-                                     class = "grid grid-cols-3 gap-2 mt-3 hidden" ></div >
-                            </div >
-
-                            <!-- 提交按钮 -->
-                            <div class = "flex justify-end space-x-3" >
-                                <button type = "button" id = "cancel-diary"
-                                        class = "px-4 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
-                                    取消
-                                </button >
-                                <button type = "submit"
-                                        class = "px-6 py-2 bg-gradient-love text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center" >
-                                    <i class = "fa-solid fa-paper-plane mr-2" ></i >
-                                    <span >保存日记</span >
-                                </button >
-                            </div >
-                        </form >
                     </div >
-                </div >
+                </div>
+            </div>
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                <button class="w-3 h-3 rounded-full bg-white opacity-100"></button>
+                <button class="w-3 h-3 rounded-full bg-white opacity-50"></button>
+            </div>
+        </div>
 
-                <!-- 时间轴双视角布局 -->
-            <div class = "relative" >
-                <!-- 时间轴分割线 -->
-                <div class = "hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2" ></div >
+        <!-- 商品分类 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">热门分类</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <a href="#" class="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fa fa-laptop text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-gray-800 font-medium">电子产品</h3>
+                </a>
+                <a href="#" class="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-pink-100 rounded-full flex items-center justify-center">
+                        <i class="fa fa-gift text-pink-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-gray-800 font-medium">礼品专区</h3>
+                </a>
+                <a href="#" class="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fa fa-leaf text-green-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-gray-800 font-medium">家居用品</h3>
+                </a>
+                <a href="#" class="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fa fa-cutlery text-yellow-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-gray-800 font-medium">厨房用具</h3>
+                </a>
+                <a href="#" class="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fa fa-book text-purple-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-gray-800 font-medium">图书音像</h3>
+                </a>
+                <a href="#" class="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="fa fa-heartbeat text-red-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-gray-800 font-medium">健康美容</h3>
+                </a>
+            </div>
+        </section>
 
-                <!-- 时间轴条目 -->
-                <div class = "space-y-12" >
-                    <!-- 今天的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >今天
-                            </span >
-                        </div >
+        <!-- 商品列表 -->
+        <section class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">热门推荐</h2>
+                <a href="#" class="text-primary hover:text-primary/80 font-medium">查看全部</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 商品卡片1 - 优化后的交互 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl group">
+                    <div class="relative">
+                        <img src="https://picsum.photos/600/400?random=1" alt="高级智能手表" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-4 right-4">
+                            <button id="favoriteBtn1" class="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md transition-all duration-300 hover:bg-white scale-hover">
+                                <i class="fa fa-heart-o text-gray-600 text-lg"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-secondary text-white text-xs px-2 py-1 rounded">-20%</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">高级智能手表</h3>
+                        <p class="text-gray-600 mb-4">全天候健康监测，精准运动追踪</p>
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900">¥1,299</span>
+                                <span class="text-gray-500 line-through ml-2">¥1,599</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star-half-o text-yellow-400"></i>
+                                <span class="text-gray-600 ml-1">(4.5)</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button id="addToCartBtn1" class="flex-1 bg-secondary text-white py-3 px-6 rounded-lg btn-hover scale-hover flex items-center justify-center">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                            <button class="bg-neutral text-gray-800 py-3 px-4 rounded-lg btn-hover scale-hover">
+                                <i class="fa fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- TA的日记 -->
-                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #81E67F;" data-mood = "happy" >
-                                <div class = "mood-indicator" data-icon = "😊" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >TA</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >10:23</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >今天早上收到了你的早餐惊喜，太开心了！鸡蛋煎得刚刚好，咖啡也是我喜欢的甜度。有你真好❤️</p >
-                                <div class = "rounded-lg overflow-hidden mb-4" >
-                                    <img src = "https://picsum.photos/600/400?random=10" alt = "早餐照片"
-                                         class = "w-full h-auto" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-happy bg-happy/10 px-2 py-1 rounded-full" >开心的一天</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i >
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "1" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
+                <!-- 商品卡片2 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl group">
+                    <div class="relative">
+                        <img src="https://picsum.photos/600/400?random=2" alt="无线蓝牙耳机" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-4 right-4">
+                            <button id="favoriteBtn2" class="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md transition-all duration-300 hover:bg-white scale-hover">
+                                <i class="fa fa-heart-o text-gray-600 text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">无线蓝牙耳机</h3>
+                        <p class="text-gray-600 mb-4">主动降噪，HiFi音质，持久续航</p>
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900">¥799</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <span class="text-gray-600 ml-1">(5.0)</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button id="addToCartBtn2" class="flex-1 bg-secondary text-white py-3 px-6 rounded-lg btn-hover scale-hover flex items-center justify-center">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                            <button class="bg-neutral text-gray-800 py-3 px-4 rounded-lg btn-hover scale-hover">
+                                <i class="fa fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                                <!-- 回应区域 -->
-                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
-                                    <div class = "flex items-start mb-2" >
-                                        <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <div class = "flex-1" >
-                                            <div class = "bg-neutral-100 rounded-lg p-3" >
-                                                <p class = "text-sm text-neutral-700" >看到你开心我也很满足呀～下次给你做你最爱吃的华夫饼！</p >
-                                            </div >
-                                        </div >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-                    </div >
+                <!-- 商品卡片3 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl group">
+                    <div class="relative">
+                        <img src="https://picsum.photos/600/400?random=3" alt="便携式蓝牙音箱" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-4 right-4">
+                            <button id="favoriteBtn3" class="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md transition-all duration-300 hover:bg-white scale-hover">
+                                <i class="fa fa-heart-o text-gray-600 text-lg"></i>
+                            </button>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-primary text-white text-xs px-2 py-1 rounded">-15%</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">便携式蓝牙音箱</h3>
+                        <p class="text-gray-600 mb-4">360°环绕立体声，防水设计</p>
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900">¥499</span>
+                                <span class="text-gray-500 line-through ml-2">¥588</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star text-yellow-400"></i>
+                                <i class="fa fa-star-o text-yellow-400"></i>
+                                <span class="text-gray-600 ml-1">(4.0)</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button id="addToCartBtn3" class="flex-1 bg-secondary text-white py-3 px-6 rounded-lg btn-hover scale-hover flex items-center justify-center">
+                                <i class="fa fa-shopping-cart mr-2"></i>
+                                <span>加入购物车</span>
+                            </button>
+                            <button class="bg-neutral text-gray-800 py-3 px-4 rounded-lg btn-hover scale-hover">
+                                <i class="fa fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <!-- 昨天的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >昨天
-                            </span >
-                        </div >
+        <!-- 用户评价 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">用户评价</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/100/100?random=101" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="ml-4">
+                            <h4 class="font-medium text-gray-800">李明</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"这款智能手表的质量非常好，功能也很齐全，特别是健康监测功能很实用，电池续航也很长，非常满意！"</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/100/100?random=102" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="ml-4">
+                            <h4 class="font-medium text-gray-800">王芳</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star-half-o"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"蓝牙耳机的音质超出预期，降噪效果也很好，佩戴舒适，唯一缺点是充电盒有点大，总体来说非常值得购买。"</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/100/100?random=103" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="ml-4">
+                            <h4 class="font-medium text-gray-800">张伟</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star-o"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"蓝牙音箱的声音很清晰，音量也很大，防水设计很实用，在户外使用也不用担心。物流速度很快，包装也很好。"</p>
+                </div>
+            </div>
+        </section>
 
-                        <!-- 我的日记 -->
-                        <div class = "md:w-1/2 md:pl-12" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #FF6B8B;" data-mood = "heart" >
-                                <div class = "mood-indicator" data-icon = "❤️" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >我</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >21:45</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >今天陪你去看了你最喜欢的乐队演出，现场气氛太赞了！你跟着音乐摇摆的样子真的好可爱，那一刻觉得能和你在一起真的好幸福。</p >
-                                <div class = "grid grid-cols-2 gap-2 mb-4" >
-                                    <img src = "https://picsum.photos/300/300?random=11" alt = "演出照片1"
-                                         class = "w-full h-32 object-cover rounded-lg" >
-                                    <img src = "https://picsum.photos/300/300?random=12" alt = "演出照片2"
-                                         class = "w-full h-32 object-cover rounded-lg" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-heart bg-heart/10 px-2 py-1 rounded-full" >心动时刻</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i > 5
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "2" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
+        <!-- 品牌故事 -->
+        <section class="bg-primary/5 rounded-2xl p-8 mb-12">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-6 md:mb-0 md:pr-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">我们的品牌故事</h2>
+                    <p class="text-gray-600 mb-6">ShopEase成立于2018年，致力于为消费者提供高品质、高性价比的电子产品和生活用品。我们坚持"用户至上"的理念，不断优化产品和服务，让每一位顾客都能享受便捷、愉悦的购物体验。</p>
+                    <button class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors scale-hover">
+                        了解更多
+                    </button>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="https://picsum.photos/800/400?random=20" alt="品牌形象" class="w-full h-auto rounded-xl shadow-lg">
+                </div>
+            </div>
+        </section>
+    </main>
 
-                                <!-- 回应区域 -->
-                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
-                                    <div class = "flex items-start mb-2" >
-                                        <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <div class = "flex-1" >
-                                            <div class = "bg-neutral-100 rounded-lg p-3" >
-                                                <p class = "text-sm text-neutral-700" >哈哈，我也很开心你能陪我去！这是我今年最棒的一次体验，谢谢你～❤️</p >
-                                            </div >
-                                        </div >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
+    <!-- 购物车侧边栏 -->
+    <div id="cartSidebar" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl transform translate-x-full sidebar-slide z-50">
+        <div class="flex flex-col h-full">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800">购物车</h3>
+                <button id="closeCart" class="text-gray-500 hover:text-gray-800">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="cartItems" class="flex-1 overflow-y-auto p-6">
+                <!-- 购物车为空时显示 -->
+                <div id="emptyCart" class="flex flex-col items-center justify-center h-full">
+                    <i class="fa fa-shopping-cart text-gray-300 text-6xl mb-4"></i>
+                    <p class="text-gray-500 mb-4">购物车是空的</p>
+                    <button class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        立即购物
+                    </button>
+                </div>
 
-                        <!-- TA的日记 -->
-                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card mt-8 md:mt-0" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #FFD700;" data-mood = "laugh" >
-                                <div class = "mood-indicator" data-icon = "😆" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >TA</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >23:15</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >演出结束后我们去吃夜宵，你把芥末当成了番茄酱，那表情真的太好笑了！哈哈哈哈，不过看你为了我硬吃下去的样子，心里还是暖暖的～</p >
-                                <div class = "rounded-lg overflow-hidden mb-4" >
-                                    <img src = "https://picsum.photos/600/400?random=13" alt = "夜宵照片"
-                                         class = "w-full h-auto" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-laugh bg-laugh/10 px-2 py-1 rounded-full" >欢乐时刻</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i >
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "3" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-                    </div >
+                <!-- 购物车有商品时显示 -->
+                <div id="cartItemsList" class="hidden space-y-4">
+                    <!-- 购物车商品项 -->
+                    <div class="flex items-center border-b pb-4">
+                        <img src="https://picsum.photos/100/100?random=1" alt="高级智能手表" class="w-20 h-20 object-cover rounded-lg">
+                        <div class="ml-4 flex-1">
+                            <h4 class="font-medium text-gray-800">高级智能手表</h4>
+                            <p class="text-gray-500 text-sm">¥1,299 × 1</p>
+                            <div class="flex items-center mt-2">
+                                <button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100">
+                                    <i class="fa fa-minus text-xs"></i>
+                                </button>
+                                <span class="mx-3 text-gray-800">1</span>
+                                <button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100">
+                                    <i class="fa fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-red-500">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-600">小计</span>
+                    <span class="text-gray-900 font-medium">¥1,299</span>
+                </div>
+                <button class="w-full bg-secondary text-white py-3 rounded-lg font-medium hover:bg-secondary/90 transition-colors mb-3 scale-hover">
+                    结算
+                </button>
+                <button class="w-full bg-white text-gray-800 py-3 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors scale-hover">
+                    继续购物
+                </button>
+            </div>
+        </div>
+    </div>
 
-                    <!-- 其他日期的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >5月28日
-                            </span >
-                        </div >
-                    </div >
-                </div >
-            </div >
-            </div >
-        </div >
-    </main >
+    <!-- 购物车遮罩层 -->
+    <div id="cartOverlay" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 z-40"></div>
+
+    <!-- 加入购物车通知 -->
+    <div id="cartNotification" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-xl p-4 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
+        <div class="bg-green-100 p-3 rounded-full mr-3">
+            <i class="fa fa-check text-green-500"></i>
+        </div>
+        <div>
+            <h3 class="font-medium text-gray-900">已加入购物车</h3>
+            <p class="text-sm text-gray-500" id="notificationProduct">高级智能手表 ×1</p>
+        </div>
+        <button class="ml-4 text-gray-400 hover:text-gray-600">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <!-- 收藏通知 -->
+    <div id="favoriteNotification" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-xl p-4 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
+        <div class="bg-pink-100 p-3 rounded-full mr-3">
+            <i class="fa fa-heart text-pink-500"></i>
+        </div>
+        <div>
+            <h3 class="font-medium text-gray-900">已添加到收藏</h3>
+            <p class="text-sm text-gray-500" id="favoriteProduct">高级智能手表</p>
+        </div>
+        <button class="ml-4 text-gray-400 hover:text-gray-600">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
 
     <!-- 页脚 -->
-    <footer class = "bg-white border-t border-neutral-200 py-8" >
-        <div class = "container mx-auto px-4" >
-            <div class = "flex flex-col md:flex-row justify-between items-center" >
-                <div class = "flex items-center space-x-2" >
-                    <div class = "w-8 h-8 bg-gradient-love rounded-full text-white" >
-                        <i class = "fa-solid fa-heart" ></i >
-                    </div >
-                    <span class = "text-lg font-bold" >LoveSync</span >
-                </div >
-                <div class = "text-neutral-500 text-sm" >
-                    &copy; 2025 LoveSync. 每篇日记都是一棵树，年轮里藏着我们的故事
-                </div >
-            </div >
-        </div >
-    </footer >
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">ShopEase</h4>
+                    <p class="text-gray-400 mb-4">为您提供高品质的购物体验</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-medium mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">首页</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">商品分类</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">特惠活动</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">关于我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-medium mb-4">客户服务</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">联系我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">常见问题</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">配送信息</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">退换政策</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-medium mb-4">订阅我们</h4>
+                    <p class="text-gray-400 mb-4">获取最新产品和优惠信息</p>
+                    <div class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-900">
+                        <button class="bg-primary hover:bg-primary/90 text-white px-4 rounded-r-lg transition-colors">
+                            订阅
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+                <p>© 2025 ShopEase. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
 
-    <!-- 交互逻辑 -->
-    <script >
-        // 全局变量
-        const moodIcons = {
-            heart: '❤️',
-            happy: '😊',
-            laugh: '😆',
-            sad: '😢',
-            angry: '😤',
-            calm: '😐'
-        };
+    <script>
+        // 购物车计数
+        let cartCount = 0;
+        const cartCountEl = document.getElementById('cartCount');
+        const cartToggle = document.getElementById('cartToggle');
+        const closeCart = document.getElementById('closeCart');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const cartNotification = document.getElementById('cartNotification');
+        const favoriteNotification = document.getElementById('favoriteNotification');
+        const notificationProduct = document.getElementById('notificationProduct');
+        const favoriteProduct = document.getElementById('favoriteProduct');
+        const emptyCart = document.getElementById('emptyCart');
+        const cartItemsList = document.getElementById('cartItemsList');
 
-        // DOM加载后初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            initMoodTriggers();
-            initDiaryModal();
-            initPhotoUpload();
-            initNavDropdowns();
-            initMobileMenu();
+        // 打开购物车
+        cartToggle.addEventListener('click', function() {
+            cartSidebar.classList.remove('translate-x-full');
+            cartOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.style.overflow = 'hidden';
         });
 
-        // 初始化心情触发日记表单
-        function initMoodTriggers() {
-            const triggers = document.querySelectorAll('.diary-trigger');
-            const modal = document.getElementById('new-diary-modal');
-            const moodInput = document.getElementById('mood-input');
+        // 关闭购物车
+        closeCart.addEventListener('click', function() {
+            cartSidebar.classList.add('translate-x-full');
+            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
+            document.body.style.overflow = '';
+        });
 
-            triggers.forEach(trigger => {
-                trigger.addEventListener('click', () => {
-                    const mood = trigger.dataset.mood;
-                    moodInput.value = mood;
-                    activateMoodButton(mood);
-                    openDiaryModal();
-                });
+        // 点击遮罩层关闭购物车
+        cartOverlay.addEventListener('click', function() {
+            cartSidebar.classList.add('translate-x-full');
+            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
+            document.body.style.overflow = '';
+        });
+
+        // 加入购物车动画
+        document.querySelectorAll('[id^="addToCartBtn"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const productId = this.id.replace('addToCartBtn', '');
+                const productName = document.querySelector(`#favoriteBtn${productId}`).closest('.bg-white').querySelector('h3').textContent;
+
+                // 更新购物车计数
+                cartCount++;
+                cartCountEl.textContent = cartCount;
+
+                // 添加按钮动画
+                this.classList.add('scale-95');
+                setTimeout(() => {
+                    this.classList.remove('scale-95');
+                }, 200);
+
+                // 更新通知文本
+                notificationProduct.textContent = `${productName} ×1`;
+
+                // 显示通知
+                cartNotification.classList.remove('translate-y-20', 'opacity-0');
+                cartNotification.classList.add('translate-y-0', 'opacity-100');
+
+                // 显示购物车中的商品
+                if (cartCount > 0) {
+                    emptyCart.classList.add('hidden');
+                    cartItemsList.classList.remove('hidden');
+                }
+
+                // 3秒后隐藏通知
+                setTimeout(() => {
+                    cartNotification.classList.add('translate-y-20', 'opacity-0');
+                    cartNotification.classList.remove('translate-y-0', 'opacity-100');
+                }, 3000);
             });
-        }
+        });
 
-        // 激活对应心情按钮
-        function activateMoodButton(mood) {
-            document.querySelectorAll('.mood-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.mood === mood) {
-                    btn.classList.add('active');
+        // 收藏按钮动画
+        document.querySelectorAll('[id^="favoriteBtn"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                const productName = this.closest('.bg-white').querySelector('h3').textContent;
+
+                if (icon.classList.contains('fa-heart-o')) {
+                    // 添加收藏
+                    icon.classList.remove('fa-heart-o', 'text-gray-600');
+                    icon.classList.add('fa-heart', 'text-pink-500');
+
+                    // 添加按钮动画
+                    this.classList.add('scale-110');
+                    setTimeout(() => {
+                        this.classList.remove('scale-110');
+                    }, 200);
+
+                    // 更新通知文本
+                    favoriteProduct.textContent = productName;
+
+                    // 显示通知
+                    favoriteNotification.classList.remove('translate-y-20', 'opacity-0');
+                    favoriteNotification.classList.add('translate-y-0', 'opacity-100');
+
+                    // 3秒后隐藏通知
+                    setTimeout(() => {
+                        favoriteNotification.classList.add('translate-y-20', 'opacity-0');
+                        favoriteNotification.classList.remove('translate-y-0', 'opacity-100');
+                    }, 3000);
+                } else {
+                    // 取消收藏
+                    icon.classList.remove('fa-heart', 'text-pink-500');
+                    icon.classList.add('fa-heart-o', 'text-gray-600');
                 }
             });
-        }
-
-        // 打开日记模态框
-        function openDiaryModal() {
-            const modal = document.getElementById('new-diary-modal');
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // 关闭日记模态框
-        function closeDiaryModal() {
-            const modal = document.getElementById('new-diary-modal');
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            resetForm();
-        }
-
-        // 初始化模态框
-        function initDiaryModal() {
-            document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
-            document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
-        }
-
-        // 初始化照片上传
-        function initPhotoUpload() {
-            const uploadArea = document.getElementById('photo-upload-area');
-            const input = document.getElementById('photo-input');
-            const previewContainer = document.getElementById('photo-preview-container');
-
-            uploadArea.addEventListener('click', () => input.click());
-            input.addEventListener('change', (e) => previewPhotos(e.target.files, previewContainer));
-        }
-
-        // 预览照片
-        function previewPhotos(files, container) {
-            container.innerHTML = '';
-            if (!files.length) return container.classList.add('hidden');
-
-            container.classList.remove('hidden');
-            Array.from(files).forEach(file => {
-                if (!file.type.startsWith('image/')) return;
-
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.className = 'w-full h-24 object-cover rounded-lg';
-                container.appendChild(img);
-            });
-        }
-
-        const userAvatar = document.getElementById('userAvatar');
-        const userOptions = document.getElementById('userOptions');
-        const userDropdown = document.getElementById('userDropdown');
-
-        let closeTimer;
-
-        // 鼠标经过头像时打开菜单
-        userAvatar.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
         });
 
-        // 鼠标悬停在下拉菜单时保持菜单打开
-        userDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标离开下拉菜单时关闭菜单
-        userDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
-                userOptions.classList.add('hidden');
-            }, 500);
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
-
-            let closeTimer;
-
-            // 鼠标经过按钮时打开菜单
-            moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标悬停在下拉菜单时保持菜单打开
-            moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标离开下拉菜单时关闭菜单
-            moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
-                    moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
+        // 关闭通知
+        document.querySelectorAll('#cartNotification button, #favoriteNotification button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const notification = this.closest('div');
+                notification.classList.add('translate-y-20', 'opacity-0');
+                notification.classList.remove('translate-y-0', 'opacity-100');
             });
         });
 
-        // 初始化移动端菜单
-        function initMobileMenu() {
-            const menuToggle = document.getElementById('menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
+        // 轮播图自动切换
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.min-w-full');
+        const slideContainer = slides[0].parentElement;
+        const dots = document.querySelectorAll('.absolute.bottom-4 button');
 
-            menuToggle.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-                mobileMenu.classList.toggle('translate-y-0');
-                mobileMenu.classList.toggle('opacity-100');
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            updateSlide();
+        }
+
+        function updateSlide() {
+            slideContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, index) => {
+                dot.style.opacity = index === currentSlide ? '1' : '0.5';
             });
         }
 
+        // 设置定时器自动切换
+        setInterval(nextSlide, 5000);
 
-    </script >
-</body >
-</html >
+        // 点击指示点切换
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateSlide();
+            });
+        });
+    </script>
+</body>
+</html>

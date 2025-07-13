@@ -40,32 +40,32 @@
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-    
+
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
-    
+
             .hover-scale {
                 transition: transform 0.3s ease;
             }
-    
+
             .hover-scale:hover {
                 transform: scale(1.03);
             }
-    
+
             .form-input-focus {
                 transition: all 0.3s ease;
             }
-    
+
             .form-input-focus:focus {
                 transform: translateY(-2px);
                 box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
             }
-    
+
             .btn-pulse {
                 animation: pulse 2s infinite;
             }
-    
+
             @keyframes pulse {
                 0% {
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
@@ -77,11 +77,11 @@
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
                 }
             }
-    
+
             .float-animation {
                 animation: float 6s ease-in-out infinite;
             }
-    
+
             @keyframes float {
                 0% {
                     transform: translateY(0px);
@@ -93,21 +93,21 @@
                     transform: translateY(0px);
                 }
             }
-    
+
             .product-card {
                 transition: all 0.3s ease;
             }
-    
+
             .product-card:hover {
                 box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
                 transform: translateY(-5px);
             }
-    
+
             /* 自定义收藏和购物车图标样式 */
             .custom-icon {
                 font-size: 1.8rem; /* 直接设置字体大小，控制图标尺寸，根据需要改 */
             }
-    
+
             /* 自定义徽章样式 */
             .custom-badge {
                 width: 16px;
@@ -115,32 +115,32 @@
                 font-size: 10px; /* 调整徽章内数字的大小 */
                 line-height: 16px; /* 让数字垂直居中 */
             }
-    
+
             .category-active {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
                 color: white;
             }
-    
+
             .scrollbar-hide::-webkit-scrollbar {
                 display: none;
             }
-    
+
             .scrollbar-hide {
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
-    
+
             .text-shadow {
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
-    
+
             .text-gradient {
                 background-clip: text;
                 -webkit-background-clip: text;
                 color: transparent;
                 background-image: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
-    
+
             .card-shadow {
                 box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
             }
@@ -181,7 +181,7 @@
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心跳相簿</a >
                 <a href = "{% url 'lovesync' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
-    
+
                 <!-- 更多下拉菜单 -->
                 <div class = "relative" id = "moreDropdown" >
                     <button
@@ -217,7 +217,7 @@
                     <input type = "text" placeholder = "搜索情侣商品..."
                            class = "pl-10 pr-40 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm w-full" >
                     <i class = "fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" ></i >
-    
+
                     <!-- 搜索热词下拉菜单 -->
                     <div id = "searchSuggestions"
                          class = "absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-xl z-40 invisible opacity-0 transform -translate-y-2 transition-all duration-200" >
@@ -226,36 +226,36 @@
                                 <h4 class = "font-medium text-neutral-800" >热门搜索</h4 >
                                 <button class = "text-xs text-neutral-500 hover:text-primary" >清除历史</button >
                             </div >
-                            
+
                             <div class = "space-y-2" >
                                 <a href = "#"
                                    class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <i class = "fa-solid fa-fire text-primary mr-3 w-5 text-center" ></i >
                                     <span >情侣T恤夏季新款</span >
-                                    <span class="ml-auto text-xs font-medium text-primary">2.5万+</span>
+                                    <span class = "ml-auto text-xs font-medium text-primary" >2.5万+</span >
                                 </a >
-                                
+
                                 <a href = "#"
                                    class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <i class = "fa-solid fa-fire text-primary mr-3 w-5 text-center" ></i >
                                     <span >纯银情侣手链</span >
                                     <span class = "ml-auto text-xs font-medium text-primary" >1.8万+</span >
                                 </a >
-                                
+
                                 <a href = "#"
                                    class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <i class = "fa-solid fa-fire text-primary mr-3 w-5 text-center" ></i >
                                     <span >情侣保温杯</span >
                                     <span class = "ml-auto text-xs font-medium text-primary" >1.2万+</span >
                                 </a >
-                                
+
                                 <a href = "#"
                                    class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <i class = "fa-solid fa-star text-yellow-400 mr-3 w-5 text-center" ></i >
                                     <span >情侣手机壳定制</span >
                                     <span class = "ml-auto text-xs font-medium text-primary" >9.8千+</span >
                                 </a >
-                                
+
                                 <a href = "#"
                                    class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                     <i class = "fa-solid fa-star text-yellow-400 mr-3 w-5 text-center" ></i >
@@ -263,7 +263,7 @@
                                     <span class = "ml-auto text-xs font-medium text-primary" >8.7千+</span >
                                 </a >
                             </div >
-                            
+
                             <div class = "border-t border-neutral-100 my-3 pt-3" >
                                 <h4 class = "font-medium text-neutral-800 mb-2" >搜索历史</h4 >
                                 <div class = "space-y-2" >
@@ -272,13 +272,13 @@
                                         <i class = "fa-solid fa-clock-rotate-left text-neutral-400 mr-3 w-5 text-center" ></i >
                                         <span >情侣手表</span >
                                     </a >
-                                    
+
                                     <a href = "#"
                                        class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                         <i class = "fa-solid fa-clock-rotate-left text-neutral-400 mr-3 w-5 text-center" ></i >
                                         <span >情侣马克杯</span >
                                     </a >
-                                    
+
                                     <a href = "#"
                                        class = "flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom" >
                                         <i class = "fa-solid fa-clock-rotate-left text-neutral-400 mr-3 w-5 text-center" ></i >
@@ -330,7 +330,7 @@
                             <i class = "fa-solid fa-bookmark mr-2 w-5 text-center" ></i >消息
                         </a >
                         <a href = "{% url 'settings' %}"
-                           class = "block px-4 py-22 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
                             <i class = "fa-solid fa-cog mr-2 w-5 text-center" ></i >设置
                         </a >
                         <div class = "border-t border-neutral-200 my-1" ></div >
@@ -347,7 +347,7 @@
                 </button >
             </div >
         </div >
-    
+
         <!-- 移动端菜单 -->
         <div id = "mobile-menu"
              class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
@@ -671,175 +671,154 @@
                     </div >
                 </div >
 
-            <!-- 限时特惠区域 -->
+            <!-- 热卖商品排行榜 -->
             <div class = "mb-12" >
-                <div class = "flex items-center justify-between mb-6" >
-                    <h2 class = "text-2xl font-bold text-neutral-800" >限时特惠</h2 >
-                    <a href = "#" class = "text-primary font-medium hover:underline flex items-center" >
-                        查看更多 <i class = "fa-solid fa-angle-right ml-1" ></i >
-                    </a >
+                <div class = "mt-8 bg-white rounded-xl shadow-sm overflow-hidden" >
+                <div class = "px-6 py-4 border-b border-neutral-200 flex items-center justify-between" >
+                    <h2 class = "font-semibold text-lg flex items-center" >
+                        <i class = "fa-solid fa-fire text-red-500 mr-2" ></i >
+                        热卖商品排行榜
+                    </h2 >
+                    <a href = "#" class = "text-primary hover:text-primary/80 text-sm transition-custom" >查看全部</a >
                 </div >
-                
-                <div class = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" >
-                    <!-- 商品卡片 1 -->
-                    <div class = "bg-white rounded-xl overflow-hidden shadow-md product-card" >
-                        <div class = "relative" >
-                            <img src = "https://picsum.photos/id/1005/300/300" alt = "情侣T恤"
-                                 class = "w-full h-64 object-cover" >
-                            <div class = "absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded" >限时5折</div >
-                            <button class = "absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                                <i class = "fa-solid fa-heart" ></i >
-                            </button >
-                        </div >
-                        <div class = "p-4" >
-                            <h3 class = "font-medium text-neutral-800 line-clamp-2" >情侣夏季纯棉短袖T恤</h3 >
-                            <div class = "mt-2 flex items-center" >
-                                <div class = "flex items-center text-yellow-400" >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star-half-stroke" ></i >
-                                </div >
-                                <span class = "text-neutral-500 text-sm ml-2" >4.8 (128)</span >
+                <div class = "p-4" >
+                    <div class = "space-y-4" >
+                        <!-- 排行榜商品1 -->
+                        <div class = "flex items-center p-2 hover:bg-neutral-50 rounded-lg transition-custom" >
+                            <div class = "w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold mr-4" >1</div >
+                            <div class = "w-16 h-16 rounded-lg overflow-hidden flex-shrink-0" >
+                                <img src = "https://picsum.photos/id/1005/80/80" alt = "情侣夏季纯棉短袖T恤"
+                                     class = "w-full h-full object-cover" >
                             </div >
-                            <div class = "mt-3 flex items-center justify-between" >
-                                <div >
-                                    <span class = "text-primary font-bold text-lg" >¥129</span >
-                                    <span class = "text-neutral-400 line-through text-sm ml-2" >¥258</span >
+                            <div class = "ml-4 flex-grow" >
+                                <h3 class = "font-medium text-sm line-clamp-1" >情侣夏季纯棉短袖T恤</h3 >
+                                <div class = "flex items-center mt-1" >
+                                    <div class = "flex items-center text-yellow-400" >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star-half-stroke text-xs" ></i >
+                                        <span class = "text-neutral-600 text-xs ml-1" >4.5</span >
+                                    </div >
+                                    <span class = "text-neutral-500 text-xs ml-2" >月销 2,341</span >
                                 </div >
-                                <button class = "w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                    <i class = "fa-solid fa-solid fa-shopping-cart" ></i >
+                            </div >
+                            <div class = "text-right" >
+                                <p class = "font-bold text-primary text-sm" >¥199</p >
+                                <button class = "mt-1 px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom text-xs add-to-cart"
+                                        data-id = "1001" >
+                                    <i class = "fa-solid fa-shopping-cart mr-1" ></i > 加入购物车
                                 </button >
                             </div >
                         </div >
-                    </div >
 
-                    <!-- 商品卡片 2 -->
-                    <div class = "bg-white rounded-xl overflow-hidden shadow-md product-card" >
-                        <div class = "relative" >
-                            <img src = "https://picsum.photos/id/1025/300/300" alt = "情侣手链"
-                                 class = "w-full h-64 object-cover" >
-                            <div class = "absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded" >新品</div >
-                            <button class = "absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                                <i class = "fa-solid fa-heart" ></i >
-                            </button >
-                        </div >
-                        <div class = "p-4" >
-                            <h3 class = "font-medium text-neutral-800 line-clamp-2" >情侣纯银手链 爱情锁设计</h3 >
-                            <div class = "mt-2 flex items-center" >
-                                <div class = "flex items-center text-yellow-400" >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                </div >
-                                <span class = "text-neutral-500 text-sm ml-2" >5.0 (86)</span >
+                        <!-- 排行榜商品2 -->
+                        <div class = "flex items-center p-2 hover:bg-neutral-50 rounded-lg transition-custom" >
+                            <div class = "w-8 h-8 rounded-full bg-red-400 text-white flex items-center justify-center font-bold mr-4" >2</div >
+                            <div class = "w-16 h-16 rounded-lg overflow-hidden flex-shrink-0" >
+                                <img src = "https://picsum.photos/id/1025/80/80" alt = "情侣纯银手链"
+                                     class = "w-full h-full object-cover" >
                             </div >
-                            <div class = "mt-3 flex items-center justify-between" >
-                                <div >
-                                    <span class = "text-primary font-bold text-lg" >¥258</span >
-                                    <span class = "text-neutral-400 line-through text-sm ml-2" >¥328</span >
+                            <div class = "ml-4 flex-grow" >
+                                <h3 class = "font-medium text-sm line-clamp-1" >情侣纯银手链</h3 >
+                                <div class = "flex items-center mt-1" >
+                                    <div class = "flex items-center text-yellow-400" >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <span class = "text-neutral-600 text-xs ml-1" >5.0</span >
+                                    </div >
+                                    <span class = "text-neutral-500 text-xs ml-2" >月销 1,872</span >
                                 </div >
-                                <button class = "w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                    <i class = "fa-solid fa-solid fa-shopping-cart" ></i >
+                            </div >
+                            <div class = "text-right" >
+                                <p class = "font-bold text-primary text-sm" >¥299</p >
+                                <button class = "mt-1 px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom text-xs add-to-cart"
+                                        data-id = "1002" >
+                                    <i class = "fa-solid fa-shopping-cart mr-1" ></i > 加入购物车
                                 </button >
                             </div >
                         </div >
-                    </div >
 
-                    <!-- 商品卡片 3 -->
-                    <div class = "bg-white rounded-xl overflow-hidden shadow-md product-card" >
-                        <div class = "relative" >
-                            <img src = "https://picsum.photos/id/1062/300/300" alt = "情侣马克杯"
-                                 class = "w-full h-64 object-cover" >
-                            <div class = "absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded" >限时7折</div >
-                            <button class = "absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                                <i class = "fa-solid fa-heart" ></i >
-                            </button >
-                        </div >
-                        <div class = "p-4" >
-                            <h3 class = "font-medium text-neutral-800 line-clamp-2" >情侣陶瓷马克杯 定制照片</h3 >
-                            <div class = "mt-2 flex items-center" >
-                                <div class = "flex items-center text-yellow-400" >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star-o" ></i >
-                                </div >
-                                <span class = "text-neutral-500 text-sm ml-2" >4.2 (56)</span >
+                        <!-- 排行榜商品3 -->
+                        <div class = "flex items-center p-2 hover:bg-neutral-50 rounded-lg transition-custom" >
+                            <div class = "w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mr-4" >3</div >
+                            <div class = "w-16 h-16 rounded-lg overflow-hidden flex-shrink-0" >
+                                <img src = "https://picsum.photos/id/1062/80/80" alt = "情侣陶瓷马克杯"
+                                     class = "w-full h-full object-cover" >
                             </div >
-                            <div class = "mt-3 flex items-center justify-between" >
-                                <div >
-                                    <span class = "text-primary font-bold text-lg" >¥89</span >
-                                    <span class = "text-neutral-400 line-through text-sm ml-2" >¥128</span >
+                            <div class = "ml-4 flex-grow" >
+                                <h3 class = "font-medium text-sm line-clamp-1" >情侣陶瓷马克杯</h3 >
+                                <div class = "flex items-center mt-1" >
+                                    <div class = "flex items-center text-yellow-400" >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star text-xs" ></i >
+                                        <i class = "fa-solid fa-star-half-stroke text-xs" ></i >
+                                        <span class = "text-neutral-600 text-xs ml-1" >4.7</span >
+                                    </div >
+                                    <span class = "text-neutral-500 text-xs ml-2" >月销 1,256</span >
                                 </div >
-                                <button class = "w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                    <i class = "fa-solid fa-solid fa-shopping-cart" ></i >
-                                </button >
                             </div >
-                        </div >
-                    </div >
-
-                    <!-- 商品卡片 4 -->
-                    <div class = "bg-white rounded-xl overflow-hidden shadow-md product-card" >
-                        <div class = "relative" >
-                            <img src = "https://picsum.photos/id/1060/300/300" alt = "情侣睡衣"
-                                 class = "w-full h-64 object-cover" >
-                            <div class = "absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded" >热卖</div >
-                            <button class = "absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                                <i class = "fa-solid fa-heart" ></i >
-                            </button >
-                        </div >
-                        <div class = "p-4" >
-                            <h3 class = "font-medium text-neutral-800 line-clamp-2" >情侣家居服套装 纯棉面料</h3 >
-                            <div class = "mt-2 flex items-center" >
-                                <div class = "flex items-center text-yellow-400" >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star" ></i >
-                                    <i class = "fa-solid fa-star-half-stroke" ></i >
-                                </div >
-                                <span class = "text-neutral-500 text-sm ml-2" >4.7 (156)</span >
-                            </div >
-                            <div class = "mt-3 flex items-center justify-between" >
-                                <div >
-                                    <span class = "text-primary font-bold text-lg" >¥199</span >
-                                    <span class = "text-neutral-400 line-through text-sm ml-2" >¥299</span >
-                                </div >
-                                <button class = "w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                    <i class = "fa-solid fa-solid fa-shopping-cart" ></i >
+                            <div class = "text-right" >
+                                <p class = "font-bold text-primary text-sm" >¥129</p >
+                                <button class = "mt-1 px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom text-xs add-to-cart"
+                                        data-id = "1003" >
+                                    <i class = "fa-solid fa-shopping-cart mr-1" ></i > 加入购物车
                                 </button >
                             </div >
                         </div >
                     </div >
                 </div >
             </div >
-
-            <!-- 品牌故事 -->
-            <div class = "bg-white rounded-2xl shadow-lg overflow-hidden mb-12" >
-                <div class = "grid md:grid-cols-2 gap-0" >
-                    <div class = "relative h-[400px]" >
-                        <img src = "https://picsum.photos/id/1067/600/400" alt = "情侣故事"
-                             class = "w-full h-full object-cover" >
-                    </div >
-                    <div class = "p-8 md:p-12 flex flex-col justify-center" >
-                        <h2 class = "text-2xl md:text-3xl font-bold mb-4 text-neutral-800" >我们的品牌故事</h2 >
-                        <p class = "text-neutral-600 mb-6 leading-relaxed" >
-                            LoveSync 诞生于一个关于爱情的简单理念：每对情侣都有独特的故事值得被纪念。我们致力于设计和提供高品质的情侣商品，帮助恋人们表达爱意，创造共同的美好回忆。
-                        </p >
-                        <p class = "text-neutral-600 mb-8 leading-relaxed" >
-                            从情侣装到家居用品，从日常用品到纪念日礼物，我们的每一件产品都凝聚着对爱情的理解和祝福。希望通过 LoveSync，让每一对恋人都能找到属于他们的爱情表达方式。
-                        </p >
-                        <a href = "#" class = "inline-flex items-center text-primary font-medium hover:underline" >
-                            了解更多 <i class = "fa-solid fa-arrow-right ml-2" ></i >
-                        </a >
-                    </div >
-                </div >
             </div >
+
+            <!-- 促销区域 -->
+            <section class="mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg relative">
+                    <img src="https://picsum.photos/600/300?random=6" alt="限时折扣" class="w-full h-64 object-cover opacity-70">
+                    <div class="absolute inset-0 flex flex-col justify-center p-8">
+                        <h3 class="text-white text-2xl font-bold mb-2">限时特惠</h3>
+                        <p class="text-white/90 mb-4">精选商品，低至3折起</p>
+                        <div class="flex space-x-2 mb-6">
+                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
+                                <span class="text-white font-bold text-lg">08</span>
+                                <span class="text-white/80 text-xs">小时</span>
+                            </div>
+                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
+                                <span class="text-white font-bold text-lg">45</span>
+                                <span class="text-white/80 text-xs">分钟</span>
+                            </div>
+                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
+                                <span class="text-white font-bold text-lg">33</span>
+                                <span class="text-white/80 text-xs">秒</span>
+                            </div>
+                        </div>
+                        <button class="bg-white text-primary font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
+                            <span>立即抢购</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl overflow-hidden shadow-lg relative">
+                    <img src="https://picsum.photos/600/300?random=7" alt="会员专享" class="w-full h-64 object-cover opacity-70">
+                    <div class="absolute inset-0 flex flex-col justify-center p-8">
+                        <h3 class="text-white text-2xl font-bold mb-2">会员专享</h3>
+                        <p class="text-white/90 mb-4">会员日额外9折，满减优惠</p>
+                        <button class="bg-white text-green-600 font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
+                            <span>了解详情</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
             <!-- 猜你喜欢区域 -->
             <div class = "mb-12" >
@@ -849,7 +828,7 @@
                         换一批 <i class = "fa-solid fa-refresh ml-1" ></i >
                     </a >
                 </div >
-                
+
                 <div class = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5" >
                     <!-- 商品卡片 1 -->
                     <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
@@ -961,337 +940,357 @@
 
             <!-- 商品展示区域 -->
             <div class = "mb-12" >
-            <div class = "flex items-center justify-between mb-6" >
-                <h2 class = "text-2xl font-bold text-neutral-800" >精选商品</h2 >
-                <div class = "flex items-center space-x-2" >
-                    <div class = "relative" >
-                        <button id = "categoryDropdownButton"
-                                class = "flex items-center justify-between pl-4 pr-10 py-2 rounded-lg border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white hover:shadow-sm transition-all duration-200 cursor-pointer" >
-                            <span >全部类别</span >
-                            <i class = "fa-solid fa-chevron-down text-neutral-400 ml-2 transition-transform duration-200" ></i >
-                        </button >
-                        <div id = "categoryDropdown"
-                             class = "absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-30 opacity-0 invisible transform -translate-y-2 transition-all duration-200 pointer-events-none" >
-                            <a href = "#"
-                               class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
-                                <i class = "fa-solid fa-tag mr-2 w-5 text-center" ></i >全部类别
-                            </a >
-                            <a href = "#"
-                               class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
-                                <i class = "fa-solid fa-tshirt mr-2 w-5 text-center" ></i >服装
-                            </a >
-                            <a href = "#"
-                               class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
-                                <i class = "fa-solid fa-ring mr-2 w-5 text-center" ></i >首饰
-                            </a >
-                            <a href = "#"
-                               class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
-                                <i class = "fa-solid fa-couch mr-2 w-5 text-center" ></i >家居
-                            </a >
-                            <a href = "#"
-                               class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
-                                <i class = "fa-solid fa-mobile-screen-button mr-2 w-5 text-center" ></i >数码
-                            </a >
+                <div class = "flex items-center justify-between mb-6" >
+                    <h2 class = "text-2xl font-bold text-neutral-800" >精选商品</h2 >
+                    <div class = "flex items-center space-x-2" >
+                        <div class = "relative" >
+                            <button id = "categoryDropdownButton"
+                                    class = "flex items-center justify-between pl-4 pr-10 py-2 rounded-lg border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white hover:shadow-sm transition-all duration-200 cursor-pointer" >
+                                <span >全部类别</span >
+                                <i class = "fa-solid fa-chevron-down text-neutral-400 ml-2 transition-transform duration-200" ></i >
+                            </button >
+                            <div id = "categoryDropdown"
+                                 class = "absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-30 opacity-0 invisible transform -translate-y-2 transition-all duration-200 pointer-events-none" >
+                                <a href = "#"
+                                   class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
+                                    <i class = "fa-solid fa-tag mr-2 w-5 text-center" ></i >全部类别
+                                </a >
+                                <a href = "#"
+                                   class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
+                                    <i class = "fa-solid fa-tshirt mr-2 w-5 text-center" ></i >服装
+                                </a >
+                                <a href = "#"
+                                   class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
+                                    <i class = "fa-solid fa-ring mr-2 w-5 text-center" ></i >首饰
+                                </a >
+                                <a href = "#"
+                                   class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
+                                    <i class = "fa-solid fa-couch mr-2 w-5 text-center" ></i >家居
+                                </a >
+                                <a href = "#"
+                                   class = "block px-4 py-2 text-neutral-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200 flex items-center" >
+                                    <i class = "fa-solid fa-mobile-screen-button mr-2 w-5 text-center" ></i >数码
+                                </a >
+                            </div >
+                        </div >
+
+                        <a href = "#" class = "text-primary font-medium hover:underline flex items-center" >
+                            查看更多 <i class = "fa-solid fa-angle-right ml-1" ></i >
+                        </a >
+                    </div >
+                </div >
+
+                <div class = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" >
+                    <!-- 商品卡片 1 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1005/300/300" alt = "情侣夏季纯棉短袖T恤"
+                                 class = "w-full h-64 object-cover" >
+                            <div class = "absolute top-3 left-3" >
+                                <span class = "bg-primary text-white text-xs px-2 py-1 rounded-full" >热卖</span >
+                            </div >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣夏季纯棉短袖T恤</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star-half-stroke" ></i >
+                                    <span class = "text-neutral-500 ml-1" >4.5</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(128)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥199</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥299</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
                         </div >
                     </div >
-                    
-                    <a href = "#" class = "text-primary font-medium hover:underline flex items-center" >
-                        查看更多 <i class = "fa-solid fa-angle-right ml-1" ></i >
-                    </a >
+
+                    <!-- 商品卡片 2 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1025/300/300" alt = "情侣纯银手链"
+                                 class = "w-full h-64 object-cover" >
+                            <div class = "absolute top-3 left-3" >
+                                <span class = "bg-secondary text-white text-xs px-2 py-1 rounded-full" >新品</span >
+                            </div >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣纯银手链</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <span class = "text-neutral-500 ml-1" >5.0</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(96)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥299</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥399</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+
+                    <!-- 商品卡片 3 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1062/300/300" alt = "情侣陶瓷马克杯"
+                                 class = "w-full h-64 object-cover" >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣陶瓷马克杯</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star-o" ></i >
+                                    <span class = "text-neutral-500 ml-1" >4.0</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(72)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥129</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥169</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+
+                    <!-- 商品卡片 4 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1063/300/300" alt = "情侣定制手机壳"
+                                 class = "w-full h-64 object-cover" >
+                            <div class = "absolute top-3 left-3" >
+                                <span class = "bg-green-500 text-white text-xs px-2 py-1 rounded-full" >限时折扣</span >
+                            </div >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣定制手机壳</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star-half-stroke" ></i >
+                                    <span class = "text-neutral-500 ml-1" >4.7</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(64)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥79</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥99</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+
+                    <!-- 商品卡片 5 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1074/300/300" alt = "情侣纯棉睡衣套装"
+                                 class = "w-full h-64 object-cover" >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣纯棉睡衣套装</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star-o" ></i >
+                                    <i class = "fa-solid fa-star-o" ></i >
+                                    <span class = "text-neutral-500 ml-1" >3.0</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(48)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥259</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥329</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+
+                    <!-- 商品卡片 6 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1080/300/300" alt = "情侣手表"
+                                 class = "w-full h-64 object-cover" >
+                            <div class = "absolute top-3 left-3" >
+                                <span class = "bg-secondary text-white text-xs px-2 py-1 rounded-full" >新品</span >
+                            </div >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣手表</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star-o" ></i >
+                                    <span class = "text-neutral-500 ml-1" >4.2</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(85)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥599</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥799</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+
+                    <!-- 商品卡片 7 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1082/300/300" alt = "情侣蓝牙音箱"
+                                 class = "w-full h-64 object-cover" >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣蓝牙音箱</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star-half-stroke" ></i >
+                                    <span class = "text-neutral-500 ml-1" >4.5</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(56)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥399</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥499</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+
+                    <!-- 商品卡片 8 -->
+                    <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
+                        <div class = "relative" >
+                            <img src = "https://picsum.photos/id/1083/300/300" alt = "情侣保温杯"
+                                 class = "w-full h-64 object-cover" >
+                            <div class = "absolute top-3 left-3" >
+                                <span class = "bg-green-500 text-white text-xs px-2 py-1 rounded-full" >限时折扣</span >
+                            </div >
+                            <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
+                                <i class = "fa-regular fa-heart" ></i >
+                            </button >
+                        </div >
+                        <div class = "p-4" >
+                            <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣保温杯</h3 >
+                            <div class = "flex items-center mt-1" >
+                                <div class = "flex items-center text-yellow-400 text-xs" >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <i class = "fa-solid fa-star" ></i >
+                                    <span class = "text-neutral-500 ml-1" >5.0</span >
+                                </div >
+                                <span class = "text-neutral-400 text-xs ml-2" >(112)</span >
+                            </div >
+                            <div class = "mt-3 flex items-center justify-between" >
+                                <div >
+                                    <span class = "text-primary font-bold" >¥159</span >
+                                    <span class = "text-neutral-400 text-sm line-through ml-1" >¥199</span >
+                                </div >
+                                <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
+                                    <i class = "fa-solid fa-shopping-cart" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
                 </div >
             </div >
-            
-            <div class = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" >
-                <!-- 商品卡片 1 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1005/300/300" alt = "情侣夏季纯棉短袖T恤"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "absolute top-3 left-3" >
-                            <span class = "bg-primary text-white text-xs px-2 py-1 rounded-full" >热卖</span >
-                        </div >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
+
+            <!-- 品牌故事 -->
+            <div class = "bg-white rounded-2xl shadow-lg overflow-hidden mb-12" >
+                <div class = "grid md:grid-cols-2 gap-0" >
+                    <div class = "relative h-[400px]" >
+                        <img src = "https://picsum.photos/id/1067/600/400" alt = "情侣故事"
+                             class = "w-full h-full object-cover" >
                     </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣夏季纯棉短袖T恤</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star-half-stroke" ></i >
-                                <span class = "text-neutral-500 ml-1" >4.5</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(128)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥199</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥299</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
+                    <div class = "p-8 md:p-12 flex flex-col justify-center" >
+                        <h2 class = "text-2xl md:text-3xl font-bold mb-4 text-neutral-800" >我们的品牌故事</h2 >
+                        <p class = "text-neutral-600 mb-6 leading-relaxed" >
+                            LoveSync 诞生于一个关于爱情的简单理念：每对情侣都有独特的故事值得被纪念。我们致力于设计和提供高品质的情侣商品，帮助恋人们表达爱意，创造共同的美好回忆。
+                        </p >
+                        <p class = "text-neutral-600 mb-8 leading-relaxed" >
+                            从情侣装到家居用品，从日常用品到纪念日礼物，我们的每一件产品都凝聚着对爱情的理解和祝福。希望通过 LoveSync，让每一对恋人都能找到属于他们的爱情表达方式。
+                        </p >
+                        <a href = "#" class = "inline-flex items-center text-primary font-medium hover:underline" >
+                            了解更多 <i class = "fa-solid fa-arrow-right ml-2" ></i >
+                        </a >
                     </div >
                 </div >
-
-                <!-- 商品卡片 2 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1025/300/300" alt = "情侣纯银手链"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "absolute top-3 left-3" >
-                            <span class = "bg-secondary text-white text-xs px-2 py-1 rounded-full" >新品</span >
-                        </div >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
-                    </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣纯银手链</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <span class = "text-neutral-500 ml-1" >5.0</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(96)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥299</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥399</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 商品卡片 3 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1062/300/300" alt = "情侣陶瓷马克杯"
-                             class = "w-full h-64 object-cover" >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
-                    </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣陶瓷马克杯</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star-o" ></i >
-                                <span class = "text-neutral-500 ml-1" >4.0</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(72)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥129</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥169</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 商品卡片 4 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1063/300/300" alt = "情侣定制手机壳"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "absolute top-3 left-3" >
-                            <span class = "bg-green-500 text-white text-xs px-2 py-1 rounded-full" >限时折扣</span >
-                        </div >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
-                    </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣定制手机壳</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star-half-stroke" ></i >
-                                <span class = "text-neutral-500 ml-1" >4.7</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(64)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥79</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥99</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 商品卡片 5 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1074/300/300" alt = "情侣纯棉睡衣套装"
-                             class = "w-full h-64 object-cover" >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
-                    </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣纯棉睡衣套装</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star-o" ></i >
-                                <i class = "fa-solid fa-star-o" ></i >
-                                <span class = "text-neutral-500 ml-1" >3.0</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(48)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥259</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥329</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 商品卡片 6 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1080/300/300" alt = "情侣手表"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "absolute top-3 left-3" >
-                            <span class = "bg-secondary text-white text-xs px-2 py-1 rounded-full" >新品</span >
-                        </div >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
-                    </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣手表</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star-o" ></i >
-                                <span class = "text-neutral-500 ml-1" >4.2</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(85)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥599</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥799</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 商品卡片 7 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1082/300/300" alt = "情侣蓝牙音箱"
-                             class = "w-full h-64 object-cover" >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
-                    </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣蓝牙音箱</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star-half-stroke" ></i >
-                                <span class = "text-neutral-500 ml-1" >4.5</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(56)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥399</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥499</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
-                    </div >
-                </div >
-
-                <!-- 商品卡片 8 -->
-                <div class = "bg-white rounded-xl overflow-hidden shadow-sm product-card" >
-                    <div class = "relative" >
-                        <img src = "https://picsum.photos/id/1083/300/300" alt = "情侣保温杯"
-                             class = "w-full h-64 object-cover" >
-                        <div class = "absolute top-3 left-3" >
-                            <span class = "bg-green-500 text-white text-xs px-2 py-1 rounded-full" >限时折扣</span >
-                        </div >
-                        <button class = "absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom" >
-                            <i class = "fa-regular fa-heart" ></i >
-                        </button >
-                    </div >
-                    <div class = "p-4" >
-                        <h3 class = "font-medium text-neutral-800 line-clamp-1" >情侣保温杯</h3 >
-                        <div class = "flex items-center mt-1" >
-                            <div class = "flex items-center text-yellow-400 text-xs" >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <i class = "fa-solid fa-star" ></i >
-                                <span class = "text-neutral-500 ml-1" >5.0</span >
-                            </div >
-                            <span class = "text-neutral-400 text-xs ml-2" >(112)</span >
-                        </div >
-                        <div class = "mt-3 flex items-center justify-between" >
-                            <div >
-                                <span class = "text-primary font-bold" >¥159</span >
-                                <span class = "text-neutral-400 text-sm line-through ml-1" >¥199</span >
-                            </div >
-                            <button class = "w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom" >
-                                <i class = "fa-solid fa-shopping-cart" ></i >
-                            </button >
-                        </div >
-                    </div >
-                </div >
-
             </div >
-        </div >
-
 
             <!-- 服务保障 -->
             <div class = "bg-white rounded-2xl shadow-sm p-8 mb-12" >
@@ -1304,7 +1303,7 @@
                         <h3 class = "font-medium text-neutral-800 mb-2" >品质保证</h3 >
                         <p class = "text-neutral-600 text-sm" >所有商品均经过严格质检，确保品质优良</p >
                     </div >
-                    
+
                     <div class = "flex flex-col items-center text-center" >
                         <div class = "w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4" >
                             <i class = "fa-solid fa-truck-fast text-2xl" ></i >
@@ -1312,7 +1311,7 @@
                         <h3 class = "font-medium text-neutral-800 mb-2" >快速配送</h3 >
                         <p class = "text-neutral-600 text-sm" >全国大部分地区48小时内送达</p >
                     </div >
-                    
+
                     <div class = "flex flex-col items-center text-center" >
                         <div class = "w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4" >
                             <i class = "fa-solid fa-rotate-left text-2xl" ></i >
@@ -1320,7 +1319,7 @@
                         <h3 class = "font-medium text-neutral-800 mb-2" >七天无理由退换</h3 >
                         <p class = "text-neutral-600 text-sm" >收货后七天内可无理由退换货</p >
                     </div >
-                    
+
                     <div class = "flex flex-col items-center text-center" >
                         <div class = "w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4" >
                             <i class = "fa-solid fa-headphones text-2xl" ></i >
@@ -1330,7 +1329,7 @@
                     </div >
                 </div >
             </div >
-            
+
         </div >
     </main >
 
@@ -1464,6 +1463,7 @@
             }
         });
 
+        // 用户下拉菜单
         const userAvatar = document.getElementById('userAvatar');
         const userOptions = document.getElementById('userOptions');
         const userDropdown = document.getElementById('userDropdown');
@@ -1489,116 +1489,288 @@
             }, 500);
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
-    
-            let closeTimer;
-    
-            // 鼠标经过按钮时打开菜单
-            moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-    
-            // 鼠标悬停在下拉菜单时保持菜单打开
-            moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-    
-            // 鼠标离开下拉菜单时关闭菜单
-            moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
-                    moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
-            });
-        });
-
         // 类别下拉菜单切换
         document.addEventListener('DOMContentLoaded', function () {
             const categoryDropdownButton = document.getElementById('categoryDropdownButton');
             const categoryDropdown = document.getElementById('categoryDropdown');
             const categoryDropdownIcon = categoryDropdownButton.querySelector('i');
-    
-            categoryDropdownButton.addEventListener('click', function (e) {
-                e.stopPropagation();
-        
-                // 切换下拉菜单显示状态
-                if (categoryDropdown.classList.contains('invisible')) {
-                    categoryDropdown.classList.remove('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                    categoryDropdown.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                    categoryDropdownIcon.classList.add('rotate-180');
-                } else {
-                    categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                    categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                    categoryDropdownIcon.classList.remove('rotate-180');
-                }
-            });
-    
-            // 点击页面其他地方关闭下拉菜单
-            document.addEventListener('click', function () {
-                if (!categoryDropdown.classList.contains('invisible')) {
-                    categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                    categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                    categoryDropdownIcon.classList.remove('rotate-180');
-                }
-            });
-    
-            // 阻止下拉菜单项点击事件冒泡到document
-            const categoryItems = categoryDropdown.querySelectorAll('a');
-            categoryItems.forEach(item => {
-                item.addEventListener('click', function (e) {
+
+            if (categoryDropdownButton && categoryDropdown) {
+                categoryDropdownButton.addEventListener('click', function (e) {
                     e.stopPropagation();
-            
-                    // 这里可以添加选择类别的逻辑
-                    const selectedText = this.querySelector('span').textContent;
-                    categoryDropdownButton.querySelector('span').textContent = selectedText;
-            
-                    // 选择后关闭下拉菜单
-                    categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                    categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                    categoryDropdownIcon.classList.remove('rotate-180');
+
+                    // 切换下拉菜单显示状态
+                    if (categoryDropdown.classList.contains('invisible')) {
+                        categoryDropdown.classList.remove('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
+                        categoryDropdown.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                        categoryDropdownIcon.classList.add('rotate-180');
+                    } else {
+                        categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
+                        categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                        categoryDropdownIcon.classList.remove('rotate-180');
+                    }
                 });
-            });
-    
+
+                // 点击页面其他地方关闭下拉菜单
+                document.addEventListener('click', function () {
+                    if (!categoryDropdown.classList.contains('invisible')) {
+                        categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
+                        categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                        categoryDropdownIcon.classList.remove('rotate-180');
+                    }
+                });
+
+                // 阻止下拉菜单项点击事件冒泡到document
+                const categoryItems = categoryDropdown.querySelectorAll('a');
+                categoryItems.forEach(item => {
+                    item.addEventListener('click', function (e) {
+                        e.stopPropagation();
+
+                        // 这里可以添加选择类别的逻辑
+                        const selectedText = this.querySelector('span').textContent;
+                        categoryDropdownButton.querySelector('span').textContent = selectedText;
+
+                        // 选择后关闭下拉菜单
+                        categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
+                        categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                        categoryDropdownIcon.classList.remove('rotate-180');
+                    });
+                });
+            }
+
             // 搜索建议下拉菜单
             const searchInput = document.querySelector('input[placeholder="搜索情侣商品..."]');
             const searchSuggestions = document.getElementById('searchSuggestions');
-    
-            searchInput.addEventListener('focus', function () {
-                searchSuggestions.classList.remove('invisible', 'opacity-0', '-translate-y-2');
-                searchSuggestions.classList.add('opacity-100', 'translate-y-0');
+
+            if (searchInput && searchSuggestions) {
+                searchInput.addEventListener('focus', function () {
+                    searchSuggestions.classList.remove('invisible', 'opacity-0', '-translate-y-2');
+                    searchSuggestions.classList.add('opacity-100', 'translate-y-0');
+                });
+
+                searchInput.addEventListener('blur', function () {
+                    setTimeout(() => {
+                        searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
+                        searchSuggestions.classList.remove('opacity-100', 'translate-y-0');
+                    }, 200);
+                });
+
+                // 搜索建议项点击
+                const searchItems = searchSuggestions.querySelectorAll('a');
+                searchItems.forEach(item => {
+                    item.addEventListener('click', function () {
+                        const searchText = this.querySelector('span').textContent;
+                        searchInput.value = searchText;
+
+                        searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
+                        searchSuggestions.classList.remove('opacity-100', 'translate-y-0');
+                    });
+                });
+
+                // 清除历史按钮
+                const clearHistoryBtn = searchSuggestions.querySelector('button');
+                if (clearHistoryBtn) {
+                    clearHistoryBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        // 这里可以添加清除搜索历史的逻辑
+                        const historyItems = searchSuggestions.querySelectorAll('.fa-clock-rotate-left').forEach(item => {
+                            item.closest('a').remove();
+                        });
+                    });
+                }
+            }
+        });
+
+        // 购物车和收藏功能
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+        // 更新购物车数量显示
+        function updateCartCount() {
+            const cartCountElements = document.querySelectorAll('.fa-shopping-cart + span span');
+            cartCountElements.forEach(el => {
+                el.textContent = cart.reduce((total, item) => total + item.quantity, 0);
             });
-    
-            searchInput.addEventListener('blur', function () {
-                setTimeout(() => {
-                    searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
-                    searchSuggestions.classList.remove('opacity-100', 'translate-y-0');
-                }, 200);
+        }
+
+        // 更新收藏数量显示
+        function updateFavoritesCount() {
+            const favoritesCountElements = document.querySelectorAll('.fa-heart + span span');
+            favoritesCountElements.forEach(el => {
+                el.textContent = favorites.length;
             });
-    
-            // 搜索建议项点击
-            const searchItems = searchSuggestions.querySelectorAll('a');
-            searchItems.forEach(item => {
-                item.addEventListener('click', function () {
-                    const searchText = this.querySelector('span').textContent;
-                    searchInput.value = searchText;
-            
-                    searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
-                    searchSuggestions.classList.remove('opacity-100', 'translate-y-0');
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            // 检查是否已存在toast元素
+            let toast = document.getElementById('toast-message');
+
+            if (!toast) {
+                // 创建toast元素
+                toast = document.createElement('div');
+                toast.id = 'toast-message';
+                toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-neutral-800 text-white px-6 py-3 rounded-lg shadow-xl z-50 opacity-0 transition-opacity duration-300';
+                document.body.appendChild(toast);
+            }
+
+            // 设置消息内容
+            toast.textContent = message;
+
+            // 显示toast
+            setTimeout(() => {
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+            }, 10);
+
+            // 3秒后隐藏toast
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        // 添加商品到购物车
+        function addToCart(productId, name, price, image) {
+            // 格式化价格，移除货币符号
+            const formattedPrice = parseFloat(price.replace(/[^\d.-]/g, ''));
+
+            // 检查商品是否已在购物车中
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                // 如果已存在，增加数量
+                existingItem.quantity++;
+            } else {
+                // 否则添加新商品
+                cart.push({
+                    id: productId,
+                    name: name,
+                    price: formattedPrice,
+                    originalPrice: formattedPrice, // 存储原始价格
+                    image: image,
+                    quantity: 1
+                });
+            }
+
+            // 保存到本地存储
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            // 更新购物车数量显示
+            updateCartCount();
+
+            // 显示提示
+            showToast(`已将 ${name} 添加到购物车`);
+        }
+
+        // 收藏商品功能
+        function toggleFavorite(productId, name, price, image) {
+            // 格式化价格，移除货币符号
+            const formattedPrice = parseFloat(price.replace(/[^\d.-]/g, ''));
+
+            // 检查商品是否已收藏
+            const existingIndex = favorites.findIndex(item => item.id === productId);
+
+            if (existingIndex > -1) {
+                // 如果已收藏，取消收藏
+                favorites.splice(existingIndex, 1);
+
+                // 更新本地存储
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+
+                // 更新收藏数量显示
+                updateFavoritesCount();
+
+                showToast(`已取消收藏 ${name}`);
+                return false;
+            } else {
+                // 否则添加到收藏
+                favorites.push({
+                    id: productId,
+                    name: name,
+                    price: formattedPrice,
+                    image: image
+                });
+
+                // 保存到本地存储
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+
+                // 更新收藏数量显示
+                updateFavoritesCount();
+
+                // 显示提示
+                showToast(`已收藏 ${name}`);
+                return true;
+            }
+        }
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 添加到购物车按钮事件
+            document.querySelectorAll('.product-card button:has(.fa-shopping-cart)').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const productCard = this.closest('.product-card');
+                    const productId = productCard.dataset.id || 'prod_' + Math.random().toString(36).substr(2, 9);
+                    const name = productCard.querySelector('h3').textContent;
+                    const price = productCard.querySelector('.font-bold.text-primary').textContent;
+                    const image = productCard.querySelector('img').src;
+
+                    addToCart(productId, name, price, image);
                 });
             });
-    
-            // 清除历史按钮
-            const clearHistoryBtn = searchSuggestions.querySelector('button');
-            clearHistoryBtn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                // 这里可以添加清除搜索历史的逻辑
-                const historyItems = searchSuggestions.querySelectorAll('.fa-clock-rotate-left').forEach(item => {
-                    item.closest('a').remove();
+
+            // 收藏按钮事件
+            document.querySelectorAll('.product-card button:has(.fa-heart)').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const productCard = this.closest('.product-card');
+                    const productId = productCard.dataset.id || 'prod_' + Math.random().toString(36).substr(2, 9);
+                    const name = productCard.querySelector('h3').textContent;
+                    const price = productCard.querySelector('.font-bold.text-primary').textContent;
+                    const image = productCard.querySelector('img').src;
+
+                    const isFavorite = toggleFavorite(productId, name, price, image);
+
+                    // 更新按钮样式
+                    if (isFavorite) {
+                        this.innerHTML = '<i class="fa-solid fa-heart text-primary"></i>';
+                    } else {
+                        this.innerHTML = '<i class="fa-regular fa-heart text-neutral-500"></i>';
+                    }
                 });
+            });
+
+            // 排行榜商品添加到购物车
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const productId = this.dataset.id;
+                    const productEl = this.closest('.flex');
+                    const name = productEl.querySelector('h3').textContent;
+                    const price = productEl.querySelector('.font-bold.text-primary').textContent;
+                    const image = productEl.querySelector('img').src;
+
+                    addToCart(productId, name, price, image);
+                });
+            });
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initEventListeners();
+            updateCartCount();
+            updateFavoritesCount();
+
+            // 初始化收藏按钮状态
+            favorites.forEach(fav => {
+                const productCard = document.querySelector(`.product-card[data-id="${fav.id}"]`);
+                if (productCard) {
+                    const favBtn = productCard.querySelector('button:has(.fa-heart)');
+                    if (favBtn) {
+                        favBtn.innerHTML = '<i class="fa-solid fa-heart text-primary"></i>';
+                    }
+                }
             });
         });
 
