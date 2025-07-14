@@ -20,7 +20,7 @@ from django.dispatch import receiver
 class User(AbstractUser):
     username = models.CharField(max_length=11, unique=True)
     password = models.CharField(max_length=128)  # 增加长度以存储哈希密码
-    name = models.CharField(max_length=30, null=True)
+    name = models.CharField(max_length=30, default='用户名')
     email = models.EmailField(max_length=30, null=True)  # 使用 EmailField 自动验证
 
     USERNAME_FIELD = 'username'

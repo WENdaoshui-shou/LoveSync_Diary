@@ -3,1029 +3,926 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopEase - 高品质购物体验</title>
+    <title>LoveSync 情侣商城 - 为爱定制，共享美好</title>
+    {% load static %}
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#3B82F6',
-                        secondary: '#F97316',
-                        neutral: '#F3F4F6',
-                        dark: '#1E293B',
+                        primary: '#FF6B8B', // 爱情粉色作为主色调
+                        secondary: '#722ED1', // 紫色作为辅助色
+                        neutral: {
+                            100: '#F9F9F9',
+                            200: '#F0F0F0',
+                            300: '#E0E0E0',
+                            400: '#BDBDBD',
+                            500: '#9E9E9E',
+                            600: '#757575',
+                            700: '#616161',
+                            800: '#424242',
+                            900: '#212121',
+                        }
                     },
                     fontFamily: {
-                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
                     },
-                }
+                },
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            .btn-hover {
-                @apply transition-all duration-300 hover:shadow-lg;
+
+            .bg-gradient-love {
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
-            .scale-hover {
-                @apply transition-transform duration-300 hover:scale-105 active:scale-95;
+
+            .hover-scale {
+                transition: transform 0.3s ease;
             }
-            .pulse-animation {
-                animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+            .hover-scale:hover {
+                transform: scale(1.03);
             }
+
+            .form-input-focus {
+                transition: all 0.3s ease;
+            }
+
+            .form-input-focus:focus {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+            }
+
+            .btn-pulse {
+                animation: pulse 2s infinite;
+            }
+
             @keyframes pulse {
-                0%, 100% {
-                    opacity: 1;
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+                }
+            }
+
+            .float-animation {
+                animation: float 6s ease-in-out infinite;
+            }
+
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
                 }
                 50% {
-                    opacity: 0.7;
-                }
-            }
-            .bounce-in {
-                animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            }
-            @keyframes bounce-in {
-                0% {
-                    transform: scale(0.8);
-                    opacity: 0;
-                }
-                100% {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-            }
-            .float-up {
-                animation: float-up 0.5s ease-out forwards;
-            }
-            @keyframes float-up {
-                0% {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-                100% {
                     transform: translateY(-20px);
-                    opacity: 0;
-                }
-            }
-            .slide-in {
-                animation: slide-in 0.5s ease-out forwards;
-            }
-            @keyframes slide-in {
-                0% {
-                    transform: translateX(100%);
-                    opacity: 0;
                 }
                 100% {
-                    transform: translateX(0);
-                    opacity: 1;
+                    transform: translateY(0px);
                 }
             }
-            .fade-in {
-                animation: fade-in 0.5s ease-out forwards;
+
+            .product-card {
+                transition: all 0.3s ease;
             }
-            @keyframes fade-in {
-                0% {
-                    opacity: 0;
-                }
-                100% {
-                    opacity: 1;
-                }
+
+            .product-card:hover {
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+                transform: translateY(-5px);
+            }
+
+            /* 自定义收藏和购物车图标样式 */
+            .custom-icon {
+                font-size: 1.8rem;
+            }
+
+            /* 自定义徽章样式 */
+            .custom-badge {
+                width: 16px;
+                height: 16px;
+                font-size: 10px;
+                line-height: 16px;
+            }
+
+            .category-active {
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+                color: white;
+            }
+
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            }
+
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
             }
         }
     </style>
 </head>
-<body class="font-inter bg-gray-50 min-h-screen">
-    <!-- 顶部导航栏 -->
-    <header class="sticky top-0 z-50 bg-white shadow-sm transition-all duration-300">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16 md:h-20">
-                <!-- 品牌标识 -->
-                <div class="flex items-center">
-                    <a href="#" class="text-2xl font-bold text-primary flex items-center">
-                        <i class="fa fa-shopping-bag mr-2"></i>
-                        <span>ShopEase</span>
-                    </a>
+<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative">
+    <!-- 背景装饰元素 -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation"></div>
+        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation" style="animation-delay: -2s;"></div>
+        <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation" style="animation-delay: -4s;"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <!-- 品牌标识 -->
+            <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-heart text-xl"></i>
                 </div>
+                <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
+            </a>
 
-                <!-- 导航菜单 - 桌面版 -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="#" class="text-dark hover:text-primary font-medium transition-colors">首页</a>
-                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">商品分类</a>
-                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">热卖商品</a>
-                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">关于我们</a>
-                    <a href="#" class="text-gray-600 hover:text-primary font-medium transition-colors">联系客服</a>
-                </nav>
+            <!-- 桌面端导航菜单 -->
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="{% url 'community' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">爱享公社</a>
+                <a href="{% url 'moments' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心动轨迹</a>
+                <a href="{% url 'photo_album' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心跳相簿</a>
+                <a href="{% url 'lovesync' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
 
-                <!-- 用户操作区 -->
-                <div class="flex items-center space-x-4">
-                    <button class="md:hidden text-gray-600 hover:text-primary">
-                        <i class="fa fa-bars text-xl"></i>
+                <!-- 更多下拉菜单 -->
+                <div class="relative" id="moreDropdown">
+                    <button class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2" id="moreButton">
+                        更多 <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
                     </button>
-                    <div class="relative hidden md:block">
-                        <input type="text" placeholder="搜索商品..." class="w-64 pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden" id="moreOptions">
+                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-calendar-heart mr-2 w-5 text-center"></i>纪念日提醒
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-gift mr-2 w-5 text-center"></i>礼物推荐
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-map-marker-heart mr-2 w-5 text-center"></i>情侣地点
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-question-circle mr-2 w-5 text-center"></i>爱情测试
+                        </a>
                     </div>
-                    <button class="text-gray-600 hover:text-primary relative scale-hover">
-                        <i class="fa fa-heart-o text-xl"></i>
-                        <span class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
-                    </button>
-                    <button id="cartBtn" class="text-gray-600 hover:text-primary relative scale-hover">
-                        <i class="fa fa-shopping-cart text-xl"></i>
-                        <span id="cartCount" class="absolute -top-1 -right-1 bg-secondary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">0</span>
-                    </button>
-                    <button class="text-gray-600 hover:text-primary scale-hover">
-                        <i class="fa fa-user-o text-xl"></i>
-                    </button>
+                </div>
+            </nav>
+
+            <!-- 移动端菜单按钮 -->
+            <button id="menu-toggle" class="md:hidden text-neutral-700 hover:text-primary transition-custom">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- 移动端菜单 -->
+            <div id="mobile-menu" class="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-4 px-4 hidden opacity-0 -translate-y-2 transition-all duration-200">
+                <nav class="flex flex-col space-y-3">
+                    <a href="{% url 'community' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2">爱享公社</a>
+                    <a href="{% url 'moments' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2">心动轨迹</a>
+                    <a href="{% url 'photo_album' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2">心跳相簿</a>
+                    <a href="{% url 'lovesync' %}" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2">双人日记</a>
+                    <div class="border-t border-neutral-200 my-2"></div>
+                    <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 flex items-center">
+                        <i class="fa-solid fa-calendar-heart mr-2 w-5 text-center"></i>纪念日提醒
+                    </a>
+                    <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 flex items-center">
+                        <i class="fa-solid fa-gift mr-2 w-5 text-center"></i>礼物推荐
+                    </a>
+                    <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 flex items-center">
+                        <i class="fa-solid fa-map-marker-heart mr-2 w-5 text-center"></i>情侣地点
+                    </a>
+                    <a href="#" class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 flex items-center">
+                        <i class="fa-solid fa-question-circle mr-2 w-5 text-center"></i>爱情测试
+                    </a>
+                </nav>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale w-full max-w-md">
+
+                <div class="relative w-full">
+                    <input type="text" id="search-input" placeholder="搜索情侣商品..."
+                           class="pl-10 pr-40 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm w-full">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+
+                    <!-- 搜索热词下拉菜单 -->
+                    <div id="searchSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-xl z-40 invisible opacity-0 transform -translate-y-2 transition-all duration-200">
+                        <div class="p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium text-neutral-800">热门搜索</h4>
+                                <button id="clear-history" class="text-xs text-neutral-500 hover:text-primary">清除历史</button>
+                            </div>
+
+                            <div class="space-y-2" id="search-history">
+                                <!-- 搜索历史会动态生成 -->
+                            </div>
+
+                            <div class="mt-3 pt-3 border-t border-neutral-100">
+                                <h4 class="font-medium text-neutral-800 mb-2">热门推荐</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <a href="#" class="px-3 py-2 bg-neutral-50 rounded-full text-sm text-neutral-700 hover:bg-primary/10 hover:text-primary transition-custom truncate">情侣手链</a>
+                                    <a href="#" class="px-3 py-2 bg-neutral-50 rounded-full text-sm text-neutral-700 hover:bg-primary/10 hover:text-primary transition-custom truncate">定制戒指</a>
+                                    <a href="#" class="px-3 py-2 bg-neutral-50 rounded-full text-sm text-neutral-700 hover:bg-primary/10 hover:text-primary transition-custom truncate">情侣装</a>
+                                    <a href="#" class="px-3 py-2 bg-neutral-50 rounded-full text-sm text-neutral-700 hover:bg-primary/10 hover:text-primary transition-custom truncate">爱情相册</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- 主内容区 -->
-    <main class="container mx-auto px-4 py-8">
-        <!-- 轮播图 -->
-        <section class="mb-12">
-            <div class="relative rounded-2xl overflow-hidden shadow-lg">
-                <div class="aspect-w-16 aspect-h-6 bg-gradient-to-r from-blue-500 to-indigo-600">
-                    <img src="https://picsum.photos/1200/450?random=10" alt="夏季大促" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent flex flex-col justify-center pl-12 md:pl-20">
-                        <h2 class="text-[clamp(1.5rem,4vw,3rem)] font-bold text-white mb-4 max-w-xl">夏季新品大促</h2>
-                        <p class="text-white/90 text-lg md:text-xl mb-8 max-w-lg">精选夏季新品，限时折扣，低至5折起</p>
-                        <button class="bg-white text-primary font-medium py-3 px-8 rounded-lg btn-hover scale-hover inline-flex items-center">
-                            <span>立即抢购</span>
-                            <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors"></button>
-                    <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors"></button>
-                    <button class="w-3 h-3 rounded-full bg-white transition-colors"></button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 分类导航 -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold text-dark mb-6">热门分类</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
-                    <div class="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                        <i class="fa fa-laptop text-primary text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-800">电子产品</span>
-                </a>
-                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
-                    <div class="w-16 h-16 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-3">
-                        <i class="fa fa-gift text-pink-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-800">礼品专区</span>
-                </a>
-                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
-                    <div class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-3">
-                        <i class="fa fa-leaf text-green-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-800">家居用品</span>
-                </a>
-                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
-                    <div class="w-16 h-16 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-3">
-                        <i class="fa fa-cutlery text-yellow-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-800">厨房用具</span>
-                </a>
-                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
-                    <div class="w-16 h-16 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-3">
-                        <i class="fa fa-diamond text-purple-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-800">珠宝首饰</span>
-                </a>
-                <a href="#" class="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all scale-hover">
-                    <div class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-3">
-                        <i class="fa fa-tshirt text-red-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-800">服装鞋帽</span>
-                </a>
-            </div>
-        </section>
-
-        <!-- 商品展示区 -->
-        <section class="mb-12">
+    <!-- 分类筛选 -->
+    <div class="pt-24 pb-6 px-4">
+        <div class="container mx-auto">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-dark">热销商品</h2>
-                <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
-                    <span>查看全部</span>
-                    <i class="fa fa-angle-right ml-1"></i>
-                </a>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- 商品卡片 1 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
-                    <div class="relative">
-                        <img src="https://picsum.photos/400/300?random=2" alt="高级智能手表" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-secondary text-white text-xs px-2 py-1 rounded">热销</span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                <i class="fa fa-heart-o text-gray-600"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">高级智能手表</h3>
-                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">全天候健康监测，精准运动追踪</p>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span class="text-lg font-bold text-gray-900">¥1,299</span>
-                                <span class="text-gray-400 text-sm line-through ml-1">¥1,599</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                <span class="text-gray-600 text-xs ml-1">4.8 (120)</span>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
-                            <i class="fa fa-shopping-cart mr-2"></i>
-                            <span>加入购物车</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 商品卡片 2 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
-                    <div class="relative">
-                        <img src="https://picsum.photos/400/300?random=3" alt="无线蓝牙耳机" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-primary text-white text-xs px-2 py-1 rounded">新品</span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                <i class="fa fa-heart-o text-gray-600"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">无线蓝牙耳机</h3>
-                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">主动降噪，HiFi音质，长效续航</p>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span class="text-lg font-bold text-gray-900">¥799</span>
-                                <span class="text-gray-400 text-sm line-through ml-1">¥999</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                <span class="text-gray-600 text-xs ml-1">4.6 (85)</span>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
-                            <i class="fa fa-shopping-cart mr-2"></i>
-                            <span>加入购物车</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 商品卡片 3 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
-                    <div class="relative">
-                        <img src="https://picsum.photos/400/300?random=4" alt="智能扫地机器人" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">限时优惠</span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                <i class="fa fa-heart-o text-gray-600"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">智能扫地机器人</h3>
-                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">激光导航，自动集尘，APP控制</p>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span class="text-lg font-bold text-gray-900">¥2,499</span>
-                                <span class="text-gray-400 text-sm line-through ml-1">¥2,999</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                <span class="text-gray-600 text-xs ml-1">4.9 (156)</span>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
-                            <i class="fa fa-shopping-cart mr-2"></i>
-                            <span>加入购物车</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 商品卡片 4 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
-                    <div class="relative">
-                        <img src="https://picsum.photos/400/300?random=5" alt="便携式投影仪" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-3 right-3">
-                            <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                <i class="fa fa-heart-o text-gray-600"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">便携式投影仪</h3>
-                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">1080P高清，智能对焦，大屏观影</p>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span class="text-lg font-bold text-gray-900">¥1,899</span>
-                                <span class="text-gray-400 text-sm line-through ml-1">¥2,299</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                <span class="text-gray-600 text-xs ml-1">4.7 (92)</span>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center">
-                            <i class="fa fa-shopping-cart mr-2"></i>
-                            <span>加入购物车</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 促销区域 -->
-        <section class="mb-12">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg relative">
-                    <img src="https://picsum.photos/600/300?random=6" alt="限时折扣" class="w-full h-64 object-cover opacity-70">
-                    <div class="absolute inset-0 flex flex-col justify-center p-8">
-                        <h3 class="text-white text-2xl font-bold mb-2">限时特惠</h3>
-                        <p class="text-white/90 mb-4">精选商品，低至3折起</p>
-                        <div class="flex space-x-2 mb-6">
-                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
-                                <span class="text-white font-bold text-lg">08</span>
-                                <span class="text-white/80 text-xs">小时</span>
-                            </div>
-                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
-                                <span class="text-white font-bold text-lg">45</span>
-                                <span class="text-white/80 text-xs">分钟</span>
-                            </div>
-                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
-                                <span class="text-white font-bold text-lg">33</span>
-                                <span class="text-white/80 text-xs">秒</span>
-                            </div>
-                        </div>
-                        <button class="bg-white text-primary font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
-                            <span>立即抢购</span>
-                            <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl overflow-hidden shadow-lg relative">
-                    <img src="https://picsum.photos/600/300?random=7" alt="会员专享" class="w-full h-64 object-cover opacity-70">
-                    <div class="absolute inset-0 flex flex-col justify-center p-8">
-                        <h3 class="text-white text-2xl font-bold mb-2">会员专享</h3>
-                        <p class="text-white/90 mb-4">会员日额外9折，满减优惠</p>
-                        <button class="bg-white text-green-600 font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
-                            <span>了解详情</span>
-                            <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 推荐商品 -->
-        <section class="mb-12">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-dark">为您推荐</h2>
-                <div class="flex space-x-2">
-                    <button id="prevSlide" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
-                        <i class="fa fa-angle-left"></i>
+                <h2 class="text-2xl font-bold text-neutral-800">情侣商城</h2>
+                <div class="flex items-center space-x-3">
+                    <button class="text-sm text-neutral-600 hover:text-primary transition-custom">
+                        <i class="fa-solid fa-sliders mr-1"></i> 筛选
                     </button>
-                    <button id="nextSlide" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
-                        <i class="fa fa-angle-right"></i>
+                    <button class="text-sm text-neutral-600 hover:text-primary transition-custom">
+                        <i class="fa-solid fa-sort mr-1"></i> 排序
                     </button>
                 </div>
             </div>
 
-            <div class="relative">
-                <div id="recommendedProducts" class="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                    <!-- 推荐商品 1 -->
-                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
-                        <div class="relative">
-                            <img src="https://picsum.photos/400/300?random=8" alt="无线充电器" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                    <i class="fa fa-heart-o text-gray-600"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">无线充电器</h3>
-                            <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-gray-900">¥129</span>
-                                <div class="flex items-center">
-                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                    <span class="text-gray-600 text-xs ml-1">4.5</span>
-                                </div>
-                            </div>
-                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
-                                <i class="fa fa-shopping-cart mr-2"></i>
-                                <span>加入购物车</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 推荐商品 2-6 (类似结构) -->
-                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
-                        <div class="relative">
-                            <img src="https://picsum.photos/400/300?random=9" alt="智能体重秤" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                    <i class="fa fa-heart-o text-gray-600"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">智能体重秤</h3>
-                            <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-gray-900">¥159</span>
-                                <div class="flex items-center">
-                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                    <span class="text-gray-600 text-xs ml-1">4.7</span>
-                                </div>
-                            </div>
-                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
-                                <i class="fa fa-shopping-cart mr-2"></i>
-                                <span>加入购物车</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
-                        <div class="relative">
-                            <img src="https://picsum.photos/400/300?random=10" alt="蓝牙音箱" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                    <i class="fa fa-heart-o text-gray-600"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">蓝牙音箱</h3>
-                            <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-gray-900">¥399</span>
-                                <div class="flex items-center">
-                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                    <span class="text-gray-600 text-xs ml-1">4.8</span>
-                                </div>
-                            </div>
-                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
-                                <i class="fa fa-shopping-cart mr-2"></i>
-                                <span>加入购物车</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
-                        <div class="relative">
-                            <img src="https://picsum.photos/400/300?random=11" alt="运动手环" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                    <i class="fa fa-heart-o text-gray-600"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">运动手环</h3>
-                            <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-gray-900">¥249</span>
-                                <div class="flex items-center">
-                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                    <span class="text-gray-600 text-xs ml-1">4.6</span>
-                                </div>
-                            </div>
-                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
-                                <i class="fa fa-shopping-cart mr-2"></i>
-                                <span>加入购物车</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
-                        <div class="relative">
-                            <img src="https://picsum.photos/400/300?random=12" alt="智能插座" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                    <i class="fa fa-heart-o text-gray-600"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">智能插座</h3>
-                            <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-gray-900">¥79</span>
-                                <div class="flex items-center">
-                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                    <span class="text-gray-600 text-xs ml-1">4.4</span>
-                                </div>
-                            </div>
-                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
-                                <i class="fa fa-shopping-cart mr-2"></i>
-                                <span>加入购物车</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="min-w-[240px] sm:min-w-[280px] bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md snap-center">
-                        <div class="relative">
-                            <img src="https://picsum.photos/400/300?random=13" alt="便携式充电宝" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <button class="favorite-btn bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm transition-all duration-300 hover:bg-white">
-                                    <i class="fa fa-heart-o text-gray-600"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-medium text-gray-900 mb-1 line-clamp-1">便携式充电宝</h3>
-                            <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-gray-900">¥199</span>
-                                <div class="flex items-center">
-                                    <i class="fa fa-star text-yellow-400 text-xs"></i>
-                                    <span class="text-gray-600 text-xs ml-1">4.9</span>
-                                </div>
-                            </div>
-                            <button class="add-to-cart-btn w-full mt-3 bg-secondary text-white py-2 rounded-lg btn-hover scale-hover flex items-center justify-center text-sm">
-                                <i class="fa fa-shopping-cart mr-2"></i>
-                                <span>加入购物车</span>
-                            </button>
-                        </div>
-                    </div>
+            <div class="overflow-x-auto scrollbar-hide">
+                <div class="flex space-x-3 pb-2 min-w-max">
+                    <button class="px-5 py-2 rounded-full bg-primary text-white font-medium transition-custom">全部商品</button>
+                    <button class="px-5 py-2 rounded-full bg-white text-neutral-700 font-medium hover:bg-primary/10 hover:text-primary transition-custom">情侣首饰</button>
+                    <button class="px-5 py-2 rounded-full bg-white text-neutral-700 font-medium hover:bg-primary/10 hover:text-primary transition-custom">情侣服饰</button>
+                    <button class="px-5 py-2 rounded-full bg-white text-neutral-700 font-medium hover:bg-primary/10 hover:text-primary transition-custom">家居用品</button>
+                    <button class="px-5 py-2 rounded-full bg-white text-neutral-700 font-medium hover:bg-primary/10 hover:text-primary transition-custom">创意礼品</button>
+                    <button class="px-5 py-2 rounded-full bg-white text-neutral-700 font-medium hover:bg-primary/10 hover:text-primary transition-custom">旅行装备</button>
+                    <button class="px-5 py-2 rounded-full bg-white text-neutral-700 font-medium hover:bg-primary/10 hover:text-primary transition-custom">数码产品</button>
                 </div>
-            </div>
-        </section>
-
-        <!-- 用户评价 -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold text-dark mb-6">用户评价</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- 评价 1 -->
-                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center mb-4">
-                        <img src="https://picsum.photos/100/100?random=14" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
-                        <div class="ml-3">
-                            <h4 class="font-medium text-gray-900">李明</h4>
-                            <div class="flex items-center">
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-700">"这款智能手表的功能非常强大，续航也很好，使用了一周才充一次电。健康监测很准确，推荐购买！"</p>
-                    <div class="mt-4 flex items-center justify-between">
-                        <span class="text-gray-500 text-sm">2023-06-15</span>
-                        <span class="text-gray-500 text-sm">高级智能手表</span>
-                    </div>
-                </div>
-
-                <!-- 评价 2 -->
-                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center mb-4">
-                        <img src="https://picsum.photos/100/100?random=15" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
-                        <div class="ml-3">
-                            <h4 class="font-medium text-gray-900">王芳</h4>
-                            <div class="flex items-center">
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star-o text-yellow-400 text-sm"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-700">"无线蓝牙耳机的音质不错，佩戴也很舒适，唯一缺点是充电盒有点大，携带不太方便。总体来说还是很满意的。"</p>
-                    <div class="mt-4 flex items-center justify-between">
-                        <span class="text-gray-500 text-sm">2023-06-10</span>
-                        <span class="text-gray-500 text-sm">无线蓝牙耳机</span>
-                    </div>
-                </div>
-
-                <!-- 评价 3 -->
-                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center mb-4">
-                        <img src="https://picsum.photos/100/100?random=16" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
-                        <div class="ml-3">
-                            <h4 class="font-medium text-gray-900">张伟</h4>
-                            <div class="flex items-center">
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star text-yellow-400 text-sm"></i>
-                                <i class="fa fa-star-half-o text-yellow-400 text-sm"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-700">"扫地机器人很好用，解放了双手，家里的灰尘和毛发都能清理得很干净。APP控制也很方便，可以预约清扫时间。"</p>
-                    <div class="mt-4 flex items-center justify-between">
-                        <span class="text-gray-500 text-sm">2023-06-05</span>
-                        <span class="text-gray-500 text-sm">智能扫地机器人</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 品牌优势 -->
-        <section class="mb-12 bg-white py-10">
-            <div class="container mx-auto px-4">
-                <h2 class="text-2xl font-bold text-dark mb-8 text-center">我们的优势</h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fa fa-truck text-primary text-2xl"></i>
-                        </div>
-                        <h3 class="font-medium text-gray-900 mb-2">快速配送</h3>
-                        <p class="text-gray-600">全国大部分地区24-48小时送达</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fa fa-shield text-green-500 text-2xl"></i>
-                        </div>
-                        <h3 class="font-medium text-gray-900 mb-2">正品保障</h3>
-                        <p class="text-gray-600">100%正品，假一赔十</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fa fa-refresh text-yellow-500 text-2xl"></i>
-                        </div>
-                        <h3 class="font-medium text-gray-900 mb-2">七天无理由退换</h3>
-                        <p class="text-gray-600">收货后七天内可无理由退换</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fa fa-headphones text-red-500 text-2xl"></i>
-                        </div>
-                        <h3 class="font-medium text-gray-900 mb-2">24小时客服</h3>
-                        <p class="text-gray-600">专业客服团队，随时为您服务</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 订阅区域 -->
-        <section class="mb-12">
-            <div class="bg-gradient-to-r from-primary to-indigo-600 rounded-2xl p-8 md:p-12 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
-
-                <div class="relative z-10 max-w-2xl mx-auto text-center">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">订阅我们的通讯</h2>
-                    <p class="text-white/80 mb-8">获取最新产品信息、促销活动和独家优惠</p>
-
-                    <div class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
-                        <input type="email" placeholder="输入您的邮箱地址" class="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/30">
-                        <button class="bg-white text-primary font-medium py-3 px-6 rounded-lg btn-hover scale-hover">
-                            立即订阅
-                        </button>
-                    </div>
-
-                    <p class="text-white/60 text-sm mt-4">我们尊重您的隐私，绝不会分享您的个人信息</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="bg-dark text-white pt-12 pb-6">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center">
-                        <i class="fa fa-shopping-bag mr-2"></i>
-                        <span>ShopEase</span>
-                    </h3>
-                    <p class="text-gray-400 mb-4">提供高品质的购物体验，让您的生活更便捷</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-facebook"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-instagram"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fa fa-linkedin"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="font-medium text-lg mb-4">快速链接</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">商品分类</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">热卖商品</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-medium text-lg mb-4">客户服务</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">配送信息</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">退换政策</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">用户协议</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-medium text-lg mb-4">联系我们</h4>
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            <i class="fa fa-map-marker text-gray-400 mt-1 mr-3"></i>
-                            <span class="text-gray-400">北京市朝阳区建国路88号</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa fa-phone text-gray-400 mr-3"></i>
-                            <span class="text-gray-400">400-888-8888</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa fa-envelope text-gray-400 mr-3"></i>
-                            <span class="text-gray-400">support@shopease.com</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa fa-clock-o text-gray-400 mr-3"></i>
-                            <span class="text-gray-400">周一至周日 9:00-22:00</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="border-t border-gray-800 pt-6 mt-6 text-center text-gray-500 text-sm">
-                <p>&copy; 2023 ShopEase. 保留所有权利。</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- 购物车侧边栏 -->
-    <div id="cartSidebar" class="fixed top-0 right-0 w-full sm:w-96 h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
-        <div class="flex flex-col h-full">
-            <div class="p-6 border-b flex items-center justify-between">
-                <h3 class="text-xl font-bold text-gray-900">购物车</h3>
-                <button id="closeCart" class="text-gray-500 hover:text-gray-700">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
-            </div>
-
-            <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4">
-                <!-- 购物车为空时显示 -->
-                <div id="emptyCart" class="flex flex-col items-center justify-center h-full">
-                    <i class="fa fa-shopping-cart text-gray-300 text-6xl mb-4"></i>
-                    <p class="text-gray-500">您的购物车是空的</p>
-                    <button class="mt-4 text-primary hover:text-primary/80 font-medium">继续购物</button>
-                </div>
-
-                <!-- 购物车有商品时显示 (初始隐藏) -->
-                <!-- 示例商品 -->
-                <div class="cart-item hidden flex items-center pb-4 border-b">
-                    <img src="https://picsum.photos/100/100?random=2" alt="高级智能手表" class="w-16 h-16 object-cover rounded-lg">
-                    <div class="ml-4 flex-1">
-                        <h4 class="font-medium text-gray-900">高级智能手表</h4>
-                        <div class="flex items-center justify-between mt-2">
-                            <div class="flex items-center border rounded-lg">
-                                <button class="quantity-minus px-2 py-1 text-gray-500 hover:text-gray-700">-</button>
-                                <span class="quantity-value px-2">1</span>
-                                <button class="quantity-plus px-2 py-1 text-gray-500 hover:text-gray-700">+</button>
-                            </div>
-                            <span class="font-medium text-gray-900">¥1,299</span>
-                        </div>
-                    </div>
-                    <button class="remove-item text-gray-400 hover:text-red-500">
-                        <i class="fa fa-trash-o"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="p-6 border-t">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-600">小计</span>
-                    <span class="font-medium text-gray-900">¥0</span>
-                </div>
-                <div class="flex items-center justify-between mb-6">
-                    <span class="text-gray-600">配送费</span>
-                    <span class="font-medium text-gray-900">¥0</span>
-                </div>
-                <div class="flex items-center justify-between mb-6">
-                    <span class="font-medium text-gray-900">总计</span>
-                    <span class="font-bold text-lg text-gray-900">¥0</span>
-                </div>
-                <button class="w-full bg-secondary text-white py-3 rounded-lg btn-hover scale-hover mb-3">
-                    结算
-                </button>
-                <button class="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg btn-hover scale-hover">
-                    继续购物
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- 购物车遮罩 -->
-    <div id="cartOverlay" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 z-40"></div>
+    <!-- 商品展示区 -->
+    <div class="container mx-auto px-4 pb-16">
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            <!-- 商品卡片将通过JavaScript动态生成 -->
+        </div>
 
-    <!-- 通知系统 -->
-    <div id="notificationContainer" class="fixed bottom-6 right-6 flex flex-col space-y-3 z-50"></div>
+        <!-- 加载更多 -->
+        <div class="mt-10 text-center">
+            <button id="load-more" class="px-8 py-3 bg-white border border-neutral-200 rounded-full text-neutral-700 hover:bg-primary hover:text-white hover:border-primary transition-custom">
+                加载更多 <i class="fa-solid fa-angle-down ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-neutral-200">
+        <div class="container mx-auto px-4 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-sm">
+                            <i class="fa-solid fa-heart text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
+                    </div>
+                    <p class="text-neutral-600 text-sm mb-4">为爱定制的情侣互动平台，记录每一刻心动瞬间。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-neutral-500 hover:text-primary transition-custom">
+                            <i class="fa-brands fa-weibo text-lg"></i>
+                        </a>
+                        <a href="#" class="text-neutral-500 hover:text-primary transition-custom">
+                            <i class="fa-brands fa-wechat text-lg"></i>
+                        </a>
+                        <a href="#" class="text-neutral-500 hover:text-primary transition-custom">
+                            <i class="fa-brands fa-instagram text-lg"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-medium text-neutral-800 mb-4">功能导航</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">爱享公社</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">心动轨迹</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">心跳相簿</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">双人日记</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">情侣商城</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-medium text-neutral-800 mb-4">帮助中心</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">使用指南</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">常见问题</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">联系我们</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">意见反馈</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">隐私政策</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-medium text-neutral-800 mb-4">关注我们</h4>
+                    <p class="text-neutral-600 text-sm mb-4">扫描二维码，下载LoveSync应用</p>
+                    <div class="bg-neutral-100 p-3 inline-block rounded-lg">
+                        <img src="https://picsum.photos/100/100" alt="LoveSync应用二维码" class="w-24 h-24">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 pt-6 border-t border-neutral-200 text-center text-neutral-500 text-sm">
+                <p>© 2025 LoveSync. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        // 购物车计数
-        let cartCount = 0;
-        const cartCountEl = document.getElementById('cartCount');
-        const cartSidebar = document.getElementById('cartSidebar');
-        const cartOverlay = document.getElementById('cartOverlay');
-        const cartBtn = document.getElementById('cartBtn');
-        const closeCart = document.getElementById('closeCart');
-        const emptyCart = document.getElementById('emptyCart');
-        const cartItems = document.getElementById('cartItems');
-        const notificationContainer = document.getElementById('notificationContainer');
+        // 模拟商品数据
+        const products = [
+            {
+                id: 1,
+                name: "情侣手链套装",
+                price: 199.00,
+                image: "https://picsum.photos/seed/couple1/300/300",
+                rating: 4.8,
+                num_reviews: 234,
+                category: "情侣首饰"
+            },
+            {
+                id: 2,
+                name: "定制情侣戒指",
+                price: 599.00,
+                image: "https://picsum.photos/seed/couple2/300/300",
+                rating: 4.9,
+                num_reviews: 187,
+                category: "情侣首饰"
+            },
+            {
+                id: 3,
+                name: "创意情侣手机壳",
+                price: 79.00,
+                image: "https://picsum.photos/seed/couple3/300/300",
+                rating: 4.5,
+                num_reviews: 342,
+                category: "创意礼品"
+            },
+            {
+                id: 4,
+                name: "情侣保温杯套装",
+                price: 159.00,
+                image: "https://picsum.photos/seed/couple4/300/300",
+                rating: 4.7,
+                num_reviews: 215,
+                category: "家居用品"
+            },
+            {
+                id: 5,
+                name: "情侣旅行背包",
+                price: 399.00,
+                image: "https://picsum.photos/seed/couple5/300/300",
+                rating: 4.6,
+                num_reviews: 163,
+                category: "旅行装备"
+            },
+            {
+                id: 6,
+                name: "情侣睡衣套装",
+                price: 249.00,
+                image: "https://picsum.photos/seed/couple6/300/300",
+                rating: 4.8,
+                num_reviews: 276,
+                category: "情侣服饰"
+            },
+            {
+                id: 7,
+                name: "爱情密码锁盒",
+                price: 129.00,
+                image: "https://picsum.photos/seed/couple7/300/300",
+                rating: 4.4,
+                num_reviews: 198,
+                category: "创意礼品"
+            },
+            {
+                id: 8,
+                name: "情侣马克杯",
+                price: 89.00,
+                image: "https://picsum.photos/seed/couple8/300/300",
+                rating: 4.7,
+                num_reviews: 256,
+                category: "家居用品"
+            },
+            {
+                id: 9,
+                name: "情侣手表套装",
+                price: 899.00,
+                image: "https://picsum.photos/seed/couple9/300/300",
+                rating: 4.9,
+                num_reviews: 143,
+                category: "情侣首饰"
+            },
+            {
+                id: 10,
+                name: "定制情侣T恤",
+                price: 169.00,
+                image: "https://picsum.photos/seed/couple10/300/300",
+                rating: 4.6,
+                num_reviews: 312,
+                category: "情侣服饰"
+            },
+            {
+                id: 11,
+                name: "爱情主题拼图",
+                price: 69.00,
+                image: "https://picsum.photos/seed/couple11/300/300",
+                rating: 4.5,
+                num_reviews: 207,
+                category: "创意礼品"
+            },
+            {
+                id: 12,
+                name: "情侣运动手环",
+                price: 229.00,
+                image: "https://picsum.photos/seed/couple12/300/300",
+                rating: 4.7,
+                num_reviews: 189,
+                category: "数码产品"
+            },
+            {
+                id: 13,
+                name: "情侣摄影道具套装",
+                price: 189.00,
+                image: "https://picsum.photos/seed/couple13/300/300",
+                rating: 4.8,
+                num_reviews: 156,
+                category: "创意礼品"
+            },
+            {
+                id: 14,
+                name: "定制情侣钥匙扣",
+                price: 59.00,
+                image: "https://picsum.photos/seed/couple14/300/300",
+                rating: 4.6,
+                num_reviews: 245,
+                category: "创意礼品"
+            },
+            {
+                id: 15,
+                name: "情侣香薰蜡烛套装",
+                price: 139.00,
+                image: "https://picsum.photos/seed/couple15/300/300",
+                rating: 4.4,
+                num_reviews: 178,
+                category: "家居用品"
+            }
+        ];
 
-        // 初始化时隐藏购物车商品
-        document.querySelectorAll('.cart-item').forEach(item => {
-            item.classList.add('hidden');
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 渲染商品列表
+            renderProducts(products);
+
+            // 初始化搜索功能
+            initSearch();
+
+            // 初始化分类筛选
+            initCategoryFilter();
+
+            // 初始化移动端菜单
+            initMobileMenu();
+
+            // 初始化加载更多功能
+            initLoadMore();
         });
 
-        // 打开购物车
-        cartBtn.addEventListener('click', function() {
-            cartSidebar.classList.remove('translate-x-full');
-            cartOverlay.classList.remove('opacity-0', 'pointer-events-none');
-            document.body.style.overflow = 'hidden';
-        });
+        // 渲染商品列表
+        function renderProducts(productsList) {
+            const productsGrid = document.getElementById('products-grid');
+            productsGrid.innerHTML = '';
 
-        // 关闭购物车
-        closeCart.addEventListener('click', function() {
-            cartSidebar.classList.add('translate-x-full');
-            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
-            document.body.style.overflow = '';
-        });
+            if (productsList.length === 0) {
+                productsGrid.innerHTML = `
+                    <div class="col-span-full text-center py-10">
+                        <i class="fa-regular fa-face-sad-tear text-5xl text-neutral-300 mb-4"></i>
+                        <p class="text-neutral-500">没有找到相关商品</p>
+                        <button id="reset-search" class="mt-4 px-5 py-2 bg-primary/10 text-primary rounded-full hover:bg-primary hover:text-white transition-custom">
+                            清除筛选条件
+                        </button>
+                    </div>
+                `;
+                return;
+            }
 
-        // 点击遮罩关闭购物车
-        cartOverlay.addEventListener('click', function() {
-            cartSidebar.classList.add('translate-x-full');
-            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
-            document.body.style.overflow = '';
-        });
-
-        // 加入购物车动画
-        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // 更新购物车计数
-                cartCount++;
-                cartCountEl.textContent = cartCount;
-
-                // 添加按钮动画
-                this.classList.add('scale-95');
-                setTimeout(() => {
-                    this.classList.remove('scale-95');
-                }, 200);
-
-                // 显示通知
-                showNotification('加入购物车成功', '商品已添加到购物车');
-
-                // 更新购物车
-                updateCart();
+            productsList.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-xl overflow-hidden shadow-sm product-card';
+                productCard.innerHTML = `
+                    <div class="relative">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+                        <button class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-neutral-500 hover:text-primary transition-custom">
+                            <i class="fa-regular fa-heart"></i>
+                        </button>
+                        <div class="absolute bottom-2 left-2 px-2 py-1 bg-primary/90 text-white text-xs rounded-full">
+                            ${product.category}
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-medium text-neutral-800 text-sm line-clamp-2">${product.name}</h3>
+                        <div class="mt-2 flex items-center justify-between">
+                            <span class="text-primary font-bold">¥${product.price.toFixed(2)}</span>
+                            <div class="flex items-center text-yellow-400 text-xs">
+                                ${generateRatingStars(product.rating)}
+                                <span class="text-neutral-500 ml-1">${product.rating}</span>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex space-x-2">
+                            <button class="flex-1 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary hover:text-white transition-custom">
+                                <i class="fa-solid fa-shopping-cart mr-1"></i> 加入购物车
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center border border-neutral-200 rounded-full text-neutral-600 hover:text-primary hover:border-primary transition-custom">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productsGrid.appendChild(productCard);
             });
-        });
+        }
 
-        // 收藏按钮动画
-        document.querySelectorAll('.favorite-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const icon = btn.querySelector('i');
+        // 生成评分星星
+        function generateRatingStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5;
 
-                if (icon.classList.contains('fa-heart-o')) {
-                    // 添加收藏
-                    icon.classList.remove('fa-heart-o', 'text-gray-600');
-                    icon.classList.add('fa-heart', 'text-pink-500');
-
-                    // 添加按钮动画
-                    btn.classList.add('scale-110');
-                    setTimeout(() => {
-                        btn.classList.remove('scale-110');
-                    }, 200);
-
-                    // 显示通知
-                    showNotification('已添加到收藏', '商品已添加到您的收藏夹');
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    stars += '<i class="fa-solid fa-star"></i>';
+                } else if (i === fullStars + 1 && halfStar) {
+                    stars += '<i class="fa-solid fa-star-half-stroke"></i>';
                 } else {
-                    // 取消收藏
-                    icon.classList.remove('fa-heart', 'text-pink-500');
-                    icon.classList.add('fa-heart-o', 'text-gray-600');
+                    stars += '<i class="fa-regular fa-star"></i>';
                 }
-            });
-        });
+            }
 
-        // 显示通知
-        function showNotification(title, message) {
-            const notification = document.createElement('div');
-            notification.className = 'bg-white rounded-lg shadow-xl p-4 flex items-center max-w-xs slide-in';
-            notification.innerHTML = `
-                <div class="bg-green-100 p-3 rounded-full mr-3">
-                    <i class="fa fa-check text-green-500"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-medium text-gray-900">${title}</h3>
-                    <p class="text-sm text-gray-500">${message}</p>
-                </div>
-                <button class="ml-4 text-gray-400 hover:text-gray-600 close-notification">
-                    <i class="fa fa-times"></i>
-                </button>
-            `;
-
-            notificationContainer.appendChild(notification);
-
-            // 3秒后自动关闭
-            setTimeout(() => {
-                notification.classList.add('fade-in');
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
-
-            // 点击关闭按钮
-            notification.querySelector('.close-notification').addEventListener('click', function() {
-                notification.classList.add('fade-in');
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            });
+            return stars;
         }
 
-        // 更新购物车
-        function updateCart() {
-            if (cartCount > 0) {
-                emptyCart.classList.add('hidden');
-                const cartItem = document.querySelector('.cart-item');
-                if (cartItem) {
-                    cartItem.classList.remove('hidden');
+        // 初始化搜索功能
+        function initSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            const searchHistory = document.getElementById('search-history');
+            const clearHistoryBtn = document.getElementById('clear-history');
+
+            // 从本地存储获取搜索历史
+            const getSearchHistory = () => {
+                const history = localStorage.getItem('searchHistory');
+                return history ? JSON.parse(history) : [];
+            };
+
+            // 保存搜索历史到本地存储
+            const saveSearchHistory = (history) => {
+                localStorage.setItem('searchHistory', JSON.stringify(history));
+            };
+
+            // 渲染搜索历史
+            const renderSearchHistory = () => {
+                const history = getSearchHistory();
+                searchHistory.innerHTML = '';
+
+                if (history.length === 0) {
+                    searchHistory.innerHTML = '<p class="text-neutral-500 text-sm">暂无搜索历史</p>';
+                    return;
                 }
-                // 更新购物车金额
-                updateCartTotal();
-            } else {
-                emptyCart.classList.remove('hidden');
-                document.querySelectorAll('.cart-item').forEach(item => {
-                    item.classList.add('hidden');
+
+                history.forEach((term, index) => {
+                    const historyItem = document.createElement('a');
+                    historyItem.href = '#';
+                    historyItem.className = 'flex items-center justify-between p-2 hover:bg-neutral-50 rounded-lg transition-custom';
+                    historyItem.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-clock-rotate-left text-neutral-400 mr-2"></i>
+                            <span class="text-neutral-700">${term}</span>
+                        </div>
+                        <button class="text-neutral-400 hover:text-primary" data-index="${index}">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    `;
+
+                    // 点击搜索历史项
+                    historyItem.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        searchInput.value = term;
+                        searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+
+                        // 模拟搜索结果
+                        const filteredProducts = products.filter(product =>
+                            product.name.toLowerCase().includes(term.toLowerCase())
+                        );
+                        renderProducts(filteredProducts);
+                    });
+
+                    // 删除单个历史项
+                    historyItem.querySelector('button').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const index = parseInt(this.getAttribute('data-index'));
+                        const history = getSearchHistory();
+                        history.splice(index, 1);
+                        saveSearchHistory(history);
+                        renderSearchHistory();
+                    });
+
+                    searchHistory.appendChild(historyItem);
                 });
+            };
+
+            // 清除所有搜索历史
+            clearHistoryBtn.addEventListener('click', function() {
+                localStorage.removeItem('searchHistory');
+                renderSearchHistory();
+            });
+
+            // 搜索输入框聚焦
+            searchInput.addEventListener('focus', function() {
+                searchSuggestions.classList.remove('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                renderSearchHistory();
+            });
+
+            // 搜索输入框失焦
+            searchInput.addEventListener('blur', function() {
+                setTimeout(() => {
+                    searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                }, 200);
+            });
+
+            // 实时搜索
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.trim().toLowerCase();
+
+                if (searchTerm === '') {
+                    renderSearchHistory();
+                    return;
+                }
+
+                // 过滤商品
+                const filteredProducts = products.filter(product =>
+                    product.name.toLowerCase().includes(searchTerm)
+                );
+
+                // 渲染搜索建议
+                searchHistory.innerHTML = '';
+
+                if (filteredProducts.length === 0) {
+                    searchHistory.innerHTML = '<p class="text-neutral-500 text-sm">没有找到相关商品</p>';
+                    return;
+                }
+
+                filteredProducts.slice(0, 5).forEach(product => {
+                    const suggestionItem = document.createElement('a');
+                    suggestionItem.href = '#';
+                    suggestionItem.className = 'flex items-center p-2 hover:bg-neutral-50 rounded-lg transition-custom';
+                    suggestionItem.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="w-10 h-10 object-cover rounded mr-3">
+                        <div class="flex-1">
+                            <p class="text-neutral-700 text-sm font-medium">${highlightSearchTerm(product.name, searchTerm)}</p>
+                            <p class="text-primary text-xs">¥${product.price.toFixed(2)}</p>
+                        </div>
+                    `;
+
+                    // 点击搜索建议
+                    suggestionItem.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        searchInput.value = product.name;
+                        searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+
+                        // 保存搜索历史
+                        const history = getSearchHistory();
+                        const index = history.indexOf(product.name);
+                        if (index !== -1) {
+                            history.splice(index, 1);
+                        }
+                        history.unshift(product.name);
+                        if (history.length > 5) {
+                            history.pop();
+                        }
+                        saveSearchHistory(history);
+
+                        // 渲染搜索结果
+                        const filtered = products.filter(p =>
+                            p.name.toLowerCase().includes(searchTerm)
+                        );
+                        renderProducts(filtered);
+                    });
+
+                    searchHistory.appendChild(suggestionItem);
+                });
+            });
+
+            // 搜索按钮点击
+            document.querySelector('.fa-search').parentElement.addEventListener('click', function() {
+                const searchTerm = searchInput.value.trim();
+
+                if (searchTerm === '') {
+                    return;
+                }
+
+                // 保存搜索历史
+                const history = getSearchHistory();
+                const index = history.indexOf(searchTerm);
+                if (index !== -1) {
+                    history.splice(index, 1);
+                }
+                history.unshift(searchTerm);
+                if (history.length > 5) {
+                    history.pop();
+                }
+                saveSearchHistory(history);
+
+                // 过滤商品
+                const filteredProducts = products.filter(product =>
+                    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+
+                // 隐藏搜索建议
+                searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+
+                // 渲染搜索结果
+                renderProducts(filteredProducts);
+            });
+
+            // 重置搜索
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'reset-search') {
+                    searchInput.value = '';
+                    renderProducts(products);
+                }
+            });
+
+            // 高亮搜索词
+            function highlightSearchTerm(text, term) {
+                if (!term) return text;
+                const regex = new RegExp(`(${term})`, 'gi');
+                return text.replace(regex, '<span class="bg-yellow-100">$1</span>');
             }
         }
 
-        // 更新购物车总金额
-        function updateCartTotal() {
-            // 这里简化处理，实际项目中应根据商品数量和价格计算
-            const subtotalEl = document.querySelector('#cartSidebar .flex.items-center.justify-between:nth-child(1) span:last-child');
-            const shippingEl = document.querySelector('#cartSidebar .flex.items-center.justify-between:nth-child(2) span:last-child');
-            const totalEl = document.querySelector('#cartSidebar .flex.items-center.justify-between:nth-child(3) span:last-child');
+        // 初始化分类筛选
+        function initCategoryFilter() {
+            const categoryButtons = document.querySelectorAll('.overflow-x-auto button');
 
-            const subtotal = cartCount * 1299;
-            const shipping = subtotal > 0 ? 0 : 0;
-            const total = subtotal + shipping;
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 重置所有按钮样式
+                    categoryButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('bg-white', 'text-neutral-700', 'hover:bg-primary/10', 'hover:text-primary');
+                    });
 
-            subtotalEl.textContent = `¥${subtotal}`;
-            shippingEl.textContent = `¥${shipping}`;
-            totalEl.textContent = `¥${total}`;
+                    // 设置当前按钮样式
+                    this.classList.remove('bg-white', 'text-neutral-700', 'hover:bg-primary/10', 'hover:text-primary');
+                    this.classList.add('bg-primary', 'text-white');
+
+                    const category = this.textContent.trim();
+
+                    if (category === '全部商品') {
+                        renderProducts(products);
+                        return;
+                    }
+
+                    // 过滤商品
+                    const filteredProducts = products.filter(product =>
+                        product.category === category
+                    );
+
+                    renderProducts(filteredProducts);
+                });
+            });
         }
 
-        // 推荐商品滑动控制
-        const recommendedProducts = document.getElementById('recommendedProducts');
-        const prevSlide = document.getElementById('prevSlide');
-        const nextSlide = document.getElementById('nextSlide');
+        // 初始化移动端菜单
+        function initMobileMenu() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
 
-        prevSlide.addEventListener('click', function() {
-            recommendedProducts.scrollBy({ left: -300, behavior: 'smooth' });
-        });
+            menuToggle.addEventListener('click', function() {
+                if (mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.remove('hidden', 'opacity-0', '-translate-y-2');
+                    mobileMenu.classList.add('opacity-100', 'translate-y-0');
+                } else {
+                    mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                    setTimeout(() => {
+                        mobileMenu.classList.add('hidden');
+                    }, 200);
+                }
+            });
+        }
 
-        nextSlide.addEventListener('click', function() {
-            recommendedProducts.scrollBy({ left: 300, behavior: 'smooth' });
-        });
+        // 初始化加载更多功能
+        function initLoadMore() {
+            const loadMoreBtn = document.getElementById('load-more');
+            let currentPage = 1;
+            const productsPerPage = 15;
 
-        // 导航栏滚动效果
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('header');
-            if (window.scrollY > 50) {
-                header.classList.add('shadow-md');
-                header.classList.remove('shadow-sm');
-            } else {
-                header.classList.remove('shadow-md');
-                header.classList.add('shadow-sm');
-            }
-        });
+            loadMoreBtn.addEventListener('click', function() {
+                // 模拟加载状态
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 加载中...';
+                this.disabled = true;
+
+                // 模拟网络请求延迟
+                setTimeout(() => {
+                    // 这里应该从后端获取下一页数据
+                    // 为了演示，我们只是复制现有数据
+                    const nextPageProducts = [...products].map(product => ({
+                        ...product,
+                        id: product.id + products.length * currentPage
+                    }));
+
+                    // 将新数据添加到现有网格
+                    const productsGrid = document.getElementById('products-grid');
+
+                    // 检查是否是第一页加载
+                    if (currentPage === 1 && productsGrid.querySelector('.col-span-full')) {
+                        productsGrid.innerHTML = '';
+                    }
+
+                    nextPageProducts.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'bg-white rounded-xl overflow-hidden shadow-sm product-card';
+                        productCard.innerHTML = `
+                            <div class="relative">
+                                <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+                                <button class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-neutral-500 hover:text-primary transition-custom">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                                <div class="absolute bottom-2 left-2 px-2 py-1 bg-primary/90 text-white text-xs rounded-full">
+                                    ${product.category}
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-medium text-neutral-800 text-sm line-clamp-2">${product.name}</h3>
+                                <div class="mt-2 flex items-center justify-between">
+                                    <span class="text-primary font-bold">¥${product.price.toFixed(2)}</span>
+                                    <div class="flex items-center text-yellow-400 text-xs">
+                                        ${generateRatingStars(product.rating)}
+                                        <span class="text-neutral-500 ml-1">${product.rating}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex space-x-2">
+                                    <button class="flex-1 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary hover:text-white transition-custom">
+                                        <i class="fa-solid fa-shopping-cart mr-1"></i> 加入购物车
+                                    </button>
+                                    <button class="w-8 h-8 flex items-center justify-center border border-neutral-200 rounded-full text-neutral-600 hover:text-primary hover:border-primary transition-custom">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        productsGrid.appendChild(productCard);
+                    });
+
+                    // 更新页码和按钮状态
+                    currentPage++;
+
+                    // 模拟没有更多数据的情况
+                    if (currentPage > 3) {
+                        this.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 已加载全部商品';
+                        this.classList.remove('bg-white', 'border', 'border-neutral-200', 'text-neutral-700', 'hover:bg-primary', 'hover:text-white', 'hover:border-primary');
+                        this.classList.add('bg-green-500', 'text-white');
+                        this.disabled = true;
+                    } else {
+                        this.innerHTML = '加载更多 <i class="fa-solid fa-angle-down ml-1"></i>';
+                        this.disabled = false;
+                    }
+                }, 1000);
+            });
+        }
     </script>
 </body>
 </html>

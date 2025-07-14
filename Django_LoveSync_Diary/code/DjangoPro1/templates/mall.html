@@ -66,6 +66,22 @@
                 animation: pulse 2s infinite;
             }
 
+            /* 添加淡入动画 */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .fade-in {
+                animation: fadeIn 0.5s ease forwards;
+            }
+
             @keyframes pulse {
                 0% {
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
@@ -778,47 +794,49 @@
             </div >
 
             <!-- 促销区域 -->
-            <section class="mb-12">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg relative">
-                    <img src="https://picsum.photos/600/300?random=6" alt="限时折扣" class="w-full h-64 object-cover opacity-70">
-                    <div class="absolute inset-0 flex flex-col justify-center p-8">
-                        <h3 class="text-white text-2xl font-bold mb-2">限时特惠</h3>
-                        <p class="text-white/90 mb-4">精选商品，低至3折起</p>
-                        <div class="flex space-x-2 mb-6">
-                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
-                                <span class="text-white font-bold text-lg">08</span>
-                                <span class="text-white/80 text-xs">小时</span>
-                            </div>
-                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
-                                <span class="text-white font-bold text-lg">45</span>
-                                <span class="text-white/80 text-xs">分钟</span>
-                            </div>
-                            <div class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
-                                <span class="text-white font-bold text-lg">33</span>
-                                <span class="text-white/80 text-xs">秒</span>
-                            </div>
-                        </div>
-                        <button class="bg-white text-primary font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
-                            <span>立即抢购</span>
-                            <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
+            <section class = "mb-12" >
+            <div class = "grid grid-cols-1 md:grid-cols-2 gap-6" >
+                <div class = "bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg relative" >
+                    <img src = "https://picsum.photos/600/300?random=6" alt = "限时折扣"
+                         class = "w-full h-64 object-cover opacity-70" >
+                    <div class = "absolute inset-0 flex flex-col justify-center p-8" >
+                        <h3 class = "text-white text-2xl font-bold mb-2" >限时特惠</h3 >
+                        <p class = "text-white/90 mb-4" >精选商品，低至3折起</p >
+                        <div class = "flex space-x-2 mb-6" >
+                            <div class = "bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center" >
+                                <span class = "text-white font-bold text-lg" >08</span >
+                                <span class = "text-white/80 text-xs" >小时</span >
+                            </div >
+                            <div class = "bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center" >
+                                <span class = "text-white font-bold text-lg" >45</span >
+                                <span class = "text-white/80 text-xs" >分钟</span >
+                            </div >
+                            <div class = "bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center" >
+                                <span class = "text-white font-bold text-lg" >33</span >
+                                <span class = "text-white/80 text-xs" >秒</span >
+                            </div >
+                        </div >
+                        <button class = "bg-white text-primary font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit" >
+                            <span >立即抢购</span >
+                            <i class = "fa fa-arrow-right ml-2" ></i >
+                        </button >
+                    </div >
+                </div >
 
-                <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl overflow-hidden shadow-lg relative">
-                    <img src="https://picsum.photos/600/300?random=7" alt="会员专享" class="w-full h-64 object-cover opacity-70">
-                    <div class="absolute inset-0 flex flex-col justify-center p-8">
-                        <h3 class="text-white text-2xl font-bold mb-2">会员专享</h3>
-                        <p class="text-white/90 mb-4">会员日额外9折，满减优惠</p>
-                        <button class="bg-white text-green-600 font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
-                            <span>了解详情</span>
-                            <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+                <div class = "bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl overflow-hidden shadow-lg relative" >
+                    <img src = "https://picsum.photos/600/300?random=7" alt = "会员专享"
+                         class = "w-full h-64 object-cover opacity-70" >
+                    <div class = "absolute inset-0 flex flex-col justify-center p-8" >
+                        <h3 class = "text-white text-2xl font-bold mb-2" >会员专享</h3 >
+                        <p class = "text-white/90 mb-4" >会员日额外9折，满减优惠</p >
+                        <button class = "bg-white text-green-600 font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit" >
+                            <span >了解详情</span >
+                            <i class = "fa fa-arrow-right ml-2" ></i >
+                        </button >
+                    </div >
+                </div >
+            </div >
+        </section >
 
             <!-- 猜你喜欢区域 -->
             <div class = "mb-12" >
@@ -1804,6 +1822,27 @@
         window.onload = function () {
             window.scrollTo(0, 0);
         };
+
+        // 图片懒加载实现
+        document.addEventListener("DOMContentLoaded", function () {
+            const lazyImages = document.querySelectorAll('img');
+
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const image = entry.target;
+                            image.classList.add("fade-in");
+                            imageObserver.unobserve(image);
+                        }
+                    });
+                });
+
+                lazyImages.forEach(image => {
+                    imageObserver.observe(image);
+                });
+            }
+        });
     </script >
 
 </body >

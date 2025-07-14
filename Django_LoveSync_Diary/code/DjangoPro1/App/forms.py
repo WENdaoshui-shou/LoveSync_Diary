@@ -14,7 +14,7 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'userAvatar', 'name', 'gender', 'birth_date', 'location', 'bio',
+            'userAvatar', 'gender', 'birth_date', 'location', 'bio',
             'notification_sound', 'vibration_enabled', 'do_not_disturb',
             'comment_notifications', 'like_notifications',
             'profile_visibility', 'show_online_status', 'allow_search',
