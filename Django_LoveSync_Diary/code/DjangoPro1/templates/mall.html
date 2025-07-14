@@ -1463,7 +1463,6 @@
             }
         });
 
-        // 用户下拉菜单
         const userAvatar = document.getElementById('userAvatar');
         const userOptions = document.getElementById('userOptions');
         const userDropdown = document.getElementById('userDropdown');
@@ -1487,6 +1486,33 @@
             closeTimer = setTimeout(() => {
                 userOptions.classList.add('hidden');
             }, 500);
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const moreButton = document.getElementById('moreButton');
+            const moreOptions = document.getElementById('moreOptions');
+            const moreDropdown = document.getElementById('moreDropdown');
+
+            let closeTimer;
+
+            // 鼠标经过按钮时打开菜单
+            moreButton.addEventListener('mouseenter', function () {
+                clearTimeout(closeTimer); // 清除之前的定时器
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标悬停在下拉菜单时保持菜单打开
+            moreDropdown.addEventListener('mouseenter', function () {
+                clearTimeout(closeTimer); // 清除之前的定时器
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标离开下拉菜单时关闭菜单
+            moreDropdown.addEventListener('mouseleave', function () {
+                closeTimer = setTimeout(() => {
+                    moreOptions.classList.add('hidden');
+                }, 500); // 延迟200毫秒
+            });
         });
 
         // 类别下拉菜单切换

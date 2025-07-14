@@ -272,26 +272,29 @@
             <!-- 用户操作区 -->
             <div class = "flex items-center space-x-4" >
                 <!-- 商城按钮-->
-                <a href = "{% url 'mall' %}"
-                   class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom shadow-sm hover:shadow-md" >
-                    <i class = "fa-solid fa-shopping-bag" ></i >
-                </a >
+                <a href="{% url 'mall' %}"
+                   class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-custom shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-shopping-bag"></i>
+                    <span>返回商城</span>
+                </a>
 
-                <!-- 收藏按钮-->
+                <!-- 收藏按钮 -->
                 <a href = "{% url 'mallmark' %}"
                    class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom shadow-sm hover:shadow-md" >
                     <i class = "fa-solid fa-heart" ></i >
                     <span class = "relative" >
-                        <span class = "absolute -top-2 -right-3 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center" >3</span >
+                        <span class = "absolute -top-2 -right-3 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
+                              id = "favoriteCount" >3</span >
                     </span >
                 </a >
 
-                <!-- 购物车按钮-->
+                <!-- 购物车按钮 -->
                 <a href = "{% url 'mallcart' %}"
                    class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom shadow-sm hover:shadow-md" >
-                    <i class = "fa-solid fa-solid fa-shopping-cart" ></i >
+                    <i class = "fa-solid fa-shopping-cart" ></i >
                     <span class = "relative" >
-                        <span class = "absolute -top-2 -right-3 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center" >5</span >
+                        <span class = "absolute -top-2 -right-3 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
+                              id = "cartCount" >5</span >
                     </span >
                 </a >
 
@@ -412,9 +415,9 @@
                             </div >
                             <h3 class = "mt-4 text-lg font-medium text-neutral-800" >购物车是空的</h3 >
                             <p class = "mt-2 text-neutral-500" >快去添加心仪的商品吧</p >
-                            <button class = "mt-6 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm" >
+                            <a href="{% url 'mall' %}" class="mt-6 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm inline-block text-center" role="button">
                                 继续购物
-                            </button >
+                            </a>
                         </div >
 
                         <!-- 商品列表容器 -->
@@ -690,66 +693,7 @@
         </div >
     </footer >
 
-    <!-- JavaScript -->
     <script >
-        // 导航栏滚动效果
-        window.addEventListener('scroll', function () {
-            const header = document.querySelector('header');
-            if (window.scrollY > 50) {
-                header.classList.add('py-2', 'shadow-md');
-                header.classList.remove('py-3', 'shadow-sm');
-            } else {
-                header.classList.add('py-3', 'shadow-sm');
-                header.classList.remove('py-2', 'shadow-md');
-            }
-        });
-
-        // 导航栏滚动效果
-        const header = document.querySelector('header');
-
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 50) {
-                header.classList.add('shadow-md');
-                header.classList.remove('shadow-sm');
-            } else {
-                header.classList.remove('shadow-md');
-                header.classList.add('shadow-sm');
-            }
-        });
-
-        // 回到顶部按钮逻辑
-        const backToTopBtn = document.getElementById('backToTop');
-
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                backToTopBtn.classList.remove('opacity-0', 'invisible');
-                backToTopBtn.classList.add('opacity-100', 'visible');
-            } else {
-                backToTopBtn.classList.remove('opacity-100', 'visible');
-                backToTopBtn.classList.add('opacity-0', 'invisible');
-            }
-        });
-
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        // 导航栏滚动效果
-        const header = document.querySelector('header');
-
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 50) {
-                header.classList.add('shadow-md');
-                header.classList.remove('shadow-sm');
-            } else {
-                header.classList.remove('shadow-md');
-                header.classList.add('shadow-sm');
-            }
-        });
-
         const userAvatar = document.getElementById('userAvatar');
         const userOptions = document.getElementById('userOptions');
         const userDropdown = document.getElementById('userDropdown');
@@ -892,23 +836,21 @@
             }
         ];
 
-        // 更新购物车显示
         function updateCart() {
-            // 清空购物车列表
             cartItemsList.innerHTML = '';
 
             if (cartItems.length === 0) {
-                // 空购物车状态
+                // 显示空购物车
                 emptyCart.classList.remove('hidden');
                 cartItemsList.classList.add('hidden');
                 cartItemCount.textContent = '共0件商品';
-                cartCount.textContent = '0';
+                document.getElementById('cartCount').textContent = '0'; // 使用getElementById避免未定义错误
             } else {
-                // 有商品状态
+                // 显示商品列表（原有逻辑）
                 emptyCart.classList.add('hidden');
                 cartItemsList.classList.remove('hidden');
                 cartItemCount.textContent = `共${cartItems.length}件商品`;
-                cartCount.textContent = cartItems.length;
+                document.getElementById('cartCount').textContent = cartItems.length;
 
                 // 添加商品到购物车列表
                 cartItems.forEach(item => {

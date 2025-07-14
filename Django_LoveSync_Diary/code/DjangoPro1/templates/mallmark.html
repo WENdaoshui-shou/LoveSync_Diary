@@ -277,11 +277,11 @@
 
                     <!-- 用户操作区 -->
                     <div class = "flex items-center space-x-4" >
-
-                        <!-- 收藏按钮-->
+                        <!-- 返回商城按钮-->
                         <a href = "{% url 'mall' %}"
-                           class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom shadow-sm hover:shadow-md" >
+                           class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-custom shadow-sm hover:shadow-md" >
                             <i class = "fa-solid fa-shopping-bag" ></i >
+                            <span >返回商城</span >
                         </a >
 
                         <!-- 收藏按钮-->
@@ -416,7 +416,6 @@
                                            class = "form-checkbox h-5 w-5 text-primary rounded border-neutral-300 focus:ring-primary" >
                                     <span class = "ml-2 text-sm" >全选</span >
                                 </label >
-                                <button class = "text-neutral-500 hover:text-red-500 text-sm transition-custom" >删除选中</button >
                                 <div class = "relative" >
                                     <select class = "appearance-none bg-neutral-100 border border-neutral-200 rounded-lg py-2 pl-4 pr-8 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm" >
                                         <option >按添加时间排序</option >
@@ -857,450 +856,393 @@
                         </div >
                 </div >
             </footer >
-</body >
-    <script >
 
-        // 导航栏滚动效果
-        const header = document.querySelector('header');
-
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 50) {
-                header.classList.add('shadow-md');
-                header.classList.remove('shadow-sm');
-            } else {
-                header.classList.remove('shadow-md');
-                header.classList.add('shadow-sm');
-            }
-        });
-
-        const userAvatar = document.getElementById('userAvatar');
-        const userOptions = document.getElementById('userOptions');
-        const userDropdown = document.getElementById('userDropdown');
-
-        let closeTimer;
-
-        // 鼠标经过头像时打开菜单
-        userAvatar.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标悬停在下拉菜单时保持菜单打开
-        userDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标离开下拉菜单时关闭菜单
-        userDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
-                userOptions.classList.add('hidden');
-            }, 500);
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
-
-            let closeTimer;
-
-            // 鼠标经过按钮时打开菜单
-            moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标悬停在下拉菜单时保持菜单打开
-            moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标离开下拉菜单时关闭菜单
-            moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
-                    moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
-            });
-        });
-
-        // 类别下拉菜单切换
-        document.addEventListener('DOMContentLoaded', function () {
-            const categoryDropdownButton = document.getElementById('categoryDropdownButton');
-            const categoryDropdown = document.getElementById('categoryDropdown');
-            const categoryDropdownIcon = categoryDropdownButton.querySelector('i');
-
-            if (categoryDropdownButton && categoryDropdown) {
-                categoryDropdownButton.addEventListener('click', function (e) {
-                    e.stopPropagation();
-
-                    // 切换下拉菜单显示状态
-                    if (categoryDropdown.classList.contains('invisible')) {
-                        categoryDropdown.classList.remove('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                        categoryDropdown.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                        categoryDropdownIcon.classList.add('rotate-180');
-                    } else {
-                        categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                        categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                        categoryDropdownIcon.classList.remove('rotate-180');
-                    }
-                });
-
-                // 点击页面其他地方关闭下拉菜单
-                document.addEventListener('click', function () {
-                    if (!categoryDropdown.classList.contains('invisible')) {
-                        categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                        categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                        categoryDropdownIcon.classList.remove('rotate-180');
-                    }
-                });
-
-                // 阻止下拉菜单项点击事件冒泡到document
-                const categoryItems = categoryDropdown.querySelectorAll('a');
-                categoryItems.forEach(item => {
-                    item.addEventListener('click', function (e) {
-                        e.stopPropagation();
-
-                        // 这里可以添加选择类别的逻辑
-                        const selectedText = this.querySelector('span').textContent;
-                        categoryDropdownButton.querySelector('span').textContent = selectedText;
-
-                        // 选择后关闭下拉菜单
-                        categoryDropdown.classList.add('invisible', 'opacity-0', '-translate-y-2', 'pointer-events-none');
-                        categoryDropdown.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                        categoryDropdownIcon.classList.remove('rotate-180');
+            <script >
+                // 等待DOM加载完成
+                document.addEventListener('DOMContentLoaded', function () {
+                    // 导航栏滚动效果
+                    const header = document.querySelector('header');
+                    window.addEventListener('scroll', function () {
+                        if (window.scrollY > 50) {
+                            header.classList.add('py-2', 'shadow-md');
+                            header.classList.remove('py-3', 'shadow-sm');
+                        } else {
+                            header.classList.add('py-3', 'shadow-sm');
+                            header.classList.remove('py-2', 'shadow-md');
+                        }
                     });
-                });
-            }
 
-            // 搜索建议下拉菜单
-            const searchInput = document.querySelector('input[placeholder="搜索情侣商品..."]');
-            const searchSuggestions = document.getElementById('searchSuggestions');
+                    // 更多下拉菜单 - 鼠标悬停效果
+                    const moreButton = document.getElementById('moreButton');
+                    const moreOptions = document.getElementById('moreOptions');
+                    const moreDropdown = document.getElementById('moreDropdown');
+                    let moreCloseTimer;
 
-            if (searchInput && searchSuggestions) {
-                searchInput.addEventListener('focus', function () {
-                    searchSuggestions.classList.remove('invisible', 'opacity-0', '-translate-y-2');
-                    searchSuggestions.classList.add('opacity-100', 'translate-y-0');
-                });
-
-                searchInput.addEventListener('blur', function () {
-                    setTimeout(() => {
-                        searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
-                        searchSuggestions.classList.remove('opacity-100', 'translate-y-0');
-                    }, 200);
-                });
-
-                // 搜索建议项点击
-                const searchItems = searchSuggestions.querySelectorAll('a');
-                searchItems.forEach(item => {
-                    item.addEventListener('click', function () {
-                        const searchText = this.querySelector('span').textContent;
-                        searchInput.value = searchText;
-
-                        searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
-                        searchSuggestions.classList.remove('opacity-100', 'translate-y-0');
+                    // 鼠标经过按钮时打开菜单
+                    moreButton.addEventListener('mouseenter', function () {
+                        clearTimeout(moreCloseTimer);
+                        moreOptions.classList.remove('hidden');
+                        userOptions.classList.add('hidden');
+                        searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
                     });
-                });
 
-                // 清除历史按钮
-                const clearHistoryBtn = searchSuggestions.querySelector('button');
-                if (clearHistoryBtn) {
-                    clearHistoryBtn.addEventListener('click', function (e) {
+                    // 鼠标悬停在下拉菜单时保持菜单打开
+                    moreDropdown.addEventListener('mouseenter', function () {
+                        clearTimeout(moreCloseTimer);
+                    });
+
+                    // 鼠标离开下拉菜单时关闭菜单
+                    moreDropdown.addEventListener('mouseleave', function () {
+                        moreCloseTimer = setTimeout(() => {
+                            moreOptions.classList.add('hidden');
+                        }, 300);
+                    });
+
+                    // 用户下拉菜单 - 鼠标悬停效果
+                    const userAvatar = document.getElementById('userAvatar');
+                    const userOptions = document.getElementById('userOptions');
+                    const userDropdown = document.getElementById('userDropdown');
+                    let userCloseTimer;
+
+                    // 鼠标经过头像时打开菜单
+                    userAvatar.addEventListener('mouseenter', function () {
+                        clearTimeout(userCloseTimer);
+                        userOptions.classList.remove('hidden');
+                        moreOptions.classList.add('hidden');
+                        searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                    });
+
+                    // 鼠标悬停在下拉菜单时保持菜单打开
+                    userDropdown.addEventListener('mouseenter', function () {
+                        clearTimeout(userCloseTimer);
+                    });
+
+                    // 鼠标离开下拉菜单时关闭菜单
+                    userDropdown.addEventListener('mouseleave', function () {
+                        userCloseTimer = setTimeout(() => {
+                            userOptions.classList.add('hidden');
+                        }, 300);
+                    });
+
+                    // 移动端菜单
+                    const menuToggle = document.getElementById('menu-toggle');
+                    const mobileMenu = document.getElementById('mobile-menu');
+
+                    menuToggle.addEventListener('click', function (e) {
                         e.stopPropagation();
-                        // 这里可以添加清除搜索历史的逻辑
-                        const historyItems = searchSuggestions.querySelectorAll('.fa-clock-rotate-left').forEach(item => {
-                            item.closest('a').remove();
+                        if (mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.remove('hidden', 'opacity-0', '-translate-y-2');
+                            mobileMenu.classList.add('opacity-100', 'translate-y-0');
+                        } else {
+                            mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                            setTimeout(() => {
+                                mobileMenu.classList.add('hidden');
+                            }, 200);
+                        }
+                    });
+
+                    // 搜索框
+                    const searchInput = document.querySelector('input[placeholder="搜索情侣商品..."]');
+                    const searchSuggestions = document.getElementById('searchSuggestions');
+
+                    // 搜索建议框显示/隐藏
+                    if (searchInput && searchSuggestions) {
+                        searchInput.addEventListener('focus', function () {
+                            searchSuggestions.classList.remove('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                            userOptions.classList.add('hidden');
+                            moreOptions.classList.add('hidden');
+                        });
+
+                        searchInput.addEventListener('blur', function () {
+                            setTimeout(() => {
+                                searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                            }, 200);
+                        });
+                    }
+
+                    // 清除搜索历史
+                    const clearHistoryBtn = document.querySelector('#searchSuggestions .text-xs.text-neutral-500.hover:text-primary');
+                    if (clearHistoryBtn) {
+                        clearHistoryBtn.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            // 选择所有搜索历史项（排除标题行）
+                            const historyItems = document.querySelectorAll('#searchSuggestions .space-y-2 > a');
+                            historyItems.forEach(item => {
+                                item.style.transition = 'all 0.3s ease';
+                                item.style.opacity = '0';
+                                item.style.height = '0';
+                                item.style.margin = '0';
+                                item.style.padding = '0';
+                                setTimeout(() => {
+                                    item.remove();
+                                }, 300);
+                            });
+                        });
+                    }
+
+                    // 收藏商品操作
+                    const deleteButtons = document.querySelectorAll('button:has(.fa-trash)');
+                    const addToCartButtons = document.querySelectorAll('button:has(.fa-shopping-cart)');
+
+                    deleteButtons.forEach(button => {
+                        button.addEventListener('click', function () {
+                            const productCard = this.closest('.product-card');
+                            if (productCard) {
+                                // 添加删除动画
+                                productCard.style.transition = 'all 0.3s ease';
+                                productCard.style.opacity = '0';
+                                productCard.style.transform = 'translateX(20px)';
+
+                                setTimeout(() => {
+                                    productCard.remove();
+                                    // 检查是否还有商品
+                                    const remainingCards = document.querySelectorAll('.product-card');
+                                    if (remainingCards.length === 0) {
+                                        const listContainer = document.querySelector('.divide-y');
+                                        listContainer.innerHTML = `
+                            <div class="px-6 py-10 text-center">
+                                <i class="fa-regular fa-heart text-5xl text-neutral-300 mb-4"></i>
+                                <p class="text-neutral-500">暂无收藏的商品</p>
+                                <a href="{% url 'mall' %}" class="inline-block mt-4 px-5 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition-custom">
+                                    去逛逛
+                                </a>
+                            </div>
+                        `;
+                                    }
+                                }, 300);
+                            }
                         });
                     });
-                }
-            }
-        });
 
-        // DOM 元素
-        const selectAllCheckbox = document.getElementById('select-all-favorites');
-        const favoriteCheckboxes = document.querySelectorAll('.favorite-checkbox');
-        const deleteSelectedBtn = document.getElementById('delete-selected');
-        const addToCartBtn = document.getElementById('add-to-cart');
-        const favoritesList = document.getElementById('favorites-list');
-        const emptyFavorites = document.getElementById('empty-favorites');
-        const removeFavoriteBtns = document.querySelectorAll('.remove-favorite');
-        const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
-        const moreButton = document.getElementById('moreButton');
-        const moreOptions = document.getElementById('moreOptions');
-        const userAvatar = document.getElementById('userAvatar');
-        const userOptions = document.getElementById('userOptions');
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const searchInput = document.querySelector('input[placeholder="搜索情侣商品..."]');
-        const searchSuggestions = document.getElementById('searchSuggestions');
-        const addToFavoriteBtns = document.querySelectorAll('.add-to-favorite');
-        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+                    addToCartButtons.forEach(button => {
+                        button.addEventListener('click', function () {
+                            // 显示添加成功动画
+                            this.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 已添加';
+                            this.classList.add('bg-green-500');
+                            this.classList.remove('bg-primary', 'hover:bg-primary/90');
 
-        // 初始化事件监听
-        function initEventListeners() {
-            // 全选/取消全选
-            selectAllCheckbox.addEventListener('change', toggleAllFavorites);
+                            setTimeout(() => {
+                                this.innerHTML = '<i class="fa-solid fa-shopping-cart mr-1"></i> 加入购物车';
+                                this.classList.remove('bg-green-500');
+                                this.classList.add('bg-primary', 'hover:bg-primary/90');
 
-            // 删除选中商品
-            deleteSelectedBtn.addEventListener('click', deleteSelectedFavorites);
+                                // 更新购物车数量
+                                const cartCount = document.querySelector('.fa-shopping-cart').closest('a').querySelector('span:last-child');
+                                if (cartCount) {
+                                    let count = parseInt(cartCount.textContent);
+                                    cartCount.textContent = count + 1;
+                                }
+                            }, 1500);
+                        });
+                    });
 
-            // 添加到购物车
-            addToCartBtn.addEventListener('click', addSelectedToCart);
+                    // 批量操作
+                    const selectAllCheckbox = document.querySelector('input[type="checkbox"]:not([name])');
+                    const itemCheckboxes = document.querySelectorAll('.product-card input[type="checkbox"]');
+                    const batchDeleteBtn = document.querySelector('button:has(.fa-trash):not(.product-card button)');
+                    const batchAddToCartBtn = document.querySelector('button:has(.fa-heart):not(.product-card button)');
 
-            // 移除单个收藏商品
-            removeFavoriteBtns.forEach(btn => {
-                btn.addEventListener('click', removeFavorite);
-            });
-
-            // 添加单个商品到购物车
-            addToCartBtns.forEach(btn => {
-                btn.addEventListener('click', addSingleItemToCart);
-            });
-
-            // 更多下拉菜单
-            moreButton.addEventListener('click', toggleMoreDropdown);
-
-            // 用户下拉菜单
-            userAvatar.addEventListener('click', toggleUserDropdown);
-
-            // 移动端菜单
-            menuToggle.addEventListener('click', toggleMobileMenu);
-
-            // 搜索建议
-            searchInput.addEventListener('focus', showSearchSuggestions);
-            searchInput.addEventListener('blur', hideSearchSuggestions);
-
-            // 添加到收藏
-            addToFavoriteBtns.forEach(btn => {
-                btn.addEventListener('click', addToFavorite);
-            });
-
-            // 添加到购物车(推荐商品)
-            addToCartButtons.forEach(btn => {
-                btn.addEventListener('click', addRecommendedToCart);
-            });
-
-            // 点击页面其他地方关闭下拉菜单
-            document.addEventListener('click', closeDropdowns);
-        }
-
-        // 全选/取消全选功能
-        function toggleAllFavorites() {
-            const isChecked = selectAllCheckbox.checked;
-            favoriteCheckboxes.forEach(checkbox => {
-                checkbox.checked = isChecked;
-            });
-        }
-
-        // 删除选中的收藏商品
-        function deleteSelectedFavorites() {
-            const selectedItems = document.querySelectorAll('.favorite-checkbox:checked');
-            if (selectedItems.length === 0) {
-                showToast('请先选择要删除的商品');
-                return;
-            }
-
-            // 确认删除
-            if (confirm('确定要删除选中的商品吗？')) {
-                selectedItems.forEach(checkbox => {
-                    const productCard = checkbox.closest('.product-card');
-                    if (productCard) {
-                        productCard.classList.add('opacity-0');
-                        setTimeout(() => {
-                            productCard.remove();
-                            checkEmptyFavorites();
-                        }, 300);
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.addEventListener('change', function () {
+                            itemCheckboxes.forEach(checkbox => {
+                                checkbox.checked = this.checked;
+                            });
+                        });
                     }
+
+                    if (batchDeleteBtn) {
+                        batchDeleteBtn.addEventListener('click', function () {
+                            const checkedItems = document.querySelectorAll('.product-card input[type="checkbox"]:checked');
+                            if (checkedItems.length === 0) {
+                                alert('请先选择要删除的商品');
+                                return;
+                            }
+
+                            if (confirm(`确定要删除选中的${checkedItems.length}个商品吗？`)) {
+                                checkedItems.forEach(checkbox => {
+                                    const productCard = checkbox.closest('.product-card');
+                                    productCard.style.transition = 'all 0.3s ease';
+                                    productCard.style.opacity = '0';
+
+                                    setTimeout(() => {
+                                        productCard.remove();
+                                        // 检查是否还有商品
+                                        const remainingCards = document.querySelectorAll('.product-card');
+                                        if (remainingCards.length === 0) {
+                                            const listContainer = document.querySelector('.divide-y');
+                                            listContainer.innerHTML = `
+                                <div class="px-6 py-10 text-center">
+                                    <i class="fa-regular fa-heart text-5xl text-neutral-300 mb-4"></i>
+                                    <p class="text-neutral-500">暂无收藏的商品</p>
+                                    <a href="{% url 'mall' %}" class="inline-block mt-4 px-5 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition-custom">
+                                        去逛逛
+                                    </a>
+                                </div>
+                            `;
+                                        }
+                                    }, 300);
+                                });
+                                selectAllCheckbox.checked = false;
+                            }
+                        });
+                    }
+
+                    if (batchAddToCartBtn) {
+                        batchAddToCartBtn.addEventListener('click', function () {
+                            const checkedItems = document.querySelectorAll('.product-card input[type="checkbox"]:checked');
+                            if (checkedItems.length === 0) {
+                                alert('请先选择要加入购物车的商品');
+                                return;
+                            }
+
+                            // 更新购物车数量
+                            const cartCount = document.querySelector('.fa-shopping-cart').closest('a').querySelector('span:last-child');
+                            if (cartCount) {
+                                let count = parseInt(cartCount.textContent);
+                                cartCount.textContent = count + checkedItems.length;
+                            }
+
+                            // 显示成功提示
+                            this.innerHTML = '<i class="fa-solid fa-check mr-1"></i> 已添加';
+                            this.classList.add('text-green-500');
+
+                            setTimeout(() => {
+                                this.innerHTML = '<i class="fa-solid fa-heart mr-1"></i> 批量加入购物车';
+                                this.classList.remove('text-green-500');
+                                selectAllCheckbox.checked = false;
+                            }, 1500);
+                        });
+                    }
+
+                    // 推荐商品收藏功能
+                    const recommendFavoriteBtns = document.querySelectorAll('.rounded-lg.overflow-hidden .fa-heart').forEach(icon => {
+                        const btn = icon.closest('button');
+                        btn.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            const heartIcon = this.querySelector('i');
+
+                            if (heartIcon.classList.contains('fa-regular')) {
+                                heartIcon.classList.remove('fa-regular');
+                                heartIcon.classList.add('fa-solid', 'text-primary');
+
+                                // 更新收藏数量
+                                const favoriteCount = document.querySelector('.fa-heart').closest('a').querySelector('span:last-child');
+                                if (favoriteCount) {
+                                    let count = parseInt(favoriteCount.textContent);
+                                    favoriteCount.textContent = count + 1;
+                                }
+                            } else {
+                                heartIcon.classList.remove('fa-solid', 'text-primary');
+                                heartIcon.classList.add('fa-regular');
+
+                                // 更新收藏数量
+                                const favoriteCount = document.querySelector('.fa-heart').closest('a').querySelector('span:last-child');
+                                if (favoriteCount) {
+                                    let count = parseInt(favoriteCount.textContent);
+                                    favoriteCount.textContent = count - 1;
+                                }
+                            }
+                        });
+                    });
+
+                    // 推荐商品加入购物车
+                    const recommendCartBtns = document.querySelectorAll('.rounded-lg.overflow-hidden .fa-shopping-cart').forEach(icon => {
+                        const btn = icon.closest('button');
+                        btn.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            const originalContent = this.innerHTML;
+
+                            this.innerHTML = '<i class="fa-solid fa-check"></i>';
+                            this.classList.remove('bg-primary/10', 'text-primary', 'hover:bg-primary', 'hover:text-white');
+                            this.classList.add('bg-green-500', 'text-white');
+
+                            // 更新购物车数量
+                            const cartCount = document.querySelector('.fa-shopping-cart').closest('a').querySelector('span:last-child');
+                            if (cartCount) {
+                                let count = parseInt(cartCount.textContent);
+                                cartCount.textContent = count + 1;
+                            }
+
+                            setTimeout(() => {
+                                this.innerHTML = originalContent;
+                                this.classList.add('bg-primary/10', 'text-primary', 'hover:bg-primary', 'hover:text-white');
+                                this.classList.remove('bg-green-500', 'text-white');
+                            }, 1500);
+                        });
+                    });
+
+                    // 分页功能
+                    const paginationContainer = document.querySelector('.flex.items-center.space-x-2');
+                    if (paginationContainer) {
+                        const pageButtons = paginationContainer.querySelectorAll('button');
+                        const prevBtn = pageButtons[0];
+                        const nextBtn = pageButtons[pageButtons.length - 1];
+                        const pageNumberBtns = Array.from(pageButtons).slice(1, -1); // 排除前后箭头按钮
+
+                        // 初始化页码状态
+                        if (pageNumberBtns.length > 0) {
+                            pageNumberBtns[0].classList.add('bg-primary', 'text-white');
+                            pageNumberBtns[0].classList.remove('border', 'border-neutral-200', 'text-neutral-600', 'hover:border-primary', 'hover:text-primary');
+                        }
+
+                        // 页码按钮点击事件
+                        pageNumberBtns.forEach(btn => {
+                            btn.addEventListener('click', function () {
+                                // 重置所有页码按钮样式
+                                pageNumberBtns.forEach(b => {
+                                    b.classList.remove('bg-primary', 'text-white');
+                                    b.classList.add('border', 'border-neutral-200', 'text-neutral-600', 'hover:border-primary', 'hover:text-primary');
+                                });
+
+                                // 设置当前页码按钮样式
+                                this.classList.add('bg-primary', 'text-white');
+                                this.classList.remove('border', 'border-neutral-200', 'text-neutral-600', 'hover:border-primary', 'hover:text-primary');
+
+                                // 模拟页码切换效果
+                                console.log(`切换到第${this.textContent}页`);
+                            });
+                        });
+
+                        // 上一页按钮
+                        prevBtn.addEventListener('click', function () {
+                            const activeBtn = paginationContainer.querySelector('button.bg-primary');
+                            const activeIndex = pageNumberBtns.indexOf(activeBtn);
+
+                            if (activeIndex > 0) {
+                                pageNumberBtns[activeIndex - 1].click();
+                            }
+                        });
+
+                        // 下一页按钮
+                        nextBtn.addEventListener('click', function () {
+                            const activeBtn = paginationContainer.querySelector('button.bg-primary');
+                            const activeIndex = pageNumberBtns.indexOf(activeBtn);
+
+                            if (activeIndex < pageNumberBtns.length - 1) {
+                                pageNumberBtns[activeIndex + 1].click();
+                            }
+                        });
+                    }
+
+                    // 收藏筛选按钮效果
+                    const filterButtons = document.querySelectorAll('.flex.space-x-4 button');
+                    filterButtons.forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            // 重置所有筛选按钮样式
+                            filterButtons.forEach(b => {
+                                b.classList.remove('bg-primary/10', 'text-primary');
+                                b.classList.add('bg-neutral-100', 'text-neutral-600', 'hover:bg-neutral-200');
+                            });
+
+                            // 设置当前筛选按钮样式
+                            this.classList.remove('bg-neutral-100', 'text-neutral-600', 'hover:bg-neutral-200');
+                            this.classList.add('bg-primary/10', 'text-primary');
+
+                            // 模拟筛选效果
+                            console.log(`筛选条件: ${this.textContent}`);
+                        });
+                    });
                 });
-                showToast('已成功删除选中的收藏商品');
-            }
-        }
-
-        // 添加选中的商品到购物车
-        function addSelectedToCart() {
-            const selectedItems = document.querySelectorAll('.favorite-checkbox:checked');
-            if (selectedItems.length === 0) {
-                showToast('请先选择要添加的商品');
-                return;
-            }
-
-            // 模拟添加到购物车
-            showToast(`已成功将 ${selectedItems.length} 个商品添加到购物车`);
-        }
-
-        // 移除单个收藏商品
-        function removeFavorite(e) {
-            const productCard = e.currentTarget.closest('.product-card');
-            if (confirm('确定要取消收藏此商品吗？')) {
-                productCard.classList.add('opacity-0');
-                setTimeout(() => {
-                    productCard.remove();
-                    checkEmptyFavorites();
-                }, 300);
-                showToast('已取消收藏该商品');
-            }
-        }
-
-        // 添加单个商品到购物车
-        function addSingleItemToCart(e) {
-            showToast('已成功将商品添加到购物车');
-        }
-
-        // 检查收藏是否为空
-        function checkEmptyFavorites() {
-            const items = document.querySelectorAll('.product-card');
-            if (items.length === 0) {
-                favoritesList.classList.add('hidden');
-                emptyFavorites.classList.remove('hidden');
-            } else {
-                favoritesList.classList.remove('hidden');
-                emptyFavorites.classList.add('hidden');
-            }
-        }
-
-        // 切换更多下拉菜单
-        function toggleMoreDropdown(e) {
-            e.stopPropagation();
-            moreOptions.classList.toggle('hidden');
-            userOptions.classList.add('hidden');
-            mobileMenu.classList.add('hidden');
-        }
-
-        // 切换用户下拉菜单
-        function toggleUserDropdown(e) {
-            e.stopPropagation();
-            userOptions.classList.toggle('hidden');
-            moreOptions.classList.add('hidden');
-            mobileMenu.classList.add('hidden');
-        }
-
-        // 切换移动端菜单
-        function toggleMobileMenu(e) {
-            e.stopPropagation();
-            mobileMenu.classList.toggle('hidden');
-            if (!mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('-translate-y-2', 'opacity-0');
-                mobileMenu.classList.add('translate-y-0', 'opacity-100');
-            } else {
-                mobileMenu.classList.add('-translate-y-2', 'opacity-0');
-                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
-            }
-            moreOptions.classList.add('hidden');
-            userOptions.classList.add('hidden');
-        }
-
-        // 关闭所有下拉菜单
-        function closeDropdowns(e) {
-            if (!moreButton.contains(e.target)) {
-                moreOptions.classList.add('hidden');
-            }
-
-            if (!userAvatar.contains(e.target)) {
-                userOptions.classList.add('hidden');
-            }
-
-            if (!menuToggle.contains(e.target) && !mobileMenu.contains(e.target)) {
-                mobileMenu.classList.add('hidden');
-            }
-        }
-
-        // 显示搜索建议
-        function showSearchSuggestions() {
-            searchSuggestions.classList.remove('invisible', 'opacity-0', '-translate-y-2');
-            searchSuggestions.classList.add('visible', 'opacity-100', 'translate-y-0');
-        }
-
-        // 隐藏搜索建议
-        function hideSearchSuggestions() {
-            setTimeout(() => {
-                searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
-                searchSuggestions.classList.remove('visible', 'opacity-100', 'translate-y-0');
-            }, 200);
-        }
-
-        // 添加到收藏
-        function addToFavorite(e) {
-            const btn = e.currentTarget;
-            btn.classList.add('text-primary');
-            btn.innerHTML = '<i class="fa-solid fa-heart"></i>';
-            showToast('已添加到收藏');
-
-            // 一段时间后恢复
-            setTimeout(() => {
-                btn.classList.remove('text-primary');
-                btn.innerHTML = '<i class="fa-regular fa-heart"></i>';
-            }, 2000);
-        }
-
-        // 添加推荐商品到购物车
-        function addRecommendedToCart(e) {
-            const btn = e.currentTarget;
-            btn.classList.add('bg-primary', 'text-white');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-            showToast('已添加到购物车');
-
-            // 一段时间后恢复
-            setTimeout(() => {
-                btn.classList.remove('bg-primary', 'text-white');
-                btn.classList.add('bg-primary/10', 'text-primary');
-                btn.innerHTML = '<i class="fa-solid fa-shopping-cart"></i>';
-            }, 2000);
-        }
-
-        // 显示提示消息
-        function showToast(message) {
-            // 检查是否已存在toast
-            let toast = document.getElementById('toast-message');
-            if (toast) {
-                toast.remove();
-            }
-
-            // 创建新的toast
-            toast = document.createElement('div');
-            toast.id = 'toast-message';
-            toast.className = 'fixed bottom-8 left-1/2 -translate-x-1/2 bg-neutral-800 text-white px-6 py-3 rounded-lg shadow-lg z-50 opacity-0 transition-opacity duration-300 flex items-center';
-            toast.innerHTML = `
-        <i class="fa-solid fa-check-circle mr-2 text-green-400"></i>
-        <span>${message}</span>
-    `;
-
-            document.body.appendChild(toast);
-
-            // 显示toast
-            setTimeout(() => {
-                toast.classList.remove('opacity-0');
-                toast.classList.add('opacity-100');
-            }, 10);
-
-            // 3秒后隐藏
-            setTimeout(() => {
-                toast.classList.remove('opacity-100');
-                toast.classList.add('opacity-0');
-
-                // 完全隐藏后移除元素
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
-            }, 3000);
-        }
-
-        // 页面滚动效果 - 导航栏
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            if (window.scrollY > 10) {
-                header.classList.add('shadow-md', 'py-2');
-                header.classList.remove('shadow-sm', 'py-3');
-            } else {
-                header.classList.remove('shadow-md', 'py-2');
-                header.classList.add('shadow-sm', 'py-3');
-            }
-        });
-
-        // 初始化页面
-        document.addEventListener('DOMContentLoaded', () => {
-            initEventListeners();
-            checkEmptyFavorites();
-        });
-    </script >
+            </script >
+</body >
 </html >
