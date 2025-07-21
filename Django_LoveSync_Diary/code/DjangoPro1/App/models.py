@@ -143,6 +143,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name='商品名称')
     description = models.TextField(verbose_name='商品描述', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='商品价格')
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, default=99, verbose_name='商品原价')
     image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='商品图片')
     rating = models.FloatField(default=0, verbose_name='商品评分')
     num_reviews = models.IntegerField(default=0, verbose_name='评论数量')

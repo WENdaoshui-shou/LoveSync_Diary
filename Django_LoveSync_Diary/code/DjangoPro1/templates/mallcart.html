@@ -1250,8 +1250,9 @@
                     return;
                 }
 
-                // 跳转到结算页面
-                { #window.location.href = "{% url 'checkout' %}";# }
+                {#// 跳转到结算页面#}
+                {# window.location.href = {% url 'checkout' product_id %}#}
+                
             });
 
             // 关闭通知提示框

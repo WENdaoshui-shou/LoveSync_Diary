@@ -1007,13 +1007,43 @@
             const orderSuccessModal = document.getElementById('order-success-modal');
             const closeSuccessModal = document.getElementById('close-success-modal');
 
-            placeOrderBtn.addEventListener('click', () => {
-                // 模拟提交订单的API调用
-                // 实际项目中这里应该有AJAX请求到后端处理订单
-                setTimeout(() => {
+            placeOrderBtn.addEventListener('click', function() {
+                // 获取选中的支付方式
+                const paymentMethod = document.querySelector('input[name="payment"]:checked').nextElementSibling.textContent.trim();
+                
+                // 这里应替换为实际的付款接口地址
+                const paymentApiUrl = '/api/payment';
+                
+                // 模拟订单数据，实际应从页面收集完整订单信息
+                const orderData = {
+                    payment_method: paymentMethod,
+                    // 可添加更多订单相关数据，如商品列表、总价等
+                };
+
+                // 发起付款请求
+                fetch(paymentApiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(orderData)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('付款请求失败');
+                })
+                .then(data => {
                     orderSuccessModal.classList.remove('hidden');
                     orderSuccessModal.classList.add('flex');
-                }, 1000);
+                    console.log('付款成功: ', data);
+                })
+                .catch(error => {
+                    console.error('付款出错:', error);
+                    alert('付款失败，请重试');
+                });
             });
 
             function closeSuccessModalFunc() {
