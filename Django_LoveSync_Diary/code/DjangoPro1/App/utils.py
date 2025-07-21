@@ -11,7 +11,6 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 
-
 # 随机生成验证码文本（4位字符）
 def generate_verify_code(length=4):
     chars = string.ascii_letters + string.digits  # 包含大小写字母和数字
@@ -24,7 +23,7 @@ def create_verify_image(code, width=120, height=40):
     image = Image.new('RGB', (width, height), (255, 255, 255))
     draw = ImageDraw.Draw(image)
 
-    # 设置字体（需确保字体文件存在，可替换为本地字体路径）
+    # 设置字体（
     try:
         font = ImageFont.truetype('static/fonts/simhei.ttf', 28)  # 黑体字体
     except:

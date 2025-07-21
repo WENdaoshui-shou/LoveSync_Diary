@@ -3,8 +3,8 @@ from django.urls import path
 from App.views import *
 from django.contrib import admin
 from django.urls import include, path
-from django.conf import settings  # 导入 settings
-from django.conf.urls.static import static  # 导入 static
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # 首页
@@ -62,8 +62,14 @@ urlpatterns = [
     path('mall/', mall, name='mall'),
     # 购物车
     path('mallcart/', mallcart, name='mallcart'),
+    # 添加到购物车
+    path('add_to_cart/', add_to_cart, name='add_to_cart'),
     # 收藏
     path('mallmark/', mallmark, name='mallmark'),
+    # 商品详情
+    path('product/<uuid:product_id>/', product_detail, name='product_detail'),
+    # 结算
+    path('checkout/<uuid:product_id>/', checkout, name='checkout'),
 
     path('admin/', admin.site.urls),
 ]

@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import uuid
+from django.utils import timezone
 
 
 # CustomUser：扩展了 Django 的用户模型，添加了 couple 字段用于关联情侣关系。
@@ -14,6 +16,7 @@ from django.dispatch import receiver
 # CoupleLocation：存储情侣地点的信息，包括用户、地点名称、地址和描述。
 # LoveTest：存储爱情测试的信息，包括用户、测试名称、结果和创建时间。
 # Message：存储用户之间的消息信息，包括发送者、接收者、内容、创建时间和是否已读。
+# Product：存储商品信息，包括名称、描述、价格和图片。
 
 
 # 用户
@@ -76,6 +79,7 @@ class Profile(models.Model):
         upload_to='userAvatar/',
         blank=True,
         null=True,
+        default='userAvatar/OIP-C.jpg'
     )
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='other', verbose_name='性别')
     birth_date = models.DateField(null=True, blank=True, verbose_name='出生日期')
@@ -128,3 +132,22 @@ class Photo(models.Model):
 
     class Meta:
         ordering = ['-uploaded_at']
+
+
+class Product(models.Model):
+
+    def generate_product_id():
+        return str(int(timezone.now().timestamp())) + '-' + str(uuid.uuid4())
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, verbose_name='商品ID')
+    name = models.CharField(max_length=200, verbose_name='商品名称')
+    description = models.TextField(verbose_name='商品描述', blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='商品价格')
+    image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='商品图片')
+    rating = models.FloatField(default=0, verbose_name='商品评分')
+    num_reviews = models.IntegerField(default=0, verbose_name='评论数量')
+    category = models.CharField(max_length=100, verbose_name='商品类别')
+    monthly_sales = models.IntegerField(default=0, verbose_name='月销量')
+
+    def __str__(self):
+        return self.name

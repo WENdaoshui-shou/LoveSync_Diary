@@ -73,7 +73,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",  # Redis地址和数据库编号
+        "LOCATION": "redis://127.0.0.1:6379/0",  # Redis地址和数据库编号
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

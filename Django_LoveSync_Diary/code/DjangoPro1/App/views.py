@@ -558,16 +558,160 @@ def delete_comment(request, comment_id):
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
+# 推荐商品
+def recommend_view(func):
+    def _wrapper(request, *args, **kwargs):
+        # 从cookie中获取用户访问的所有商品id
+        c_id = request.COOKIES.get('rem', '')
+
+        # 存放用户访问商品的id列表，使用逗号分隔
+        visited_ids = [gid for gid in c_id.split(',') if gid.strip()]
+
+        # 构建推荐商品列表（这里使用简单逻辑，实际项目中可根据需求优化）
+        recommended_products = []
+        if visited_ids:
+            # 从用户访问过的商品中推荐前3个（如果有）
+            recommended_products = Product.objects.filter(id__in=visited_ids[:5])
+
+        # 将推荐商品添加到请求对象中
+        request.recommended_products = recommended_products
+
+        # 调用原视图函数
+        response = func(request, *args, **kwargs)
+
+        # 获取当前查看的商品ID（如果有）
+        current_product_id = request.GET.get('product_id')
+        if current_product_id and current_product_id not in visited_ids:
+            # 将当前商品ID添加到访问历史的最前面
+            visited_ids.insert(0, current_product_id)
+            # 限制历史记录长度为10个商品
+            if len(visited_ids) > 10:
+                visited_ids = visited_ids[:10]
+            # 更新cookie
+            response.set_cookie('rem', ','.join(visited_ids), max_age=24 * 60 * 60)
+
+        return response
+
+    return _wrapper
+
+
 # 购物商城
-def mall(request):
-    return render(request, 'mall.html')
+@login_required
+@recommend_view
+def mall(request, recommended_products=None):
+    products = Product.objects.all()
+
+    # 如果装饰器提供了推荐商品，则使用它们
+    if recommended_products is None:
+        # 否则使用默认的随机推荐
+        recommended_products = Product.objects.order_by('?')[:5]
+
+    hot_products = Product.objects.order_by('-monthly_sales')[:3]
+
+    return render(request, 'mall.html', {
+        'products': products,
+        'recommended_products': recommended_products,
+        'hot_products': hot_products
+    })
+
+
+# 商品详情
+@recommend_view
+def product_detail(request, product_id):
+    """商品详情视图"""
+    product = get_object_or_404(Product, id=product_id)
+
+    # 从请求对象中获取推荐商品
+    recommended_products = getattr(request, 'recommended_products', [])
+    if not recommended_products:
+        recommended_products = Product.objects.order_by('-rating')[:5]
+
+    hot_products = Product.objects.order_by('-monthly_sales')[:3]
+
+    return render(request, 'product_detail.html', {
+        'product': product,
+        'recommended_products': recommended_products,
+        'hot_products': hot_products
+    })
+
+
+# 添加商品到购物车
+@login_required
+@require_POST
+def add_to_cart(request):
+    try:
+        # 获取商品ID和数量，默认为1
+        product_id = request.POST.get('product_id')
+        quantity = int(request.POST.get('quantity', 1))
+        image = request.POST.get('image')
+
+        # 验证商品ID和数量
+        if not product_id or quantity <= 0:
+            return JsonResponse({'status': 'error', 'message': '无效的商品ID或数量'}, status=400)
+
+        # 获取当前用户ID
+        user_id = request.user.id
+        cart_key = f'user_cart:{user_id}'
+
+        # 获取商品对象
+        product = get_object_or_404(Product, id=product_id)
+
+        # 检查商品库存
+        if product.stock < quantity:
+            return JsonResponse({'status': 'error', 'message': '商品库存不足'}, status=400)
+
+        # 获取用户购物车缓存
+        cart = cache.get(cart_key, {})
+
+        # 更新购物车中的商品数量
+        current_quantity = cart.get(str(product_id), {}).get('quantity', 0)
+        new_quantity = current_quantity + quantity
+
+        # 更新购物车
+        cart[str(product_id)] = {
+            'name': product.name,
+            'price': str(product.price),
+            'quantity': new_quantity
+        }
+
+        # 更新商品库存
+        product.stock -= quantity
+        product.save()
+
+        # 设置缓存
+        cache.set(cart_key, cart)
+
+        return JsonResponse({'status': 'success', 'message': '商品已加入购物车'})
+
+    except ValueError:
+        # 处理数量转换错误
+        logger.error('商品数量必须是有效的整数', exc_info=True)
+        return JsonResponse({'status': 'error', 'message': '商品数量必须是有效的整数'}, status=400)
+    except Exception as e:
+        # 处理其他异常
+        logger.error(f'添加商品到购物车时发生错误: {e}', exc_info=True)
+        return JsonResponse({'status': 'error', 'message': '添加商品到购物车时发生错误，请稍后重试'}, status=500)
 
 
 # 购物车
+@login_required
 def mallcart(request):
-    return render(request, 'mallcart.html')
+    user_id = request.user.id
+    cart_key = f'user_cart:{user_id}'
+    cart = cache.get(cart_key, {})
+    return render(request, 'mallcart.html', {'cart_items': cart})
 
 
 # 收藏
+@login_required
 def mallmark(request):
     return render(request, 'mallmark.html')
+
+
+# 结算视图
+@login_required
+def checkout(request, product_id=None):
+    user_id = request.user.id
+    cart_key = f'user_cart:{user_id}'
+    cart = cache.get(cart_key, {})
+    return render(request, 'checkout.html', {'cart_items': cart, 'product_id': product_id})

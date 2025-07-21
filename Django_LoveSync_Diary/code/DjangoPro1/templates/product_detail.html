@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - LoveSync情侣商城</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B8B', // 爱情粉色作为主色调
+                        secondary: '#722ED1', // 紫色作为辅助色
+                        neutral: {
+                            100: '#F9F9F9',
+                            200: '#F0F0F0',
+                            300: '#E0E0E0',
+                            400: '#BDBDBD',
+                            500: '#9E9E9E',
+                            600: '#757575',
+                            700: '#616161',
+                            800: '#424242',
+                            900: '#212121',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .bg-gradient-love {
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            }
+
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+
+            .hover-scale:hover {
+                transform: scale(1.03);
+            }
+
+            .form-input-focus {
+                transition: all 0.3s ease;
+            }
+
+            .form-input-focus:focus {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+            }
+
+            .btn-pulse {
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+                }
+            }
+
+            .float-animation {
+                animation: float 6s ease-in-out infinite;
+            }
+
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-20px);
+                }
+                100% {
+                    transform: translateY(0px);
+                }
+            }
+
+            .product-card {
+                transition: all 0.3s ease;
+            }
+
+            .product-card:hover {
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+                transform: translateY(-5px);
+            }
+
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            }
+
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+            }
+        }
+    </style>
+</head>
+
+<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative">
+    <!-- 背景装饰元素 -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+        </div>
+        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+            style="animation-delay: -2s;"></div>
+        <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+            style="animation-delay: -4s;"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <!-- 品牌标识 -->
+            <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-heart text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
+            </a>
+
+            <!-- 桌面端导航菜单 -->
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="{% url 'community' %}"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">爱享公社</a>
+                <a href="{% url 'moments' %}"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心动轨迹</a>
+                <a href="{% url 'photo_album' %}"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心跳相簿</a>
+                <a href="{% url 'lovesync' %}"
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
+
+                <!-- 更多下拉菜单 -->
+                <div class="relative" id="moreDropdown">
+                    <button
+                        class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
+                        id="moreButton">
+                        更多 <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                        id="moreOptions">
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-calendar-heart mr-2 w-5 text-center"></i>纪念日提醒
+                        </a>
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-gift mr-2 w-5 text-center"></i>礼物推荐
+                        </a>
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-map-marker-heart mr-2 w-5 text-center"></i>情侣地点
+                        </a>
+                        <a href="#"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-question-circle mr-2 w-5 text-center"></i>爱情测试
+                        </a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- 内容过滤器 -->
+            <div
+                class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale">
+                <div class="relative w-full">
+                    <input type="text" placeholder="搜索情侣商品..."
+                        class="pl-10 pr-40 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm w-full">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+
+                    <!-- 搜索热词下拉菜单 -->
+                    <div id="searchSuggestions"
+                        class="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-xl z-40 invisible opacity-0 transform -translate-y-2 transition-all duration-200">
+                        <div class="p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium text-neutral-800">热门搜索</h4>
+                                <button class="text-xs text-neutral-500 hover:text-primary">清除历史</button>
+                            </div>
+
+                            <div class="space-y-2">
+                                <a href="#"
+                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                    <i class="fa-solid fa-fire text-primary mr-3 w-5 text-center"></i>
+                                    <span>情侣T恤夏季新款</span>
+                                    <span class="ml-auto text-xs font-medium text-primary">2.5万+</span>
+                                </a>
+
+                                <a href="#"
+                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                    <i class="fa-solid fa-fire text-primary mr-3 w-5 text-center"></i>
+                                    <span>纯银情侣手链</span>
+                                    <span class="ml-auto text-xs font-medium text-primary">1.8万+</span>
+                                </a>
+
+                                <a href="#"
+                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                    <i class="fa-solid fa-fire text-primary mr-3 w-5 text-center"></i>
+                                    <span>情侣保温杯</span>
+                                    <span class="ml-auto text-xs font-medium text-primary">1.2万+</span>
+                                </a>
+
+                                <a href="#"
+                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                    <i class="fa-solid fa-star text-yellow-400 mr-3 w-5 text-center"></i>
+                                    <span>情侣手机壳定制</span>
+                                    <span class="ml-auto text-xs font-medium text-primary">9.8千+</span>
+                                </a>
+
+                                <a href="#"
+                                    class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                    <i class="fa-solid fa-star text-yellow-400 mr-3 w-5 text-center"></i>
+                                    <span>情侣睡衣套装</span>
+                                    <span class="ml-auto text-xs font-medium text-primary">8.7千+</span>
+                                </a>
+                            </div>
+
+                            <div class="border-t border-neutral-100 my-3 pt-3">
+                                <h4 class="font-medium text-neutral-800 mb-2">搜索历史</h4>
+                                <div class="space-y-2">
+                                    <a href="#"
+                                        class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                        <i
+                                            class="fa-solid fa-clock-rotate-left text-neutral-400 mr-3 w-5 text-center"></i>
+                                        <span>情侣手表</span>
+                                    </a>
+
+                                    <a href="#"
+                                        class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                        <i
+                                            class="fa-solid fa-clock-rotate-left text-neutral-400 mr-3 w-5 text-center"></i>
+                                        <span>情侣马克杯</span>
+                                    </a>
+
+                                    <a href="#"
+                                        class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                        <i
+                                            class="fa-solid fa-clock-rotate-left text-neutral-400 mr-3 w-5 text-center"></i>
+                                        <span>情侣睡衣</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 用户操作区 -->
+            <div class="flex items-center space-x-4">
+                <!-- 返回商城按钮-->
+                <a href="{% url 'mall' %}"
+                    class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-custom shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-shopping-bag"></i>
+                    <span>返回商城</span>
+                </a>
+
+                <!-- 收藏按钮-->
+                <a href="{% url 'mallmark' %}"
+                    class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-heart"></i>
+                    <span class="relative">
+                        <span
+                            class="absolute -top-2 -right-3 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">3</span>
+                    </span>
+                </a>
+
+                <!-- 购物车按钮-->
+                <a href="{% url 'mallcart' %}"
+                    class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-solid fa-shopping-cart"></i>
+                    <span class="relative">
+                        <span
+                            class="absolute -top-2 -right-3 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">5</span>
+                    </span>
+                </a>
+
+                <!-- 用户头像与下拉菜单 -->
+                <div class="relative" id="userDropdown">
+                    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
+                        id="userAvatar">
+                        <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                        id="userOptions">
+                        <a href="{% url 'personal_center' %}"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-user mr-2 w-5 text-center"></i>主页
+                        </a>
+                        <a href="{% url 'message' %}"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>消息
+                        </a>
+                        <a href="{% url 'settings' %}"
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-cog mr-2 w-5 text-center"></i>设置
+                        </a>
+                        <div class="border-t border-neutral-200 my-1"></div>
+                        <a href="{% url 'logout' %}"
+                            class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
+                            <i class="fa-solid fa-sign-out mr-2 w-5 text-center"></i>退出登录
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 移动端菜单按钮 -->
+                <button class="md:hidden text-neutral-700 focus:outline-none" id="menu-toggle">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
+            style="top: 100%;">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="{% url 'community' %}"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                    <i class="fa-solid fa-users mr-3 w-5 text-center"></i>爱享公社
+                </a>
+                <a href="{% url 'moments' %}"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                    <i class="fa-solid fa-bolt mr-3 w-5 text-center"></i>心动轨迹
+                </a>
+                <a href="{% url 'photo_album' %}"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                    <i class="fa-solid fa-images mr-3 w-5 text-center"></i>心跳相簿
+                </a>
+                <a href="{% url 'lovesync' %}"
+                    class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>双人日记
+                </a>
+                <div class="border-t border-neutral-200 my-1"></div>
+                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-calendar-heart mr-3 w-5 text-center"></i>纪念日提醒
+                </a>
+                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-gift mr-3 w-5 text-center"></i>礼物推荐
+                </a>
+                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-map-marker-heart mr-3 w-5 text-center"></i>情侣地点
+                </a>
+                <a href="#" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-question-circle mr-3 w-5 text-center"></i>爱情测试
+                </a>
+                <div class="border-t border-neutral-200 my-1"></div>
+                <a href="{% url 'personal_center' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-user mr-3 w-5 text-center"></i>主页
+                </a>
+                <a href="{% url 'message' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>消息
+                </a>
+                <a href="{% url 'message' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-cog mr-3 w-5 text-center"></i>设置
+                </a>
+                <div class="border-t border-neutral-200 my-1"></div>
+                <a href="{% url 'logout' %}" class="text-red-500 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-sign-out mr-3 w-5 text-center"></i>退出登录
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow pt-32 pb-16 relative z-10">
+        <div class="container mx-auto px-4">
+            <!-- 面包屑导航 -->
+            <div class="flex items-center text-sm text-neutral-500 mb-6">
+                <a href="#" class="hover:text-primary">首页</a>
+                <i class="fa-solid fa-chevron-right text-xs mx-2"></i>
+                <a href="#" class="hover:text-primary">{{ product.category }}</a>
+                <i class="fa-solid fa-chevron-right text-xs mx-2"></i>
+                <span class="text-neutral-700">{{ product.name }}</span>
+            </div>
+
+            <!-- 商品详情区 -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <!-- 商品图片区 -->
+                    <div class="lg:col-span-2 p-6">
+                        <div class="bg-neutral-100 rounded-lg overflow-hidden mb-4">
+                            <img src="{{ product.image }}" alt="{{ product.name }}"
+                                class="w-full h-auto object-cover hover-scale">
+                        </div>
+
+                        <!-- 缩略图预览 -->
+                        <div class="grid grid-cols-4 gap-2">
+                            {% for image in product.images.all|slice:":4" %}
+                            <div
+                                class="border-2 border-neutral-200 rounded-md cursor-pointer hover:border-primary transition-custom hover-scale">
+                                <img src="{{ image.url }}" alt="{{ product.name }}" class="w-full h-16 object-cover">
+                            </div>
+                            {% endfor %}
+                            <!-- 更多图片提示 -->
+                            {% if product.images.count > 4 %}
+                            <div
+                                class="border-2 border-dashed border-neutral-300 rounded-md cursor-pointer hover:border-primary flex items-center justify-center text-neutral-500 hover-scale">
+                                <span class="text-xs">+{{ product.images.count|add:"-4" }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 商品信息区 -->
+                    <div class="lg:col-span-3 p-6">
+                        <div class="mb-4">
+                            <span class="inline-block bg-primary/10 text-primary text-xs px-3 py-1 rounded-full mb-3">
+                                {{ product.category }}
+                            </span>
+                            <h1 class="text-2xl md:text-3xl font-bold text-neutral-800 mb-3">{{ product.name }}</h1>
+                            <div class="flex items-center mb-4">
+                                <div class="flex items-center text-yellow-400 mr-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star-half-stroke"></i>
+                                    <span class="ml-1 text-neutral-600">{{ product.rating }}</span>
+                                </div>
+                                <span class="text-neutral-500 text-sm">({{ product.num_reviews }} 条评价)</span>
+                            </div>
+                        </div>
+
+                        <!-- 价格区 -->
+                        <div class="bg-neutral-50 p-4 rounded-lg mb-6">
+                            <div class="flex items-end mb-2">
+                                <span class="text-primary text-3xl font-bold">¥{{ product.price }}</span>
+                                <span class="text-neutral-400 line-through ml-2 text-sm">¥{{ product.original_price
+                                    }}</span>
+                                <span class="ml-2 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded">
+                                    节省 ¥{{ product.original_price|add:'999' }}
+                                </span>
+                            </div>
+                            <div class="flex items-center text-sm text-neutral-600">
+                                <span>月销量: {{ product.monthly_sales }}</span>
+                                <span class="mx-4">库存: {{ product.stock }} 件</span>
+                            </div>
+                        </div>
+
+                        <!-- 促销信息 -->
+                        <div class="mb-6">
+                            <div class="flex items-start mb-3">
+                                <span class="text-neutral-500 text-sm min-w-[80px] pt-1">促销:</span>
+                                <div>
+                                    <div class="inline-flex items-center text-sm text-primary mb-2">
+                                        <span class="bg-primary/10 px-2 py-0.5 rounded text-xs mr-2">限时优惠</span>
+                                        <span>满100减20，满200减50</span>
+                                    </div>
+                                    <div class="inline-flex items-center text-sm text-primary ml-0 md:ml-4 mb-2">
+                                        <span class="bg-primary/10 px-2 py-0.5 rounded text-xs mr-2">赠品</span>
+                                        <span>下单赠送精美配件</span>
+                                    </div>
+                                    <div class="inline-flex items-center text-sm text-primary ml-0 md:ml-4">
+                                        <span class="bg-primary/10 px-2 py-0.5 rounded text-xs mr-2">包邮</span>
+                                        <span>全场满99元包邮</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 数量选择 -->
+                        <div class="flex items-center mb-6">
+                            <span class="text-neutral-500 text-sm min-w-[80px]">数量:</span>
+                            <div class="flex border rounded-lg">
+                                <button
+                                    class="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-primary border-r"
+                                    id="decrease-btn">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <input type="number" value="1" min="1" max="{{ product.stock }}"
+                                    class="w-16 h-10 text-center border-none focus:outline-none" id="quantity-input">
+                                <button
+                                    class="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-primary border-l"
+                                    id="increase-btn">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                            <span class="ml-3 text-neutral-500 text-sm">库存: {{ product.stock }} 件</span>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="flex flex-col sm:flex-row space-x-4 space-y-4 sm:space-y-0">
+                            <button
+                                class="flex-1 bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-custom flex items-center justify-center btn-pulse"
+                                onclick="window.location.href='{% url 'mallcart' %}'">
+                                <i class="fa-solid fa-shopping-cart mr-2"></i>
+                                加入购物车
+                            </button>
+                            <button
+                                class="flex-1 bg-secondary text-white py-3 rounded-lg font-medium hover:bg-secondary/90 transition-custom flex items-center justify-center"
+                                onclick="window.location.href='{% url 'checkout' product.id %}'">
+                                <i class="fa-solid fa-bolt mr-2"></i>
+                                立即购买
+                            </button>
+                            <button
+                                class="w-full sm:w-12 h-12 border border-neutral-200 rounded-lg flex items-center justify-center text-neutral-500 hover:text-primary hover:border-primary transition-custom">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+
+                        <!-- 服务保障 -->
+                        <div class="flex flex-wrap items-center mt-6 text-sm text-neutral-600">
+                            <div class="flex items-center mr-6 mb-2">
+                                <i class="fa-solid fa-check-circle text-primary mr-1"></i>
+                                <span>正品保障</span>
+                            </div>
+                            <div class="flex items-center mr-6 mb-2">
+                                <i class="fa-solid fa-truck text-primary mr-1"></i>
+                                <span>7天无理由退换</span>
+                            </div>
+                            <div class="flex items-center mr-6 mb-2">
+                                <i class="fa-solid fa-headphones text-primary mr-1"></i>
+                                <span>24小时客服</span>
+                            </div>
+                            <div class="flex items-center mb-2">
+                                <i class="fa-solid fa-shield text-primary mr-1"></i>
+                                <span>支付安全</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品详情和评论选项卡 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 左侧商品详情和评论 -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- 选项卡导航 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="flex border-b">
+                            <button
+                                class="tab-button active py-4 px-6 font-medium text-primary border-b-2 border-primary"
+                                data-tab="description">
+                                商品详情
+                            </button>
+                            <button class="tab-button py-4 px-6 font-medium text-neutral-500 hover:text-neutral-700"
+                                data-tab="reviews">
+                                商品评价 ({{ product.num_reviews }})
+                            </button>
+                        </div>
+
+                        <!-- 商品描述选项卡 -->
+                        <div class="tab-content p-6" id="description">
+                            <div class="space-y-6">
+                                <h2 class="text-xl font-bold text-neutral-800">商品介绍</h2>
+                                <div class="prose max-w-none">
+                                    {{ product.description|safe }}
+                                </div>
+
+                                <h2 class="text-xl font-bold text-neutral-800">产品规格</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="p-4 bg-neutral-50 rounded-lg">
+                                        <h3 class="font-medium mb-2">材质</h3>
+                                        <p>{{ product.material }}</p>
+                                    </div>
+                                    <div class="p-4 bg-neutral-50 rounded-lg">
+                                        <h3 class="font-medium mb-2">颜色</h3>
+                                        <p>{{ product.color }}</p>
+                                    </div>
+                                    <div class="p-4 bg-neutral-50 rounded-lg">
+                                        <h3 class="font-medium mb-2">尺寸</h3>
+                                        <p>{{ product.size }}</p>
+                                    </div>
+                                    <div class="p-4 bg-neutral-50 rounded-lg">
+                                        <h3 class="font-medium mb-2">重量</h3>
+                                        <p>{{ product.weight }}</p>
+                                    </div>
+                                    <div class="p-4 bg-neutral-50 rounded-lg">
+                                        <h3 class="font-medium mb-2">包装</h3>
+                                        <p>{{ product.packing }}</p>
+                                    </div>
+                                    <div class="p-4 bg-neutral-50 rounded-lg">
+                                        <h3 class="font-medium mb-2">产地</h3>
+                                        <p>{{ product.origin }}</p>
+                                    </div>
+                                </div>
+
+                                <h2 class="text-xl font-bold text-neutral-800">使用说明</h2>
+                                <div class="bg-neutral-50 p-4 rounded-lg">
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>{{ product.instructions|safe }}</li>
+                                    </ul>
+                                </div>
+
+                                <h2 class="text-xl font-bold text-neutral-800">注意事项</h2>
+                                <div class="bg-neutral-50 p-4 rounded-lg">
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>{{ product.precautions|safe }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 商品评论选项卡 -->
+                        <div class="tab-content p-6 hidden" id="reviews">
+                            <div class="space-y-6">
+                                <h2 class="text-xl font-bold text-neutral-800">用户评价 ({{ product.num_reviews }})</h2>
+
+                                <!-- 评分概览 -->
+                                <div class="bg-neutral-50 p-6 rounded-lg flex flex-col md:flex-row">
+                                    <div class="md:w-1/3 text-center md:text-left mb-6 md:mb-0">
+                                        <div class="text-5xl font-bold text-primary mb-2">{{ product.rating }}</div>
+                                        <div class="flex items-center justify-center md:justify-start mb-2">
+                                            <i class="fa-solid fa-star text-yellow-400"></i>
+                                            <i class="fa-solid fa-star text-yellow-400"></i>
+                                            <i class="fa-solid fa-star text-yellow-400"></i>
+                                            <i class="fa-solid fa-star text-yellow-400"></i>
+                                            <i class="fa-solid fa-star-half-stroke text-yellow-400"></i>
+                                        </div>
+                                        <div class="text-neutral-600">基于 {{ product.num_reviews }} 条评价</div>
+                                    </div>
+                                    <div class="md:w-2/3">
+                                        <div class="space-y-3">
+                                            <div class="flex items-center">
+                                                <span class="text-sm w-16">5 星</span>
+                                                <div class="flex-1 mx-2 bg-neutral-200 rounded-full h-2">
+                                                    <div class="bg-yellow-400 h-2 rounded-full"
+                                                        style="width: {{ five_star_percentage }}%"></div>
+                                                </div>
+                                                <span class="text-sm w-12 text-right">{{ five_star_count }}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-sm w-16">4 星</span>
+                                                <div class="flex-1 mx-2 bg-neutral-200 rounded-full h-2">
+                                                    <div class="bg-yellow-400 h-2 rounded-full"
+                                                        style="width: {{ four_star_percentage }}%"></div>
+                                                </div>
+                                                <span class="text-sm w-12 text-right">{{ four_star_count }}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-sm w-16">3 星</span>
+                                                <div class="flex-1 mx-2 bg-neutral-200 rounded-full h-2">
+                                                    <div class="bg-yellow-400 h-2 rounded-full"
+                                                        style="width: {{ three_star_percentage }}%"></div>
+                                                </div>
+                                                <span class="text-sm w-12 text-right">{{ three_star_count }}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-sm w-16">2 星</span>
+                                                <div class="flex-1 mx-2 bg-neutral-200 rounded-full h-2">
+                                                    <div class="bg-yellow-400 h-2 rounded-full"
+                                                        style="width: {{ two_star_percentage }}%"></div>
+                                                </div>
+                                                <span class="text-sm w-12 text-right">{{ two_star_count }}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-sm w-16">1 星</span>
+                                                <div class="flex-1 mx-2 bg-neutral-200 rounded-full h-2">
+                                                    <div class="bg-yellow-400 h-2 rounded-full"
+                                                        style="width: {{ one_star_percentage }}%"></div>
+                                                </div>
+                                                <span class="text-sm w-12 text-right">{{ one_star_count }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 评论列表 -->
+                                <div class="space-y-6">
+                                    {% for review in reviews %}
+                                    <div class="border-b border-neutral-100 pb-6">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div class="flex items-center">
+                                                <img src="{{ review.user.profile.userAvatar.url }}"
+                                                    alt="{{ review.user.username }}"
+                                                    class="w-10 h-10 rounded-full object-cover mr-3">
+                                                <div>
+                                                    <h4 class="font-medium">{{ review.user.username }}</h4>
+                                                    <div class="flex items-center text-sm text-neutral-500">
+                                                        <span>{{ review.created_at|date:"Y-m-d" }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex text-yellow-400">
+                                                {% for i in '12345' %}
+                                                {% if forloop.counter <= review.rating %} <i class="fa-solid fa-star">
+                                                    </i>
+                                                    {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                            </div>
+                                        </div>
+                                        <p class="mb-3">{{ review.content }}</p>
+                                        {% if review.images.all %}
+                                        <div class="grid grid-cols-3 gap-2 mb-3">
+                                            {% for image in review.images.all %}
+                                            <img src="{{ image.url }}" alt="用户评论图片"
+                                                class="w-full h-20 object-cover rounded-lg">
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        <div class="flex items-center text-sm text-neutral-500">
+                                            <button class="flex items-center hover:text-primary">
+                                                <i class="fa-regular fa-thumbs-up mr-1"></i>
+                                                <span>{{ review.likes }}</span>
+                                            </button>
+                                            <span class="mx-3">|</span>
+                                            <button class="hover:text-primary">回复</button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                    <!-- 加载更多评论 -->
+                                    <button
+                                        class="w-full py-3 border border-neutral-200 rounded-lg text-neutral-700 hover:bg-neutral-50 transition-custom">
+                                        加载更多评论
+                                    </button>
+                                </div>
+
+                                <!-- 发表评论 -->
+                                <div class="bg-neutral-50 p-6 rounded-lg">
+                                    <h3 class="text-lg font-bold mb-4">发表评论</h3>
+                                    <form>
+                                        <div class="mb-4">
+                                            <label class="block text-neutral-700 mb-2">评分</label>
+                                            <div class="flex text-neutral-300 text-xl cursor-pointer" id="rating-stars">
+                                                <i class="fa-regular fa-star mr-1" data-rating="1"></i>
+                                                <i class="fa-regular fa-star mr-1" data-rating="2"></i>
+                                                <i class="fa-regular fa-star mr-1" data-rating="3"></i>
+                                                <i class="fa-regular fa-star mr-1" data-rating="4"></i>
+                                                <i class="fa-regular fa-star" data-rating="5"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="block text-neutral-700 mb-2">评论内容</label>
+                                            <textarea rows="4"
+                                                class="w-full p-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus"
+                                                placeholder="分享你的使用体验..."></textarea>
+                                        </div>
+                                        <div class="mb-6">
+                                            <label class="block text-neutral-700 mb-2">上传图片</label>
+                                            <div class="flex flex-wrap gap-3">
+                                                <div
+                                                    class="w-20 h-20 border-2 border-dashed border-neutral-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary transition-custom">
+                                                    <i class="fa-regular fa-image text-2xl text-neutral-400"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit"
+                                            class="bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-primary/90 transition-custom">
+                                            提交评论
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 相关推荐 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold text-neutral-800 mb-4">相关推荐</h2>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {% for related_product in related_products %}
+                                <div class="product-card bg-white rounded-lg overflow-hidden border border-neutral-100">
+                                    <div class="relative">
+                                        <img src="{{ related_product.image }}" alt="{{ related_product.name }}"
+                                            class="w-full h-48 object-cover">
+                                        {% if related_product.discount > 0 %}
+                                        <div
+                                            class="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded">
+                                            {{ related_product.discount }}折
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="p-3">
+                                        <h3 class="font-medium text-neutral-800 truncate">{{ related_product.name }}
+                                        </h3>
+                                        <div class="flex items-center mt-1 text-sm">
+                                            <div class="flex text-yellow-400 text-xs mr-1">
+                                                <i class="fa-solid fa-star"></i>
+                                                <i class="fa-solid fa-star"></i>
+                                                <i class="fa-solid fa-star"></i>
+                                                <i class="fa-solid fa-star"></i>
+                                                <i class="fa-solid fa-star-half-stroke"></i>
+                                            </div>
+                                            <span class="text-neutral-500">{{ related_product.rating }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <span class="text-primary font-bold">¥{{ related_product.price }}</span>
+                                            <button
+                                                class="w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-custom">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧商家信息和推荐 -->
+                <div class="space-y-8">
+                    <!-- 商家信息 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center mb-4">
+                                <img src="{{ product.shop.logo }}" alt="{{ product.shop.name }}"
+                                    class="w-12 h-12 rounded-full object-cover mr-3">
+                                <div>
+                                    <h3 class="font-bold text-neutral-800">{{ product.shop.name }}</h3>
+                                    <div class="flex items-center text-sm">
+                                        <span class="text-primary flex items-center mr-3">
+                                            <i class="fa-solid fa-shield-check mr-1"></i>
+                                            商家认证
+                                        </span>
+                                        <span class="text-neutral-500">
+                                            <i class="fa-solid fa-clock mr-1"></i>
+                                            已入驻 {{ product.shop.years_settled }} 年
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 mb-4">
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-primary">{{ product.shop.rating }}</div>
+                                    <div class="text-xs text-neutral-500">店铺评分</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-primary">{{ product.shop.product_count }}</div>
+                                    <div class="text-xs text-neutral-500">商品数量</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-primary">{{ product.shop.follower_count }}</div>
+                                    <div class="text-xs text-neutral-500">粉丝数量</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button
+                                    class="flex-1 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-custom">
+                                    <i class="fa-solid fa-comment-dots mr-1"></i>
+                                    联系商家
+                                </button>
+                                <button
+                                    class="flex-1 py-2 border border-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-custom">
+                                    <i class="fa-solid fa-store mr-1"></i>
+                                    进入店铺
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 猜你喜欢 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold text-neutral-800 mb-4">猜你喜欢</h2>
+                            <div class="space-y-4">
+                                {% for recommended_product in recommended_products %}
+                                <div class="flex items-center">
+                                    <img src="{{ recommended_product.image }}" alt="{{ recommended_product.name }}"
+                                        class="w-16 h-16 rounded-lg object-cover mr-3">
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-neutral-800 truncate">{{ recommended_product.name }}
+                                        </h3>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-primary font-bold">¥{{ recommended_product.price }}</span>
+                                            <div class="flex text-yellow-400 text-xs ml-auto">
+                                                <i class="fa-solid fa-star"></i>
+                                                <span class="ml-1 text-neutral-500">{{ recommended_product.rating
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配送信息 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold text-neutral-800 mb-4">配送信息</h2>
+                            <div class="space-y-4">
+                                <div class="flex">
+                                    <span class="text-neutral-500 w-20">发货地:</span>
+                                    <span>{{ product.shipping_origin }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-neutral-500 w-20">配送方式:</span>
+                                    <span>{{ product.shipping_method }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-neutral-500 w-20">配送时间:</span>
+                                    <span>{{ product.shipping_time }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-neutral-500 w-20">运费:</span>
+                                    <span>{{ product.shipping_fee }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-neutral-500 w-20">售后服务:</span>
+                                    <span>{{ product.after_sales }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部信息 -->
+    <footer class="bg-white border-t border-neutral-200 py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
+                            <i class="fa-solid fa-heart text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
+                    </div>
+                    <p class="text-neutral-600 mb-4">LoveSync情侣商城，为您提供最浪漫的情侣商品和最贴心的服务，让爱情更加甜蜜。</p>
+                    <div class="flex space-x-4">
+                        <a href="#"
+                            class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 hover:bg-primary hover:text-white transition-custom">
+                            <i class="fa-brands fa-weibo"></i>
+                        </a>
+                        <a href="#"
+                            class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 hover:bg-primary hover:text-white transition-custom">
+                            <i class="fa-brands fa-wechat"></i>
+                        </a>
+                        <a href="#"
+                            class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 hover:bg-primary hover:text-white transition-custom">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="#"
+                            class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 hover:bg-primary hover:text-white transition-custom">
+                            <i class="fa-brands fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-neutral-800 mb-4">购物指南</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">注册与登录</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">购物流程</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">支付方式</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">常见问题</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-neutral-800 mb-4">配送方式</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">上门自提</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">211限时达</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">次日达</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">海外配送</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-neutral-800 mb-4">客户服务</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">联系我们</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">售后服务</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">隐私政策</a></li>
+                        <li><a href="#" class="text-neutral-600 hover:text-primary transition-custom">关于我们</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-neutral-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-neutral-500 text-sm mb-4 md:mb-0">© 2025 LoveSync情侣商城. 保留所有权利.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-neutral-500 hover:text-primary text-sm transition-custom">隐私政策</a>
+                    <a href="#" class="text-neutral-500 hover:text-primary text-sm transition-custom">用户协议</a>
+                    <a href="#" class="text-neutral-500 hover:text-primary text-sm transition-custom">网站地图</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top"
+        class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-primary text-white shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 z-50">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- 加入购物车成功提示 -->
+    <div id="cart-toast"
+        class="fixed top-20 right-6 bg-white rounded-lg shadow-xl p-4 flex items-center transform translate-x-full transition-all duration-300 z-50">
+        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-3">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+            <h4 class="font-medium text-neutral-800">加入购物车成功</h4>
+            <p class="text-sm text-neutral-500">已添加到购物车</p>
+        </div>
+        <button class="ml-4 text-neutral-400 hover:text-neutral-600"
+            onclick="document.getElementById('cart-toast').classList.add('translate-x-full')">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 导航栏滚动效果
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow-md');
+                header.classList.remove('py-3', 'shadow-sm');
+            } else {
+                header.classList.add('py-3', 'shadow-sm');
+                header.classList.remove('py-2', 'shadow-md');
+            }
+        });
+
+        // 更多下拉菜单 - 鼠标悬停效果
+        const moreButton = document.getElementById('moreButton');
+        const moreOptions = document.getElementById('moreOptions');
+        const moreDropdown = document.getElementById('moreDropdown');
+        let moreCloseTimer;
+
+        // 鼠标经过按钮时打开菜单
+        moreButton.addEventListener('mouseenter', function () {
+            clearTimeout(moreCloseTimer);
+            moreOptions.classList.remove('hidden');
+            userOptions.classList.add('hidden');
+            searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+        });
+
+        // 鼠标悬停在下拉菜单时保持菜单打开
+        moreDropdown.addEventListener('mouseenter', function () {
+            clearTimeout(moreCloseTimer);
+        });
+
+        // 鼠标离开下拉菜单时关闭菜单
+        moreDropdown.addEventListener('mouseleave', function () {
+            moreCloseTimer = setTimeout(() => {
+                moreOptions.classList.add('hidden');
+            }, 300);
+        });
+
+        // 用户下拉菜单 - 鼠标悬停效果
+        const userAvatar = document.getElementById('userAvatar');
+        const userOptions = document.getElementById('userOptions');
+        const userDropdown = document.getElementById('userDropdown');
+        let userCloseTimer;
+
+        // 鼠标经过头像时打开菜单
+        userAvatar.addEventListener('mouseenter', function () {
+            clearTimeout(userCloseTimer);
+            userOptions.classList.remove('hidden');
+            moreOptions.classList.add('hidden');
+            searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+        });
+
+        // 鼠标悬停在下拉菜单时保持菜单打开
+        userDropdown.addEventListener('mouseenter', function () {
+            clearTimeout(userCloseTimer);
+        });
+
+        // 鼠标离开下拉菜单时关闭菜单
+        userDropdown.addEventListener('mouseleave', function () {
+            userCloseTimer = setTimeout(() => {
+                userOptions.classList.add('hidden');
+            }, 300);
+        });
+
+        // 移动端菜单
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden', 'opacity-0', '-translate-y-2');
+                mobileMenu.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 200);
+            }
+        });
+
+        // 搜索框功能增强
+        const searchInput = document.querySelector('input[placeholder="搜索情侣商品..."]');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const clearHistoryBtn = document.getElementById('clearHistory');
+
+        // 搜索建议框显示/隐藏
+        if (searchInput && searchSuggestions) {
+            searchInput.addEventListener('focus', function () {
+                searchSuggestions.classList.remove('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                userOptions.classList.add('hidden');
+                moreOptions.classList.add('hidden');
+            });
+
+            searchInput.addEventListener('blur', function () {
+                setTimeout(() => {
+                    searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                }, 200);
+            });
+
+            // 输入内容时显示清除按钮
+            searchInput.addEventListener('input', function () {
+                if (this.value.trim() !== '') {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
+            });
+        }
+
+        // 清除搜索框内容
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                searchInput.value = '';
+                searchInput.focus();
+                clearSearchBtn.classList.add('hidden');
+            });
+        }
+
+        // 清除搜索历史
+        if (clearHistoryBtn) {
+            clearHistoryBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const historyItems = document.querySelectorAll('#searchSuggestions .flex.items-center.justify-between');
+                historyItems.forEach(item => {
+                    if (!item.classList.contains('text-neutral-500')) {
+                        item.style.transition = 'all 0.3s ease';
+                        item.style.opacity = '0';
+                        item.style.height = '0';
+                        item.style.margin = '0';
+                        setTimeout(() => {
+                            item.remove();
+                        }, 300);
+                    }
+                });
+            });
+        }
+
+        // 数量选择器
+        document.getElementById('decrease-btn').addEventListener('click', function () {
+            const input = document.getElementById('quantity-input');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        });
+
+        document.getElementById('increase-btn').addEventListener('click', function () {
+            const input = document.getElementById('quantity-input');
+            if (parseInt(input.value) < parseInt(input.max)) {
+                input.value = parseInt(input.value) + 1;
+            }
+        });
+
+        // 选项卡切换
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有按钮的活动状态
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active', 'text-primary', 'border-primary');
+                    btn.classList.add('text-neutral-500');
+                });
+
+                // 添加当前按钮的活动状态
+                button.classList.add('active', 'text-primary', 'border-primary');
+                button.classList.remove('text-neutral-500');
+
+                // 隐藏所有内容
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                // 显示当前内容
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+
+        // 下拉菜单
+        document.getElementById('userAvatar').addEventListener('click', function () {
+            const dropdown = document.getElementById('userOptions');
+            dropdown.classList.toggle('hidden');
+        });
+
+        document.getElementById('moreButton').addEventListener('click', function () {
+            const dropdown = document.getElementById('moreOptions');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // 移动端菜单
+        document.getElementById('menu-toggle').addEventListener('click', function () {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
+                }, 10);
+            } else {
+                mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 200);
+            }
+        });
+
+        // 搜索建议
+        searchInput.addEventListener('focus', function () {
+            searchSuggestions.classList.remove('invisible', 'opacity-0', '-translate-y-2');
+        });
+
+        searchInput.addEventListener('blur', function () {
+            setTimeout(() => {
+                searchSuggestions.classList.add('invisible', 'opacity-0', '-translate-y-2');
+            }, 200);
+        });
+
+        // 返回顶部按钮
+        const backToTopButton = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', function () {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+            } else {
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+
+        backToTopButton.addEventListener('click', function () {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 评论评分
+        const ratingStars = document.querySelectorAll('#rating-stars i');
+
+        ratingStars.forEach(star => {
+            star.addEventListener('mouseover', function () {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                ratingStars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-rating')) <= rating) {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid', 'text-yellow-400');
+                    } else {
+                        s.classList.remove('fa-solid', 'text-yellow-400');
+                        s.classList.add('fa-regular');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseout', function () {
+                // 重置为之前选择的评分
+                const selectedRating = document.querySelector('#rating-stars i.fa-solid');
+                ratingStars.forEach(s => {
+                    if (selectedRating && parseInt(s.getAttribute('data-rating')) <= parseInt(selectedRating.getAttribute('data-rating'))) {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid', 'text-yellow-400');
+                    } else {
+                        s.classList.remove('fa-solid', 'text-yellow-400');
+                        s.classList.add('fa-regular');
+                    }
+                });
+            });
+
+            star.addEventListener('click', function () {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                ratingStars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-rating')) <= rating) {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid', 'text-yellow-400');
+                    } else {
+                        s.classList.remove('fa-solid', 'text-yellow-400');
+                        s.classList.add('fa-regular');
+                    }
+                });
+            });
+        });
+
+        // 加入购物车
+        function addToCart(productId, productName, price, image, quantity) {
+            // 这里应该是AJAX请求，将商品添加到购物车
+            console.log(`添加到购物车: ${productName}, 数量: ${quantity}`);
+
+            // 更新购物车数量
+            const cartCount = document.getElementById('cart-count');
+            cartCount.textContent = parseInt(cartCount.textContent) + parseInt(quantity);
+
+            // 显示成功提示
+            const toast = document.getElementById('cart-toast');
+            toast.classList.remove('translate-x-full');
+
+            // 3秒后自动隐藏提示
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // 点击页面其他地方关闭下拉菜单
+        document.addEventListener('click', function (event) {
+            // 用户下拉菜单
+            const userDropdown = document.getElementById('userOptions');
+            if (!document.getElementById('userAvatar').contains(event.target) && !userDropdown.contains(event.target)) {
+                userDropdown.classList.add('hidden');
+            }
+
+            // 更多下拉菜单
+            const moreDropdown = document.getElementById('moreOptions');
+            if (!document.getElementById('moreButton').contains(event.target) && !moreDropdown.contains(event.target)) {
+                moreDropdown.classList.add('hidden');
+            }
+
+            // 移动端菜单
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!document.getElementById('menu-toggle').contains(event.target) && !mobileMenu.contains(event.target)) {
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                    setTimeout(() => {
+                        mobileMenu.classList.add('hidden');
+                    }, 200);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
