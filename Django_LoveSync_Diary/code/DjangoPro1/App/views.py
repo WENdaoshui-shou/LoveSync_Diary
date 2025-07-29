@@ -2,7 +2,7 @@ import os
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from App.models import *
+from .models import *
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods, require_POST
@@ -14,11 +14,112 @@ from django.http import HttpResponse
 from django.core.cache import cache
 from django.conf import settings
 from .utils import generate_verify_code, create_verify_image
+import logging
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S', )
+logger = logging.getLogger(__name__)
 
 
 # 首页
 def user_index(request):
     return render(request, 'index.html')
+
+
+# 情侣绑定
+@login_required
+def couple_request(request):
+    """处理情侣绑定请求"""
+    if request.method == 'POST':
+        code = request.POST.get('couple_code')
+
+        try:
+            target_profile = Profile.objects.get(couple_code=code)
+        except Profile.DoesNotExist:
+            messages.error(request, '无效的邀请码')
+            return redirect('couple_settings')
+
+        # 不能邀请自己
+        if target_profile.user == request.user:
+            messages.error(request, '不能邀请自己')
+            return redirect('couple_settings')
+
+        try:
+            request.user.profile.send_couple_request(target_profile)
+            messages.success(request, f'已向 {target_profile.user.username} 发送情侣邀请')
+        except ValidationError as e:
+            messages.error(request, str(e))
+
+        return redirect('couple_settings')
+
+    return render(request, 'couple/request.html')
+
+
+@login_required
+def couple_accept(request, profile_id):
+    """接受情侣请求"""
+    target_profile = get_object_or_404(Profile, id=profile_id)
+
+    # 检查是否有待处理的请求
+    if request.user.profile.couple_pending != target_profile:
+        messages.error(request, '没有待处理的邀请')
+        return redirect('couple_settings')
+
+    try:
+        request.user.profile.accept_couple_request()
+        messages.success(request, f'已与 {target_profile.user.username} 成为情侣')
+    except ValidationError as e:
+        messages.error(request, str(e))
+
+    return redirect('couple_settings')
+
+
+@login_required
+def couple_reject(request, profile_id):
+    """拒绝情侣请求"""
+    target_profile = get_object_or_404(Profile, id=profile_id)
+
+    # 检查是否有待处理的请求
+    if request.user.profile.couple_pending != target_profile:
+        messages.error(request, '没有待处理的邀请')
+        return redirect('couple_settings')
+
+    try:
+        request.user.profile.reject_couple_request()
+        messages.success(request, f'已拒绝 {target_profile.user.username} 的情侣邀请')
+    except ValidationError as e:
+        messages.error(request, str(e))
+
+    return redirect('couple_settings')
+
+
+@login_required
+def couple_breakup(request):
+    """解除情侣关系"""
+    if request.method == 'POST':
+        try:
+            request.user.profile.break_up()
+            messages.success(request, '已解除情侣关系')
+        except ValidationError as e:
+            messages.error(request, str(e))
+
+        return redirect('couple_settings')
+
+    return render(request, 'couple/breakup_confirm.html')
+
+
+@login_required
+def couple(request):
+    """情侣设置页面"""
+    profile = request.user.profile
+    context = {
+        'profile': profile,
+        'has_couple': profile.couple is not None,
+        'pending_request': profile.couple_pending,
+        'received_request': Profile.objects.filter(couple_pending=profile).first() if not profile.couple else None
+    }
+    return render(request, 'couple.html', context)
 
 
 # 生成验证码视图
@@ -685,11 +786,11 @@ def add_to_cart(request):
 
     except ValueError:
         # 处理数量转换错误
-        logger.error('商品数量必须是有效的整数', exc_info=True)
+        logger.info('商品数量必须是有效的整数', exc_info=True)
         return JsonResponse({'status': 'error', 'message': '商品数量必须是有效的整数'}, status=400)
     except Exception as e:
         # 处理其他异常
-        logger.error(f'添加商品到购物车时发生错误: {e}', exc_info=True)
+        logger.info(f'添加商品到购物车时发生错误: {e}', exc_info=True)
         return JsonResponse({'status': 'error', 'message': '添加商品到购物车时发生错误，请稍后重试'}, status=500)
 
 

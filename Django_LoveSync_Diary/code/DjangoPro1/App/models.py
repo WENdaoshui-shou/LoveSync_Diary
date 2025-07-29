@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
@@ -85,6 +86,125 @@ class Profile(models.Model):
     birth_date = models.DateField(null=True, blank=True, verbose_name='出生日期')
     location = models.CharField(max_length=100, choices=LOCATION_CHOICES, null=True, blank=True, verbose_name='所在地')
     bio = models.TextField(max_length=500, null=True, blank=True, verbose_name='个人简介')
+
+    # 情侣关系字段
+    couple = models.OneToOneField(
+        'self',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='partner',
+    )
+    couple_joined_at = models.DateTimeField(null=True, blank=True, verbose_name='绑定时间')
+    couple_code = models.CharField(max_length=10, blank=True, null=True, unique=True, verbose_name='情侣邀请码')
+    couple_pending = models.OneToOneField(
+        'self',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='pending_partner',
+    )
+
+    def __str__(self):
+        return f"{self.user.username} 的个人设置"
+
+    class Meta:
+        verbose_name = '用户设置'
+        verbose_name_plural = '用户设置'
+
+    def save(self, *args, **kwargs):
+        # 生成情侣邀请码（如果没有）
+        if not self.couple_code:
+            self.couple_code = self.generate_couple_code()
+        super().save(*args, **kwargs)
+
+    def generate_couple_code(self):
+        """生成唯一的6位数字邀请码"""
+        import random
+        while True:
+            code = f"{random.randint(100000, 999999)}"
+            if not Profile.objects.filter(couple_code=code).exists():
+                return code
+
+    def send_couple_request(self, target_profile):
+        """发送情侣绑定请求"""
+        # 检查是否已经是情侣
+        if self.couple == target_profile:
+            raise ValidationError(_("你们已经是情侣关系了"))
+
+        # 检查对方是否已经有情侣
+        if target_profile.couple:
+            raise ValidationError(_("对方已经有情侣了"))
+
+        # 检查是否有未处理的请求
+        if self.couple_pending or target_profile.couple_pending:
+            raise ValidationError(_("有未处理的情侣请求"))
+
+        # 发送请求
+        self.couple_pending = target_profile
+        self.save()
+        return True
+
+    def accept_couple_request(self):
+        """接受情侣绑定请求"""
+        if not self.couple_pending:
+            raise ValidationError(_("没有待处理的情侣请求"))
+
+        requester = self.couple_pending
+
+        # 建立情侣关系
+        self.couple = requester
+        requester.couple = self
+
+        # 记录绑定时间
+        now = timezone.now()
+        self.couple_joined_at = now
+        requester.couple_joined_at = now
+
+        # 清除待处理请求
+        self.couple_pending = None
+        requester.couple_pending = None
+
+        # 保存双方
+        self.save()
+        requester.save()
+
+        return True
+
+    def reject_couple_request(self):
+        """拒绝情侣绑定请求"""
+        if not self.couple_pending:
+            raise ValidationError(_("没有待处理的情侣请求"))
+
+        requester = self.couple_pending
+        self.couple_pending = None
+        requester.couple_pending = None
+
+        self.save()
+        requester.save()
+
+        return True
+
+    def break_up(self):
+        """解除情侣关系"""
+        if not self.couple:
+            raise ValidationError(_("你没有情侣关系"))
+
+        partner = self.couple
+
+        # 解除关系
+        self.couple = None
+        partner.couple = None
+
+        # 清除绑定时间
+        self.couple_joined_at = None
+        partner.couple_joined_at = None
+
+        # 保存双方
+        self.save()
+        partner.save()
+
+        return True
 
     def __str__(self):
         return f"{self.user.username} 的个人设置"

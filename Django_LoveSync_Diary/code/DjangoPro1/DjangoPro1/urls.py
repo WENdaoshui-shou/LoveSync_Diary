@@ -71,6 +71,13 @@ urlpatterns = [
     # 结算
     path('checkout/<uuid:product_id>/', checkout, name='checkout'),
 
+    # 情侣相关URL
+    path('couple/', couple, name='couple'),
+    path('couple/request/', couple_request, name='couple_request'),
+    path('couple/accept/<int:profile_id>/', couple_accept, name='couple_accept'),
+    path('couple/reject/<int:profile_id>/', couple_reject, name='couple_reject'),
+    path('couple/breakup/', couple_breakup, name='couple_breakup'),
+
     path('admin/', admin.site.urls),
 ]
 
