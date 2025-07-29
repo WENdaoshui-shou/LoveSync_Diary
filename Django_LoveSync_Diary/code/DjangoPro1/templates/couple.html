@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>情侣空间 - 记录你们的爱情故事</title>
+    <title>情侣设置 | 恋爱空间</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind 配置 -->
     <script>
@@ -13,861 +15,1014 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF4B91',
-                        secondary: '#9F86FF',
-                        accent: '#FFD1DA',
+                        primary: '#FF6B8B', // 爱情粉色作为主色调
+                        secondary: '#722ED1', // 紫色作为辅助色
                         neutral: {
                             100: '#F9F9F9',
-                            200: '#F2F2F2',
-                            300: '#E5E5E5',
-                            400: '#D4D4D4',
-                            500: '#A3A3A3',
-                            600: '#737373',
-                            700: '#525252',
-                            800: '#404040',
-                            900: '#171717',
+                            200: '#F0F0F0',
+                            300: '#E0E0E0',
+                            400: '#BDBDBD',
+                            500: '#9E9E9E',
+                            600: '#757575',
+                            700: '#616161',
+                            800: '#424242',
+                            900: '#212121',
                         }
                     },
                     fontFamily: {
-                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
                     },
-                    boxShadow: {
-                        'custom': '0 4px 20px rgba(0, 0, 0, 0.05)',
-                        'hover': '0 8px 30px rgba(0, 0, 0, 0.12)',
-                    }
                 },
             }
         }
     </script>
 
+    <!-- 自定义工具类 -->
     <style type="text/tailwindcss">
         @layer utilities {
             .content-auto {
                 content-visibility: auto;
             }
-            .transition-custom {
-                transition: all 0.3s ease;
+    
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
+    
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+    
+            .bg-gradient-love {
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            }
+    
             .hover-scale {
                 transition: transform 0.3s ease;
             }
+    
             .hover-scale:hover {
-                transform: scale(1.02);
+                transform: scale(1.03);
             }
-            .gradient-bg {
-                background: linear-gradient(135deg, #FF4B91 0%, #9F86FF 100%);
+    
+            .form-input-focus {
+                transition: all 0.3s ease;
             }
-            .text-gradient {
-                background-clip: text;
-                -webkit-background-clip: text;
-                color: transparent;
-                background-image: linear-gradient(135deg, #FF4B91 0%, #9F86FF 100%);
+    
+            .form-input-focus:focus {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+            }
+    
+            .btn-pulse {
+                animation: pulse 2s infinite;
+            }
+    
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+                }
+            }
+    
+            .float-animation {
+                animation: float 6s ease-in-out infinite;
+            }
+    
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-20px);
+                }
+                100% {
+                    transform: translateY(0px);
+                }
+            }
+    
+            .post-card {
+                transition: all 0.3s ease;
+            }
+    
+            .post-card:hover {
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                transform: translateY(-2px);
+            }
+    
+            .like-animation {
+                animation: like 0.5s ease;
+            }
+    
+            @keyframes like {
+                0% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.3);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+    
+            .comment-slide {
+                animation: slideUp 0.3s ease;
+            }
+    
+            @keyframes slideUp {
+                from {
+                    transform: translateY(20px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+    
+            .scroll-smooth {
+                scroll-behavior: smooth;
+            }
+        }
+    </style>
+
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #F9FAFB;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #CBD5E0;
+        }
+
+        /* 图片加载动画 */
+        .img-loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* 动画类 */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
 </head>
-<body class="bg-neutral-100 font-inter text-neutral-800 min-h-screen">
-    <!-- 顶部导航栏 -->
-    <header class="bg-white shadow-custom fixed top-0 left-0 right-0 z-40">
+
+<body class="text-neutral-800 scroll-smooth">
+    <!-- 导航栏 -->
+    <header class="sticky top-0 z-40 bg-white shadow-sm transition-custom">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center">
-                <button id="menu-toggle" class="mr-4 text-neutral-800 hover:text-primary transition-custom">
-                    <i class="fa-solid fa-bars text-xl"></i>
+                <button id="backBtn"
+                    class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-custom">
+                    <i class="fa fa-arrow-left text-primary"></i>
                 </button>
-                <h1 class="text-xl font-bold text-gradient">情侣空间</h1>
+                <h1 class="ml-3 text-xl font-bold text-primary">情侣设置</h1>
             </div>
-            <div class="flex items-center space-x-4">
-                <button class="text-neutral-800 hover:text-primary transition-custom">
-                    <i class="fa-solid fa-bell text-xl"></i>
+            <div class="flex items-center space-x-3">
+                <button
+                    class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-custom">
+                    <i class="fa fa-search text-neutral-700"></i>
                 </button>
-                <div class="relative">
-                    <img src="https://picsum.photos/id/1005/200/200" alt="我的头像" class="w-10 h-10 rounded-full object-cover border-2 border-primary">
-                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-                </div>
+                <button
+                    class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-custom">
+                    <i class="fa fa-filter text-neutral-700"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- 移动端侧边栏 -->
-    <div id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
-        <div class="p-4 border-b border-neutral-200">
-            <div class="flex items-center">
-                <img src="https://picsum.photos/id/1005/200/200" alt="我的头像" class="w-12 h-12 rounded-full object-cover mr-3">
+    <main class="container mx-auto px-6 py-6">
+        <!-- 情侣关系卡片 -->
+        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-fade-in">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="relative mb-4 md:mb-0">
+                    <div class="relative w-28 h-28 rounded-full overflow-hidden border-4 border-primary/20">
+                        <img src="{{ user.profile.userAvatar.url }}" alt="情侣合照" class="w-full h-full object-cover"
+                            onload="this.classList.remove('img-loading')" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full">
+                        </div>
+                    </div>
+                    <button
+                        class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-primary hover:bg-neutral-50 transition-custom">
+                        <i class="fa fa-camera"></i>
+                    </button>
+                </div>
+
+                <div class="md:ml-6 text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start flex-wrap">
+                        <h2 class="text-2xl font-bold">{{user.name}} & {{user.profile.couple.user.name}}</h2>
+                        <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full mt-1 md:mt-0"
+                            id="days-together">
+                            相恋<span>{{user.profile.couple_joined_at}}</span>天
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <div class="bg-neutral-50 rounded-lg p-3 text-center hover-scale">
+                            <p class="text-neutral-500 text-sm">我的昵称</p>
+                            <p class="font-medium mt-1">{{user.name}}</p>
+                        </div>
+                        <div class="bg-neutral-50 rounded-lg p-3 text-center hover-scale">
+                            <p class="text-neutral-500 text-sm">Ta的昵称</p>
+                            <p class="font-medium mt-1">{{user.profile.couple.user.name}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 基本信息设置 -->
+        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.1s">
+            <h2 class="text-xl font-bold mb-6 flex items-center">
+                <i class="fa fa-user-circle text-primary mr-2"></i>基本信息
+            </h2>
+
+            <div class="space-y-5">
                 <div>
-                    <h3 class="font-medium">用户名</h3>
-                    <p class="text-xs text-neutral-500">点击设置个人信息</p>
-                </div>
-            </div>
-        </div>
-        <nav class="p-4">
-            <ul class="space-y-2">
-                <li>
-                    <a href="#home" class="flex items-center px-4 py-3 rounded-lg bg-primary/10 text-primary">
-                        <i class="fa-solid fa-home w-6"></i>
-                        <span>首页</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#moments" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-images w-6"></i>
-                        <span>心动瞬间</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#diary" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-book w-6"></i>
-                        <span>爱情日记</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#anniversary" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-calendar-heart w-6"></i>
-                        <span>纪念日</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#photos" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-camera w-6"></i>
-                        <span>相册</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#chat" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-comments w-6"></i>
-                        <span>聊天</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#relationship" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-heart w-6"></i>
-                        <span>情侣设置</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#places" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-map-marker-alt w-6"></i>
-                        <span>情侣地点</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#test" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                        <i class="fa-solid fa-question-circle w-6"></i>
-                        <span>爱情测试</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-neutral-200">
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-custom">
-                <i class="fa-solid fa-cog w-6"></i>
-                <span>设置</span>
-            </a>
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-custom mt-2">
-                <i class="fa-solid fa-sign-out-alt w-6"></i>
-                <span>退出登录</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- 遮罩层 -->
-    <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
-
-    <!-- 主内容区域 -->
-    <main class="container mx-auto px-4 pt-20 pb-24">
-        <!-- 首页 -->
-        <section id="home" class="space-y-8">
-            <div class="gradient-bg rounded-2xl shadow-custom p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-2xl font-bold mb-2">亲爱的，今天是</h1>
-                        <p id="current-date" class="text-white/80 text-lg mb-4">2025年7月21日 星期一</p>
-                        <p id="together-time" class="text-white/90">已在一起 97 天</p>
-                    </div>
-                    <div class="relative">
-                        <div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                            <div class="text-center">
-                                <span class="text-3xl font-bold">97</span>
-                                <span class="text-xs">天</span>
-                            </div>
-                        </div>
-                        <div class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center">
-                            <i class="fa-solid fa-heart"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-6 flex items-center justify-between">
+                    <label class="block text-neutral-700 mb-2">我们的情侣名</label>
                     <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white/30">
-                            <img src="https://picsum.photos/id/1005/200/200" alt="我的头像" class="w-full h-full object-cover">
+                        <input type="text" value="{{ user.profile.couple.user.name }}"
+                            class="flex-1 px-4 py-3 rounded-l-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
+                        <div class="px-4 py-3 bg-neutral-100 border-t border-b border-neutral-300">
+                            &
                         </div>
-                        <div class="w-3 h-3 rounded-full bg-white/50 mx-2"></div>
-                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white/30">
-                            <img src="https://picsum.photos/id/1012/200/200" alt="对方头像" class="w-full h-full object-cover">
-                        </div>
+                        <input type="text" value="{{ user.name }}"
+                            class="flex-1 px-4 py-3 rounded-r-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
                     </div>
-                    <button id="breakupBtn" class="px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 transition-custom text-sm">
-                        解除情侣关系
-                    </button>
-                </div>
-            </div>
-
-            <!-- 快捷功能卡片 -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <a href="#moments" class="bg-white rounded-xl shadow-custom p-5 hover:shadow-hover transition-custom flex flex-col items-center text-center hover-scale">
-                    <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-images text-primary text-xl"></i>
-                    </div>
-                    <h3 class="font-medium">心动瞬间</h3>
-                </a>
-                <a href="#diary" class="bg-white rounded-xl shadow-custom p-5 hover:shadow-hover transition-custom flex flex-col items-center text-center hover-scale">
-                    <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-book text-secondary text-xl"></i>
-                    </div>
-                    <h3 class="font-medium">爱情日记</h3>
-                </a>
-                <a href="#anniversary" class="bg-white rounded-xl shadow-custom p-5 hover:shadow-hover transition-custom flex flex-col items-center text-center hover-scale">
-                    <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-calendar-heart text-primary text-xl"></i>
-                    </div>
-                    <h3 class="font-medium">纪念日</h3>
-                </a>
-                <a href="#photos" class="bg-white rounded-xl shadow-custom p-5 hover:shadow-hover transition-custom flex flex-col items-center text-center hover-scale">
-                    <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mb-3">
-                        <i class="fa-solid fa-camera text-secondary text-xl"></i>
-                    </div>
-                    <h3 class="font-medium">相册</h3>
-                </a>
-            </div>
-
-            <!-- 即将到来的纪念日 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold">即将到来的纪念日</h2>
-                    <a href="#anniversary" class="text-primary text-sm hover:underline">查看全部</a>
-                </div>
-                <div class="relative overflow-x-auto">
-                    <div class="flex space-x-4">
-                        <div class="flex-shrink-0 w-64 bg-primary/5 rounded-lg p-4 border border-primary/20">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-medium">恋爱100天</h3>
-                                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <span class="text-primary font-bold">3</span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-neutral-600">2025年7月24日</p>
-                            <button class="mt-3 w-full py-2 rounded-lg bg-primary/10 text-primary text-sm hover:bg-primary/20 transition-custom">
-                                添加提醒
-                            </button>
-                        </div>
-                        <div class="flex-shrink-0 w-64 bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-medium">Ta的生日</h3>
-                                <div class="w-12 h-12 rounded-full bg-neutral-200 flex items-center justify-center">
-                                    <span class="text-neutral-700 font-bold">26</span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-neutral-600">2025年8月15日</p>
-                            <button class="mt-3 w-full py-2 rounded-lg bg-neutral-200 text-neutral-700 text-sm hover:bg-neutral-300 transition-custom">
-                                添加提醒
-                            </button>
-                        </div>
-                        <div class="flex-shrink-0 w-64 bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-medium">第一次约会</h3>
-                                <div class="w-12 h-12 rounded-full bg-neutral-200 flex items-center justify-center">
-                                    <span class="text-neutral-700 font-bold">47</span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-neutral-600">2025年9月5日</p>
-                            <button class="mt-3 w-full py-2 rounded-lg bg-neutral-200 text-neutral-700 text-sm hover:bg-neutral-300 transition-custom">
-                                添加提醒
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 最近的照片 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold">最近的照片</h2>
-                    <a href="#photos" class="text-primary text-sm hover:underline">查看全部</a>
-                </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <img src="https://picsum.photos/id/1025/300/300" alt="照片1" class="w-full h-32 object-cover rounded-lg hover-scale">
-                    <img src="https://picsum.photos/id/1062/300/300" alt="照片2" class="w-full h-32 object-cover rounded-lg hover-scale">
-                    <img src="https://picsum.photos/id/1074/300/300" alt="照片3" class="w-full h-32 object-cover rounded-lg hover-scale">
-                    <img src="https://picsum.photos/id/1080/300/300" alt="照片4" class="w-full h-32 object-cover rounded-lg hover-scale">
-                    <img src="https://picsum.photos/id/1082/300/300" alt="照片5" class="w-full h-32 object-cover rounded-lg hover-scale">
-                    <img src="https://picsum.photos/id/1083/300/300" alt="照片6" class="w-full h-32 object-cover rounded-lg hover-scale">
-                </div>
-            </div>
-
-            <!-- 最近的日记 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold">最近的日记</h2>
-                    <a href="#diary" class="text-primary text-sm hover:underline">查看全部</a>
-                </div>
-                <div class="space-y-4">
-                    <div class="border-l-4 border-primary pl-4 py-2">
-                        <div class="flex items-center mb-2">
-                            <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
-                                <img src="https://picsum.photos/id/1005/200/200" alt="我的头像" class="w-full h-full object-cover">
-                            </div>
-                            <span class="text-sm font-medium">我</span>
-                            <span class="mx-2 text-neutral-400">•</span>
-                            <span class="text-sm text-neutral-500">今天 19:30</span>
-                        </div>
-                        <p class="text-neutral-700 line-clamp-2">今天和你一起去了那家新开的餐厅，味道真的很不错。最开心的是看到你吃得很满足的样子，只要你开心，我就开心。爱你永远不变！</p>
-                    </div>
-                    <div class="border-l-4 border-secondary pl-4 py-2">
-                        <div class="flex items-center mb-2">
-                            <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
-                                <img src="https://picsum.photos/id/1012/200/200" alt="对方头像" class="w-full h-full object-cover">
-                            </div>
-                            <span class="text-sm font-medium">Ta</span>
-                            <span class="mx-2 text-neutral-400">•</span>
-                            <span class="text-sm text-neutral-500">昨天 21:15</span>
-                        </div>
-                        <p class="text-neutral-700 line-clamp-2">收到了你送的礼物，真的很惊喜也很感动。你总是能记住我随口说的话，然后给我惊喜。有你在身边，我觉得自己是世界上最幸福的人。</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 情侣设置页面 -->
-        <section id="relationship" class="hidden space-y-8">
-            <h1 class="text-2xl font-bold text-neutral-800">情侣设置</h1>
-
-            <!-- 情侣关系卡片 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold">情侣关系</h2>
-                    <button id="editRelationshipBtn" class="text-primary hover:text-primary/80 transition-custom">
-                        <i class="fa-solid fa-pencil-alt mr-1"></i> 编辑
-                    </button>
+                    <p class="text-xs text-neutral-500 mt-1">这是你们在情侣空间中的专属称呼</p>
                 </div>
 
-                <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-                    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
-                        <img src="https://picsum.photos/id/1012/200/200" alt="对方头像" class="w-full h-full object-cover">
-                    </div>
-
-                    <div class="flex-1 text-center md:text-left">
-                        <h3 class="text-xl font-bold">亲爱的</h3>
-                        <p class="text-neutral-600 mt-1">已绑定 · 情侣ID: 123456</p>
-                        <p class="text-neutral-500 mt-2">绑定时间: 2025-04-15</p>
-                    </div>
-
-                    <div class="mt-4 md:mt-0">
-                        <button id="breakupBtn2" class="px-6 py-3 rounded-full border border-red-500 text-red-500 hover:bg-red-50 transition-custom">
-                            解除情侣关系
+                <div>
+                    <label class="block text-neutral-700 mb-2">恋爱纪念日</label>
+                    <div class="flex items-center flex-wrap gap-3">
+                        <input type="date" value="{{user.profile.couple_joined_at|date:" Y-m-d"}}"
+                            class="flex-1 px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
+                        <button
+                            class="px-4 py-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom">
+                            <i class="fa fa-calendar-plus-o mr-1"></i> 添加更多
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- 昵称设置 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <h2 class="text-xl font-bold mb-6">昵称设置</h2>
-
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-neutral-700 mb-2">我的昵称</label>
-                        <div class="flex items-center">
-                            <input type="text" value="甜心" class="flex-1 px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
-                            <button class="ml-3 px-4 py-3 rounded-lg bg-primary text-white hover:bg-primary/90 transition-custom">
-                                保存
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-neutral-700 mb-2">对方的昵称</label>
-                        <div class="flex items-center">
-                            <input type="text" value="亲爱的" class="flex-1 px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
-                            <button class="ml-3 px-4 py-3 rounded-lg bg-primary text-white hover:bg-primary/90 transition-custom">
-                                保存
-                            </button>
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-neutral-700 mb-2">我们的故事</label>
+                    <textarea rows="3" placeholder="分享你们的恋爱故事..."
+                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">我们在春天相遇，一起走过了三个季节，期待更多的四季与你相伴。</textarea>
                 </div>
             </div>
+        </div>
 
-            <!-- 通知设置 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <h2 class="text-xl font-bold mb-6">通知设置</h2>
+        <!-- 主题设置 -->
+        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.2s">
+            <h2 class="text-xl font-bold mb-6 flex items-center">
+                <i class="fa fa-paint-brush text-primary mr-2"></i>主题设置
+            </h2>
 
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div>
-                            <h3 class="font-medium">消息通知</h3>
-                            <p class="text-sm text-neutral-500">接收情侣消息提醒</p>
+            <div>
+                <p class="text-neutral-600 mb-4">选择你们喜欢的主题风格，让情侣空间更有专属感</p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div
+                        class="rounded-lg border-2 border-primary relative overflow-hidden cursor-pointer group transition-custom">
+                        <div
+                            class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                            <i class="fa fa-check text-primary"></i>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked class="sr-only peer">
-                            <div class="w-11 h-6 bg-neutral-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
-
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div>
-                            <h3 class="font-medium">纪念日提醒</h3>
-                            <p class="text-sm text-neutral-500">提前3天提醒即将到来的纪念日</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked class="sr-only peer">
-                            <div class="w-11 h-6 bg-neutral-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
-
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div>
-                            <h3 class="font-medium">特别活动提醒</h3>
-                            <p class="text-sm text-neutral-500">接收情侣相关的特别活动通知</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer">
-                            <div class="w-11 h-6 bg-neutral-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 隐私设置 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <h2 class="text-xl font-bold mb-6">隐私设置</h2>
-
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div>
-                            <h3 class="font-medium">允许陌生人查看情侣空间</h3>
-                            <p class="text-sm text-neutral-500">关闭后，只有情侣双方可以查看空间内容</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer">
-                            <div class="w-11 h-6 bg-neutral-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
-
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div>
-                            <h3 class="font-medium">允许在推荐中展示情侣关系</h3>
-                            <p class="text-sm text-neutral-500">关闭后，不会在推荐页展示你的情侣关系</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked class="sr-only peer">
-                            <div class="w-11 h-6 bg-neutral-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 情侣地点页面 -->
-        <section id="places" class="hidden space-y-8">
-            <h1 class="text-2xl font-bold text-neutral-800">情侣地点</h1>
-
-            <!-- 搜索和筛选 -->
-            <div class="bg-white rounded-xl shadow-custom p-4">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="relative flex-1">
-                        <input type="text" placeholder="搜索情侣地点..." class="w-full pl-10 pr-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
-                        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></i>
-                    </div>
-
-                    <div class="flex space-x-2">
-                        <select class="px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
-                            <option>全部类型</option>
-                            <option>餐厅</option>
-                            <option>咖啡厅</option>
-                            <option>公园</option>
-                            <option>电影院</option>
-                            <option>景点</option>
-                        </select>
-
-                        <select class="px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
-                            <option>距离最近</option>
-                            <option>评分最高</option>
-                            <option>最新添加</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 地点列表 -->
-            <div class="space-y-4">
-                <!-- 地点卡片1 -->
-                <div class="bg-white rounded-xl shadow-custom overflow-hidden hover-scale">
-                    <div class="relative h-48">
-                        <img src="https://picsum.photos/id/1080/800/600" alt="浪漫餐厅" class="w-full h-full object-cover">
-                        <div class="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
-                            热门
-                        </div>
-                        <button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-custom">
-                            <i class="fa-regular fa-heart text-neutral-700"></i>
-                        </button>
-                    </div>
-
-                    <div class="p-5">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="font-bold text-lg">浪漫西餐厅</h3>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-star text-yellow-400"></i>
-                                <span class="ml-1 font-medium">4.8</span>
-                            </div>
-                        </div>
-
-                        <p class="text-neutral-600 mb-3">位于市中心的浪漫西餐厅，提供精致的法式料理和舒适的用餐环境，非常适合情侣约会。</p>
-
-                        <div class="flex items-center text-sm text-neutral-500 mb-4">
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-map-marker-alt mr-1"></i>
-                                <span>距离 2.5km</span>
-                            </div>
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-utensils mr-1"></i>
-                                <span>西餐厅</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-money-bill-wave mr-1"></i>
-                                <span>人均 ¥280</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="flex -space-x-2">
-                                    <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                    <img src="https://picsum.photos/id/1012/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                </div>
-                                <span class="ml-2 text-sm text-neutral-600">2位情侣去过</span>
-                            </div>
-
-                            <button class="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-custom">
-                                查看详情
-                            </button>
+                        <div class="h-24 bg-gradient-to-r from-primary to-secondary"></div>
+                        <div class="p-3 bg-neutral-50">
+                            <h3 class="font-medium text-sm">热恋粉紫</h3>
                         </div>
                     </div>
-                </div>
 
-                <!-- 地点卡片2 -->
-                <div class="bg-white rounded-xl shadow-custom overflow-hidden hover-scale">
-                    <div class="relative h-48">
-                        <img src="https://picsum.photos/id/1062/800/600" alt="情侣公园" class="w-full h-full object-cover">
-                        <button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-custom">
-                            <i class="fa-regular fa-heart text-neutral-700"></i>
-                        </button>
-                    </div>
-
-                    <div class="p-5">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="font-bold text-lg">城市中央公园</h3>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-star text-yellow-400"></i>
-                                <span class="ml-1 font-medium">4.6</span>
-                            </div>
-                        </div>
-
-                        <p class="text-neutral-600 mb-3">城市中最大的公园，有美丽的湖泊和花园，非常适合情侣散步、野餐和拍照。</p>
-
-                        <div class="flex items-center text-sm text-neutral-500 mb-4">
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-map-marker-alt mr-1"></i>
-                                <span>距离 5.2km</span>
-                            </div>
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-tree mr-1"></i>
-                                <span>公园</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-money-bill-wave mr-1"></i>
-                                <span>免费</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="flex -space-x-2">
-                                    <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                </div>
-                                <span class="ml-2 text-sm text-neutral-600">1位情侣去过</span>
-                            </div>
-
-                            <button class="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-custom">
-                                查看详情
-                            </button>
+                    <div
+                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
+                        <div class="h-24 bg-gradient-to-r from-blue-400 to-purple-500"></div>
+                        <div class="p-3 bg-neutral-50">
+                            <h3 class="font-medium text-sm">梦幻星空</h3>
                         </div>
                     </div>
-                </div>
 
-                <!-- 地点卡片3 -->
-                <div class="bg-white rounded-xl shadow-custom overflow-hidden hover-scale">
-                    <div class="relative h-48">
-                        <img src="https://picsum.photos/id/1074/800/600" alt="星空电影院" class="w-full h-full object-cover">
-                        <div class="absolute top-3 left-3 bg-secondary text-white text-xs font-bold px-2 py-1 rounded">
-                            推荐
-                        </div>
-                        <button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-custom">
-                            <i class="fa-regular fa-heart text-neutral-700"></i>
-                        </button>
-                    </div>
-
-                    <div class="p-5">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="font-bold text-lg">星空情侣电影院</h3>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-star text-yellow-400"></i>
-                                <span class="ml-1 font-medium">4.9</span>
-                            </div>
-                        </div>
-
-                        <p class="text-neutral-600 mb-3">提供情侣专属座位的私密电影院，环境浪漫，非常适合情侣一起观看电影。</p>
-
-                        <div class="flex items-center text-sm text-neutral-500 mb-4">
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-map-marker-alt mr-1"></i>
-                                <span>距离 3.8km</span>
-                            </div>
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-film mr-1"></i>
-                                <span>电影院</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-money-bill-wave mr-1"></i>
-                                <span>人均 ¥150</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="flex -space-x-2">
-                                    <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                    <img src="https://picsum.photos/id/1012/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                    <img src="https://picsum.photos/id/1025/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                </div>
-                                <span class="ml-2 text-sm text-neutral-600">5位情侣去过</span>
-                            </div>
-
-                            <button class="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-custom">
-                                查看详情
-                            </button>
+                    <div
+                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
+                        <div class="h-24 bg-gradient-to-r from-green-400 to-blue-500"></div>
+                        <div class="p-3 bg-neutral-50">
+                            <h3 class="font-medium text-sm">清新自然</h3>
                         </div>
                     </div>
-                </div>
 
-                <!-- 地点卡片4 -->
-                <div class="bg-white rounded-xl shadow-custom overflow-hidden hover-scale">
-                    <div class="relative h-48">
-                        <img src="https://picsum.photos/id/1083/800/600" alt="咖啡厅" class="w-full h-full object-cover">
-                        <button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-custom">
-                            <i class="fa-regular fa-heart text-neutral-700"></i>
-                        </button>
-                    </div>
-
-                    <div class="p-5">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="font-bold text-lg">甜蜜时光咖啡厅</h3>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-star text-yellow-400"></i>
-                                <span class="ml-1 font-medium">4.7</span>
-                            </div>
-                        </div>
-
-                        <p class="text-neutral-600 mb-3">温馨舒适的咖啡厅，提供各种咖啡和甜点，是情侣约会和聊天的好去处。</p>
-
-                        <div class="flex items-center text-sm text-neutral-500 mb-4">
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-map-marker-alt mr-1"></i>
-                                <span>距离 1.5km</span>
-                            </div>
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-coffee mr-1"></i>
-                                <span>咖啡厅</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-money-bill-wave mr-1"></i>
-                                <span>人均 ¥60</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="flex -space-x-2">
-                                    <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                    <img src="https://picsum.photos/id/1012/200/200" alt="用户头像" class="w-6 h-6 rounded-full border border-white">
-                                </div>
-                                <span class="ml-2 text-sm text-neutral-600">3位情侣去过</span>
-                            </div>
-
-                            <button class="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-custom">
-                                查看详情
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 加载更多按钮 -->
-            <div class="text-center">
-                <button class="px-6 py-3 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom inline-flex items-center">
-                    <i class="fa-solid fa-refresh mr-2"></i> 加载更多
-                </button>
-            </div>
-        </section>
-
-        <!-- 爱情测试页面 -->
-        <section id="test" class="hidden space-y-8">
-            <h1 class="text-2xl font-bold text-neutral-800">爱情测试</h1>
-
-            <!-- 测试介绍 -->
-            <div class="bg-white rounded-xl shadow-custom p-6">
-                <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-                    <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-heart text-primary text-4xl"></i>
-                    </div>
-
-                    <div>
-                        <h2 class="text-xl font-bold mb-2">爱情匹配度测试</h2>
-                        <p class="text-neutral-600">通过一系列问题，测试你们之间的爱情匹配度，了解彼此的内心世界。</p>
-                        <div class="mt-4 flex items-center text-sm text-neutral-500">
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-question-circle mr-1"></i>
-                                <span>10个问题</span>
-                            </div>
-                            <div class="flex items-center mr-4">
-                                <i class="fa-solid fa-clock mr-1"></i>
-                                <span>约5分钟</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fa-solid fa-users mr-1"></i>
-                                <span>12,345人已测试</span>
-                            </div>
+                    <div
+                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
+                        <div class="h-24 bg-gradient-to-r from-yellow-400 to-red-500"></div>
+                        <div class="p-3 bg-neutral-50">
+                            <h3 class="font-medium text-sm">活力橙红</h3>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-6">
-                    <button id="startTestBtn" class="w-full py-4 rounded-xl bg-primary text-white text-lg font-medium hover:bg-primary/90 transition-custom">
-                        开始测试
-                    </button>
+                    <h3 class="font-medium mb-3">自定义主题颜色</h3>
+                    <div class="flex space-x-3 flex-wrap">
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="block text-sm text-neutral-600 mb-1">主色调</label>
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-primary border-2 border-white shadow-sm"></div>
+                                <input type="color" value="#FF6B8B"
+                                    class="ml-2 h-8 w-12 rounded border-none cursor-pointer">
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="block text-sm text-neutral-600 mb-1">辅助色</label>
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-secondary border-2 border-white shadow-sm"></div>
+                                <input type="color" value="#722ED1"
+                                    class="ml-2 h-8 w-12 rounded border-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 测试结果（初始隐藏） -->
-            <div id="testResult" class="bg-white rounded-xl shadow-custom p-6 hidden">
-                <div class="text-center mb-6">
-                    <div class="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                        <span class="text-5xl font-bold text-primary">92%</span>
-                    </div>
-                    <h2 class="text-2xl font-bold">你们的爱情匹配度非常高！</h2>
-                    <p class="text-neutral-600 mt-2">你们是天生的一对，彼此理解、支持，拥有美好的未来。</p>
-                </div>
+        <!-- 隐私设置 -->
+        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.3s">
+            <h2 class="text-xl font-bold mb-6 flex items-center">
+                <i class="fa fa-lock text-primary mr-2"></i>隐私设置
+            </h2>
 
-                <div class="space-y-4">
-                    <div>
-                        <h3 class="font-medium mb-2">情感共鸣</h3>
-                        <div class="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div class="bg-primary h-2.5 rounded-full" style="width: 95%"></div>
-                        </div>
-                        <p class="text-sm text-neutral-500 mt-1">你们在情感上非常契合，能够深刻理解对方的感受。</p>
-                    </div>
+            <div class="space-y-5">
+                <div class="p-4 bg-neutral-50 rounded-lg">
+                    <h3 class="font-medium mb-3">谁可以看到我们的情侣关系？</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label class="border-2 border-primary rounded-lg p-4 cursor-pointer relative hover-scale">
+                            <input type="radio" name="visibility" value="only_me" checked class="sr-only">
+                            <div
+                                class="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                <i class="fa fa-check text-white text-xs"></i>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
+                                <i class="fa fa-user text-neutral-500"></i>
+                            </div>
+                            <h4 class="font-medium text-sm">仅自己可见</h4>
+                            <p class="text-xs text-neutral-500 mt-1">只有你能看到你们的情侣关系</p>
+                        </label>
 
-                    <div>
-                        <h3 class="font-medium mb-2">价值观</h3>
-                        <div class="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div class="bg-primary h-2.5 rounded-full" style="width: 88%"></div>
-                        </div>
-                        <p class="text-sm text-neutral-500 mt-1">你们的价值观基本一致，这为你们的关系奠定了坚实的基础。</p>
-                    </div>
+                        <label
+                            class="border-2 border-transparent hover:border-primary/50 rounded-lg p-4 cursor-pointer relative hover-scale">
+                            <input type="radio" name="visibility" value="friends" class="sr-only">
+                            <div
+                                class="absolute top-3 right-3 w-5 h-5 rounded-full bg-white border border-neutral-300 flex items-center justify-center">
+                                <i class="fa fa-check text-white text-xs opacity-0"></i>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
+                                <i class="fa fa-users text-neutral-500"></i>
+                            </div>
+                            <h4 class="font-medium text-sm">仅好友可见</h4>
+                            <p class="text-xs text-neutral-500 mt-1">只有你们的共同好友能看到</p>
+                        </label>
 
-                    <div>
-                        <h3 class="font-medium mb-2">沟通能力</h3>
-                        <div class="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div class="bg-primary h-2.5 rounded-full" style="width: 90%"></div>
-                        </div>
-                        <p class="text-sm text-neutral-500 mt-1">你们善于沟通，能够有效地表达自己的想法和需求。</p>
-                    </div>
-
-                    <div>
-                        <h3 class="font-medium mb-2">性格匹配</h3>
-                        <div class="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div class="bg-primary h-2.5 rounded-full" style="width: 92%"></div>
-                        </div>
-                        <p class="text-sm text-neutral-500 mt-1">你们的性格互补，能够互相支持和鼓励。</p>
-                    </div>
-                </div>
-
-                <div class="mt-8">
-                    <h3 class="font-medium mb-3">爱情建议</h3>
-                    <p class="text-neutral-600">你们的关系非常健康，但仍需注意保持沟通和理解。偶尔给对方一些惊喜，保持爱情的新鲜感。</p>
-                </div>
-
-                <div class="mt-8 flex space-x-4">
-                    <button class="flex-1 py-3 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-custom">
-                        <i class="fa-solid fa-share-alt mr-1"></i> 分享结果
-                    </button>
-                    <button class="flex-1 py-3 rounded-lg bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-custom">
-                        <i class="fa-solid fa-undo mr-1"></i> 重新测试
-                    </button>
-                </div>
-            </div>
-
-            <!-- 测试问题（初始隐藏） -->
-            <div id="testQuestions" class="bg-white rounded-xl shadow-custom p-6 hidden">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold">爱情匹配度测试</h2>
-                    <div class="text-sm text-neutral-500">
-                        <span id="currentQuestion">1</span>/10
+                        <label
+                            class="border-2 border-transparent hover:border-primary/50 rounded-lg p-4 cursor-pointer relative hover-scale">
+                            <input type="radio" name="visibility" value="public" class="sr-only">
+                            <div
+                                class="absolute top-3 right-3 w-5 h-5 rounded-full bg-white border border-neutral-300 flex items-center justify-center">
+                                <i class="fa fa-check text-white text-xs opacity-0"></i>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
+                                <i class="fa fa-globe text-neutral-500"></i>
+                            </div>
+                            <h4 class="font-medium text-sm">所有人可见</h4>
+                            <p class="text-xs text-neutral-500 mt-1">任何人都能看到你们的情侣关系</p>
+                        </label>
                     </div>
                 </div>
 
-                <div id="questionContainer">
-                    <h3 class="text-lg font-medium mb-4">当你们意见不一致时，通常会如何处理？</h3>
-
+                <div class="p-4 bg-neutral-50 rounded-lg">
+                    <h3 class="font-medium mb-3">谁可以看到我们的恋爱动态？</h3>
                     <div class="space-y-3">
-                        <label class="block p-4 border border-neutral-200 rounded-lg cursor-pointer hover:border-primary/50 transition-custom">
-                            <input type="radio" name="q1" class="sr-only peer">
+                        <div
+                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
-                                <div class="w-5 h-5 rounded-full border border-neutral-300 flex items-center justify-center mr-3 peer-checked:border-primary">
-                                    <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                    <i class="fa fa-heart text-primary"></i>
                                 </div>
-                                <span>双方都会尝试理解对方的观点，然后找到一个折中的解决方案</span>
+                                <div>
+                                    <h4 class="font-medium text-sm">情侣动态</h4>
+                                    <p class="text-xs text-neutral-500">你们发布的合照、留言等内容</p>
+                                </div>
                             </div>
-                        </label>
+                            <div class="relative inline-block w-12 h-6">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div
+                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </div>
+                        </div>
 
-                        <label class="block p-4 border border-neutral-200 rounded-lg cursor-pointer hover:border-primary/50 transition-custom">
-                            <input type="radio" name="q1" class="sr-only peer">
+                        <div
+                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
-                                <div class="w-5 h-5 rounded-full border border-neutral-300 flex items-center justify-center mr-3 peer-checked:border-primary">
-                                    <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                    <i class="fa fa-calendar text-primary"></i>
                                 </div>
-                                <span>一方会妥协，以维护关系的和谐</span>
+                                <div>
+                                    <h4 class="font-medium text-sm">纪念日</h4>
+                                    <p class="text-xs text-neutral-500">你们设置的恋爱纪念日</p>
+                                </div>
                             </div>
-                        </label>
+                            <div class="relative inline-block w-12 h-6">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div
+                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </div>
+                        </div>
 
-                        <label class="block p-4 border border-neutral-200 rounded-lg cursor-pointer hover:border-primary/50 transition-custom">
-                            <input type="radio" name="q1" class="sr-only peer">
+                        <div
+                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
-                                <div class="w-5 h-5 rounded-full border border-neutral-300 flex items-center justify-center mr-3 peer-checked:border-primary">
-                                    <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                    <i class="fa fa-gift text-primary"></i>
                                 </div>
-                                <span>双方会激烈争论，直到一方说服另一方</span>
-                            </div>
-                        </label>
-
-                        <label class="block p-4 border border-neutral-200 rounded-lg cursor-pointer hover:border-primary/50 transition-custom">
-                            <input type="radio" name="q1" class="sr-only peer">
-                            <div class="flex items-center">
-                                <div class="w-5 h-5 rounded-full border border-neutral-300 flex items-center justify-center mr-3 peer-checked:border-primary">
-                                    <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                <div>
+                                    <h4 class="font-medium text-sm">礼物记录</h4>
+                                    <p class="text-xs text-neutral-500">你们互相赠送的礼物记录</p>
                                 </div>
-                                <span>双方会暂时搁置问题，避免冲突</span>
                             </div>
-                        </label>
+                            <div class="relative inline-block w-12 h-6">
+                                <input type="checkbox" class="sr-only peer">
+                                <div
+                                    class="w-12 h-6 bg-neutral-300 rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-8 flex space-x-4">
-                    <button id="prevQuestionBtn" class="flex-1 py-3 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-100 transition-custom opacity-50 cursor-not-allowed">
+                <div class="p-4 bg-neutral-50 rounded-lg">
+                    <h3 class="font-medium mb-3">消息提醒设置</h3>
+                    <div class="space-y-3">
+                        <div
+                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                    <i class="fa fa-comment text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-sm">Ta的消息提醒</h4>
+                                    <p class="text-xs text-neutral-500">接收来自Ta的消息提醒</p>
+                                </div>
+                            </div>
+                            <div class="relative inline-block w-12 h-6">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div
+                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                    <i class="fa fa-bell text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-sm">动态提醒</h4>
+                                    <p class="text-xs text-neutral-500">接收情侣动态的提醒</p>
+                                </div>
+                            </div>
+                            <div class="relative inline-block w-12 h-6">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div
+                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                    <i class="fa fa-star text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-sm">纪念日提醒</h4>
+                                    <p class="text-xs text-neutral-500">接收即将到来的纪念日提醒</p>
+                                </div>
+                            </div>
+                            <div class="relative inline-block w-12 h-6">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div
+                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 绑定账号 -->
+        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.4s">
+            <h2 class="text-xl font-bold mb-6 flex items-center">
+                <i class="fa fa-link text-primary mr-2"></i>账号绑定
+            </h2>
+
+            <div class="space-y-4">
+                <div
+                    class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center mr-4">
+                            <i class="fa fa-twitter text-[#1DA1F2] text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">Twitter</h3>
+                            <p class="text-xs text-neutral-500">分享你们的恋爱动态到Twitter</p>
+                        </div>
+                    </div>
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                        绑定
+                    </button>
+                </div>
+
+                <div
+                    class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-[#E4405F]/10 flex items-center justify-center mr-4">
+                            <i class="fa fa-instagram text-[#E4405F] text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">Instagram</h3>
+                            <p class="text-xs text-neutral-500">分享你们的恋爱照片到Instagram</p>
+                        </div>
+                    </div>
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                        绑定
+                    </button>
+                </div>
+
+                <div
+                    class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-[#25D366]/10 flex items-center justify-center mr-4">
+                            <i class="fa fa-whatsapp text-[#25D366] text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">WhatsApp</h3>
+                            <p class="text-xs text-neutral-500">接收情侣提醒到WhatsApp</p>
+                        </div>
+                    </div>
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                        绑定
+                    </button>
+                </div>
+
+                <!-- 解除关系确认按钮 -->
+                <div class="mb-12 text-center animate-slide-up" style="animation-delay: 0.5s">
+                    <button id="breakupBtn"
+                        class="inline-flex items-center text-red-500 hover:text-red-600 transition-custom">
+                        <i class="fa fa-heart-broken mr-1"></i>
+                        <span>解除情侣关系</span>
+                    </button>
+                    <p class="text-xs text-neutral-500 mt-2">解除后，你们的情侣数据将被保留，但不会显示为情侣关系</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 底部操作区 -->
+        <div class="sticky bottom-0 left-0 right-0 bg-white shadow-lg p-4 z-30 animate-slide-up"
+            style="animation-delay: 0.5s">
+            <div class="container mx-auto">
+                <div class="flex items-center justify-between">
+                    <button id="deleteAccountBtn" class="px-4 py-2 text-red-500 hover:text-red-600 transition-custom">
+                        <i class="fa fa-trash-o mr-1"></i> 删除账号
+                    </button>
+                    <button
+                        class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-lg btn-pulse">
+                        保存设置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 解除情侣关系确认弹窗 -->
+    <div id="breakupModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-heart-broken text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-neutral-800">解除情侣关系</h3>
+                <p class="text-neutral-600 mt-2">确定要解除你们的情侣关系吗？这将删除所有共同内容。</p>
+            </div>
+            <div class="flex space-x-3">
+                <button id="cancelBreakupBtn"
+                    class="flex-1 px-4 py-3 border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-custom">
+                    取消
+                </button>
+                <button id="confirmBreakupBtn"
+                    class="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-custom">
+                    确认解除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除账号确认弹窗 -->
+    <div id="deleteAccountModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-neutral-800">删除账号</h3>
+                <p class="text-neutral-600 mt-2">确定要删除你的账号吗？这将永久删除所有数据，无法恢复。</p>
+            </div>
+            <div class="space-y-3">
+                <input type="password" placeholder="输入密码确认"
+                    class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                <div class="flex space-x-3">
+                    <button id="cancelDeleteBtn"
+                        class="flex-1 px-4 py-3 border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-custom">
+                        取消
+                    </button>
+                    <button id="confirmDeleteBtn"
+                        class="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-custom">
+                        确认删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function () {
+            // 处理模态框
+            const breakupBtn = document.getElementById('breakupBtn');
+            const breakupModal = document.getElementById('breakupModal');
+            const cancelBreakupBtn = document.getElementById('cancelBreakupBtn');
+            const confirmBreakupBtn = document.getElementById('confirmBreakupBtn');
+
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+            const deleteAccountModal = document.getElementById('deleteAccountModal');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+            const dateElement = document.querySelector('#days-together span');
+            const dateStr = dateElement.textContent.trim();
+
+            // 打开解除情侣关系模态框
+            breakupBtn.addEventListener('click', function () {
+                openModal(breakupModal);
+            });
+
+            // 打开删除账号模态框
+            deleteAccountBtn.addEventListener('click', function () {
+                openModal(deleteAccountModal);
+            });
+
+            // 关闭模态框通用函数
+            function closeModal(modal) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.querySelector('div').classList.remove('scale-100');
+                modal.querySelector('div').classList.add('scale-95');
+                document.body.style.overflow = '';
+            }
+
+            // 打开模态框通用函数
+            function openModal(modal) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+                document.body.style.overflow = 'hidden';
+            }
+
+            // 关闭模态框事件监听
+            cancelBreakupBtn.addEventListener('click', function () {
+                closeModal(breakupModal);
+            });
+
+            cancelDeleteBtn.addEventListener('click', function () {
+                closeModal(deleteAccountModal);
+            });
+
+            // 点击模态框外部关闭
+            breakupModal.addEventListener('click', function (e) {
+                if (e.target === this) closeModal(breakupModal);
+            });
+
+            deleteAccountModal.addEventListener('click', function (e) {
+                if (e.target === this) closeModal(deleteAccountModal);
+            });
+
+            // 确认解除情侣关系
+            confirmBreakupBtn.addEventListener('click', function () {
+                // 这里添加解除情侣关系的AJAX请求
+                simulateApiRequest('解除情侣关系中...', '情侣关系已解除', function () {
+                    closeModal(breakupModal);
+                    // 重定向到主页或关系管理页面
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                });
+            });
+
+            // 确认删除账号
+            confirmDeleteBtn.addEventListener('click', function () {
+                const password = deleteAccountModal.querySelector('input[type="password"]').value;
+                if (!password) {
+                    showToast('请输入密码确认', 'error');
+                    return;
+                }
+
+                // 这里添加删除账号的AJAX请求
+                simulateApiRequest('删除账号中...', '账号已成功删除', function () {
+                    closeModal(deleteAccountModal);
+                    // 重定向到登录页
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1000);
+                });
+            });
+
+            // 返回按钮
+            document.getElementById('backBtn').addEventListener('click', function () {
+                window.history.back();
+            });
+
+            // 表单输入动画效果
+            const formInputs = document.querySelectorAll('.form-input-focus');
+            formInputs.forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.parentElement.classList.add('focus-within');
+                });
+                input.addEventListener('blur', function () {
+                    if (!this.value) {
+                        this.parentElement.classList.remove('focus-within');
+                    }
+                });
+            });
+
+            // 主题选择效果
+            const themeOptions = document.querySelectorAll('[class*="border-2"]');
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function () {
+                    // 移除所有选中状态
+                    themeOptions.forEach(opt => {
+                        opt.classList.remove('border-primary');
+                        opt.classList.add('border-transparent');
+
+                        const checkIcon = opt.querySelector('.fa-check');
+                        if (checkIcon) {
+                            checkIcon.parentElement.classList.add('bg-white');
+                            checkIcon.parentElement.classList.remove('bg-primary');
+                            checkIcon.classList.add('opacity-0');
+                        }
+                    });
+
+                    // 设置当前选中状态
+                    this.classList.remove('border-transparent');
+                    this.classList.add('border-primary');
+
+                    const checkIcon = this.querySelector('.fa-check');
+                    if (checkIcon) {
+                        checkIcon.parentElement.classList.remove('bg-white');
+                        checkIcon.parentElement.classList.add('bg-primary');
+                        checkIcon.classList.remove('opacity-0');
+                    }
+
+                    // 获取主题颜色
+                    const themeColor = this.querySelector('.h-24').style.background;
+                    if (themeColor) {
+                        // 这里可以添加动态改变主题颜色的逻辑
+                        updateThemeColors(themeColor);
+                    }
+                });
+            });
+
+            // 颜色选择器
+            const colorInputs = document.querySelectorAll('input[type="color"]');
+            colorInputs.forEach(input => {
+                input.addEventListener('input', function () {
+                    const colorPreview = this.previousElementSibling;
+                    colorPreview.style.backgroundColor = this.value;
+
+                    // 更新主题颜色
+                    if (this.id === 'primaryColor') {
+                        document.documentElement.style.setProperty('--primary-color', this.value);
+                    } else if (this.id === 'secondaryColor') {
+                        document.documentElement.style.setProperty('--secondary-color', this.value);
+                    }
+                });
+            });
+
+            // 保存设置按钮
+            document.querySelector('button.btn-pulse').addEventListener('click', function () {
+                // 收集表单数据
+                const formData = collectFormData();
+
+                // 验证表单
+                if (!validateForm(formData)) {
+                    return;
+                }
+
+                // 保存设置
+                simulateApiRequest('保存设置中...', '设置已成功保存', function () {
+                    // 更新本地存储
+                    localStorage.setItem('coupleSettings', JSON.stringify(formData));
+                });
+            });
+
+            // 收集表单数据
+            function collectFormData() {
+                return {
+                    coupleNames: [
+                        document.querySelector('input[type="text"]:first-of-type').value,
+                        document.querySelector('input[type="text"]:last-of-type').value
+                    ],
+                    anniversary: document.querySelector('input[type="date"]').value,
+                    story: document.querySelector('textarea').value,
+                    theme: getSelectedTheme(),
+                    primaryColor: document.querySelector('#primaryColor').value,
+                    secondaryColor: document.querySelector('#secondaryColor').value,
+                    privacy: {
+                        relationshipVisibility: document.querySelector('input[name="visibility"]:checked').value,
+                        postsVisible: document.querySelector('#postsVisible').checked,
+                        anniversariesVisible: document.querySelector('#anniversariesVisible').checked,
+                        giftsVisible: document.querySelector('#giftsVisible').checked
+                    },
+                    notifications: {
+                        partnerMessages: document.querySelector('#partnerMessages').checked,
+                        activities: document.querySelector('#activities').checked,
+                        anniversaries: document.querySelector('#anniversaries').checked
+                    }
+                };
+            }
+
+            // 获取选中的主题
+            function getSelectedTheme() {
+                const selectedTheme = document.querySelector('[class*="border-primary"]');
+                return selectedTheme ? selectedTheme.querySelector('h3').textContent : '热恋粉紫';
+            }
+
+            // 表单验证
+            function validateForm(formData) {
+                if (!formData.coupleNames[0] || !formData.coupleNames[1]) {
+                    showToast('请输入情侣名', 'error');
+                    return false;
+                }
+
+                if (!formData.anniversary) {
+                    showToast('请选择恋爱纪念日', 'error');
+                    return false;
+                }
+
+                return true;
+            }
+
+            // 更新主题颜色
+            function updateThemeColors(themeColor) {
+                // 解析主题颜色并应用到根元素
+                document.documentElement.style.setProperty('--theme-gradient', themeColor);
+
+                // 这里可以添加更复杂的颜色解析和应用逻辑
+            }
+
+            // 模拟API请求
+            function simulateApiRequest(loadingMsg, successMsg, callback) {
+                showToast(loadingMsg, 'loading');
+
+                // 模拟API请求延迟
+                setTimeout(() => {
+                    showToast(successMsg, 'success');
+                    if (callback) callback();
+                }, 1500);
+            }
+
+            // 显示提示消息
+            function showToast(message, type = 'info') {
+                // 移除已有的toast
+                const existingToast = document.querySelector('.toast-notification');
+                if (existingToast) existingToast.remove();
+
+                // 创建新的toast
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-y-20 opacity-0';
+
+                // 设置不同类型的样式
+                if (type === 'success') {
+                    toast.classList.add('bg-green-500', 'text-white');
+                    toast.innerHTML = `<i class="fa fa-check-circle mr-2"></i>${message}`;
+                } else if (type === 'error') {
+                    toast.classList.add('bg-red-500', 'text-white');
+                    toast.innerHTML = `<i class="fa fa-exclamation-circle mr-2"></i>${message}`;
+                } else if (type === 'loading') {
+                    toast.classList.add('bg-blue-500', 'text-white');
+                    toast.innerHTML = `<i class="fa fa-spinner fa-spin mr-2"></i>${message}`;
+                } else {
+                    toast.classList.add('bg-gray-500', 'text-white');
+                    toast.innerHTML = `<i class="fa fa-info-circle mr-2"></i>${message}`;
+                }
+
+                // 添加到页面
+                document.body.appendChild(toast);
+
+                // 显示动画
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-20', 'opacity-0');
+                }, 10);
+
+                // 自动关闭
+                if (type !== 'loading') {
+                    setTimeout(() => {
+                        toast.classList.add('translate-y-20', 'opacity-0');
+                        setTimeout(() => {
+                            toast.remove();
+                        }, 300);
+                    }, 3000);
+                }
+            }
+
+            // 获取原始日期字符串（格式：2025年7月29日 13:58）
+            // 解析日期字符串为 Date 对象
+            const [year, month, day, hour, minute] = dateStr.match(/\d+/g);
+            const joinedDate = new Date(year, month - 1, day, hour, minute); // 月份从0开始
+
+            // 计算当前时间与指定日期的差值（毫秒）
+            const now = new Date();
+            const diffMs = now - joinedDate;
+
+            // 转换为天数（取绝对值）
+            const diffDays = Math.abs(Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+
+            // 更新DOM显示
+            dateElement.textContent = diffDays;
+        });
+
+    </script>
+</body>
+
+</html>

@@ -200,32 +200,32 @@
                     class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
 
                 <!-- 更多下拉菜单 -->
-                <div class="relative" id="moreDropdown">
+                <div class = "relative" id = "moreDropdown" >
                     <button
-                        class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
-                        id="moreButton">
-                        更多 <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
-                    </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                        id="moreOptions">
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-calendar-heart mr-2 w-5 text-center"></i>纪念日提醒
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-gift mr-2 w-5 text-center"></i>礼物推荐
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-map-marker-heart mr-2 w-5 text-center"></i>情侣地点
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-question-circle mr-2 w-5 text-center"></i>爱情测试
-                        </a>
-                    </div>
-                </div>
+                            class = "text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
+                            id = "moreButton" >
+                        更多 <i class = "fa-solid fa-chevron-down ml-1 text-xs" ></i >
+                    </button >
+                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                         id = "moreOptions" >
+                        <a href = "{% url 'couple' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-calendar-heart mr-2 w-5 text-center" ></i >情侣设置
+                        </a >
+                        <a href = "{% url 'couple_recommendation' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-gift mr-2 w-5 text-center" ></i >情侣推荐
+                        </a >
+                        <a href = "{% url 'couple_places' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-map-marker-heart mr-2 w-5 text-center" ></i >情侣地点
+                        </a >
+                        <a href = "{% url 'couple_test' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-question-circle mr-2 w-5 text-center" ></i >爱情测试
+                        </a >
+                    </div >
+                </div >
             </nav>
 
             <!-- 内容过滤器 -->
@@ -1031,7 +1031,8 @@
                                 <div class="mft-3 flex items-cent3er justify-between">
                                     <div>
                                         <span class="text-primary font-bold">{{ product.price }}</span>
-                                        <span class="text-neutral-400 text-sm line-through ml-1">{{ product.old_price }}</span>
+                                        <span class="text-neutral-400 text-sm line-through ml-1">{{ product.price
+                                            }}</span>
                                     </div>
                                     <button
                                         class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom add-to-cart"
@@ -1242,57 +1243,133 @@
             }
         });
 
+        // 更多下拉菜单 - 鼠标悬停效果
+        const moreButton = document.getElementById('moreButton');
+        const moreOptions = document.getElementById('moreOptions');
+        const moreDropdown = document.getElementById('moreDropdown');
+        let moreCloseTimer;
+
+        // 鼠标经过按钮时打开菜单
+        moreButton.addEventListener('mouseenter', function () {
+            clearTimeout(moreCloseTimer);
+            moreOptions.classList.remove('hidden');
+            userOptions.classList.add('hidden');
+            searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+        });
+
+        // 鼠标悬停在下拉菜单时保持菜单打开
+        moreDropdown.addEventListener('mouseenter', function () {
+            clearTimeout(moreCloseTimer);
+        });
+
+        // 鼠标离开下拉菜单时关闭菜单
+        moreDropdown.addEventListener('mouseleave', function () {
+            moreCloseTimer = setTimeout(() => {
+                moreOptions.classList.add('hidden');
+            }, 300);
+        });
+
+        // 用户下拉菜单 - 鼠标悬停效果
         const userAvatar = document.getElementById('userAvatar');
         const userOptions = document.getElementById('userOptions');
         const userDropdown = document.getElementById('userDropdown');
-
-        let closeTimer;
+        let userCloseTimer;
 
         // 鼠标经过头像时打开菜单
         userAvatar.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
+            clearTimeout(userCloseTimer);
             userOptions.classList.remove('hidden');
+            moreOptions.classList.add('hidden');
+            searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
         });
 
         // 鼠标悬停在下拉菜单时保持菜单打开
         userDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
+            clearTimeout(userCloseTimer);
         });
 
         // 鼠标离开下拉菜单时关闭菜单
         userDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
+            userCloseTimer = setTimeout(() => {
                 userOptions.classList.add('hidden');
-            }, 500);
+            }, 300);
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
+        // 移动端菜单
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
 
-            let closeTimer;
-
-            // 鼠标经过按钮时打开菜单
-            moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标悬停在下拉菜单时保持菜单打开
-            moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
-            });
-
-            // 鼠标离开下拉菜单时关闭菜单
-            moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
-                    moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
-            });
+        menuToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden', 'opacity-0', '-translate-y-2');
+                mobileMenu.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 200);
+            }
         });
+
+        // 搜索框功能增强
+        const searchInput = document.querySelector('input[placeholder="搜索情侣商品..."]');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const clearHistoryBtn = document.getElementById('clearHistory');
+
+        // 搜索建议框显示/隐藏
+        if (searchInput && searchSuggestions) {
+            searchInput.addEventListener('focus', function () {
+                searchSuggestions.classList.remove('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                userOptions.classList.add('hidden');
+                moreOptions.classList.add('hidden');
+            });
+
+            searchInput.addEventListener('blur', function () {
+                setTimeout(() => {
+                    searchSuggestions.classList.add('invisible', 'opacity-0', 'transform', '-translate-y-2');
+                }, 200);
+            });
+
+            // 输入内容时显示清除按钮
+            searchInput.addEventListener('input', function () {
+                if (this.value.trim() !== '') {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
+            });
+        }
+
+        // 清除搜索框内容
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                searchInput.value = '';
+                searchInput.focus();
+                clearSearchBtn.classList.add('hidden');
+            });
+        }
+
+        // 清除搜索历史
+        if (clearHistoryBtn) {
+            clearHistoryBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const historyItems = document.querySelectorAll('#searchSuggestions .flex.items-center.justify-between');
+                historyItems.forEach(item => {
+                    if (!item.classList.contains('text-neutral-500')) {
+                        item.style.transition = 'all 0.3s ease';
+                        item.style.opacity = '0';
+                        item.style.height = '0';
+                        item.style.margin = '0';
+                        setTimeout(() => {
+                            item.remove();
+                        }, 300);
+                    }
+                });
+            });
+        }
 
         // 类别下拉菜单切换
         document.addEventListener('DOMContentLoaded', function () {

@@ -7,7 +7,7 @@ sys.path.insert(0, BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'DjangoPro1.settings')
 import django
 django.setup()
-from App.models import Product
+from .models import Product
 import uuid
 
 

@@ -5,7 +5,6 @@
 """
  @Description :
 """
-# 在 App 应用目录下创建 ot.py 文件
 class Operation:
     def __init__(self, op_type, position, text=''):
         self.op_type = op_type  # 操作类型，如 'insert', 'delete'
@@ -39,7 +38,8 @@ def transform(op1, op2):
         else:
             # 处理删除位置相同的情况
             length = min(len(op1.text), len(op2.text))
-            return Operation(op1.op_type, op1.position, op1.text[length:]), Operation(op2.op_type, op2.position, op2.text[length:])
+            return Operation(op1.op_type, op1.position, op1.text[length:]), Operation(op2.op_type, op2.position,
+                                                                                      op2.text[length:])
     elif op1.op_type == 'insert' and op2.op_type == 'delete':
         if op1.position < op2.position:
             return op1, op2
@@ -56,3 +56,13 @@ def transform(op1, op2):
         else:
             # 删除位置在插入范围内
             return op1, op2
+def transform_operations(client_ops, server_ops):
+    """将客户端操作序列转换到服务器最新状态"""
+    for server_op in server_ops:
+        new_client_ops = []
+        for client_op in client_ops:
+            client_op, _ = transform(client_op, server_op)
+            if client_op:
+                new_client_ops.append(client_op)
+        client_ops = new_client_ops
+    return client_ops

@@ -8,7 +8,7 @@
     <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
     <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
           rel = "stylesheet" >
-
+    
     <!-- Tailwind 配置 -->
     <script >
         tailwind.config = {
@@ -51,49 +51,49 @@
             .diary-trigger {
                 transition: all 0.3s ease;
             }
-
+    
             .diary-trigger:hover {
                 transform: scale(1.02);
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             }
-
+    
             .mood-modal {
                 background-color: var(--mood-color, #FF6B8B);
             }
-
+    
             .blur-effect {
                 backdrop-filter: blur(4px);
             }
-
+    
             .scrollbar-hide {
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
-
+    
             .scrollbar-hide::-webkit-scrollbar {
                 display: none;
             }
-
+    
             .transition-custom {
                 transition: all 0.3s ease;
             }
-
+    
             .hover-scale {
                 transition: transform 0.3s ease;
             }
-
+    
             .hover-scale:hover {
                 transform: scale(1.02);
             }
-
+    
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
-
+    
             .diary-trigger {
                 position: relative;
             }
-
+    
             .diary-trigger:hover::after {
                 position: absolute;
                 bottom: -24px;
@@ -108,7 +108,7 @@
                 visibility: hidden;
                 transition: opacity 0.3s ease;
             }
-
+    
             .diary-trigger:hover::after {
                 opacity: 1;
                 visibility: visible;
@@ -130,12 +130,10 @@
     </style >
 </head >
 
-<body
-        class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
+<body class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
     <!-- 背景装饰元素 -->
     <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
-        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" >
-        </div >
+        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" ></div >
         <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
              style = "animation-delay: -2s;" ></div >
         <div class = "absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
@@ -147,8 +145,7 @@
         <div class = "container mx-auto px-4 flex items-center justify-between" >
             <!-- 品牌标识 -->
             <a href = "{% url 'index' %}" class = "flex items-center space-x-2" >
-                <div
-                        class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md" >
+                <div class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md" >
                     <i class = "fa-solid fa-heart text-xl" ></i >
                 </div >
                 <span class = "text-xl font-bold text-neutral-800 tracking-tight" >LoveSync</span >
@@ -163,7 +160,7 @@
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心跳相簿</a >
                 <a href = "{% url 'lovesync' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
-
+    
                 <!-- 更多下拉菜单 -->
                 <div class = "relative" id = "moreDropdown" >
                     <button
@@ -173,19 +170,19 @@
                     </button >
                     <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
                          id = "moreOptions" >
-                        <a href = "#"
+                        <a href = "{% url 'couple' %}"
                            class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-calendar-heart mr-2 w-5 text-center" ></i >纪念日提醒
+                            <i class = "fa-solid fa-calendar-heart mr-2 w-5 text-center" ></i >情侣设置
                         </a >
-                        <a href = "#"
+                        <a href = "{% url 'couple_recommendation' %}"
                            class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
-                            <i class = "fa-solid fa-gift mr-2 w-5 text-center" ></i >礼物推荐
+                            <i class = "fa-solid fa-gift mr-2 w-5 text-center" ></i >情侣推荐
                         </a >
-                        <a href = "#"
+                        <a href = "{% url 'couple_places' %}"
                            class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
                             <i class = "fa-solid fa-map-marker-heart mr-2 w-5 text-center" ></i >情侣地点
                         </a >
-                        <a href = "#"
+                        <a href = "{% url 'couple_test' %}"
                            class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
                             <i class = "fa-solid fa-question-circle mr-2 w-5 text-center" ></i >爱情测试
                         </a >
@@ -194,18 +191,15 @@
             </nav >
 
             <!-- 内容过滤器 -->
-            <div
-                    class = "bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale" >
+            <div class = "bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale" >
                 <div class = "flex space-x-2" >
                     <button class = "px-4 py-2 rounded-full bg-primary text-white text-sm font-medium" >
                         推荐
                     </button >
-                    <button
-                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
+                    <button class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
                         最新
                     </button >
-                    <button
-                            class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
+                    <button class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
                         热门
                     </button >
                 </div >
@@ -223,7 +217,7 @@
                     <i class = "fa-solid fa-pencil" ></i >
                     <span >发布动态</span >
                 </a >
-
+    
                 <!-- 用户头像与下拉菜单 -->
                 <div class = "relative" id = "userDropdown" >
                     <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
@@ -252,14 +246,14 @@
                         </a >
                     </div >
                 </div >
-
+    
                 <!-- 移动端菜单按钮 -->
                 <button class = "md:hidden text-neutral-700 focus:outline-none" id = "menu-toggle" >
                     <i class = "fa-solid fa-bars text-xl" ></i >
                 </button >
             </div >
         </div >
-
+    
         <!-- 移动端菜单 -->
         <div id = "mobile-menu"
              class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
@@ -323,13 +317,13 @@
                     <div class = "mb-4 md:mb-0" >
                         <h2 class = "text-2xl font-bold text-neutral-800 mb-1" >我们的爱情日记</h2 >
                         <p class = "text-neutral-600" >已共同记录 <span class = "text-primary font-semibold" >42</span > 篇日记 · 相恋 <span
-                                class = "text-primary font-semibold" >365</span > 天</p >
+                                class = "text-primary font-semibold" >{{user.profile.couple_joined_at}}</span > 天</p >
                     </div >
 
                     <div class = "flex space-x-4" >
                         <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
                             <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
+                                <img src = {{ user.profile.userAvatar.url }} alt = "我的头像"
                                      class = "w-full h-full object-cover" >
                             </div >
                             <div >
@@ -340,7 +334,7 @@
 
                         <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
                             <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = "https://picsum.photos/200/200?random=2" alt = "伴侣头像"
+                                <img src = {{ user.profile.couple.user.profile.userAvatar.url }} alt = "伴侣头像"
                                      class = "w-full h-full object-cover" >
                             </div >
                             <div >
@@ -350,7 +344,7 @@
                         </div >
                     </div >
                 </div >
-
+    
                 <!-- 本周心情统计（触发日记表单） -->
                 <div class = "mt-6 pt-6 border-t border-neutral-200" >
                     <h3 class = "text-lg font-semibold text-neutral-800 mb-4" >本周心情</h3 >
@@ -399,62 +393,7 @@
                         </div >
                     </div >
                 </div >
-
-                <!-- 日记模态框 -->
-                <div id = "new-diary-modal" class = "fixed inset-0 z-50 flex items-center justify-center hidden" >
-                    <div class = "absolute inset-0 bg-black/50 backdrop-blur-sm" ></div >
-                    <div class = "bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative z-10" >
-                        <div class = "p-6 border-b border-neutral-200 flex justify-between items-center" >
-                            <h3 class = "text-xl font-bold text-neutral-800" >写日记</h3 >
-                            <button id = "close-diary-modal" class = "text-neutral-500 hover:text-neutral-800" >
-                                <i class = "fa-solid fa-times" ></i >
-                            </button >
-                        </div >
-
-                        <form id = "diary-form" method = "POST" enctype = "multipart/form-data" class = "p-6" >
-                            {% csrf_token %}
-                            <input type = "hidden" name = "mood" id = "mood-input" >
-                            <input type = "hidden" id = "mood-color-input" >
-
-                            <!-- 日记内容 -->
-                            <div class = "mb-6" >
-                                <label class = "block text-sm font-medium text-neutral-700 mb-2" >记录今日心动</label >
-                                <textarea id = "content" name = "content" rows = "6"
-                                          class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
-                                          placeholder = "记录今天的心情和故事..." ></textarea >
-                            </div >
-
-                            <!-- 上传照片 -->
-                            <div class = "mb-6" >
-                                <label class = "block text-sm font-medium text-neutral-700 mb-2" >上传照片（可选）</label >
-                                <div class = "border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer"
-                                     id = "photo-upload-area" >
-                                    <input type = "file" id = "photo-input" name = "photos" multiple accept = "image/*"
-                                           class = "hidden" >
-                                    <i class = "fa-solid fa-cloud-upload-alt text-3xl text-neutral-400 mb-3" ></i >
-                                    <p class = "text-neutral-600 mb-2" >点击或拖拽照片到这里</p >
-                                    <p class = "text-neutral-500 text-sm" >支持 JPG, PNG, GIF 格式</p >
-                                </div >
-                                <div id = "photo-preview-container"
-                                     class = "grid grid-cols-3 gap-2 mt-3 hidden" ></div >
-                            </div >
-
-                            <!-- 提交按钮 -->
-                            <div class = "flex justify-end space-x-3" >
-                                <button type = "button" id = "cancel-diary"
-                                        class = "px-6 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
-                                    取消
-                                </button >
-                                <button type = "submit" id = "saveButton"
-                                        class = "px-6 py-2 text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center" >
-                                    <i class = "fa-solid fa-paper-plane mr-2" ></i >
-                                    <span >保存日记</span >
-                                </button >
-                            </div >
-                        </form >
-                    </div >
-                </div >
-
+    
                 <!-- 时间轴双视角布局 -->
                 <div class = "relative" >
                 <!-- 时间轴分割线 -->
@@ -469,7 +408,7 @@
                                 <i class = "fa-solid fa-calendar-day mr-2" ></i >今天
                             </span >
                         </div >
-
+    
                         <!-- TA的日记 -->
                         <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card" >
                             <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
@@ -502,7 +441,7 @@
                                         </button >
                                     </div >
                                 </div >
-
+    
                                 <!-- 回应区域 -->
                                 <div class = "mt-4 pt-4 border-t border-neutral-100" >
                                     <div class = "flex items-start mb-2" >
@@ -528,7 +467,7 @@
                                 <i class = "fa-solid fa-calendar-day mr-2" ></i >昨天
                             </span >
                         </div >
-
+    
                         <!-- 我的日记 -->
                         <div class = "md:w-1/2 md:pl-12" >
                             <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
@@ -563,7 +502,7 @@
                                         </button >
                                     </div >
                                 </div >
-
+    
                                 <!-- 回应区域 -->
                                 <div class = "mt-4 pt-4 border-t border-neutral-100" >
                                     <div class = "flex items-start mb-2" >
@@ -580,7 +519,7 @@
                                 </div >
                             </div >
                         </div >
-
+    
                         <!-- TA的日记 -->
                         <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card mt-8 md:mt-0" >
                             <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
@@ -649,6 +588,60 @@
         </div >
     </footer >
 
+    <!-- 日记编辑模态框 -->
+    <div id = "new-diary-modal" class = "fixed inset-0 z-50 flex items-center justify-center hidden" >
+        <div class = "absolute inset-0 bg-black/50 backdrop-blur-sm" ></div >
+        <div class = "bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative z-10" >
+            <div class = "p-6 border-b border-neutral-200 flex justify-between items-center" >
+                <h3 class = "text-xl font-bold text-neutral-800" >写日记</h3 >
+                <button id = "close-diary-modal" class = "text-neutral-500 hover:text-neutral-800" >
+                    <i class = "fa-solid fa-times" ></i >
+                </button >
+            </div >
+
+            <form id = "diary-form" method = "POST" enctype = "multipart/form-data" class = "p-6" >
+                {% csrf_token %}
+                <input type = "hidden" name = "mood" id = "mood-input" >
+                <input type = "hidden" id = "mood-color-input" >
+
+                <!-- 日记内容 -->
+                <div class = "mb-6" >
+                    <label class = "block text-sm font-medium text-neutral-700 mb-2" >记录今日心动</label >
+                    <textarea id = "content" name = "content" rows = "6"
+                              class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
+                              placeholder = "记录今天的心情和故事..." ></textarea >
+                </div >
+
+                <!-- 上传照片 -->
+                <div class = "mb-6" >
+                    <label class = "block text-sm font-medium text-neutral-700 mb-2" >上传照片（可选）</label >
+                    <div class = "border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer"
+                         id = "photo-upload-area" >
+                        <input type = "file" id = "photo-input" name = "photos" multiple accept = "image/*"
+                               class = "hidden" >
+                        <i class = "fa-solid fa-cloud-upload-alt text-3xl text-neutral-400 mb-3" ></i >
+                        <p class = "text-neutral-600 mb-2" >点击或拖拽照片到这里</p >
+                        <p class = "text-neutral-500 text-sm" >支持 JPG, PNG, GIF 格式</p >
+                    </div >
+                    <div id = "photo-preview-container" class = "grid grid-cols-3 gap-2 mt-3 hidden" ></div >
+                </div >
+
+                <!-- 提交按钮 -->
+                <div class = "flex justify-end space-x-3" >
+                    <button type = "button" id = "cancel-diary"
+                            class = "px-6 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
+                        取消
+                    </button >
+                    <button type = "submit" id = "saveButton"
+                            class = "px-6 py-2 text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center" >
+                        <i class = "fa-solid fa-paper-plane mr-2" ></i >
+                        <span >保存日记</span >
+                    </button >
+                </div >
+            </form >
+        </div >
+    </div >
+
     <!-- 交互逻辑 -->
     <script >
         const moodColors = {};
@@ -657,6 +650,11 @@
         });
 
         let currentMoodColor = '#FF6B8B';
+        let lastValue = ''; // 全局变量：记录编辑器上一次值（用于协作对比）
+        let currentDocumentId = "{{ document.id|default:'' }}"; // 当前日记ID（从后端模板获取）
+        let currentRevision = 0; // 当前操作版本号
+        let isProcessingRemoteOp = false; // 是否处理远程操作（避免递归）
+        let collaborationSocket = null; // WebSocket实例
 
         // DOM加载后初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -665,6 +663,7 @@
             initPhotoUpload();
             initNavDropdowns();
             initMobileMenu();
+            initCollaboration(); // 初始化实时协作
         });
 
         // 初始化心情触发
@@ -672,7 +671,7 @@
             const triggers = document.querySelectorAll('.diary-trigger');
             const moodInput = document.getElementById('mood-input');
             const moodColorInput = document.getElementById('mood-color-input');
-
+    
             triggers.forEach(trigger => {
                 trigger.addEventListener('click', () => {
                     const mood = trigger.dataset.mood;
@@ -697,7 +696,7 @@
         function initDiaryModal() {
             document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
             document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
-
+    
             const saveButton = document.getElementById('saveButton');
             saveButton.addEventListener('click', function () {
                 this.classList.add('bg-gradient-love');
@@ -709,6 +708,10 @@
             const modal = document.getElementById('new-diary-modal');
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+    
+            // 重置编辑器状态（针对新日记）
+            const editor = document.getElementById('content');
+            lastValue = editor.value; // 初始化基准值
         }
 
         // 关闭日记模态框
@@ -716,13 +719,6 @@
             const modal = document.getElementById('new-diary-modal');
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
-            resetForm();
-        }
-
-        // 初始化模态框
-        function initDiaryModal() {
-            document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
-            document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
         }
 
         // 初始化照片上传
@@ -730,20 +726,38 @@
             const uploadArea = document.getElementById('photo-upload-area');
             const input = document.getElementById('photo-input');
             const previewContainer = document.getElementById('photo-preview-container');
-
+    
             uploadArea.addEventListener('click', () => input.click());
-            input.addEventListener('change', (e) => previewPhotos(e.target.files, previewContainer));
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('border-primary');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('border-primary');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-primary');
+                if (e.dataTransfer.files.length) {
+                    input.files = e.dataTransfer.files;
+                    previewPhotos(input.files, previewContainer);
+                }
+            });
+    
+            input.addEventListener('change', (e) => {
+                previewPhotos(e.target.files, previewContainer);
+            });
         }
 
         // 预览照片
         function previewPhotos(files, container) {
             container.innerHTML = '';
             if (!files.length) return container.classList.add('hidden');
-
+    
             container.classList.remove('hidden');
             Array.from(files).forEach(file => {
                 if (!file.type.startsWith('image/')) return;
-
+        
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(file);
                 img.className = 'w-full h-24 object-cover rounded-lg';
@@ -751,63 +765,50 @@
             });
         }
 
-        const userAvatar = document.getElementById('userAvatar');
-        const userOptions = document.getElementById('userOptions');
-        const userDropdown = document.getElementById('userDropdown');
-
-        let closeTimer;
-
-        // 鼠标经过头像时打开菜单
-        userAvatar.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标悬停在下拉菜单时保持菜单打开
-        userDropdown.addEventListener('mouseenter', function () {
-            clearTimeout(closeTimer); // 清除之前的定时器
-            userOptions.classList.remove('hidden');
-        });
-
-        // 鼠标离开下拉菜单时关闭菜单
-        userDropdown.addEventListener('mouseleave', function () {
-            closeTimer = setTimeout(() => {
-                userOptions.classList.add('hidden');
-            }, 500);
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
+        // 初始化导航下拉菜单
+        function initNavDropdowns() {
+            // 用户头像下拉
+            const userAvatar = document.getElementById('userAvatar');
+            const userOptions = document.getElementById('userOptions');
+            let userDropdownTimer;
+    
+            userAvatar.addEventListener('mouseenter', () => {
+                clearTimeout(userDropdownTimer);
+                userOptions.classList.remove('hidden');
+            });
+            userAvatar.addEventListener('click', () => {
+                userOptions.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#userDropdown')) {
+                    userOptions.classList.add('hidden');
+                }
+            });
+    
+            // 更多下拉菜单
             const moreButton = document.getElementById('moreButton');
             const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
-
-            let closeTimer;
-
-            // 鼠标经过按钮时打开菜单
-            moreButton.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
+            let moreDropdownTimer;
+    
+            moreButton.addEventListener('mouseenter', () => {
+                clearTimeout(moreDropdownTimer);
                 moreOptions.classList.remove('hidden');
             });
-
-            // 鼠标悬停在下拉菜单时保持菜单打开
-            moreDropdown.addEventListener('mouseenter', function () {
-                clearTimeout(closeTimer); // 清除之前的定时器
-                moreOptions.classList.remove('hidden');
+            moreButton.addEventListener('click', () => {
+                moreOptions.classList.toggle('hidden');
             });
-
-            // 鼠标离开下拉菜单时关闭菜单
-            moreDropdown.addEventListener('mouseleave', function () {
-                closeTimer = setTimeout(() => {
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#moreDropdown')) {
                     moreOptions.classList.add('hidden');
-                }, 500); // 延迟200毫秒
+                }
             });
-        });
+        }
 
         // 初始化移动端菜单
         function initMobileMenu() {
             const menuToggle = document.getElementById('menu-toggle');
             const mobileMenu = document.getElementById('mobile-menu');
-
+    
             menuToggle.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
                 mobileMenu.classList.toggle('translate-y-0');
@@ -815,7 +816,131 @@
             });
         }
 
+        // 初始化实时协作（WebSocket连接）
+        function initCollaboration() {
+            if (!currentDocumentId && !document.getElementById('content')) return;
+    
+            // 连接WebSocket
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const socketUrl = `${protocol}//${window.location.host}/ws/collaboration/${currentDocumentId || 'new'}/`;
+    
+            collaborationSocket = new WebSocket(socketUrl);
+    
+            // 连接成功
+            collaborationSocket.onopen = function () {
+                console.log("实时协作连接已建立");
+                // 初始化编辑器基准值
+                const editor = document.getElementById('content');
+                if (editor) lastValue = editor.value;
+            };
+    
+            // 接收远程操作
+            collaborationSocket.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                // 忽略自己发送的操作
+                if (data.user_id === "{{ request.user.id }}") return;
+        
+                isProcessingRemoteOp = true;
+                try {
+                    applyOperationToEditor(data); // 应用远程操作
+                    currentRevision = data.revision; // 更新版本号
+                } finally {
+                    isProcessingRemoteOp = false;
+                }
+            };
+    
+            // 连接关闭重连
+            collaborationSocket.onclose = function () {
+                console.log("协作连接关闭，3秒后重连...");
+                setTimeout(initCollaboration, 3000);
+            };
+    
+            // 绑定编辑器事件（发送本地操作）
+            bindEditorEvents();
+        }
 
+        // 绑定编辑器事件（捕获本地操作并发送）
+        function bindEditorEvents() {
+            const editor = document.getElementById('content');
+            if (!editor) return;
+    
+            editor.addEventListener('input', function () {
+                if (isProcessingRemoteOp) return; // 忽略远程操作触发的本地变化
+        
+                const newValue = editor.value;
+                const oldValue = lastValue;
+        
+                // 计算操作类型（插入/删除）
+                if (newValue.length > oldValue.length) {
+                    // 插入操作
+                    const diffStart = findDiffStart(oldValue, newValue);
+                    const insertedText = newValue.substring(diffStart);
+                    sendOperation({
+                        op_type: 'insert',
+                        position: diffStart,
+                        text: insertedText,
+                        revision: currentRevision
+                    });
+                } else if (newValue.length < oldValue.length) {
+                    // 删除操作
+                    const diffStart = findDiffStart(newValue, oldValue);
+                    const deletedText = oldValue.substring(diffStart);
+                    sendOperation({
+                        op_type: 'delete',
+                        position: diffStart,
+                        text: deletedText,
+                        revision: currentRevision
+                    });
+                }
+        
+                lastValue = newValue; // 更新基准值
+            });
+        }
+
+        // 发送操作到后端
+        function sendOperation(operation) {
+            if (collaborationSocket && collaborationSocket.readyState === WebSocket.OPEN) {
+                collaborationSocket.send(JSON.stringify(operation));
+            }
+        }
+
+        // 找到两个字符串首次差异的位置
+        function findDiffStart(str1, str2) {
+            const minLength = Math.min(str1.length, str2.length);
+            for (let i = 0; i < minLength; i++) {
+                if (str1[i] !== str2[i]) return i;
+            }
+            return minLength; // 前minLength个字符相同
+        }
+
+        // 应用远程操作到本地编辑器
+        function applyOperationToEditor(operation) {
+            const editor = document.getElementById('content');
+            if (!editor) return;
+    
+            const currentValue = editor.value;
+            let newValue = currentValue;
+    
+            // 根据操作类型处理
+            if (operation.op_type === 'insert') {
+                // 插入操作
+                newValue = currentValue.substring(0, operation.position)
+                        + operation.text
+                        + currentValue.substring(operation.position);
+            } else if (operation.op_type === 'delete') {
+                // 删除操作
+                newValue = currentValue.substring(0, operation.position)
+                        + currentValue.substring(operation.position + operation.text.length);
+            }
+    
+            // 更新编辑器内容并保持光标位置
+            const cursorPos = operation.position + operation.text.length;
+            editor.value = newValue;
+            editor.setSelectionRange(cursorPos, cursorPos);
+    
+            // 更新本地基准值（避免触发本地input事件）
+            lastValue = newValue;
+        }
     </script >
 </body >
 </html >

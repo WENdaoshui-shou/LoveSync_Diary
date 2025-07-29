@@ -78,6 +78,15 @@ urlpatterns = [
     path('couple/reject/<int:profile_id>/', couple_reject, name='couple_reject'),
     path('couple/breakup/', couple_breakup, name='couple_breakup'),
 
+    path('document/create/', create_document, name='create_document'),
+    path('document/<int:document_id>/', collaborative_editor, name='collaborative_editor'),
+
+    path('couple_recommendation/', couple_recommendation, name='couple_recommendation'),
+    path('couple_places/', couple_places, name='couple_places'),
+    path('couple_test/', couple_test, name='couple_test'),
+
+
+
     path('admin/', admin.site.urls),
 ]
 

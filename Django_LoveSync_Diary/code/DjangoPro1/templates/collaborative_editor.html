@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ document.title }} - 双人协作编辑</title>
+    <style>
+        #editor { width: 100%; height: 400px; }
+    </style>
+</head>
+<body>
+    <h1>{{ document.title }}</h1>
+    <div>
+        <textarea id="editor">{{ document.content }}</textarea>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        let currentRevision = 0;  // 当前操作版本
+        let isProcessingOperation = false;  // 防止递归更新
+
+        // 建立WebSocket连接
+        const socket = new WebSocket(
+            `ws://${window.location.host}/ws/collaboration/${document_id}/`
+        );
+
+        // 处理接收到的操作
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.user_id === "{{ request.user.id }}") return;  // 忽略自己的操作
+
+            isProcessingOperation = true;
+            try {
+                if (data.op_type === 'insert') {
+                    const textBefore = editor.value.substring(0, data.position);
+                    const textAfter = editor.value.substring(data.position);
+                    editor.value = textBefore + data.text + textAfter;
+                } else if (data.op_type === 'delete') {
+                    const textBefore = editor.value.substring(0, data.position);
+                    const textAfter = editor.value.substring(data.position + data.text.length);
+                    editor.value = textBefore + textAfter;
+                }
+                currentRevision = data.revision;
+            } finally {
+                isProcessingOperation = false;
+            }
+        };
+
+        // 监听编辑器变化并发送操作
+        editor.addEventListener('input', function(event) {
+            if (isProcessingOperation) return;  // 防止递归发送
+
+            // 计算操作（简化版，实际应考虑选择范围和复杂编辑）
+            const oldValue = editor.value;
+            setTimeout(() => {
+                const newValue = editor.value;
+                if (newValue.length > oldValue.length) {
+                    // 插入操作
+                    const addedText = newValue.replace(oldValue, '');
+                    const position = oldValue.length;
+                    socket.send(JSON.stringify({
+                        op_type: 'insert',
+                        position: position,
+                        text: addedText,
+                        revision: currentRevision
+                    }));
+                } else if (newValue.length < oldValue.length) {
+                    // 删除操作
+                    const removedText = oldValue.replace(newValue, '');
+                    const position = oldValue.indexOf(removedText);
+                    socket.send(JSON.stringify({
+                        op_type: 'delete',
+                        position: position,
+                        text: removedText,
+                        revision: currentRevision
+                    }));
+                }
+            }, 0);
+        });
+    </script>
+</body>
+</html>

@@ -1,10 +1,9 @@
 import os
-from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
 from .models import *
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods, require_POST
 import uuid
 from django.shortcuts import render, redirect
@@ -15,6 +14,12 @@ from django.core.cache import cache
 from django.conf import settings
 from .utils import generate_verify_code, create_verify_image
 import logging
+from django.shortcuts import render, get_object_or_404
+from .models import CollaborativeDocument
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+import json
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -112,11 +117,12 @@ def couple_breakup(request):
 @login_required
 def couple(request):
     """情侣设置页面"""
-    profile = request.user.profile
+    user = request.user
+    profile = user.profile
     context = {
-        'profile': profile,
-        'has_couple': profile.couple is not None,
-        'pending_request': profile.couple_pending,
+        'user': user,
+        'has_couple': user.profile.couple is not None,
+        'pending_request': user.profile.couple_pending,
         'received_request': Profile.objects.filter(couple_pending=profile).first() if not profile.couple else None
     }
     return render(request, 'couple.html', context)
@@ -534,6 +540,7 @@ def personal_center(request):
 
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        print(f"情侣ID: {user.profile.couple.user.id}")  # 调试输出
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
 
@@ -549,6 +556,7 @@ def settings_view(request, tab='profile'):
         user = request.user
         print(f"用户ID: {user.id}")
         print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        print(f": {user.profile.couple_joined_at}")  # 调试输出
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
 
@@ -816,3 +824,57 @@ def checkout(request, product_id=None):
     cart_key = f'user_cart:{user_id}'
     cart = cache.get(cart_key, {})
     return render(request, 'checkout.html', {'cart_items': cart, 'product_id': product_id})
+
+
+@login_required
+def collaborative_editor(request, document_id):
+    document = get_object_or_404(CollaborativeDocument, id=document_id)
+
+    # 检查权限：只有文档所有者或其情侣可以访问
+    if request.user != document.owner and (document.couple is None or request.user != document.couple.user):
+        return HttpResponseForbidden("你无权访问此文档")
+
+    return render(request, 'collaborative_editor.html', {
+        'document': document
+    })
+
+
+@csrf_exempt
+@login_required
+def create_document(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        document = CollaborativeDocument.objects.create(
+            title=data.get('title', '新文档'),
+            owner=request.user,
+            content=data.get('content', '')
+        )
+        # 关联情侣（如果存在）
+        try:
+            profile = request.user.profile
+            if profile.couple:
+                document.couple = profile
+                document.save()
+        except:
+            pass
+
+        return JsonResponse({
+            'id': document.id,
+            'title': document.title,
+            'content': document.content,
+            'url': reverse('collaborative_editor', args=[document.id])
+        }, status=201)
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+def couple_recommendation(request):
+    if request.method == 'GET':
+        return render(request, 'couple_recommendation.html')
+
+def couple_places(request):
+    if request.method == 'GET':
+        return render(request, 'couple_places.html')
+
+def couple_test(request):
+    if request.method == 'GET':
+        return render(request, 'couple_test.html')
