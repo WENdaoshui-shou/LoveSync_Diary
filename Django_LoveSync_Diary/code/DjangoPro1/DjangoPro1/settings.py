@@ -38,6 +38,37 @@ CHANNEL_LAYERS = {
     },
 }
 
+# settings.py 中的日志配置示例
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'colored',  # 使用彩色格式化器
+        },
+    },
+    'formatters': {
+        'colored': {
+            '()': 'colorlog.ColoredFormatter',  # 需要安装colorlog库
+            'format': '%(log_color)s%(asctime)s - %(levelname)s - %(message)s',
+            'log_colors': {
+                'DEBUG': 'cyan',
+                'INFO': 'red',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -113,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 

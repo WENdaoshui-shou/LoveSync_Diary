@@ -43,40 +43,40 @@
             .content-auto {
                 content-visibility: auto;
             }
-    
+
             .text-shadow {
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
-    
+
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-    
+
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
-    
+
             .hover-scale {
                 transition: transform 0.3s ease;
             }
-    
+
             .hover-scale:hover {
                 transform: scale(1.03);
             }
-    
+
             .form-input-focus {
                 transition: all 0.3s ease;
             }
-    
+
             .form-input-focus:focus {
                 transform: translateY(-2px);
                 box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
             }
-    
+
             .btn-pulse {
                 animation: pulse 2s infinite;
             }
-    
+
             @keyframes pulse {
                 0% {
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
@@ -88,11 +88,11 @@
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
                 }
             }
-    
+
             .float-animation {
                 animation: float 6s ease-in-out infinite;
             }
-    
+
             @keyframes float {
                 0% {
                     transform: translateY(0px);
@@ -104,20 +104,20 @@
                     transform: translateY(0px);
                 }
             }
-    
+
             .post-card {
                 transition: all 0.3s ease;
             }
-    
+
             .post-card:hover {
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                 transform: translateY(-2px);
             }
-    
+
             .like-animation {
                 animation: like 0.5s ease;
             }
-    
+
             @keyframes like {
                 0% {
                     transform: scale(1);
@@ -129,11 +129,11 @@
                     transform: scale(1);
                 }
             }
-    
+
             .comment-slide {
                 animation: slideUp 0.3s ease;
             }
-    
+
             @keyframes slideUp {
                 from {
                     transform: translateY(20px);
@@ -144,7 +144,7 @@
                     opacity: 1;
                 }
             }
-    
+
             .scroll-smooth {
                 scroll-behavior: smooth;
             }
@@ -313,7 +313,7 @@
                 <div>
                     <label class="block text-neutral-700 mb-2">恋爱纪念日</label>
                     <div class="flex items-center flex-wrap gap-3">
-                        <input type="date" value="{{user.profile.couple_joined_at|date:" Y-m-d"}}"
+                        <input type="date" value='{{user.profile.couple_joined_at|date:"Y-m-d"}}'
                             class="flex-1 px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
                         <button
                             class="px-4 py-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom">

@@ -7,19 +7,6 @@ import uuid
 from django.utils import timezone
 
 
-# CustomUser：扩展了 Django 的用户模型，添加了 couple 字段用于关联情侣关系。
-# Diary：存储双人日记的信息，包括作者、标题、内容和创建时间。
-# Moment：存储情侣的动态信息，包括用户、内容、图片、点赞数、评论数和创建时间。
-# PhotoAlbum：存储情侣相册的信息，包括用户、照片、描述和创建时间。
-# Favorite：存储用户的收藏信息，包括用户、收藏类型和收藏项的 ID。
-# Anniversary：存储纪念日提醒的信息，包括用户、纪念日名称、日期和是否提醒。
-# GiftRecommendation：存储礼物推荐的信息，包括用户、礼物名称、描述和价格。
-# CoupleLocation：存储情侣地点的信息，包括用户、地点名称、地址和描述。
-# LoveTest：存储爱情测试的信息，包括用户、测试名称、结果和创建时间。
-# Message：存储用户之间的消息信息，包括发送者、接收者、内容、创建时间和是否已读。
-# Product：存储商品信息，包括名称、描述、价格和图片。
-
-
 # 用户
 class User(AbstractUser):
     username = models.CharField(max_length=11, unique=True)
@@ -224,11 +211,81 @@ def create_and_save_user_profile(sender, instance, created, **kwargs):
     instance.profile.save()
 
 
+# 日记
+class Note(models.Model):
+    MOOD_CHOICES = [
+        ('happy', '开心'),
+        ('heart', '心动'),
+        ('laugh', '欢乐'),
+        ('sad', '难过'),
+        ('angry', '生气'),
+        ('calm', '平静'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_note')
+    context = models.TextField(max_length=1000, verbose_name='日记内容')
+    created_at = models.DateTimeField(verbose_name='创建时间', default=timezone.now)
+    mood = models.CharField(default='happy', max_length=10, choices=MOOD_CHOICES, verbose_name='心情')
+    is_shared = models.BooleanField(default=False, verbose_name='是否共享')
+
+    def __str__(self):
+        return f"{self.user.username}的日记 #{self.id}"
+
+    # 获取心情对应的颜色（用于前端样式）
+    def get_mood_color(self):
+        color_mapping = {
+            'happy': '#48BB78',
+            'heart': '#ED8936',
+            'laugh': '#ECC94B',
+            'sad': '#718096',
+            'angry': '#E53E3E',
+            'calm': '#4299E1',
+        }
+        return color_mapping.get(self.mood, '#81E67F')
+
+    # 获取心情对应的图标（用于前端显示）
+    def get_mood_icon(self):
+        icon_mapping = {
+            'happy': '😊',
+            'heart': '❤️',
+            'laugh': '😆',
+            'sad': '😢',
+            'angry': '😤',
+            'calm': '😐',
+        }
+        return icon_mapping.get(self.mood, '😊')
+
+    # 获取心情的显示文本（用于前端标签）
+    def get_mood_display_text(self):
+        display_mapping = {
+            'happy': '开心的一天',
+            'heart': '心动时刻',
+            'laugh': '欢乐时刻',
+            'sad': '难过时刻',
+            'angry': '生气时刻',
+            'calm': '安静时刻',
+        }
+        return display_mapping.get(self.mood, '开心的一天')
+
+    # 获取心情对应的CSS类名（用于前端样式）
+    def get_mood_css_class(self):
+        return self.mood
+
+
+class NoteImage(models.Model):
+    notemoment = models.ForeignKey(Note, on_delete=models.CASCADE, related_name='note_images')
+    noteimage = models.ImageField(upload_to='note_images/%Y/%m/%d/', verbose_name='日记图片')
+
+    def __str__(self):
+        return f"日记 #{self.notemoment.id} 的图片"
+
+
 # 评论
 class Comment(models.Model):
     moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name='comment_set')  # 修改关联名称
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_comments')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name='note_likes', default="")
     content = models.TextField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

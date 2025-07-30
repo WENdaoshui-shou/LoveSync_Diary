@@ -8,7 +8,7 @@
     <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
     <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
           rel = "stylesheet" >
-    
+
     <!-- Tailwind 配置 -->
     <script >
         tailwind.config = {
@@ -51,49 +51,49 @@
             .diary-trigger {
                 transition: all 0.3s ease;
             }
-    
+
             .diary-trigger:hover {
                 transform: scale(1.02);
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             }
-    
+
             .mood-modal {
                 background-color: var(--mood-color, #FF6B8B);
             }
-    
+
             .blur-effect {
                 backdrop-filter: blur(4px);
             }
-    
+
             .scrollbar-hide {
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
-    
+
             .scrollbar-hide::-webkit-scrollbar {
                 display: none;
             }
-    
+
             .transition-custom {
                 transition: all 0.3s ease;
             }
-    
+
             .hover-scale {
                 transition: transform 0.3s ease;
             }
-    
+
             .hover-scale:hover {
                 transform: scale(1.02);
             }
-    
+
             .bg-gradient-love {
                 background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
-    
+
             .diary-trigger {
                 position: relative;
             }
-    
+
             .diary-trigger:hover::after {
                 position: absolute;
                 bottom: -24px;
@@ -108,7 +108,7 @@
                 visibility: hidden;
                 transition: opacity 0.3s ease;
             }
-    
+
             .diary-trigger:hover::after {
                 opacity: 1;
                 visibility: visible;
@@ -160,7 +160,7 @@
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心跳相簿</a >
                 <a href = "{% url 'lovesync' %}"
                    class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
-    
+
                 <!-- 更多下拉菜单 -->
                 <div class = "relative" id = "moreDropdown" >
                     <button
@@ -217,7 +217,7 @@
                     <i class = "fa-solid fa-pencil" ></i >
                     <span >发布动态</span >
                 </a >
-    
+
                 <!-- 用户头像与下拉菜单 -->
                 <div class = "relative" id = "userDropdown" >
                     <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
@@ -246,14 +246,14 @@
                         </a >
                     </div >
                 </div >
-    
+
                 <!-- 移动端菜单按钮 -->
                 <button class = "md:hidden text-neutral-700 focus:outline-none" id = "menu-toggle" >
                     <i class = "fa-solid fa-bars text-xl" ></i >
                 </button >
             </div >
         </div >
-    
+
         <!-- 移动端菜单 -->
         <div id = "mobile-menu"
              class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
@@ -316,257 +316,246 @@
                 <div class = "flex flex-col md:flex-row items-center justify-between" >
                     <div class = "mb-4 md:mb-0" >
                         <h2 class = "text-2xl font-bold text-neutral-800 mb-1" >我们的爱情日记</h2 >
-                        <p class = "text-neutral-600" >已共同记录 <span class = "text-primary font-semibold" >42</span > 篇日记 · 相恋 <span
-                                class = "text-primary font-semibold" >{{user.profile.couple_joined_at}}</span > 天</p >
+                        <p class = "text-neutral-600" >已共同记录 <span
+                                class = "text-primary font-semibold" >{{ total_notes }}</span > 篇日记 · 相恋 <span
+                                class = "text-primary font-semibold" id = "days-together"
+                                data-joined-date = "{{ user.profile.couple_joined_at|date:"Y-m-d"}}" ></span > 天</p >
                     </div >
 
                     <div class = "flex space-x-4" >
+                        <!-- 我的信息卡片 -->
                         <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
                             <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = {{ user.profile.userAvatar.url }} alt = "我的头像"
+                                <!-- 使用default过滤器确保没有头像时显示默认图片 -->
+                                <img src = "
+                                        {{ user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=1' }}"
+                                     alt = "我的头像"
                                      class = "w-full h-full object-cover" >
                             </div >
                             <div >
                                 <p class = "text-sm font-medium" >我</p >
-                                <p class = "text-xs text-neutral-500" >已写 23 篇</p >
+                                <p class = "text-xs text-neutral-500" >已写 {{ user_notes_count|default:0 }} 篇</p >
                             </div >
                         </div >
 
-                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
+                        <!-- 伴侣信息卡片 -->
+                        {% if user.profile.couple %}
+                            <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
                             <div class = "w-10 h-10 rounded-full overflow-hidden" >
-                                <img src = {{ user.profile.couple.user.profile.userAvatar.url }} alt = "伴侣头像"
+                                <!-- 确保伴侣有头像，没有则显示默认 -->
+                                <img src = "
+                                        {{ user.profile.couple.user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=2' }}"
+                                     alt = "{{ user.profile.couple.user.name }}的头像"
                                      class = "w-full h-full object-cover" >
                             </div >
                             <div >
-                                <p class = "text-sm font-medium" >TA</p >
-                                <p class = "text-xs text-neutral-500" >已写 19 篇</p >
+                                <p class = "text-sm font-medium" >{{ user.profile.couple.user.name|default:"伴侣" }}</p >
+                                <p class = "text-xs text-neutral-500" >已写 {{ partner_notes_count|default:0 }} 篇</p >
                             </div >
                         </div >
+                        {% else %}
+                        <!-- 没有伴侣时显示邀请卡片 -->
+                            <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3 cursor-pointer hover:bg-neutral-200 transition-colors"
+                                 onclick = "location.href='{% url 'invite_partner' %}'" >
+                            <div class = "w-10 h-10 rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center" >
+                                <i class = "fa fa-user-plus text-neutral-400" ></i >
+                            </div >
+                            <div >
+                                <p class = "text-sm font-medium text-neutral-700" >邀请伴侣</p >
+                                <p class = "text-xs text-primary" >一起记录美好时光</p >
+                            </div >
+                        </div >
+                        {% endif %}
                     </div >
                 </div >
-    
-                <!-- 本周心情统计（触发日记表单） -->
+
+                <!-- 本周心情统计 -->
                 <div class = "mt-6 pt-6 border-t border-neutral-200" >
-                    <h3 class = "text-lg font-semibold text-neutral-800 mb-4" >本周心情</h3 >
+                    <h3 class="text-lg font-semibold text-neutral-800 flex items-center justify-between mb-4">
+                        <span>本周心情</span>
+                        <span class="text-xs text-primary/70 hover:text-primary transition-colors cursor-pointer"
+                              id="write-diary-hint">
+                            点击卡片写日记
+                        </span>
+                    </h3>
                     <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
-                        <div class = "bg-heart/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "heart" data-color = "#FF6B8B" >
-                            <div class = "text-2xl mb-1" >❤️</div >
-                            <p class = "text-sm font-medium" >心动</p >
-                            <p class = "text-xs text-heart" >3 次</p >
-                            <p class = "mt-1 text-xs text-primary" >点击写日记</p >
-                        </div >
+                        {% for item in mood_stats %}
+                            <!-- 即使count为0，也会渲染卡片 -->
+                            <div class = "bg-{{ item.css_class }}/10 rounded-lg p-3 text-center cursor-pointer diary-trigger hover:scale-105 transition-transform duration-300"
+                                 data-mood = "{{ item.mood }}" data-color = "{{ item.color }}" >
+                                <div class = "text-2xl mb-1" >{{ item.icon }}</div >
+                                <p class = "text-sm font-medium" >{{ item.display }}</p >
+                                <p class = "text-xs text-{{ item.css_class }}" >{{ item.count }} 次</p >
 
-                        <div class = "bg-happy/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "happy" data-color = "#81E67F" >
-                            <div class = "text-2xl mb-1" >😊</div >
-                            <p class = "text-sm font-medium" >开心</p >
-                            <p class = "text-xs text-happy" >5 次</p >
-                        </div >
-
-                        <div class = "bg-laugh/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "laugh" data-color = "#FFD700" >
-                            <div class = "text-2xl mb-1" >😆</div >
-                            <p class = "text-sm font-medium" >大笑</p >
-                            <p class = "text-xs text-laugh" >2 次</p >
-                        </div >
-
-                        <div class = "bg-sad/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "sad" data-color = "#3B82F6" >
-                            <div class = "text-2xl mb-1" >😢</div >
-                            <p class = "text-sm font-medium" >难过</p >
-                            <p class = "text-xs text-sad" >1 次</p >
-                        </div >
-
-                        <div class = "bg-angry/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "angry" data-color = "#8B008B" >
-                            <div class = "text-2xl mb-1" >😤</div >
-                            <p class = "text-sm font-medium" >生气</p >
-                            <p class = "text-xs text-angry" >0 次</p >
-                        </div >
-
-                        <div class = "bg-calm/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
-                             data-mood = "calm" data-color = "#64748B" >
-                            <div class = "text-2xl mb-1" >😐</div >
-                            <p class = "text-sm font-medium" >平静</p >
-                            <p class = "text-xs text-calm" >2 次</p >
-                        </div >
+                            </div >
+                        {% endfor %}
                     </div >
                 </div >
-    
-                <!-- 时间轴双视角布局 -->
-                <div class = "relative" >
+            </div >
+
+            <!-- 时间轴双视角布局 -->
+            <div class = "relative" >
+
                 <!-- 时间轴分割线 -->
                 <div class = "hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2" ></div >
 
                 <!-- 时间轴条目 -->
                 <div class = "space-y-12" >
-                    <!-- 今天的日记 -->
-                    <div class = "relative" >
+                    <!-- 日记列表（按日期分组展示） -->
+                    {% for date_group in grouped_notes %}
+                        <div class = "relative" >
+                        <!-- 日期标题（动态显示今天/昨天/具体日期） -->
                         <div class = "text-center mb-8" >
                             <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >今天
+                                <i class = "fa-solid fa-calendar-day mr-2" ></i >
+                                {{ date_group.date_title }}  <!-- 动态日期标题：今天/昨天/具体日期 -->
                             </span >
                         </div >
-    
-                        <!-- TA的日记 -->
-                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card" >
+
+                        <!-- 该日期下的所有日记 -->
+                            {% for note in date_group.notes %}
+                        <!-- 判断日记属于当前用户还是情侣，设置不同布局 -->
+                                <div class = "{% if note.user == request.user %}md:w-1/2 md:pl-12{% else %}md:ml-auto md:w-1/2 md:pr-12 partner-card{% endif %} {% if not forloop.first %}mt-8{% endif %}" >
                             <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #81E67F;" data-mood = "happy" >
-                                <div class = "mood-indicator" data-icon = "😊" ></div >
+                                 style = "--mood-color: {{ note.get_mood_color }};"
+                                 data-mood = "{{ note.mood }}" >
+
+                                 <!-- 心情指示器（动态图标） -->
+                                <div class = "absolute -left-3 -top-3 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mood-indicator"
+                                     style = "color: {{ note.get_mood_color }}" >
+                                    {{ note.get_mood_icon }}
+                                </div >
+
+                                 <!-- 用户信息和时间 -->
                                 <div class = "flex justify-between items-start mb-3" >
                                     <div class = "flex items-center" >
                                         <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
+                                            <!-- 动态用户头像 -->
+                                            <img src = "{{ note.user.profile.userAvatar.url }}"
+                                                 alt = "{{ note.user.name }}的头像"
                                                  class = "w-full h-full object-cover" >
                                         </div >
-                                        <span class = "font-medium" >TA</span >
+                                        <!-- 动态显示用户名（区分"我"和TA） -->
+                                        <span class = "font-medium" >
+                                            {% if note.user == request.user %}我{% else %}
+                                                {{ note.user.name }}{% endif %}
+                                        </span >
                                     </div >
-                                    <span class = "text-sm text-neutral-500" >10:23</span >
+                                    <!-- 动态显示时间（格式化到小时分钟） -->
+                                    <span class = "text-sm text-neutral-500" >
+                                        {{ note.created_at|date:"H:i" }}
+                                    </span >
                                 </div >
-                                <p class = "text-neutral-700 mb-4" >今天早上收到了你的早餐惊喜，太开心了！鸡蛋煎得刚刚好，咖啡也是我喜欢的甜度。有你真好❤️</p >
-                                <div class = "rounded-lg overflow-hidden mb-4" >
-                                    <img src = "https://picsum.photos/600/400?random=10" alt = "早餐照片"
-                                         class = "w-full h-auto" >
+
+                                 <!-- 日记内容 -->
+                                <p class = "text-neutral-700 mb-4" >
+                                    {{ note.context }}
+                                </p >
+
+                                 <!-- 日记图片 -->
+                                {% if note.note_images.exists %}
+                                    <div class = "{% if note.note_images.count > 1 %}grid grid-cols-2 gap-2{% else %}block{% endif %} mb-4" >
+                                    {% for image in note.note_images.all %}
+                                        <div class = "rounded-lg overflow-hidden" >
+                                        <img src = "{{ image.noteimage.url }}"
+                                             alt = "日记图片"
+                                             class = "w-full {% if note.note_images.count == 1 %}h-auto{% else %}h-32{% endif %} object-cover" >
+                                    </div >
+                                    {% endfor %}
                                 </div >
+                                {% endif %}
+
+                                 <!-- 操作区（点赞数、评论按钮） -->
                                 <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-happy bg-happy/10 px-2 py-1 rounded-full" >开心的一天</span >
+                                    <!-- 动态心情标签 -->
+                                    <span class = "text-xs text-{{ note.mood }} bg-{{ note.mood }}/10 px-2 py-1 rounded-full" >
+                                        {{ note.get_mood_display_text }}
+                                    </span >
                                     <div class = "flex items-center space-x-3" >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
+                                        <!-- 动态点赞数 -->
+                                        <button class = "like-btn text-neutral-400 hover:text-primary transition-colors"
+                                                data-note-id = "{{ note.id }}" >
                                             <i class = "fa-solid fa-heart" ></i >
+                                            {% if note.likes > 0 %} {{ note.likes }} {% endif %}
                                         </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "1" >
+                                        <!-- 评论按钮 -->
+                                        <button class = "text-neutral-400 hover:text-primary transition-colors response-btn"
+                                                data-diary-id = "{{ note.id }}" >
                                             <i class = "fa-solid fa-reply" ></i >
+                                            {% if note.comments > 0 %} {{ note.comments }} {% endif %}
                                         </button >
                                     </div >
                                 </div >
-    
-                                <!-- 回应区域 -->
-                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
-                                    <div class = "flex items-start mb-2" >
-                                        <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
+
+                                 <!-- 评论输入框 -->
+                                <div id = "comment-input-{{ note.id }}"
+                                     class = "hidden mt-4 pt-4 border-t border-neutral-100" >
+                                    <div class = "flex items-start space-x-2" >
+                                        <div class = "w-6 h-6 rounded-full overflow-hidden" >
+                                            <img src = "{{ user.profile.userAvatar.url }}" alt = "我的头像"
                                                  class = "w-full h-full object-cover" >
                                         </div >
                                         <div class = "flex-1" >
-                                            <div class = "bg-neutral-100 rounded-lg p-3" >
-                                                <p class = "text-sm text-neutral-700" >看到你开心我也很满足呀～下次给你做你最爱吃的华夫饼！</p >
+                                            <textarea
+                                                    class = "w-full p-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                                                    placeholder = "写下你的回应..." rows = "1"
+                                                    data-note-id = "{{ note.id }}"
+                                                    class = "comment-input" ></textarea >
+                                            <div class = "flex justify-end mt-2" >
+                                                <button class = "text-xs bg-primary text-white px-3 py-1 rounded-full hover:bg-primary/90 transition-colors comment-submit"
+                                                        data-note-id = "{{ note.id }}" >
+                                                    发送
+                                                </button >
                                             </div >
                                         </div >
                                     </div >
                                 </div >
-                            </div >
-                        </div >
-                    </div >
 
-                    <!-- 昨天的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >昨天
-                            </span >
-                        </div >
-    
-                        <!-- 我的日记 -->
-                        <div class = "md:w-1/2 md:pl-12" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #FF6B8B;" data-mood = "heart" >
-                                <div class = "mood-indicator" data-icon = "❤️" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=1" alt = "我的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >我</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >21:45</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >今天陪你去看了你最喜欢的乐队演出，现场气氛太赞了！你跟着音乐摇摆的样子真的好可爱，那一刻觉得能和你在一起真的好幸福。</p >
-                                <div class = "grid grid-cols-2 gap-2 mb-4" >
-                                    <img src = "https://picsum.photos/300/300?random=11" alt = "演出照片1"
-                                         class = "w-full h-32 object-cover rounded-lg" >
-                                    <img src = "https://picsum.photos/300/300?random=12" alt = "演出照片2"
-                                         class = "w-full h-32 object-cover rounded-lg" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-heart bg-heart/10 px-2 py-1 rounded-full" >心动时刻</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i > 5
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "2" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-    
-                                <!-- 回应区域 -->
-                                <div class = "mt-4 pt-4 border-t border-neutral-100" >
-                                    <div class = "flex items-start mb-2" >
+                                 <!-- 回应区域（动态显示评论） -->
+                                {% if note.comments > 0 %}
+                                    <div class = "mt-4 pt-4 border-t border-neutral-100" >
+                                    {% for comment in note.comment_set.all|slice:":1" %}
+                                        <div class = "flex items-start mb-2" >
                                         <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
+                                            <img src = "{{ comment.user.profile.userAvatar.url }}"
+                                                 alt = "{{ comment.user.username }}的头像"
                                                  class = "w-full h-full object-cover" >
                                         </div >
                                         <div class = "flex-1" >
                                             <div class = "bg-neutral-100 rounded-lg p-3" >
-                                                <p class = "text-sm text-neutral-700" >哈哈，我也很开心你能陪我去！这是我今年最棒的一次体验，谢谢你～❤️</p >
+                                                <p class = "text-sm text-neutral-700" >{{ comment.context }}</p >
                                             </div >
                                         </div >
                                     </div >
+                                    {% endfor %}
+                                        <!-- 显示更多评论按钮（如果有） -->
+                                        {% if note.comments > 1 %}
+                                            <button class = "text-xs text-primary mt-1 view-all-comments"
+                                                    data-note-id = "{{ note.id }}" >
+                                        查看全部{{ note.comments }}条评论
+                                    </button >
+                                        {% endif %}
                                 </div >
+                                {% endif %}
                             </div >
+                                </div >
+                            {% endfor %}
                         </div >
-    
-                        <!-- TA的日记 -->
-                        <div class = "md:ml-auto md:w-1/2 md:pr-12 partner-card mt-8 md:mt-0" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: #FFD700;" data-mood = "laugh" >
-                                <div class = "mood-indicator" data-icon = "😆" ></div >
-                                <div class = "flex justify-between items-start mb-3" >
-                                    <div class = "flex items-center" >
-                                        <div class = "w-8 h-8 rounded-full overflow-hidden mr-2" >
-                                            <img src = "https://picsum.photos/200/200?random=2" alt = "TA的头像"
-                                                 class = "w-full h-full object-cover" >
-                                        </div >
-                                        <span class = "font-medium" >TA</span >
-                                    </div >
-                                    <span class = "text-sm text-neutral-500" >23:15</span >
-                                </div >
-                                <p class = "text-neutral-700 mb-4" >演出结束后我们去吃夜宵，你把芥末当成了番茄酱，那表情真的太好笑了！哈哈哈哈，不过看你为了我硬吃下去的样子，心里还是暖暖的～</p >
-                                <div class = "rounded-lg overflow-hidden mb-4" >
-                                    <img src = "https://picsum.photos/600/400?random=13" alt = "夜宵照片"
-                                         class = "w-full h-auto" >
-                                </div >
-                                <div class = "flex justify-between items-center" >
-                                    <span class = "text-xs text-laugh bg-laugh/10 px-2 py-1 rounded-full" >欢乐时刻</span >
-                                    <div class = "flex items-center space-x-3" >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom" >
-                                            <i class = "fa-solid fa-heart" ></i >
-                                        </button >
-                                        <button class = "text-neutral-400 hover:text-primary transition-custom response-btn"
-                                                data-diary-id = "3" >
-                                            <i class = "fa-solid fa-reply" ></i >
-                                        </button >
-                                    </div >
-                                </div >
-                            </div >
-                        </div >
-                    </div >
+                        {% empty %}
 
-                    <!-- 其他日期的日记 -->
-                    <div class = "relative" >
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >5月28日
-                            </span >
+                    <!-- 无日记时显示 -->
+                        <div class = "text-center py-12" >
+                        <div class = "w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4" >
+                            <i class = "fa-solid fa-book-open text-neutral-400 text-xl" ></i >
                         </div >
+                        <p class = "text-neutral-500" >还没有日记哦，开始记录你们的故事吧～</p >
+{#                        <button class = "mt-4 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors diary-trigger"#}
+{#                                data-mood = "happy" data-color = "#81E67F" >#}
+{#                            <i class = "fa-solid fa-pencil-alt mr-2" ></i >开始写日记#}
+{#                        </button >#}
                     </div >
+                    {% endfor %}
                 </div >
-            </div >
-
             </div >
         </div >
     </main >
@@ -607,7 +596,7 @@
                 <!-- 日记内容 -->
                 <div class = "mb-6" >
                     <label class = "block text-sm font-medium text-neutral-700 mb-2" >记录今日心动</label >
-                    <textarea id = "content" name = "content" rows = "6"
+                    <textarea id = "context" name = "context" rows = "6"
                               class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
                               placeholder = "记录今天的心情和故事..." ></textarea >
                 </div >
@@ -626,6 +615,18 @@
                     <div id = "photo-preview-container" class = "grid grid-cols-3 gap-2 mt-3 hidden" ></div >
                 </div >
 
+                <!-- 分享选项 -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-medium text-neutral-700">分享给TA</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="share-with-partner" name="share_with_partner" class="sr-only peer" checked>
+                            <div id="share-toggle" class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" ></div>
+                        </label>
+                    </div>
+                    <p class="text-xs text-neutral-500 mt-1">开启后，你的伴侣将看到这篇日记</p>
+                </div>
+
                 <!-- 提交按钮 -->
                 <div class = "flex justify-end space-x-3" >
                     <button type = "button" id = "cancel-diary"
@@ -642,7 +643,7 @@
         </div >
     </div >
 
-    <!-- 交互逻辑 -->
+
     <script >
         const moodColors = {};
         document.querySelectorAll('.diary-trigger').forEach(trigger => {
@@ -651,10 +652,10 @@
 
         let currentMoodColor = '#FF6B8B';
         let lastValue = ''; // 全局变量：记录编辑器上一次值（用于协作对比）
-        let currentDocumentId = "{{ document.id|default:'' }}"; // 当前日记ID（从后端模板获取）
-        let currentRevision = 0; // 当前操作版本号
-        let isProcessingRemoteOp = false; // 是否处理远程操作（避免递归）
-        let collaborationSocket = null; // WebSocket实例
+        let currentDocumentId = "{{ document.id|default:'' }}"; // 当前日记ID
+        let currentRevision = 0;
+        let isProcessingRemoteOp = false;
+        let collaborationSocket = null;
 
         // DOM加载后初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -671,7 +672,7 @@
             const triggers = document.querySelectorAll('.diary-trigger');
             const moodInput = document.getElementById('mood-input');
             const moodColorInput = document.getElementById('mood-color-input');
-    
+
             triggers.forEach(trigger => {
                 trigger.addEventListener('click', () => {
                     const mood = trigger.dataset.mood;
@@ -687,6 +688,8 @@
         // 更新保存按钮颜色
         function updateSaveButtonColor() {
             const saveButton = document.getElementById('saveButton');
+            const shareToggle = document.getElementById('share-toggle');
+
             saveButton.style.backgroundColor = currentMoodColor;
             saveButton.style.backgroundImage = `linear-gradient(135deg, ${currentMoodColor} 0%, ${currentMoodColor} 100%)`;
             saveButton.classList.remove('bg-gradient-love');
@@ -696,7 +699,7 @@
         function initDiaryModal() {
             document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
             document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
-    
+
             const saveButton = document.getElementById('saveButton');
             saveButton.addEventListener('click', function () {
                 this.classList.add('bg-gradient-love');
@@ -708,9 +711,9 @@
             const modal = document.getElementById('new-diary-modal');
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-    
+
             // 重置编辑器状态（针对新日记）
-            const editor = document.getElementById('content');
+            const editor = document.getElementById('context');
             lastValue = editor.value; // 初始化基准值
         }
 
@@ -726,7 +729,7 @@
             const uploadArea = document.getElementById('photo-upload-area');
             const input = document.getElementById('photo-input');
             const previewContainer = document.getElementById('photo-preview-container');
-    
+
             uploadArea.addEventListener('click', () => input.click());
             uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -743,7 +746,7 @@
                     previewPhotos(input.files, previewContainer);
                 }
             });
-    
+
             input.addEventListener('change', (e) => {
                 previewPhotos(e.target.files, previewContainer);
             });
@@ -753,11 +756,11 @@
         function previewPhotos(files, container) {
             container.innerHTML = '';
             if (!files.length) return container.classList.add('hidden');
-    
+
             container.classList.remove('hidden');
             Array.from(files).forEach(file => {
                 if (!file.type.startsWith('image/')) return;
-        
+
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(file);
                 img.className = 'w-full h-24 object-cover rounded-lg';
@@ -771,7 +774,7 @@
             const userAvatar = document.getElementById('userAvatar');
             const userOptions = document.getElementById('userOptions');
             let userDropdownTimer;
-    
+
             userAvatar.addEventListener('mouseenter', () => {
                 clearTimeout(userDropdownTimer);
                 userOptions.classList.remove('hidden');
@@ -784,12 +787,12 @@
                     userOptions.classList.add('hidden');
                 }
             });
-    
+
             // 更多下拉菜单
             const moreButton = document.getElementById('moreButton');
             const moreOptions = document.getElementById('moreOptions');
             let moreDropdownTimer;
-    
+
             moreButton.addEventListener('mouseenter', () => {
                 clearTimeout(moreDropdownTimer);
                 moreOptions.classList.remove('hidden');
@@ -808,7 +811,7 @@
         function initMobileMenu() {
             const menuToggle = document.getElementById('menu-toggle');
             const mobileMenu = document.getElementById('mobile-menu');
-    
+
             menuToggle.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
                 mobileMenu.classList.toggle('translate-y-0');
@@ -818,28 +821,28 @@
 
         // 初始化实时协作（WebSocket连接）
         function initCollaboration() {
-            if (!currentDocumentId && !document.getElementById('content')) return;
-    
+            if (!currentDocumentId && !document.getElementById('context')) return;
+
             // 连接WebSocket
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const socketUrl = `${protocol}//${window.location.host}/ws/collaboration/${currentDocumentId || 'new'}/`;
-    
+
             collaborationSocket = new WebSocket(socketUrl);
-    
+
             // 连接成功
             collaborationSocket.onopen = function () {
                 console.log("实时协作连接已建立");
                 // 初始化编辑器基准值
-                const editor = document.getElementById('content');
+                const editor = document.getElementById('context');
                 if (editor) lastValue = editor.value;
             };
-    
+
             // 接收远程操作
             collaborationSocket.onmessage = function (event) {
                 const data = JSON.parse(event.data);
                 // 忽略自己发送的操作
                 if (data.user_id === "{{ request.user.id }}") return;
-        
+
                 isProcessingRemoteOp = true;
                 try {
                     applyOperationToEditor(data); // 应用远程操作
@@ -848,28 +851,28 @@
                     isProcessingRemoteOp = false;
                 }
             };
-    
+
             // 连接关闭重连
             collaborationSocket.onclose = function () {
                 console.log("协作连接关闭，3秒后重连...");
                 setTimeout(initCollaboration, 3000);
             };
-    
+
             // 绑定编辑器事件（发送本地操作）
             bindEditorEvents();
         }
 
         // 绑定编辑器事件（捕获本地操作并发送）
         function bindEditorEvents() {
-            const editor = document.getElementById('content');
+            const editor = document.getElementById('context');
             if (!editor) return;
-    
+
             editor.addEventListener('input', function () {
                 if (isProcessingRemoteOp) return; // 忽略远程操作触发的本地变化
-        
+
                 const newValue = editor.value;
                 const oldValue = lastValue;
-        
+
                 // 计算操作类型（插入/删除）
                 if (newValue.length > oldValue.length) {
                     // 插入操作
@@ -892,7 +895,7 @@
                         revision: currentRevision
                     });
                 }
-        
+
                 lastValue = newValue; // 更新基准值
             });
         }
@@ -915,32 +918,104 @@
 
         // 应用远程操作到本地编辑器
         function applyOperationToEditor(operation) {
-            const editor = document.getElementById('content');
+            const editor = document.getElementById('context');
             if (!editor) return;
-    
+
             const currentValue = editor.value;
             let newValue = currentValue;
-    
+
             // 根据操作类型处理
             if (operation.op_type === 'insert') {
                 // 插入操作
                 newValue = currentValue.substring(0, operation.position)
-                        + operation.text
-                        + currentValue.substring(operation.position);
+                    + operation.text
+                    + currentValue.substring(operation.position);
             } else if (operation.op_type === 'delete') {
                 // 删除操作
                 newValue = currentValue.substring(0, operation.position)
-                        + currentValue.substring(operation.position + operation.text.length);
+                    + currentValue.substring(operation.position + operation.text.length);
             }
-    
+
             // 更新编辑器内容并保持光标位置
             const cursorPos = operation.position + operation.text.length;
             editor.value = newValue;
             editor.setSelectionRange(cursorPos, cursorPos);
-    
+
             // 更新本地基准值（避免触发本地input事件）
             lastValue = newValue;
         }
+
+        // 获取情侣关系建立日期
+        const joinedDateElement = document.getElementById('days-together');
+        const joinedDateStr = joinedDateElement.getAttribute('data-joined-date');
+
+        if (joinedDateStr) {
+            // 计算天数差
+            const joinedDate = new Date(joinedDateStr);
+            const today = new Date();
+            const timeDiff = today.getTime() - joinedDate.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+            // 更新显示
+            joinedDateElement.textContent = daysDiff;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // 获取日记表单和内容输入框
+            const diaryForm = document.getElementById('diary-form');
+            const contentInput = document.getElementById('context');
+            const is_shared = document.getElementById('share-with-partner');
+            const images = document.getElementById('photo-input');
+
+
+            // 如果表单不存在则不执行后续逻辑
+            if (!diaryForm) return;
+
+            // 表单提交处理
+            diaryForm.addEventListener('submit', function (e) {
+                e.preventDefault(); // 阻止默认提交行为
+
+                // 验证内容是否为空
+                if (!contentInput.value.trim()) {
+                    alert('请输入日记内容');
+                    return;
+                }
+
+                // 显示加载状态
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 保存中...';
+
+                // 准备表单数据
+                const formData = new FormData(this);
+                const shareWithPartner = document.getElementById('share-with-partner').checked;
+                formData.append('share_with_partner', shareWithPartner ? '1' : '0');
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('提交失败');
+                    })
+                    .then(data => {
+                        // 可以在这里添加页面刷新或跳转到日记列表的逻辑
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        alert('保存失败: ' + error.message);
+                    })
+                    .finally(() => {
+                        // 恢复按钮状态
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                    });
+            });
+        });
     </script >
 </body >
 </html >

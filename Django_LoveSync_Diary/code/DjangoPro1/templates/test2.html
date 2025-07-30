@@ -1,22 +1,28 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang = "zh-CN" >
+<head >
+    <meta charset = "UTF-8" >
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
+    <title >LoveSync 双人日记</title >
+    <script src = "https://cdn.tailwindcss.com" ></script >
+    <link href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel = "stylesheet" >
+    <link href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel = "stylesheet" >
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>情侣设置 | 恋爱空间</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Tailwind 配置 -->
-    <script>
+    <script >
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF6B8B', // 爱情粉色作为主色调
-                        secondary: '#722ED1', // 紫色作为辅助色
+                        primary: '#FF6B8B', // 爱情粉色
+                        secondary: '#722ED1', // 紫色辅助色
+                        heart: '#FF6B8B',    // 心动
+                        happy: '#81E67F',    // 开心
+                        laugh: '#FFD700',    // 大笑
+                        sad: '#3B82F6',      // 难过
+                        angry: '#8B008B',    // 生气
+                        calm: '#64748B',     // 平静
                         neutral: {
                             100: '#F9F9F9',
                             200: '#F0F0F0',
@@ -32,782 +38,863 @@
                     fontFamily: {
                         inter: ['Inter', 'sans-serif'],
                     },
+                    animation: {
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
                 },
             }
         }
-    </script>
+    </script >
 
-    <!-- 自定义工具类 -->
-    <style type="text/tailwindcss">
+    <style type = "text/tailwindcss" >
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
+            .diary-trigger {
+                transition: all 0.3s ease;
             }
-    
-            .text-shadow {
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+            .diary-trigger:hover {
+                transform: scale(1.02);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             }
-    
-            #sidebar::-webkit-scrollbar {
-                width: 8px;
+
+            .mood-modal {
+                background-color: var(--mood-color, #FF6B8B);
             }
-    
-            #sidebar::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
+
+            .blur-effect {
+                backdrop-filter: blur(4px);
             }
-    
-            #sidebar::-webkit-scrollbar-thumb {
-                background: #e0e0e0;
-                border-radius: 10px;
+
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
             }
-    
-            #sidebar::-webkit-scrollbar-thumb:hover {
-                background: #d0d0d0;
+
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
             }
-    
-            #sidebar::-webkit-scrollbar-thumb:active {
-                background: #c0c0c0;
-            }
-    
+
             .transition-custom {
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: all 0.3s ease;
             }
-    
-            .bg-gradient-love {
-                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
-            }
-    
+
             .hover-scale {
                 transition: transform 0.3s ease;
             }
-    
+
             .hover-scale:hover {
-                transform: scale(1.03);
+                transform: scale(1.02);
             }
-    
-            .form-input-focus {
-                transition: all 0.3s ease;
-            }
-    
-            .form-input-focus:focus {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
-            }
-    
-            .btn-pulse {
-                animation: pulse 2s infinite;
-            }
-    
-            @keyframes pulse {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
-                }
-                70% {
-                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
-                }
-                100% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
-                }
-            }
-            .float-animation {
-                animation: float 6s ease-in-out infinite;
-            }
-    
-            @keyframes float {
-                0% {
-                    transform: translateY(0px);
-                }
-                50% {
-                    transform: translateY(-20px);
-                }
-                100% {
-                    transform: translateY(0px);
-                }
-            }
-            .post-card {
-                transition: all 0.3s ease;
-            }
-    
-            .post-card:hover {
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                transform: translateY(-2px);
-            }
-    
-            .like-animation {
-                animation: like 0.5s ease;
-            }
-    
-            @keyframes like {
-                0% {
-                    transform: scale(1);
-                }
-                50% {
-                    transform: scale(1.3);
-                }
-                100% {
-                    transform: scale(1);
-                }
-            }
-            .comment-slide {
-                animation: slideUp 0.3s ease;
-            }
-    
-            @keyframes slideUp {
-                from {
-                    transform: translateY(20px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-            .scroll-smooth {
-                scroll-behavior: smooth;
-            }
-    
-            .skew-x-15 {
-                transform: skewX(15deg);
-            }
-    
-            .skew-x--15 {
-                transform: skewX(-15deg);
-            }
-    
-            .mask-custom {
-                mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
-            }
-    
-            .content-auto {
-                content-visibility: auto;
-            }
-    
-            .text-gradient {
-                background-clip: text;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-    
+
             .bg-gradient-love {
-                background: linear-gradient(90deg, #FF5E87 0%, #6B46C1 100%);
-            }
-    
-            .bg-gradient-to-br {
-                background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
-            }
-    
-            .transition-custom {
-                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-    
-        }
-    </style>
-
-    <style>
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background-color: #F9FAFB;
-        }
-
-        /* 滚动条样式 */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #E2E8F0;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #CBD5E0;
-        }
-
-        /* 图片加载动画 */
-        .img-loading {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
             }
 
-            100% {
-                background-position: -200% 0;
+            .diary-trigger {
+                position: relative;
+            }
+
+            .diary-trigger:hover::after {
+                position: absolute;
+                bottom: -24px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                font-size: 0.875rem;
+                padding: 2px 8px;
+                border-radius: 4px;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease;
+            }
+
+            .diary-trigger:hover::after {
+                opacity: 1;
+                visibility: visible;
             }
         }
-    </style>
-</head>
 
-<body class="text-neutral-800">
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-2px);
+            }
+        }
+
+        .animate-bounce {
+            animation: bounce 1.5s infinite;
+        }
+    </style >
+</head >
+
+<body class = "font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth" >
+    <!-- 背景装饰元素 -->
+    <div class = "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" >
+        <div class = "absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation" ></div >
+        <div class = "absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+             style = "animation-delay: -2s;" ></div >
+        <div class = "absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+             style = "animation-delay: -4s;" ></div >
+    </div >
+
     <!-- 导航栏 -->
-    <header class="sticky top-0 z-40 bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center">
-                <button id="backBtn" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-custom">
-                    <i class="fa fa-arrow-left text-neutral-700 text-primary"></i>
-                </button>
-                <h1 class="ml-3 text-xl font-bold text-primary">情侣设置</h1>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-custom">
-                    <i class="fa fa-search text-neutral-700"></i>
-                </button>
-                <button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-custom">
-                    <i class="fa fa-filter text-neutral-700"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+    <header class = "fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3" >
+        <div class = "container mx-auto px-4 flex items-center justify-between" >
+            <!-- 品牌标识 -->
+            <a href = "{% url 'index' %}" class = "flex items-center space-x-2" >
+                <div class = "w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md" >
+                    <i class = "fa-solid fa-heart text-xl" ></i >
+                </div >
+                <span class = "text-xl font-bold text-neutral-800 tracking-tight" >LoveSync</span >
+            </a >
+            <!-- 桌面端导航菜单 -->
+            <nav class = "hidden md:flex items-center space-x-6" >
+                <a href = "{% url 'community' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >爱享公社</a >
+                <a href = "{% url 'moments' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心动轨迹</a >
+                <a href = "{% url 'photo_album' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >心跳相簿</a >
+                <a href = "{% url 'lovesync' %}"
+                   class = "text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary" >双人日记</a >
 
-    <main class="container mx-auto px-6 py-6">
-        <!-- 情侣关系卡片 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-fade-in">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="relative mb-4 md:mb-0">
-                    <div class="relative w-28 h-28 rounded-full overflow-hidden border-4 border-primary/20">
-                        <img src={{ user.profile.userAvatar.url}} alt="情侣合照" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full">
-                        </div>
-                    </div>
+                <!-- 更多下拉菜单 -->
+                <div class = "relative" id = "moreDropdown" >
                     <button
-                        class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-primary hover:bg-neutral-50 transition-custom">
-                        <i class="fa fa-camera"></i>
-                    </button>
-                </div>
+                            class = "text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
+                            id = "moreButton" >
+                        更多 <i class = "fa-solid fa-chevron-down ml-1 text-xs" ></i >
+                    </button >
+                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                         id = "moreOptions" >
+                        <a href = "{% url 'couple' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-calendar-heart mr-2 w-5 text-center" ></i >情侣设置
+                        </a >
+                        <a href = "{% url 'couple_recommendation' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-gift mr-2 w-5 text-center" ></i >情侣推荐
+                        </a >
+                        <a href = "{% url 'couple_places' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-map-marker-heart mr-2 w-5 text-center" ></i >情侣地点
+                        </a >
+                        <a href = "{% url 'couple_test' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-question-circle mr-2 w-5 text-center" ></i >爱情测试
+                        </a >
+                    </div >
+                </div >
+            </nav >
 
-                <div class="md:ml-6 text-center md:text-left">
-                    <div class="flex items-center justify-center md:justify-start">
-                        <h2 class="text-2xl font-bold">{{user.name}} & {{user.profile.couple.user.name}}</h2>
-                        <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full" id="days-together">
-                            相恋<span>{{user.profile.couple_joined_at}}</span>天
-                        </span>
-                    </div>
+            <!-- 内容过滤器 -->
+            <div class = "bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale" >
+                <div class = "flex space-x-2" >
+                    <button class = "px-4 py-2 rounded-full bg-primary text-white text-sm font-medium" >
+                        推荐
+                    </button >
+                    <button class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
+                        最新
+                    </button >
+                    <button class = "px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom" >
+                        热门
+                    </button >
+                </div >
+                <div class = "relative" >
+                    <input type = "text" placeholder = "LoveSync: 搜索..."
+                           class = "pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm" >
+                    <i class = "fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" ></i >
+                </div >
+            </div >
 
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <div class="bg-neutral-50 rounded-lg p-3 text-center">
-                            <p class="text-neutral-500 text-sm">我的昵称</p>
-                            <p class="font-medium mt-1">{{user.name}}</p>
-                        </div>
-                        <div class="bg-neutral-50 rounded-lg p-3 text-center">
-                            <p class="text-neutral-500 text-sm">Ta的昵称</p>
-                            <p class="font-medium mt-1">{{user.profile.couple.user.name}}</p>
-                        </div>
-                    </div>
+            <!-- 用户操作区 -->
+            <div class = "flex items-center space-x-4" >
+                <a href = "{% url 'moments' %}" id = "createPostLink"
+                   class = "hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg" >
+                    <i class = "fa-solid fa-pencil" ></i >
+                    <span >发布动态</span >
+                </a >
 
-                </div>
+                <!-- 用户头像与下拉菜单 -->
+                <div class = "relative" id = "userDropdown" >
+                    <div class = "w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer shadow-sm"
+                         id = "userAvatar" >
+                        <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
+                             class = "w-full h-full object-cover" >
+                    </div >
+                    <div class = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                         id = "userOptions" >
+                        <a href = "{% url 'personal_center' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-user mr-2 w-5 text-center" ></i >主页
+                        </a >
+                        <a href = "{% url 'message' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-bookmark mr-2 w-5 text-center" ></i >消息
+                        </a >
+                        <a href = "{% url 'settings' %}"
+                           class = "block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-cog mr-2 w-5 text-center" ></i >设置
+                        </a >
+                        <div class = "border-t border-neutral-200 my-1" ></div >
+                        <a href = "{% url 'logout' %}"
+                           class = "block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center" >
+                            <i class = "fa-solid fa-sign-out mr-2 w-5 text-center" ></i >退出登录
+                        </a >
+                    </div >
+                </div >
+
+                <!-- 移动端菜单按钮 -->
+                <button class = "md:hidden text-neutral-700 focus:outline-none" id = "menu-toggle" >
+                    <i class = "fa-solid fa-bars text-xl" ></i >
+                </button >
+            </div >
+        </div >
+
+        <!-- 移动端菜单 -->
+        <div id = "mobile-menu"
+             class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
+             style = "top: 100%;" >
+            <div class = "container mx-auto px-4 py-3 flex flex-col space-y-3" >
+                <a href = "{% url 'community' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-users mr-3 w-5 text-center" ></i >爱享公社
+                </a >
+                <a href = "{% url 'moments' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-bolt mr-3 w-5 text-center" ></i >心动轨迹
+                </a >
+                <a href = "{% url 'photo_album' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-images mr-3 w-5 text-center" ></i >心跳相簿
+                </a >
+                <a href = "{% url 'lovesync' %}"
+                   class = "text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center" >
+                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >双人日记
+                </a >
+                <div class = "border-t border-neutral-200 my-1" ></div >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-calendar-heart mr-3 w-5 text-center" ></i >纪念日提醒
+                </a >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-gift mr-3 w-5 text-center" ></i >礼物推荐
+                </a >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-map-marker-heart mr-3 w-5 text-center" ></i >情侣地点
+                </a >
+                <a href = "#" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-question-circle mr-3 w-5 text-center" ></i >爱情测试
+                </a >
+                <div class = "border-t border-neutral-200 my-1" ></div >
+                <a href = "{% url 'personal_center' %}"
+                   class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-user mr-3 w-5 text-center" ></i >主页
+                </a >
+                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-bookmark mr-3 w-5 text-center" ></i >消息
+                </a >
+                <a href = "{% url 'message' %}" class = "text-neutral-700 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-cog mr-3 w-5 text-center" ></i >设置
+                </a >
+                <div class = "border-t border-neutral-200 my-1" ></div >
+                <a href = "{% url 'logout' %}" class = "text-red-500 py-2 transition-custom flex items-center" >
+                    <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
+                </a >
+            </div >
+        </div >
+    </header >
+
+
+    <!-- 主内容区 -->
+    <main class = "flex-grow pt-24 pb-16 relative z-10" >
+        <div class = "container mx-auto px-4" >
+            <!-- 顶部数据概览 -->
+            <div class = "bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in" >
+                <div class = "flex flex-col md:flex-row items-center justify-between" >
+                    <div class = "mb-4 md:mb-0" >
+                        <h2 class = "text-2xl font-bold text-neutral-800 mb-1" >我们的爱情日记</h2 >
+                        <p class = "text-neutral-600" >已共同记录 <span class = "text-primary font-semibold" >42</span > 篇日记 · 相恋 <span
+                                class = "text-primary font-semibold" >{{user.profile.couple_joined_at}}</span > 天</p >
+                    </div >
+
+                    <div class = "flex space-x-4" >
+                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
+                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                <img src = {{ user.profile.userAvatar.url }} alt = "我的头像"
+                                     class = "w-full h-full object-cover" >
+                            </div >
+                            <div >
+                                <p class = "text-sm font-medium" >我</p >
+                                <p class = "text-xs text-neutral-500" >已写 23 篇</p >
+                            </div >
+                        </div >
+
+                        <div class = "bg-neutral-100 rounded-lg p-3 flex items-center space-x-3" >
+                            <div class = "w-10 h-10 rounded-full overflow-hidden" >
+                                <img src = {{ user.profile.couple.user.profile.userAvatar.url }} alt = "伴侣头像"
+                                     class = "w-full h-full object-cover" >
+                            </div >
+                            <div >
+                                <p class = "text-sm font-medium" >TA</p >
+                                <p class = "text-xs text-neutral-500" >已写 19 篇</p >
+                            </div >
+                        </div >
+                    </div >
+                </div >
+
+                <!-- 本周心情统计（触发日记表单） -->
+                <div class = "mt-6 pt-6 border-t border-neutral-200" >
+                        <h3 class = "text-lg font-semibold text-neutral-800 mb-4" >本周心情</h3 >
+                        <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
+                            <div class = "bg-heart/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
+                                 data-mood = "heart" data-color = "#FF6B8B" >
+                                <div class = "text-2xl mb-1" >❤️</div >
+                                <p class = "text-sm font-medium" >心动</p >
+                                <p class = "text-xs text-heart" >3 次</p >
+                                <p class = "mt-1 text-xs text-primary" >点击写日记</p >
+                            </div >
+
+                            <div class = "bg-happy/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
+                                 data-mood = "happy" data-color = "#81E67F" >
+                                <div class = "text-2xl mb-1" >😊</div >
+                                <p class = "text-sm font-medium" >开心</p >
+                                <p class = "text-xs text-happy" >5 次</p >
+                            </div >
+
+                            <div class = "bg-laugh/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
+                                 data-mood = "laugh" data-color = "#FFD700" >
+                                <div class = "text-2xl mb-1" >😆</div >
+                                <p class = "text-sm font-medium" >大笑</p >
+                                <p class = "text-xs text-laugh" >2 次</p >
+                            </div >
+
+                            <div class = "bg-sad/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
+                                 data-mood = "sad" data-color = "#3B82F6" >
+                                <div class = "text-2xl mb-1" >😢</div >
+                                <p class = "text-sm font-medium" >难过</p >
+                                <p class = "text-xs text-sad" >1 次</p >
+                            </div >
+
+                            <div class = "bg-angry/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
+                                 data-mood = "angry" data-color = "#8B008B" >
+                                <div class = "text-2xl mb-1" >😤</div >
+                                <p class = "text-sm font-medium" >生气</p >
+                                <p class = "text-xs text-angry" >0 次</p >
+                            </div >
+
+                            <div class = "bg-calm/10 rounded-lg p-3 text-center cursor-pointer diary-trigger animate-bounce"
+                                 data-mood = "calm" data-color = "#64748B" >
+                                <div class = "text-2xl mb-1" >😐</div >
+                                <p class = "text-sm font-medium" >平静</p >
+                                <p class = "text-xs text-calm" >2 次</p >
+                            </div >
+                        </div >
+                    </div >
             </div>
-        </div>
 
-        <!-- 基本信息设置 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.1s">
-            <h2 class="text-xl font-bold mb-6">基本信息</h2>
+                <!-- 时间轴双视角布局 -->
+                <div class = "relative" >
 
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-neutral-700 mb-2">我们的情侣名</label>
-                    <div class="flex items-center">
-                        <input type="text" value="{{ user.profile.couple.user.name }}"
-                            class="flex-1 px-4 py-3 rounded-l-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                        <div class="px-4 py-3 bg-neutral-100 border-t border-b border-neutral-300">
-                            &
-                        </div>
-                        <input type="text" value="{{ user.name }}"
-                            class="flex-1 px-4 py-3 rounded-r-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                    </div>
-                    <p class="text-xs text-neutral-500 mt-1">这是你们在情侣空间中的专属称呼</p>
-                </div>
+                <!-- 时间轴分割线 -->
+                <div class = "hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2" ></div >
 
-                <div>
-                    <label class="block text-neutral-700 mb-2">恋爱纪念日</label>
-                    <div class="flex items-center">
-                        <input type="date" value="{{user.profile.couple_joined_at|date:"Y-m-d"}}"
-                            class="flex-1 px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
-                        <button
-                            class="ml-3 px-4 py-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom">
-                            <i class="fa fa-calendar-plus-o mr-1"></i> 添加更多
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-neutral-700 mb-2">我们的故事</label>
-                    <textarea rows="3" placeholder="分享你们的恋爱故事..."
-                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">我们在春天相遇，一起走过了三个季节，期待更多的四季与你相伴。</textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- 主题设置 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.2s">
-            <h2 class="text-xl font-bold mb-6">主题设置</h2>
-
-            <div>
-                <p class="text-neutral-600 mb-4">选择你们喜欢的主题风格，让情侣空间更有专属感</p>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div
-                        class="rounded-lg border-2 border-primary relative overflow-hidden cursor-pointer group transition-custom">
-                        <div
-                            class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                            <i class="fa fa-check text-primary"></i>
-                        </div>
-                        <div class="h-24 bg-gradient-to-r from-primary to-secondary"></div>
-                        <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">热恋粉紫</h3>
-                        </div>
-                    </div>
-
-                    <div
-                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
-                        <div class="h-24 bg-gradient-to-r from-blue-400 to-purple-500"></div>
-                        <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">梦幻星空</h3>
-                        </div>
-                    </div>
-
-                    <div
-                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
-                        <div class="h-24 bg-gradient-to-r from-green-400 to-blue-500"></div>
-                        <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">清新自然</h3>
-                        </div>
-                    </div>
-
-                    <div
-                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
-                        <div class="h-24 bg-gradient-to-r from-yellow-400 to-red-500"></div>
-                        <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">活力橙红</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <h3 class="font-medium mb-3">自定义主题颜色</h3>
-                    <div class="flex space-x-3">
-                        <div class="flex-1">
-                            <label class="block text-sm text-neutral-600 mb-1">主色调</label>
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-primary border-2 border-white shadow-sm"></div>
-                                <input type="color" value="#FF5E87"
-                                    class="ml-2 h-8 w-12 rounded border-none cursor-pointer">
+                <!-- 时间轴条目 -->
+                <div class = "space-y-12" >
+                    <!-- 日记列表（按日期分组展示） -->
+                    {% for date_group in grouped_notes %}
+                        <div class="relative">
+                            <!-- 日期标题（动态显示今天/昨天/具体日期） -->
+                            <div class="text-center mb-8">
+                                <span class="inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium">
+                                    <i class="fa-solid fa-calendar-day mr-2"></i>
+                                    {{ date_group.date_title }}  <!-- 动态日期标题：今天/昨天/具体日期 -->
+                                </span>
                             </div>
+
+                            <!-- 该日期下的所有日记 -->
+                            {% for note in date_group.notes %}
+                                <!-- 判断日记属于当前用户还是情侣，设置不同布局 -->
+                                <div class="{% if note.user == request.user %}md:w-1/2 md:pl-12{% else %}md:ml-auto md:w-1/2 md:pr-12 partner-card{% endif %} {% if not forloop.first %}mt-8{% endif %}">
+                                    <div class="bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
+                                         style="--mood-color: {{ note.mood_color }};"  <!-- 动态心情颜色 -->
+                                         data-mood="{{ note.mood }}">
+
+                                        <!-- 心情指示器（动态图标） -->
+                                        <div class="mood-indicator" data-icon="{{ note.mood_icon }}"></div>
+
+                                        <!-- 用户信息和时间 -->
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
+                                                    <!-- 动态用户头像-->
+                                                    <img src="{{ note.user.profile.avatar.url}}"
+                                                         alt="{{ note.user.username }}的头像"
+                                                         class="w-full h-full object-cover">
+                                                </div>
+                                                <!-- 动态显示用户名（区分"我"和TA） -->
+                                                <span class="font-medium">
+                                                    {% if note.user == request.user %}我{% else %}{{ note.user.profile.couple.user.name }}{% endif %}
+                                                </span>
+                                            </div>
+                                            <!-- 动态显示时间（格式化到小时分钟） -->
+                                            <span class="text-sm text-neutral-500">
+                                                {{ note.created_at|date:"H:i" }}
+                                            </span>
+                                        </div>
+
+                                        <!-- 日记内容 -->
+                                        <p class="text-neutral-700 mb-4">
+                                            {{ note.context }}  <!-- 动态日记内容 -->
+                                        </p>
+
+                                        <!-- 日记图片（动态循环显示所有关联图片） -->
+                                        {% if note.note_images.exists %}
+                                            <div class="{% if note.note_images.count > 1 %}grid grid-cols-2 gap-2{% else %}block{% endif %} mb-4">
+                                                {% for image in note.note_images.all %}
+                                                    <div class="rounded-lg overflow-hidden">
+                                                        <img src="{{ image.noteimage.url }}"
+                                                             alt="日记图片"
+                                                             class="w-full {% if note.note_images.count == 1 %}h-auto{% else %}h-32{% endif %} object-cover">
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- 操作区（点赞数、评论按钮） -->
+                                        <div class="flex justify-between items-center">
+                                            <!-- 动态心情标签 -->
+                                            <span class="text-xs text-{{ note.mood_css }} bg-{{ note.mood_css }}/10 px-2 py-1 rounded-full">
+                                                {{ note.mood_display }}  <!-- 动态心情文本 -->
+                                            </span>
+                                            <div class="flex items-center space-x-3">
+                                                <!-- 动态点赞数 -->
+                                                <button class="text-{% if note.is_liked %}primary{% else %}neutral-400{% endif %} hover:text-primary transition-custom">
+                                                    <i class="fa-solid fa-heart"></i>
+                                                    {% if note.likes > 0 %} {{ note.likes }} {% endif %}
+                                                </button>
+                                                <!-- 评论按钮 -->
+                                                <button class="text-neutral-400 hover:text-primary transition-custom response-btn"
+                                                        data-diary-id="{{ note.id }}">
+                                                    <i class="fa-solid fa-reply"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 回应区域（动态显示评论） -->
+                                        {% if note.comments > 0 and note.comment_set.exists %}
+                                            <div class="mt-4 pt-4 border-t border-neutral-100">
+                                                {% for comment in note.comment_set.all|slice:":1" %}  <!-- 只显示第一条评论 -->
+                                                    <div class="flex items-start mb-2">
+                                                        <div class="w-6 h-6 rounded-full overflow-hidden mr-2">
+                                                            <img src="{{ comment.user.profile.avatar.url|default:'https://picsum.photos/200/200?random=1' }}"
+                                                                 alt="{{ comment.user.username }}的头像"
+                                                                 class="w-full h-full object-cover">
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <div class="bg-neutral-100 rounded-lg p-3">
+                                                                <p class="text-sm text-neutral-700">{{ comment.content }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                                <!-- 显示更多评论按钮（如果有） -->
+                                                {% if note.comments > 1 %}
+                                                    <button class="text-xs text-primary mt-1">
+                                                        查看全部{{ note.comments }}条评论
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
                         </div>
-                        <div class="flex-1">
-                            <label class="block text-sm text-neutral-600 mb-1">辅助色</label>
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-secondary border-2 border-white shadow-sm"></div>
-                                <input type="color" value="#6B46C1"
-                                    class="ml-2 h-8 w-12 rounded border-none cursor-pointer">
+                            {% endfor %}
+                    {% empty %}
+                        <!-- 无日记时显示 -->
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4">
+                                <i class="fa-solid fa-book-open text-neutral-400 text-xl"></i>
                             </div>
+                            <p class="text-neutral-500">还没有日记哦，开始记录你们的故事吧～</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    {% endfor %}
+                </div >
+            </div >
+    </main >
 
-        <!-- 隐私设置 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.3s">
-            <h2 class="text-xl font-bold mb-6">隐私设置</h2>
+    <!-- 页脚 -->
+    <footer class = "bg-white border-t border-neutral-200 py-8" >
+        <div class = "container mx-auto px-4" >
+            <div class = "flex flex-col md:flex-row justify-between items-center" >
+                <div class = "flex items-center space-x-2" >
+                    <div class = "w-8 h-8 bg-gradient-love rounded-full text-white" >
+                        <i class = "fa-solid fa-heart" ></i >
+                    </div >
+                    <span class = "text-lg font-bold" >LoveSync</span >
+                </div >
+                <div class = "text-neutral-500 text-sm" >
+                    &copy; 2025 LoveSync. 每篇日记都是一棵树，年轮里藏着我们的故事
+                </div >
+            </div >
+        </div >
+    </footer >
 
-            <div class="space-y-5">
-                <div class="p-4 bg-neutral-50 rounded-lg">
-                    <h3 class="font-medium mb-3">谁可以看到我们的情侣关系？</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <label class="border-2 border-primary rounded-lg p-4 cursor-pointer relative">
-                            <input type="radio" name="visibility" value="only_me" checked class="sr-only">
-                            <div
-                                class="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                                <i class="fa fa-check text-white text-xs"></i>
-                            </div>
-                            <div
-                                class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3">
-                                <i class="fa fa-lock"></i>
-                            </div>
-                            <h4 class="font-medium">仅彼此可见</h4>
-                            <p class="text-sm text-neutral-500 mt-1">只有你们两人知道情侣关系</p>
-                        </label>
+    <!-- 日记编辑模态框 -->
+    <div id = "new-diary-modal" class = "fixed inset-0 z-50 flex items-center justify-center hidden" >
+        <div class = "absolute inset-0 bg-black/50 backdrop-blur-sm" ></div >
+        <div class = "bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative z-10" >
+            <div class = "p-6 border-b border-neutral-200 flex justify-between items-center" >
+                <h3 class = "text-xl font-bold text-neutral-800" >写日记</h3 >
+                <button id = "close-diary-modal" class = "text-neutral-500 hover:text-neutral-800" >
+                    <i class = "fa-solid fa-times" ></i >
+                </button >
+            </div >
 
-                        <label
-                            class="border-2 border-transparent hover:border-primary/50 rounded-lg p-4 cursor-pointer transition-custom">
-                            <input type="radio" name="visibility" value="friends" class="sr-only">
-                            <div
-                                class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mb-3">
-                                <i class="fa fa-users"></i>
-                            </div>
-                            <h4 class="font-medium">好友可见</h4>
-                            <p class="text-sm text-neutral-500 mt-1">只有共同好友可以看到</p>
-                        </label>
+            <form id = "diary-form" method = "POST" enctype = "multipart/form-data" class = "p-6" >
+                {% csrf_token %}
+                <input type = "hidden" name = "mood" id = "mood-input" >
+                <input type = "hidden" id = "mood-color-input" >
 
-                        <label
-                            class="border-2 border-transparent hover:border-primary/50 rounded-lg p-4 cursor-pointer transition-custom">
-                            <input type="radio" name="visibility" value="public" class="sr-only">
-                            <div
-                                class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mb-3">
-                                <i class="fa fa-globe"></i>
-                            </div>
-                            <h4 class="font-medium">公开可见</h4>
-                            <p class="text-sm text-neutral-500 mt-1">所有人都可以看到</p>
-                        </label>
-                    </div>
-                </div>
+                <!-- 日记内容 -->
+                <div class = "mb-6" >
+                    <label class = "block text-sm font-medium text-neutral-700 mb-2" >记录今日心动</label >
+                    <textarea id = "content" name = "content" rows = "6"
+                              class = "w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
+                              placeholder = "记录今天的心情和故事..." ></textarea >
+                </div >
 
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div class="flex items-center">
-                            <div
-                                class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mr-3">
-                                <i class="fa fa-heart"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">恋爱动态</h3>
-                                <p class="text-sm text-neutral-500">发布的恋爱点滴</p>
-                            </div>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked class="sr-only peer">
-                            <div
-                                class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                            </div>
-                        </label>
-                    </div>
+                <!-- 上传照片 -->
+                <div class = "mb-6" >
+                    <label class = "block text-sm font-medium text-neutral-700 mb-2" >上传照片（可选）</label >
+                    <div class = "border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer"
+                         id = "photo-upload-area" >
+                        <input type = "file" id = "photo-input" name = "photos" multiple accept = "image/*"
+                               class = "hidden" >
+                        <i class = "fa-solid fa-cloud-upload-alt text-3xl text-neutral-400 mb-3" ></i >
+                        <p class = "text-neutral-600 mb-2" >点击或拖拽照片到这里</p >
+                        <p class = "text-neutral-500 text-sm" >支持 JPG, PNG, GIF 格式</p >
+                    </div >
+                    <div id = "photo-preview-container" class = "grid grid-cols-3 gap-2 mt-3 hidden" ></div >
+                </div >
 
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div class="flex items-center">
-                            <div
-                                class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mr-3">
-                                <i class="fa fa-calendar"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">纪念日</h3>
-                                <p class="text-sm text-neutral-500">恋爱天数和重要日期</p>
-                            </div>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked class="sr-only peer">
-                            <div
-                                class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div class="flex items-center">
-                            <div
-                                class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mr-3">
-                                <i class="fa fa-image"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">情侣相册</h3>
-                                <p class="text-sm text-neutral-500">共享的照片和视频</p>
-                            </div>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer">
-                            <div
-                                class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                            </div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 通知设置 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.4s">
-            <h2 class="text-xl font-bold mb-6">通知设置</h2>
-
-            <div class="space-y-4">
-                <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                    <div class="flex items-center">
-                        <div
-                            class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mr-3">
-                            <i class="fa fa-bell"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-medium">接收通知</h3>
-                            <p class="text-sm text-neutral-500">开启后接收情侣相关通知</p>
-                        </div>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" checked class="sr-only peer">
-                        <div
-                            class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                        </div>
-                    </label>
-                </div>
-
-                <div class="pl-14 pr-4 py-3 bg-neutral-50 rounded-lg">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="flex items-center">
-                                <input type="checkbox" checked
-                                    class="w-4 h-4 text-primary focus:ring-primary/50 rounded">
-                                <span class="ml-2 text-neutral-700">消息提醒</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="flex items-center">
-                                <input type="checkbox" checked
-                                    class="w-4 h-4 text-primary focus:ring-primary/50 rounded">
-                                <span class="ml-2 text-neutral-700">评论提醒</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="flex items-center">
-                                <input type="checkbox" checked
-                                    class="w-4 h-4 text-primary focus:ring-primary/50 rounded">
-                                <span class="ml-2 text-neutral-700">纪念日提醒</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="w-4 h-4 text-primary focus:ring-primary/50 rounded">
-                                <span class="ml-2 text-neutral-700">互动提醒</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                    <div class="flex items-center">
-                        <div
-                            class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mr-3">
-                            <i class="fa fa-volume-up"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-medium">声音提醒</h3>
-                            <p class="text-sm text-neutral-500">消息通知时播放声音</p>
-                        </div>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" checked class="sr-only peer">
-                        <div
-                            class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                        </div>
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-                    <div class="flex items-center">
-                        <div
-                            class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 mr-3">
-                            <i class="fa fa-vibrate"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-medium">震动提醒</h3>
-                            <p class="text-sm text-neutral-500">消息通知时震动</p>
-                        </div>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" checked class="sr-only peer">
-                        <div
-                            class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                        </div>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- 解除关系确认按钮 -->
-        <div class="mb-12 text-center animate-slide-up" style="animation-delay: 0.5s">
-            <button id="breakupBtn2" class="inline-flex items-center text-red-500 hover:text-red-600 transition-custom">
-                <i class="fa fa-heart-broken mr-1"></i>
-                <span>解除情侣关系</span>
-            </button>
-            <p class="text-xs text-neutral-500 mt-2">解除后，你们的情侣数据将被保留，但不会显示为情侣关系</p>
-        </div>
-    </main>
-
-    <!-- 解除关系确认弹窗 -->
-    <div id="breakupModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 transform transition-all scale-95">
-            <div class="p-6 border-b border-neutral-200">
-                <h3 class="text-xl font-bold">确认解除情侣关系？</h3>
-            </div>
-            <div class="p-6">
-                <div
-                    class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500 mx-auto mb-4">
-                    <i class="fa fa-heart-broken text-2xl"></i>
-                </div>
-                <p class="text-center text-neutral-700 mb-5">解除关系后，所有共享内容将转为私密状态，情侣特权将被取消。</p>
-
-                <div class="mb-4">
-                    <label class="block text-neutral-700 mb-2">请输入对方昵称确认</label>
-                    <input type="text" placeholder="输入对方昵称"
-                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-custom">
-                </div>
-
-                <div class="flex space-x-3 mt-6">
-                    <button id="cancelBreakup"
-                        class="flex-1 py-3 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-50 transition-custom">
+                <!-- 提交按钮 -->
+                <div class = "flex justify-end space-x-3" >
+                    <button type = "button" id = "cancel-diary"
+                            class = "px-6 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom" >
                         取消
-                    </button>
-                    <button class="flex-1 py-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-custom">
-                        确认解除
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    </button >
+                    <button type = "submit" id = "saveButton"
+                            class = "px-6 py-2 text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center" >
+                        <i class = "fa-solid fa-paper-plane mr-2" ></i >
+                        <span >保存日记</span >
+                    </button >
+                </div >
+            </form >
+        </div >
+    </div >
 
-    <script>
-        // 页面加载完成后执行
-        document.addEventListener('DOMContentLoaded', function() {
-            // 处理模态框
-            const breakupBtn = document.getElementById('breakupBtn');
-            const breakupModal = document.getElementById('breakupModal');
-            const cancelBreakupBtn = document.getElementById('cancelBreakupBtn');
-            const confirmBreakupBtn = document.getElementById('confirmBreakupBtn');
-            
-            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-            const deleteAccountModal = document.getElementById('deleteAccountModal');
-            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            
-            // 打开解除情侣关系模态框
-            breakupBtn.addEventListener('click', function() {
-                breakupModal.classList.remove('opacity-0', 'pointer-events-none');
-                breakupModal.querySelector('div').classList.remove('scale-95');
-                breakupModal.querySelector('div').classList.add('scale-100');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            // 关闭解除情侣关系模态框
-            cancelBreakupBtn.addEventListener('click', function() {
-                breakupModal.classList.add('opacity-0', 'pointer-events-none');
-                breakupModal.querySelector('div').classList.remove('scale-100');
-                breakupModal.querySelector('div').classList.add('scale-95');
-                document.body.style.overflow = '';
-            });
-            
-            // 确认解除情侣关系
-            confirmBreakupBtn.addEventListener('click', function() {
-                // 这里添加解除情侣关系的逻辑
-                alert('情侣关系已解除');
-                breakupModal.classList.add('opacity-0', 'pointer-events-none');
-                breakupModal.querySelector('div').classList.remove('scale-100');
-                breakupModal.querySelector('div').classList.add('scale-95');
-                document.body.style.overflow = '';
-            });
-            
-            // 打开删除账号模态框
-            deleteAccountBtn.addEventListener('click', function() {
-                deleteAccountModal.classList.remove('opacity-0', 'pointer-events-none');
-                deleteAccountModal.querySelector('div').classList.remove('scale-95');
-                deleteAccountModal.querySelector('div').classList.add('scale-100');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            // 关闭删除账号模态框
-            cancelDeleteBtn.addEventListener('click', function() {
-                deleteAccountModal.classList.add('opacity-0', 'pointer-events-none');
-                deleteAccountModal.querySelector('div').classList.remove('scale-100');
-                deleteAccountModal.querySelector('div').classList.add('scale-95');
-                document.body.style.overflow = '';
-            });
-            
-            // 确认删除账号
-            confirmDeleteBtn.addEventListener('click', function() {
-                // 这里添加删除账号的逻辑
-                alert('账号已删除');
-                deleteAccountModal.classList.add('opacity-0', 'pointer-events-none');
-                deleteAccountModal.querySelector('div').classList.remove('scale-100');
-                deleteAccountModal.querySelector('div').classList.add('scale-95');
-                document.body.style.overflow = '';
-            });
-            
-            // 返回按钮
-            document.getElementById('backBtn').addEventListener('click', function() {
-                window.history.back();
-            });
-            
-            // 表单输入动画效果
-            const formInputs = document.querySelectorAll('.form-input-focus');
-            formInputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.parentElement.classList.add('focus-within');
-                });
-                input.addEventListener('blur', function() {
-                    if (!this.value) {
-                        this.parentElement.classList.remove('focus-within');
-                    }
-                });
-            });
-            
-            // 主题选择效果
-            const themeOptions = document.querySelectorAll('[class*="border-2"]:not(.border-transparent)');
-            themeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    themeOptions.forEach(opt => {
-                        opt.classList.remove('border-primary');
-                        opt.classList.add('border-transparent');
-                        const checkIcon = opt.querySelector('.fa-check');
-                        if (checkIcon) {
-                            checkIcon.parentElement.classList.add('bg-white');
-                            checkIcon.parentElement.classList.remove('bg-primary');
-                            checkIcon.classList.add('opacity-0');
-                        }
-                    });
-                    
-                    this.classList.remove('border-transparent');
-                    this.classList.add('border-primary');
-                    const checkIcon = this.querySelector('.fa-check');
-                    if (checkIcon) {
-                        checkIcon.parentElement.classList.remove('bg-white');
-                        checkIcon.parentElement.classList.add('bg-primary');
-                        checkIcon.classList.remove('opacity-0');
-                    }
-                });
-            });
-            
-            // 颜色选择器
-            const colorInputs = document.querySelectorAll('input[type="color"]');
-            colorInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    const colorPreview = this.previousElementSibling;
-                    colorPreview.style.backgroundColor = this.value;
-                    
-                    // 这里可以添加动态改变主题颜色的逻辑
-                });
-            });
-            
-            // 保存设置按钮
-            document.querySelector('button.btn-pulse').addEventListener('click', function() {
-                // 这里添加保存设置的逻辑
-                alert('设置已保存');
-            });
+    <!-- 交互逻辑 -->
+    <script >
+        const moodColors = {};
+        document.querySelectorAll('.diary-trigger').forEach(trigger => {
+            moodColors[trigger.dataset.mood] = trigger.dataset.color;
         });
-        // 获取原始日期字符串（格式：2025年7月29日 13:58）
-        const dateElement = document.querySelector('#days-together span');
-        const dateStr = dateElement.textContent.trim();
 
-        // 解析日期字符串为 Date 对象
-        const [year, month, day, hour, minute] = dateStr.match(/\d+/g);
-        const joinedDate = new Date(year, month - 1, day, hour, minute); // 月份从0开始
+        let currentMoodColor = '#FF6B8B';
+        let lastValue = ''; // 全局变量：记录编辑器上一次值（用于协作对比）
+        let currentDocumentId = "{{ document.id|default:'' }}"; // 当前日记ID（从后端模板获取）
+        let currentRevision = 0; // 当前操作版本号
+        let isProcessingRemoteOp = false; // 是否处理远程操作（避免递归）
+        let collaborationSocket = null; // WebSocket实例
 
-        // 计算当前时间与指定日期的差值（毫秒）
-        const now = new Date();
-        const diffMs = now - joinedDate;
+        // DOM加载后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initMoodTriggers();
+            initDiaryModal();
+            initPhotoUpload();
+            initNavDropdowns();
+            initMobileMenu();
+            initCollaboration(); // 初始化实时协作
+        });
 
-        // 转换为天数（取绝对值）
-        const diffDays = Math.abs(Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+        // 初始化心情触发
+        function initMoodTriggers() {
+            const triggers = document.querySelectorAll('.diary-trigger');
+            const moodInput = document.getElementById('mood-input');
+            const moodColorInput = document.getElementById('mood-color-input');
 
-        // 更新DOM显示
-        dateElement.textContent = diffDays;
-        
-    </script>
-</body>
+            triggers.forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const mood = trigger.dataset.mood;
+                    currentMoodColor = moodColors[mood];
+                    moodInput.value = mood;
+                    moodColorInput.value = currentMoodColor;
+                    updateSaveButtonColor();
+                    openDiaryModal();
+                });
+            });
+        }
 
-</html>
+        // 更新保存按钮颜色
+        function updateSaveButtonColor() {
+            const saveButton = document.getElementById('saveButton');
+            saveButton.style.backgroundColor = currentMoodColor;
+            saveButton.style.backgroundImage = `linear-gradient(135deg, ${currentMoodColor} 0%, ${currentMoodColor} 100%)`;
+            saveButton.classList.remove('bg-gradient-love');
+        }
+
+        // 初始化模态框
+        function initDiaryModal() {
+            document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
+            document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
+
+            const saveButton = document.getElementById('saveButton');
+            saveButton.addEventListener('click', function () {
+                this.classList.add('bg-gradient-love');
+            });
+        }
+
+        // 打开日记模态框
+        function openDiaryModal() {
+            const modal = document.getElementById('new-diary-modal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // 重置编辑器状态（针对新日记）
+            const editor = document.getElementById('content');
+            lastValue = editor.value; // 初始化基准值
+        }
+
+        // 关闭日记模态框
+        function closeDiaryModal() {
+            const modal = document.getElementById('new-diary-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 初始化照片上传
+        function initPhotoUpload() {
+            const uploadArea = document.getElementById('photo-upload-area');
+            const input = document.getElementById('photo-input');
+            const previewContainer = document.getElementById('photo-preview-container');
+
+            uploadArea.addEventListener('click', () => input.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('border-primary');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('border-primary');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-primary');
+                if (e.dataTransfer.files.length) {
+                    input.files = e.dataTransfer.files;
+                    previewPhotos(input.files, previewContainer);
+                }
+            });
+
+            input.addEventListener('change', (e) => {
+                previewPhotos(e.target.files, previewContainer);
+            });
+        }
+
+        // 预览照片
+        function previewPhotos(files, container) {
+            container.innerHTML = '';
+            if (!files.length) return container.classList.add('hidden');
+
+            container.classList.remove('hidden');
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'w-full h-24 object-cover rounded-lg';
+                container.appendChild(img);
+            });
+        }
+
+        // 初始化导航下拉菜单
+        function initNavDropdowns() {
+            // 用户头像下拉
+            const userAvatar = document.getElementById('userAvatar');
+            const userOptions = document.getElementById('userOptions');
+            let userDropdownTimer;
+
+            userAvatar.addEventListener('mouseenter', () => {
+                clearTimeout(userDropdownTimer);
+                userOptions.classList.remove('hidden');
+            });
+            userAvatar.addEventListener('click', () => {
+                userOptions.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#userDropdown')) {
+                    userOptions.classList.add('hidden');
+                }
+            });
+
+            // 更多下拉菜单
+            const moreButton = document.getElementById('moreButton');
+            const moreOptions = document.getElementById('moreOptions');
+            let moreDropdownTimer;
+
+            moreButton.addEventListener('mouseenter', () => {
+                clearTimeout(moreDropdownTimer);
+                moreOptions.classList.remove('hidden');
+            });
+            moreButton.addEventListener('click', () => {
+                moreOptions.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#moreDropdown')) {
+                    moreOptions.classList.add('hidden');
+                }
+            });
+        }
+
+        // 初始化移动端菜单
+        function initMobileMenu() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                mobileMenu.classList.toggle('translate-y-0');
+                mobileMenu.classList.toggle('opacity-100');
+            });
+        }
+
+        // 初始化实时协作（WebSocket连接）
+        function initCollaboration() {
+            if (!currentDocumentId && !document.getElementById('content')) return;
+
+            // 连接WebSocket
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const socketUrl = `${protocol}//${window.location.host}/ws/collaboration/${currentDocumentId || 'new'}/`;
+
+            collaborationSocket = new WebSocket(socketUrl);
+
+            // 连接成功
+            collaborationSocket.onopen = function () {
+                console.log("实时协作连接已建立");
+                // 初始化编辑器基准值
+                const editor = document.getElementById('content');
+                if (editor) lastValue = editor.value;
+            };
+
+            // 接收远程操作
+            collaborationSocket.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                // 忽略自己发送的操作
+                if (data.user_id === "{{ request.user.id }}") return;
+
+                isProcessingRemoteOp = true;
+                try {
+                    applyOperationToEditor(data); // 应用远程操作
+                    currentRevision = data.revision; // 更新版本号
+                } finally {
+                    isProcessingRemoteOp = false;
+                }
+            };
+
+            // 连接关闭重连
+            collaborationSocket.onclose = function () {
+                console.log("协作连接关闭，3秒后重连...");
+                setTimeout(initCollaboration, 3000);
+            };
+
+            // 绑定编辑器事件（发送本地操作）
+            bindEditorEvents();
+        }
+
+        // 绑定编辑器事件（捕获本地操作并发送）
+        function bindEditorEvents() {
+            const editor = document.getElementById('content');
+            if (!editor) return;
+
+            editor.addEventListener('input', function () {
+                if (isProcessingRemoteOp) return; // 忽略远程操作触发的本地变化
+
+                const newValue = editor.value;
+                const oldValue = lastValue;
+
+                // 计算操作类型（插入/删除）
+                if (newValue.length > oldValue.length) {
+                    // 插入操作
+                    const diffStart = findDiffStart(oldValue, newValue);
+                    const insertedText = newValue.substring(diffStart);
+                    sendOperation({
+                        op_type: 'insert',
+                        position: diffStart,
+                        text: insertedText,
+                        revision: currentRevision
+                    });
+                } else if (newValue.length < oldValue.length) {
+                    // 删除操作
+                    const diffStart = findDiffStart(newValue, oldValue);
+                    const deletedText = oldValue.substring(diffStart);
+                    sendOperation({
+                        op_type: 'delete',
+                        position: diffStart,
+                        text: deletedText,
+                        revision: currentRevision
+                    });
+                }
+
+                lastValue = newValue; // 更新基准值
+            });
+        }
+
+        // 发送操作到后端
+        function sendOperation(operation) {
+            if (collaborationSocket && collaborationSocket.readyState === WebSocket.OPEN) {
+                collaborationSocket.send(JSON.stringify(operation));
+            }
+        }
+
+        // 找到两个字符串首次差异的位置
+        function findDiffStart(str1, str2) {
+            const minLength = Math.min(str1.length, str2.length);
+            for (let i = 0; i < minLength; i++) {
+                if (str1[i] !== str2[i]) return i;
+            }
+            return minLength; // 前minLength个字符相同
+        }
+
+        // 应用远程操作到本地编辑器
+        function applyOperationToEditor(operation) {
+            const editor = document.getElementById('content');
+            if (!editor) return;
+
+            const currentValue = editor.value;
+            let newValue = currentValue;
+
+            // 根据操作类型处理
+            if (operation.op_type === 'insert') {
+                // 插入操作
+                newValue = currentValue.substring(0, operation.position)
+                        + operation.text
+                        + currentValue.substring(operation.position);
+            } else if (operation.op_type === 'delete') {
+                // 删除操作
+                newValue = currentValue.substring(0, operation.position)
+                        + currentValue.substring(operation.position + operation.text.length);
+            }
+
+            // 更新编辑器内容并保持光标位置
+            const cursorPos = operation.position + operation.text.length;
+            editor.value = newValue;
+            editor.setSelectionRange(cursorPos, cursorPos);
+
+            // 更新本地基准值（避免触发本地input事件）
+            lastValue = newValue;
+        }
+    </script >
+</body >
+</html >

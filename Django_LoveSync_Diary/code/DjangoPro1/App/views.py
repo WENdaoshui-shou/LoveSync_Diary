@@ -1,5 +1,8 @@
 import os
+from datetime import timedelta
+
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Q
 from django.urls import reverse
 
 from .models import *
@@ -9,7 +12,7 @@ import uuid
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.core.cache import cache
 from django.conf import settings
 from .utils import generate_verify_code, create_verify_image
@@ -518,18 +521,140 @@ def delete_moment(request, moment_id):
 # 双人日记
 @login_required
 def lovesync(request):
-    if request.method == 'GET':
-        user = request.user
+    if request.method == "GET":
+        user_id = request.user.id
+        couple_id = request.user.profile.couple.user_id if request.user.profile.couple else None
 
-        print(f"用户ID: {user.id}")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        # 构建查询条件：用户自己的所有日记 + 情侣分享的日记
+        base_filters = Q(user_id=user_id)  # 自己的所有日记
 
-        moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
+        # 如果有情侣，添加情侣分享的日记
+        if couple_id:
+            base_filters |= Q(user_id=couple_id, is_shared=True)
+
+        # 计算本周的日期范围
+        today = timezone.now().date()
+        start_of_week = today - timedelta(days=today.weekday())
+
+        # 获取本周的日记并按日期分组
+        notes_this_week = Note.objects.filter(
+            base_filters,
+            created_at__gte=timezone.make_aware(timezone.datetime.combine(start_of_week, timezone.datetime.min.time())),
+            created_at__lte=timezone.make_aware(timezone.datetime.combine(today, timezone.datetime.max.time()))
+        ).order_by('-created_at')
+
+        # 按日期分组日记
+        grouped_notes = {}
+        for note in notes_this_week:
+            date_key = note.created_at.date()
+            if date_key not in grouped_notes:
+                grouped_notes[date_key] = []
+            grouped_notes[date_key].append(note)
+
+        # 处理日期标题（今天/昨天/具体日期）
+        formatted_groups = []
+        for date, notes in sorted(grouped_notes.items(), reverse=True):
+            date_diff = (today - date).days
+            if date_diff == 0:
+                date_title = "今天"
+            elif date_diff == 1:
+                date_title = "昨天"
+            else:
+                date_title = date.strftime("%m月%d日")
+
+            formatted_groups.append({
+                'date_title': date_title,
+                'date': date,
+                'notes': notes
+            })
+
+        mood_counts = {choice[0]: 0 for choice in Note.MOOD_CHOICES}
+
+        for note in notes_this_week:
+            mood_counts[note.mood] += 1
+
+        # 生成心情统计数据列表
+        mood_stats = []
+        for mood, count in mood_counts.items():
+            temp_note = Note(mood=mood)
+            mood_stats.append({
+                'mood': mood,
+                'count': count,
+                'color': temp_note.get_mood_color(),
+                'icon': temp_note.get_mood_icon(),
+                'display': temp_note.get_mood_display_text(),
+                'css_class': mood,
+            })
+
+        # 按次数排序
+        mood_stats.sort(key=lambda x: x['count'], reverse=True)
+
+        # 获取所有时间的日记统计
+        all_notes = Note.objects.filter(base_filters).order_by('-created_at')
+
+        # 计算用户和伴侣各自的日记数量
+        user_notes_count = all_notes.filter(user_id=user_id).count()
+        partner_notes_count = all_notes.filter(user_id=couple_id).count() if couple_id else 0
+
+        # 按月份分组统计
+        monthly_stats = {}
+        for note in all_notes:
+            month_key = note.created_at.strftime("%Y-%m")
+            if month_key not in monthly_stats:
+                monthly_stats[month_key] = {
+                    'year': note.created_at.year,
+                    'month': note.created_at.month,
+                    'count': 0
+                }
+            monthly_stats[month_key]['count'] += 1
+
+        # 转换为列表并排序
+        monthly_list = sorted(monthly_stats.values(), key=lambda x: (x['year'], x['month']), reverse=True)
 
         return render(request, 'lovesync.html', {
-            'user': request.user,
-            'moments': moment,
+            'grouped_notes': formatted_groups,
+            'mood_stats': mood_stats,
+            'monthly_stats': monthly_list,
+            'total_notes': all_notes.count(),
+            'user_notes_count': user_notes_count,
+            'partner_notes_count': partner_notes_count,
         })
+    if request.method == 'POST':
+        try:
+            # 处理表单数据
+            context = request.POST.get('context')
+            mood = request.POST.get('mood')
+            is_shared = request.POST.get('share_with_partner', '0') == '1'
+            images = request.FILES.getlist('photos')
+
+            # 创建日记实例
+            note = Note.objects.create(
+                user=request.user,
+                context=context,
+                mood=mood,
+                is_shared=is_shared,
+            )
+
+            # 处理上传的图片
+            if images:
+                for photo in images:
+                    NoteImage.objects.create(notemoment=note, noteimage=photo)
+
+            return JsonResponse({
+                'success': True,
+                'message': '日记保存成功',
+                'id': note.id
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+
+    return JsonResponse({
+        'success': False,
+        'message': '方法不允许'
+    }, status=405)
 
 
 # 主页
@@ -780,7 +905,8 @@ def add_to_cart(request):
         cart[str(product_id)] = {
             'name': product.name,
             'price': str(product.price),
-            'quantity': new_quantity
+            'quantity': new_quantity,
+            'image': image
         }
 
         # 更新商品库存
@@ -871,9 +997,11 @@ def couple_recommendation(request):
     if request.method == 'GET':
         return render(request, 'couple_recommendation.html')
 
+
 def couple_places(request):
     if request.method == 'GET':
         return render(request, 'couple_places.html')
+
 
 def couple_test(request):
     if request.method == 'GET':
