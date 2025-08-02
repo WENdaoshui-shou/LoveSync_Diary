@@ -156,7 +156,7 @@ UI 组件：自定义主题 + Tailwind CSS
 
 ### 💬 联系我们
 
-项目地址：[https://github.com/yourusername/lovesync-diary](https://github.com/WENdaoshui-shou/LoveSync_Diary.git)
+项目地址：https://gitee.com/liutao-888/python_-django_-love-sync-diary.git
 
 问题反馈：提交 Issues
 开发者：[你的名字 / 团队名]（邮箱：your@email.com）
