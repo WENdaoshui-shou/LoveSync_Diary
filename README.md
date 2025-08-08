@@ -1,39 +1,32 @@
-### 双人日记 (LoveSync Diary)
+双人日记 (LoveSync Diary)
 
-
-
-> 一款专为情侣设计的实时协作日记应用，让双方能够共享生活点滴、同步心情记录，打造属于两人的私密空间。支持实时编辑、内容同步、心情统计与互动功能，让情感记录更有温度。还有商城购物、秒杀、本地生活服务(正在开发中)
-> 🌟 
-### 核心功能
-
+一款专为情侣设计的实时协作日记应用，让双方能够共享生活点滴、同步心情记录，打造属于两人的私密空间。支持实时编辑、内容同步、心情统计与互动功能，让情感记录更有温度。还有商城购物、秒杀、本地生活服务(正在开发中)
+🌟 
+核心功能
 实时协作编辑：基于 Operational Transformation 算法，支持双人同时编辑同一篇日记，内容实时同步且无冲突
 心情记录与统计：用不同颜色标记每日心情，自动生成每周 / 每月心情趋势图表
 内容分享与权限管理：可选择日记是否对伴侣可见，保护隐私的同时增进了解
 历史记录与版本回溯：自动保存编辑历史，支持查看和恢复过往版本
-响应式设计：适配手机、平板和电脑，随时随地记录生活
+响应式设计：适配手机、平板和电脑，随时随地记录生活 
+AI 智能助手：接入大语言模型，提供功能指引、情感建议与互动陪伴（详见下方「AI 功能详情」）
 
-### 🚀 快速开始
-
-### 环境要求
-
+🚀 快速开始
+环境要求
 查看requirement.txt
 
-### 本地部署步骤
-
+本地部署步骤
 克隆仓库
 bash
 git clone https://github.com/yourusername/lovesync-diary.git
 cd lovesync-diary
 
-### 创建虚拟环境并安装依赖
-
+创建虚拟环境并安装依赖
 bash
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-### 配置环境变量
-
+配置环境变量
 创建 .env 文件，填写必要配置：
 ini
 DEBUG=True
@@ -41,27 +34,22 @@ SECRET_KEY=your_secret_key
 DATABASE_URL=postgres://user:password@localhost:5432/lovesync
 REDIS_URL=redis://localhost:6379/0
 
-### 初始化数据库
-
-bash
+初始化数据库
 python manage.py migrate
 python manage.py createsuperuser  # 创建管理员账号
 
-### 启动服务
-
-bash
+启动服务
 # 启动 Django 开发服务器
 python manage.py runserver
 
 # 启动 Channels 实时通信服务
 daphne lovesync.asgi:application
 
-### 访问应用
+访问应用
 主应用：http://127.0.0.1:8000
 管理后台：http://127.0.0.1:8000/admin
 
-### 📱 功能使用指南
-
+📱 功能使用指南
 1. 账号绑定
 注册账号后，通过「设置 → 伴侣绑定」生成邀请码
 对方输入邀请码完成绑定，双方即可共享权限内的日记内容
@@ -122,20 +110,36 @@ daphne lovesync.asgi:application
 共享购物车：双方可共同添加、编辑购物项，支持分工购买
 消费统计：自动生成情侣消费分析，合理消费习惯和共同支出比例
 
-### 🔧 技术架构
-
-后端框架：Django + Django REST Framework
+🔧 技术架构
+后端 框架：Django + Django REST Framework
 实时通信：Channels + WebSocket（基于 Redis 作为通道层）
 数据同步：Operational Transformation (OT) 算法处理并发编辑
 缓存策略：Redis 双层缓存（用户会话 + 权限数据）
 数据库：MYSQL（主数据）+ Redis（缓存 / 排行榜 / 验证码 / JWT登录 / ）
-前端框架：Vue 3 + Element Plus + MinIO
+前端 框架：Vue 3 + Element Plus + MinIO
 状态管理：Pinia
 UI 组件：自定义主题 + Tailwind CSS
 实时编辑：基于 OT 算法的自定义编辑器
 
-### 核心算法
+🤖 AI 功能详情
+LoveSync 已深度集成 AI 大模型，推出专属智能助手「小爱」，为情侣提供全场景支持：
 
+1.功能指引 --实时解答操作疑问（如「如何恢复误删日记？」「怎样创建共享相册？」） 
+分步引导使用复杂功能（如协作编辑、权限设置）
+主动推荐场景化功能组合（如「纪念日提醒 + 日记模板」搭配使用）
+
+2.情感陪伴 -- 提供矛盾沟通建议（如「冷战时适合写一封和解日记」）
+生成个性化纪念日祝福文案、情话灵感
+基于双方记录的心情数据，温和提醒情感维护（如「最近双方心情波动较大，试试共同写一篇回忆日记吧」）
+
+3.内容辅助 -- 日记写作灵感推荐（按季节、节日、关系阶段生成主题）
+相册旁白自动补全（根据照片内容生成温馨描述）
+社区动态文案优化建议（保持原意的同时增强感染力）
+
+4.隐私保护 -- AI 仅处理公开功能逻辑与用户主动提问内容
+不存储或分析私密日记内容，确保情侣隐私安全
+
+核心算法
 运用multithreading优化实时编辑体验，结合 Operational Transformation 算法，降低情侣内容同步延迟，防止多
 线程同时操作共享内容时的数据一致性问题与同步延迟问题
 基于 Redis 实现双层缓存架构，存储用户会话信息(结合 JWT 令牌)，缓存情侣账号绑定关系与权限数据，将接口响
@@ -144,19 +148,16 @@ UI 组件：自定义主题 + Tailwind CSS
 通过观察者模式实时监听日记编辑、商场操作等用户行为，触发埋点数据采集，再由工厂模式统一生成标准化埋点
 事件，调用接口完成数据存储，结合用户行为优化推荐精准度
 
-### 🤝 贡献指南
-
+🤝 贡献指南
 欢迎参与项目开发！无论是功能优化、Bug 修复还是文档完善，都可以通过以下步骤贡献：
 
 请确保代码符合项目编码规范，并添加必要的测试用例。
 
-### 📄 开源协议
-
+📄 开源协议
 本项目采用 MIT 协议 开源，允许自由使用、修改和分发，详情见 LICENSE 文件。
 
-### 💬 联系我们
-
-项目地址：https://gitee.com/liutao-888/python_-django_-love-sync-diary.git
+💬 联系我们
+项目地址：https://github.com/WENdaoshui-shou/LoveSync_Diary.git
 
 问题反馈：提交 Issues
 开发者：[你的名字 / 团队名]（邮箱：your@email.com）
