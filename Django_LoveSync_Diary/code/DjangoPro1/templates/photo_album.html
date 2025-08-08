@@ -857,9 +857,10 @@
             </div >
             <div class = "flex justify-between items-center mt-4 text-white" >
                 <div >
-                    <button class = "text-white hover:text-primary transition-custom download-btn" >
-                        <i class = "fa-solid fa-download" ></i > 下载
-                    </button >
+                        <button class = "text-white hover:text-primary transition-custom download-btn"
+                                data-photo-id = "{{ photo.id }}" >
+                            <i class = "fa-solid fa-download" ></i > 下载
+                        </button >
                 </div >
             </div >
         </div >
@@ -1377,6 +1378,36 @@
                 moreOptions.classList.add('hidden');
             }, 500); // 延迟200毫秒
         });
+
+        button.addEventListener('click', function () {
+            const photoId = this.getAttribute('data-photo-id');
+            // 调用下载函数
+            downloadPhoto(photoId);
+        });
+
+        function downloadPhoto(photoId) {
+            // 创建隐藏的表单并提交，处理文件下载
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `photo/download/${photoId}/`;
+
+            // 添加CSRF令牌（）
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            form.appendChild(csrfInput);
+
+            // 隐藏表单并添加到页面
+            form.style.display = 'none';
+            document.body.appendChild(form);
+
+            // 提交表单触发下载
+            form.submit();
+
+            // 清理
+            document.body.removeChild(form);
+        }
     </script >
 </body >
 </html >

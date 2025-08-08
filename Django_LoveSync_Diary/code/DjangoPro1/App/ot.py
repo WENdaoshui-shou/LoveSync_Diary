@@ -5,6 +5,8 @@
 """
  @Description :
 """
+
+
 class Operation:
     def __init__(self, op_type, position, text=''):
         self.op_type = op_type  # 操作类型，如 'insert', 'delete'
@@ -56,6 +58,8 @@ def transform(op1, op2):
         else:
             # 删除位置在插入范围内
             return op1, op2
+
+
 def transform_operations(client_ops, server_ops):
     """将客户端操作序列转换到服务器最新状态"""
     for server_op in server_ops:

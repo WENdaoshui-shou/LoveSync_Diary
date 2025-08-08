@@ -42,6 +42,8 @@ urlpatterns = [
     path('photo_album/', photo_album, name='photo_album'),
     # 删除照片
     path('photo/<int:photo_id>/', delete_photo, name='delete_photo'),
+    # 照片下载
+    path('photo/download/<int:photo_id>/', download_photo, name='download_photo'),
 
     # 收藏
     path('favorites/', favorites, name='favorites'),
@@ -63,7 +65,11 @@ urlpatterns = [
     # 购物车
     path('mallcart/', mallcart, name='mallcart'),
     # 添加到购物车
-    path('add_to_cart/', add_to_cart, name='add_to_cart'),
+    path('add-to-cart/', add_to_cart, name='add_to_cart'),
+    # 更新购物车
+    path('add-to-cart/update-cart/', update_cart, name='update_cart'),
+    # 导航购物车商品数量
+    path('cart-count/', cart_count, name='cart_count'),
     # 收藏
     path('mallmark/', mallmark, name='mallmark'),
     # 商品详情
@@ -85,7 +91,8 @@ urlpatterns = [
     path('couple_places/', couple_places, name='couple_places'),
     path('couple_test/', couple_test, name='couple_test'),
 
-
+    # AI
+    path('AI/', include(('AI.urls', 'AI'), namespace='AI')),
 
     path('admin/', admin.site.urls),
 ]

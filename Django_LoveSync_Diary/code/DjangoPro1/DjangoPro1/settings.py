@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'App.apps.AppConfig',
     'channels',
+    'AI',
 ]
 
 # 通道层配置（使用Redis）
@@ -104,9 +105,9 @@ WSGI_APPLICATION = 'DjangoPro1.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lovesync_diary',  # 数据库名字
-        'USER': 'root',  # 用户名
-        'PASSWORD': '1028',  # 密码
+        'NAME': 'lovesync_diary',
+        'USER': 'root',
+        'PASSWORD': '1028',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -198,3 +199,18 @@ VERIFY_CODE_EXPIRE = 60
 # 使用 Redis 存储话题热度和相似关系
 # 实现基于用户行为的简单推荐算法
 # 实时更新和展示热门话题排行榜
+# 大模型API配置
+
+
+# 安全密钥
+SECRET_AI_KEY = os.getenv('SECRET_AI_KEY', 'django-insecure-default-key-for-development-only')
+
+
+DASHSCOPE_API_KEY = os.getenv('DASHSCOPE_API_KEY', 'sk-5971dcbc1e464ee1b5b3f41bc80be961')  # 阿里云百炼API密钥
+DASHSCOPE_BASE_URL = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
+DASHSCOPE_MODEL = os.getenv('DASHSCOPE_MODEL', 'qwen-plus')  # 使用的模型名称
+
+# 会话配置
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_AGE = 3600  # 会话有效期1小时

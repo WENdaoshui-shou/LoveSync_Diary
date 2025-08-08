@@ -96,6 +96,103 @@
                 animation: pulse 2s infinite;
             }
 
+            /* 聊天窗口样式 */
+            .chat-widget {
+                font-family: 'Segoe UI', system-ui, sans-serif;
+            }
+
+            /* 消息样式 */
+            .message {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+
+            .user-message {
+                flex-direction: row-reverse;
+            }
+
+            .user-message .message-content {
+                background: #4F46E5; /* 主色调，可替换为你的primary色值 */
+                color: white;
+                border-radius: 18px;
+                border-tr-none: none;
+            }
+
+            /* 强化滚动体验的样式 */
+            .chat-messages {
+                /* 确保文本换行正常 */
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* 美化滚动条（可选，提升视觉效果） */
+            .chat-messages::-webkit-scrollbar {
+                width: 6px; /* 滚动条宽度 */
+            }
+
+            .chat-messages::-webkit-scrollbar-track {
+                background: #f1f1f1; /* 滚动条轨道颜色 */
+                border-radius: 10px;
+            }
+
+            .chat-messages::-webkit-scrollbar-thumb {
+                background: #ccc; /* 滚动条滑块颜色 */
+                border-radius: 10px;
+            }
+
+            .chat-messages::-webkit-scrollbar-thumb:hover {
+                background: #aaa; /* 滑块 hover 颜色 */
+            }
+
+            .assistant-message .message-content {
+                background: #F3F4F6;
+                border-radius: 18px;
+                border-tl-none: none;
+            }
+
+            .system-message .message-content {
+                background: #EEF2FF;
+                color: #3B82F6;
+            }
+
+            .message-content {
+                padding: 8px 14px;
+                line-height: 1.5;
+                word-break: break-word;
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            /* 动画效果 */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* 输入框聚焦效果 */
+            #userInput:focus {
+                box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); /* 主色调透明阴影 */
+            }
+
+            /* 最小化/展开动画 */
+            .chat-collapsed .chat-messages,
+            .chat-collapsed .chat-input {
+                display: none;
+            }
+
+            .chat-collapsed {
+                max-height: 60px;
+                overflow: hidden;
+            }
+
             @keyframes pulse {
                 0% {
                     box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
@@ -146,6 +243,40 @@
                     transform: scale(1);
                 }
             }
+            /* 缓慢呼吸动画 */
+            @keyframes pulse-slow {
+                0%, 100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+                50% {
+                    transform: scale(1.05);
+                    opacity: 0.9;
+                }
+            }
+            .animate-pulse-slow {
+                animation: pulse-slow 3s infinite ease-in-out;
+            }
+
+            /* 状态点闪烁动画 */
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+            .animate-pulse {
+                animation: pulse 2s infinite ease-in-out;
+            }
+
+            /* 毛玻璃效果增强 */
+            .backdrop-blur-sm {
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+            }
+
             .comment-slide {
                 animation: slideUp 0.3s ease;
             }
@@ -426,11 +557,11 @@
                     <i class = "fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform" ></i >
                     <span >会员中心</span >
                 </a >
-                <a href="{% url 'mall' %}"
-                   class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                    <i class="fa-solid fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i>
-                    <span>购物商城</span>
-                </a>
+                <a href = "{% url 'mall' %}"
+                   class = "flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1" >
+                    <i class = "fa-solid fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform" ></i >
+                    <span >购物商城</span >
+                </a >
             </div >
             <div class = "border-t border-neutral-200 mt-4 pt-4" >
                 <a href = "#"
@@ -647,6 +778,53 @@
 
                 <!-- 右侧内容区 -->
                 <div class = "w-full md:w-1/4 space-y-6 mt-6 md:mt-0" >
+
+                    <!-- 智能体聊天窗口 -->
+                    <div class = "chat-widget fixed bottom-6 right-4 z-50 max-w-sm w-full bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 transform hover:shadow-2xl" >
+                        <!-- 聊天窗口头部 -->
+                        <div class = "chat-header bg-gradient-to-r from-primary to-primary/50 text-white p-3 cursor-pointer transition-all duration-300 hover:from-primary/90 hover:to-primary/60"
+                             onclick = "toggleChatWindow()" >
+                            <div class = "flex items-center justify-between gap-3" >
+
+                                <!-- 标题区域：增强文字层次 -->
+                                <div class = "flex-1 min-w-0 " >
+                                    <h3 class = "text-base font-semibold truncate" >LoveSync-AI</h3 >
+                                    <p class = "text-xs text-white/80 mt-0.5" >双人日记小助手</p >
+                                </div >
+
+                                <!-- 状态标签：优化样式 -->
+                                <span class = "text-xs bg-white/15 backdrop-blur-sm px-2.5 py-0.5 rounded-full flex items-center gap-1.5" >
+                                    <span class = "w-2 h-2 rounded-full bg-green-300 animate-pulse" ></span >
+                                    在线
+                                </span >
+                            </div >
+                        </div >
+
+                        <!-- 聊天消息区域 -->
+                        <div class = "chat-messages h-[400px] overflow-y-auto p-4 space-y-4" id = "chatMessages" >
+                        </div >
+
+                        <!-- 输入区域 -->
+                        <div class = "chat-input p-4 border-t border-neutral-100" >
+                            <div class = "flex gap-2" >
+                                <input
+                                        type = "text"
+                                        id = "userInput"
+                                        placeholder = "和我说说你的需求吧..."
+                                        class = "flex-1 px-4 py-2 border border-neutral-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                                        onkeydown = "if(event.key === 'Enter') sendMessage()"
+                                >
+                                <button
+                                        onclick = "sendMessage()"
+                                        class = "bg-primary hover:bg-primary/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95"
+                                >
+                                    <i class = "fa-solid fa-paper-plane" ></i >
+                                </button >
+                            </div >
+                        </div >
+                    </div >
+
+                    <!-- 热门话题 -->
                     <div class = "bg-white rounded-xl shadow-lg p-6 hover-scale" >
                         <h3 class = "text-lg font-semibold text-neutral-900 mb-4 flex items-center" >
                             <i class = "fa-solid fa-fire text-primary mr-2" ></i >
@@ -1046,6 +1224,118 @@
         window.onload = function () {
             window.scrollTo(0, 0);
         };
+        // 会话状态管理
+        let chatSession = {
+            sessionId: null,
+            isInitialized: false
+        };
+
+        // 初始化聊天
+        async function initChat() {
+            try {
+                const response = await fetch("/AI/api/chat/init/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken()
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    chatSession.sessionId = data.session_id;
+                    chatSession.isInitialized = true;
+                    // 显示初始回复（如果接口返回）
+                    if (data.response) {
+                        addMessageToUI("assistant", data.response);
+                    }
+                } else {
+                    addMessageToUI("system", "小助手暂时有点忙，稍后再试试吧~");
+                }
+            } catch (error) {
+                console.error("初始化聊天失败:", error);
+                addMessageToUI("system", "连接失败，请刷新页面重试");
+            }
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById("userInput");
+            const message = input.value.trim();
+            if (!message || !chatSession.isInitialized) return;
+
+            // 显示用户消息
+            addMessageToUI("user", message);
+            input.value = "";
+
+            try {
+                const response = await fetch("/AI/api/chat/message/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        session_id: chatSession.sessionId,
+                        message: message
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    addMessageToUI("assistant", data.response);
+                } else {
+                    addMessageToUI("system", "消息发送失败: " + data.error);
+                }
+            } catch (error) {
+                console.error("发送消息失败:", error);
+                addMessageToUI("system", "发送失败，请重试");
+            }
+        }
+
+        // 添加消息到界面
+        function addMessageToUI(role, content) {
+            const messagesDiv = document.getElementById("chatMessages");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${role}-message flex items-start`;
+
+            // 根据角色显示不同头像
+            let avatar = "";
+            if (role === "assistant") {
+                avatar = `<div class = "w-8 h-8 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md  animate-pulse-slow" >
+                                  <i class = "fa-solid fa-heart text-xl" ></i >
+                            </div >`
+            } else if (role === "user") {
+                avatar = `<div class="avatar w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-700 ml-3 flex-shrink-0">
+                    <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
+                             class = "w-full h-full object-cover" >
+                  </div>`;
+            }
+
+            messageDiv.innerHTML = `
+        ${avatar}
+        <div class="message-content px-4 py-2 max-w-[80%]">${content}</div>
+    `;
+            messagesDiv.appendChild(messageDiv);
+            // 滚动到底部
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 切换聊天窗口展开/折叠
+        function toggleChatWindow() {
+            const widget = document.querySelector(".chat-widget");
+            widget.classList.toggle("chat-collapsed");
+        }
+
+        // 获取CSRF令牌（从cookie中）
+        function getCSRFToken() {
+            const cookieValue = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1];
+            return cookieValue || '';
+        }
+
+        // 页面加载时初始化
+        window.addEventListener("load", initChat);
 
     </script >
 </body >

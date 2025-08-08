@@ -4,7 +4,6 @@ from datetime import timedelta
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 from django.urls import reverse
-
 from .models import *
 from django.db import IntegrityError
 from django.views.decorators.http import require_http_methods, require_POST
@@ -407,6 +406,43 @@ def delete_photo(request, photo_id):
         return JsonResponse({'status': 'success', 'message': '照片删除成功'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+# 照片下载
+@login_required
+def download_photo(request, photo_id):
+    """处理照片下载请求"""
+    # 获取照片对象
+    photo = get_object_or_404(Photo, id=photo_id)
+
+    # 权限检查（确保用户有权限下载）
+    # 1. 照片所有者
+    # 2. 已共享给伴侣的照片
+    if photo.user != request.user and not photo.is_shared_with_partner(request.user):
+        raise PermissionDenied("你没有权限下载这张照片")
+
+    # 获取照片文件路径
+    file_path = os.path.join(settings.MEDIA_ROOT, str(photo.image))
+
+    # 检查文件是否存在
+    if not os.path.exists(file_path):
+        raise Http404("照片文件不存在")
+
+    # 读取文件内容
+    with open(file_path, 'rb') as f:
+        file_content = f.read()
+
+    # 构建响应
+    response = HttpResponse(file_content, content_type='image/jpeg')
+
+    # 设置下载文件名（使用原始文件名或自定义）
+    original_filename = os.path.basename(photo.image.name)
+    response['Content-Disposition'] = f'attachment; filename="{original_filename}"'
+
+    # 设置文件大小
+    response['Content-Length'] = os.path.getsize(file_path)
+
+    return response
 
 
 # 动态
@@ -874,58 +910,80 @@ def product_detail(request, product_id):
 @require_POST
 def add_to_cart(request):
     try:
-        # 获取商品ID和数量，默认为1
+        # 1. 获取请求参数
         product_id = request.POST.get('product_id')
         quantity = int(request.POST.get('quantity', 1))
-        image = request.POST.get('image')
 
-        # 验证商品ID和数量
+        # 2. 验证参数有效性
         if not product_id or quantity <= 0:
-            return JsonResponse({'status': 'error', 'message': '无效的商品ID或数量'}, status=400)
+            return JsonResponse({
+                'status': 'error',
+                'message': '无效的商品ID或数量'
+            }, status=400)
 
-        # 获取当前用户ID
-        user_id = request.user.id
-        cart_key = f'user_cart:{user_id}'
-
-        # 获取商品对象
+        # 3. 获取商品并验证库存
         product = get_object_or_404(Product, id=product_id)
+        if product.product_stock < quantity:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'库存不足，当前仅剩余{product.product_stock}件'
+            }, status=400)
 
-        # 检查商品库存
-        if product.stock < quantity:
-            return JsonResponse({'status': 'error', 'message': '商品库存不足'}, status=400)
+        # 4. 同步数据库：创建或更新购物车记录
+        cart_item, created = CartItem.objects.get_or_create(
+            user=request.user,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        if not created:
+            # 已存在则累加数量
+            cart_item.quantity += quantity
+            cart_item.save()
 
-        # 获取用户购物车缓存
-        cart = cache.get(cart_key, {})
+        # 5. 同步缓存：更新Redis缓存（提升读取速度）
+        user_id = request.user.id
+        cart_key = f'user_cart:{user_id}'  # 缓存键格式：user_cart:用户ID
+        cart = cache.get(cart_key, {})  # 从缓存获取当前购物车
 
-        # 更新购物车中的商品数量
-        current_quantity = cart.get(str(product_id), {}).get('quantity', 0)
-        new_quantity = current_quantity + quantity
-
-        # 更新购物车
+        # 更新缓存中的商品信息
         cart[str(product_id)] = {
+            'id': product_id,
             'name': product.name,
             'price': str(product.price),
-            'quantity': new_quantity,
-            'image': image
+            'quantity': cart_item.quantity,
         }
+        cache.set(cart_key, cart, timeout=86400)  # 缓存1天
 
-        # 更新商品库存
-        product.stock -= quantity
+        # 6. 扣减商品库存
+        product.product_stock -= quantity
         product.save()
 
-        # 设置缓存
-        cache.set(cart_key, cart)
-
-        return JsonResponse({'status': 'success', 'message': '商品已加入购物车'})
+        return JsonResponse({
+            'status': 'success',
+            'message': f'已将{product.name}加入购物车',
+            'cart_count': sum(item['quantity'] for item in cart.values())  # 购物车总数量
+        })
 
     except ValueError:
-        # 处理数量转换错误
-        logger.info('商品数量必须是有效的整数', exc_info=True)
-        return JsonResponse({'status': 'error', 'message': '商品数量必须是有效的整数'}, status=400)
+        return JsonResponse({
+            'status': 'error',
+            'message': '数量必须是有效数字'
+        }, status=400)
     except Exception as e:
-        # 处理其他异常
-        logger.info(f'添加商品到购物车时发生错误: {e}', exc_info=True)
-        return JsonResponse({'status': 'error', 'message': '添加商品到购物车时发生错误，请稍后重试'}, status=500)
+        return JsonResponse({
+            'status': 'error',
+            'message': f'操作失败：{str(e)}'
+        }, status=500)
+
+
+# 获取购物车商品总数
+@login_required
+def cart_count(request):
+    user_id = request.user.id
+    cart_key = f'user_cart:{user_id}'
+    cart = cache.get(cart_key, {})
+    count = sum(item['quantity'] for item in cart.values())
+    return JsonResponse({'count': count})
 
 
 # 购物车
@@ -933,8 +991,93 @@ def add_to_cart(request):
 def mallcart(request):
     user_id = request.user.id
     cart_key = f'user_cart:{user_id}'
-    cart = cache.get(cart_key, {})
+    cart = cache.get(cart_key)
+    # 缓存失效时从数据库加载并更新缓存
+    if cart:
+        cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+        cart = {
+            str(item.product.id): {
+                'name': item.product.name,
+                'price': str(item.product.price),
+                'quantity': item.quantity,
+                'image': item.product.image.url
+            } for item in cart_items
+        }
+        print(cart)
+        cache.set(cart_key, cart, timeout=86400)
+
     return render(request, 'mallcart.html', {'cart_items': cart})
+
+
+# 更新购物车
+@login_required
+def update_cart(request):
+    if request.method == 'POST':
+        try:
+            # 解析前端发送的JSON数据
+            cart_data = json.loads(request.body)
+            user = request.user
+            cart_key = f'user_cart:{user.id}'
+
+            # 获取用户当前所有购物车项
+            existing_items = {
+                item.product.id: item
+                for item in CartItem.objects.filter(user=user)
+            }
+
+            # 处理前端发送的每个商品
+            for product_id, item_data in cart_data.items():
+                try:
+                    product_id_int = int(product_id)
+                    product = Product.objects.get(id=product_id_int)
+
+                    # 检查商品是否已在购物车中
+                    if product_id_int in existing_items:
+                        # 更新现有商品数量
+                        cart_item = existing_items[product_id_int]
+                        cart_item.quantity = item_data['quantity']
+                        cart_item.save()
+                        del existing_items[product_id_int]
+                    else:
+                        # 添加新商品到购物车
+                        CartItem.objects.create(
+                            user=user,
+                            product=product,
+                            quantity=item_data['quantity']
+                        )
+                except (ValueError, Product.DoesNotExist):
+                    # 忽略无效的商品ID
+                    continue
+
+            # 删除前端购物车中已不存在的商品
+            for remaining_item in existing_items.values():
+                remaining_item.delete()
+
+            # 更新缓存
+            updated_items = CartItem.objects.filter(user=user).select_related('product')
+            updated_cart = {
+                str(item.product.id): {
+                    'name': item.product.name,
+                    'price': str(item.product.price),
+                    'quantity': item.quantity,
+                    'image': item.product.image.url
+                } for item in updated_items
+            }
+            cache.set(cart_key, updated_cart, timeout=86400)
+
+            return JsonResponse({
+                'success': True,
+                'message': '购物车已更新',
+                'item_count': updated_items.count()
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': '无效的JSON数据'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    # 处理非POST请求
+    return JsonResponse({'success': False, 'message': '仅支持POST请求'}, status=405)
 
 
 # 收藏
@@ -1006,3 +1149,5 @@ def couple_places(request):
 def couple_test(request):
     if request.method == 'GET':
         return render(request, 'couple_test.html')
+
+

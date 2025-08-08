@@ -125,7 +125,7 @@ class Profile(models.Model):
 
         # 检查是否有未处理的请求
         if self.couple_pending or target_profile.couple_pending:
-            raise ValidationError(_("有未处理的情侣请求"))
+            raise ValidationError(("有未处理的情侣请求"))
 
         # 发送请求
         self.couple_pending = target_profile
@@ -135,9 +135,7 @@ class Profile(models.Model):
     def accept_couple_request(self):
         """接受情侣绑定请求"""
         if not self.couple_pending:
-            raise ValidationError(_("没有待处理的情侣请求"))
-
-        requester = self.couple_pending
+            requester = self.couple_pending
 
         # 建立情侣关系
         self.couple = requester
@@ -161,7 +159,7 @@ class Profile(models.Model):
     def reject_couple_request(self):
         """拒绝情侣绑定请求"""
         if not self.couple_pending:
-            raise ValidationError(_("没有待处理的情侣请求"))
+            raise ValidationError(("没有待处理的情侣请求"))
 
         requester = self.couple_pending
         self.couple_pending = None
@@ -175,7 +173,7 @@ class Profile(models.Model):
     def break_up(self):
         """解除情侣关系"""
         if not self.couple:
-            raise ValidationError(_("你没有情侣关系"))
+            raise ValidationError(("你没有情侣关系"))
 
         partner = self.couple
 
@@ -321,14 +319,32 @@ class Product(models.Model):
     description = models.TextField(verbose_name='商品描述', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='商品价格')
     old_price = models.DecimalField(max_digits=10, decimal_places=2, default=99, verbose_name='商品原价')
-    image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='商品图片')
+    image = models.ImageField(
+        upload_to="products/id/",  # 使用自定义路径函数
+        blank=True,
+        null=True,
+        verbose_name='商品图片'
+    )
     rating = models.FloatField(default=0, verbose_name='商品评分')
     num_reviews = models.IntegerField(default=0, verbose_name='评论数量')
     category = models.CharField(max_length=100, verbose_name='商品类别')
     monthly_sales = models.IntegerField(default=0, verbose_name='月销量')
+    product_stock = models.IntegerField(default=0, verbose_name='库存')
 
     def __str__(self):
         return self.name
+
+
+class CartItem(models.Model):
+    """购物车数据持久化模型"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'product')  # 同一用户的同一商品唯一
 
 
 class CollaborativeDocument(models.Model):
