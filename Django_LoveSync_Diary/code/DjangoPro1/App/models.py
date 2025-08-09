@@ -222,7 +222,7 @@ class Note(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_note')
     context = models.TextField(max_length=1000, verbose_name='日记内容')
-    created_at = models.DateTimeField(verbose_name='创建时间', default=timezone.now)
+    created_at = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
     mood = models.CharField(default='happy', max_length=10, choices=MOOD_CHOICES, verbose_name='心情')
     is_shared = models.BooleanField(default=False, verbose_name='是否共享')
 

@@ -188,7 +188,6 @@
                         </a >
                     </div >
                 </div >
-            </nav >
 
             <!-- 内容过滤器 -->
             <div class = "bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale" >
@@ -252,10 +251,11 @@
                     <i class = "fa-solid fa-bars text-xl" ></i >
                 </button >
             </div >
+            </nav>
         </div >
 
         <!-- 移动端菜单 -->
-        <div id = "mobile-menu"
+        <nav id = "mobile-menu"
              class = "hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
              style = "top: 100%;" >
             <div class = "container mx-auto px-4 py-3 flex flex-col space-y-3" >
@@ -304,7 +304,7 @@
                     <i class = "fa-solid fa-sign-out mr-3 w-5 text-center" ></i >退出登录
                 </a >
             </div >
-        </div >
+        </nav >
     </header >
 
 
@@ -380,7 +380,6 @@
                     </h3>
                     <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
                         {% for item in mood_stats %}
-                            <!-- 即使count为0，也会渲染卡片 -->
                             <div class = "bg-{{ item.css_class }}/10 rounded-lg p-3 text-center cursor-pointer diary-trigger hover:scale-105 transition-transform duration-300"
                                  data-mood = "{{ item.mood }}" data-color = "{{ item.color }}" >
                                 <div class = "text-2xl mb-1" >{{ item.icon }}</div >
@@ -392,31 +391,63 @@
                     </div >
                 </div >
             </div >
+                
 
             <!-- 时间轴双视角布局 -->
             <div class = "relative" >
-
                 <!-- 时间轴分割线 -->
                 <div class = "hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2" ></div >
 
                 <!-- 时间轴条目 -->
                 <div class = "space-y-12" >
                     <!-- 日记列表（按日期分组展示） -->
-                    {% for date_group in grouped_notes %}
+                    {% for date_group in grouped_notes %}  
                         <div class = "relative" >
-                        <!-- 日期标题（动态显示今天/昨天/具体日期） -->
-                        <div class = "text-center mb-8" >
-                            <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium" >
-                                <i class = "fa-solid fa-calendar-day mr-2" ></i >
-                                {{ date_group.date_title }}  <!-- 动态日期标题：今天/昨天/具体日期 -->
-                            </span >
-                        </div >
+                            <!-- 日期标题（动态显示今天/昨天/具体日期） -->
+                            <div class = "text-center mb-4" >
+                                <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer" onclick="toggleQueryForm(this)">
+                                    <i class = "fa-solid fa-calendar-day mr-2" ></i >
+                                    {{ date_group.date_title }}  <!-- 动态日期标题：今天/昨天/具体日期 -->
+                                </span >
+                            </div>
+                            <div class = "query-form hidden mb-6 bg-white rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto border border-gray-100">
+                                <form method="get" class="flex flex-wrap gap-8 items-end justify-center">
+                                    <div class="flex-1 min-w-[200px]">
+                                        <label for="query_date" class="block text-xl font-bold text-gray-900 mb-3">选择查询日期</label>
+                                        <input
+                                            type="date"
+                                            id="query_date"
+                                            name="query_date"
+                                            class="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                            value="{% now 'Y-m-d' %}"
+                                            {% if query_date %}value="{{ query_date }}"{% endif %}
+                                        >
+                                    </div>
+                                    <div class="flex gap-4">
+                                        <button type="submit" class="px-8 py-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 flex items-center gap-3 font-semibold">
+                                            <i class="fa fa-search"></i> 查找日记
+                                        </button>
+                                        {% if query_date %}
+                                            <a href="{% url 'lovesync' %}" class="px-8 py-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-all duration-300 font-semibold">
+                                                清除查询
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </form>
 
-                        <!-- 该日期下的所有日记 -->
+                                <!-- 查询结果提示 -->
+                                {% if query_date %}
+                                    <div class="mt-6 text-lg text-gray-700 text-center">
+                                        显示 <span class="font-bold text-primary">{{ query_date }}</span> 的日记（共 <span class="font-bold text-primary">{{ total_notes }}</span> 篇）
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- 该日期下的所有日记 -->
                             {% for note in date_group.notes %}
-                        <!-- 判断日记属于当前用户还是情侣，设置不同布局 -->
+                            <!-- 判断日记属于当前用户还是情侣，设置不同布局 -->
                                 <div class = "{% if note.user == request.user %}md:w-1/2 md:pl-12{% else %}md:ml-auto md:w-1/2 md:pr-12 partner-card{% endif %} {% if not forloop.first %}mt-8{% endif %}" >
-                            <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
+                                    <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
                                  style = "--mood-color: {{ note.get_mood_color }};"
                                  data-mood = "{{ note.mood }}" >
 
@@ -460,9 +491,9 @@
                                         <img src = "{{ image.noteimage.url }}"
                                              alt = "日记图片"
                                              class = "w-full {% if note.note_images.count == 1 %}h-auto{% else %}h-32{% endif %} object-cover" >
-                                    </div >
+                                        </div >
                                     {% endfor %}
-                                </div >
+                                    </div >
                                 {% endif %}
 
                                  <!-- 操作区（点赞数、评论按钮） -->
@@ -541,19 +572,18 @@
                                 </div >
                             {% endfor %}
                         </div >
-                        {% empty %}
-
-                    <!-- 无日记时显示 -->
+                    {% empty %}
+                        <!-- 无日记时显示 -->
                         <div class = "text-center py-12" >
-                        <div class = "w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4" >
-                            <i class = "fa-solid fa-book-open text-neutral-400 text-xl" ></i >
+                            <!-- 日期标题（动态显示今天/昨天/具体日期） -->
+                            <div class = "text-center mb-4" >
+                                <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer" onclick="toggleQueryForm(this)">
+                                    <i class = "fa-solid fa-calendar-day mr-2" ></i >
+                                    {{ grouped_notes.date_title }}  <!-- 动态日期标题：今天/昨天/具体日期 -->
+                                </span >
+                            </div>
+                            <p class = "text-neutral-500" >还没有日记哦，开始记录你们的故事吧～</p >
                         </div >
-                        <p class = "text-neutral-500" >还没有日记哦，开始记录你们的故事吧～</p >
-{#                        <button class = "mt-4 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors diary-trigger"#}
-{#                                data-mood = "happy" data-color = "#81E67F" >#}
-{#                            <i class = "fa-solid fa-pencil-alt mr-2" ></i >开始写日记#}
-{#                        </button >#}
-                    </div >
                     {% endfor %}
                 </div >
             </div >
@@ -1019,3 +1049,10 @@
     </script >
 </body >
 </html >
+
+<script>
+function toggleQueryForm(elem) {
+    const form = elem.closest('div').nextElementSibling;
+    form.classList.toggle('hidden');
+}
+</script>

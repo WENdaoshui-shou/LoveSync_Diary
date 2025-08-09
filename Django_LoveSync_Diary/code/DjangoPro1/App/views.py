@@ -1,6 +1,6 @@
 import os
-from datetime import timedelta
-
+from datetime import timedelta, datetime
+import pytz
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 from django.urls import reverse
@@ -568,27 +568,56 @@ def lovesync(request):
         if couple_id:
             base_filters |= Q(user_id=couple_id, is_shared=True)
 
-        # 计算本周的日期范围
-        today = timezone.now().date()
-        start_of_week = today - timedelta(days=today.weekday())
+        # 获取前端传递的查询日期参数
+        query_date = request.GET.get('query_date')
 
-        # 获取本周的日记并按日期分组
-        notes_this_week = Note.objects.filter(
-            base_filters,
-            created_at__gte=timezone.make_aware(timezone.datetime.combine(start_of_week, timezone.datetime.min.time())),
-            created_at__lte=timezone.make_aware(timezone.datetime.combine(today, timezone.datetime.max.time()))
-        ).order_by('-created_at')
+        # 基础查询集
+        all_notes = Note.objects.filter(base_filters).order_by('-created_at')
+
+        # 初始化筛选后的查询集
+        filtered_notes = all_notes
+        # 存储查询的目标日期（用于无结果时显示）
+        target_date = None
+
+        # 如果有查询日期，筛选该日期的日记
+        if query_date:
+            try:
+                # 将字符串转换为日期对象
+                target_date = datetime.strptime(query_date, '%Y-%m-%d').date()
+                tz = pytz.timezone('Asia/Shanghai')
+                # 构造带时区的日期范围
+                start_date = tz.localize(datetime.combine(target_date, datetime.min.time()))
+                end_date = tz.localize(datetime.combine(target_date, datetime.max.time()))
+
+                # 使用范围查询替代日期查询
+                filtered_notes = all_notes.filter(created_at__gte=start_date, created_at__lte=end_date)
+            except ValueError:
+                # 日期格式错误时显示所有日记并清除查询参数
+                filtered_notes = all_notes
+                query_date = None  # 清除错误的日期参数
+                target_date = None
+        else:
+            # 没有查询日期时显示所有日记
+            filtered_notes = all_notes
 
         # 按日期分组日记
         grouped_notes = {}
-        for note in notes_this_week:
-            date_key = note.created_at.date()
+        for note in filtered_notes:
+            date_key = note.created_at.date()  # 按年月日分组
             if date_key not in grouped_notes:
                 grouped_notes[date_key] = []
             grouped_notes[date_key].append(note)
 
-        # 处理日期标题（今天/昨天/具体日期）
+        # 关键修改：如果有查询日期但没有结果，手动添加该日期到分组中
+        if query_date and target_date and target_date not in grouped_notes:
+            grouped_notes[target_date] = []
+
+        # 处理日期标题（今天/昨天/具体日期，今年不显示年份）
         formatted_groups = []
+        today = timezone.now().date()
+        current_year = today.year  # 获取当前年份用于判断
+
+        # 按日期倒序排列
         for date, notes in sorted(grouped_notes.items(), reverse=True):
             date_diff = (today - date).days
             if date_diff == 0:
@@ -596,7 +625,10 @@ def lovesync(request):
             elif date_diff == 1:
                 date_title = "昨天"
             else:
-                date_title = date.strftime("%m月%d日")
+                if date.year == current_year:
+                    date_title = date.strftime("%m月%d日")
+                else:
+                    date_title = date.strftime("%Y年%m月%d日")
 
             formatted_groups.append({
                 'date_title': date_title,
@@ -604,12 +636,11 @@ def lovesync(request):
                 'notes': notes
             })
 
+        # 心情统计
         mood_counts = {choice[0]: 0 for choice in Note.MOOD_CHOICES}
-
-        for note in notes_this_week:
+        for note in filtered_notes:
             mood_counts[note.mood] += 1
 
-        # 生成心情统计数据列表
         mood_stats = []
         for mood, count in mood_counts.items():
             temp_note = Note(mood=mood)
@@ -621,20 +652,15 @@ def lovesync(request):
                 'display': temp_note.get_mood_display_text(),
                 'css_class': mood,
             })
-
-        # 按次数排序
         mood_stats.sort(key=lambda x: x['count'], reverse=True)
 
-        # 获取所有时间的日记统计
-        all_notes = Note.objects.filter(base_filters).order_by('-created_at')
+        # 日记数量统计
+        user_notes_count = filtered_notes.filter(user_id=user_id).count()
+        partner_notes_count = filtered_notes.filter(user_id=couple_id).count() if couple_id else 0
 
-        # 计算用户和伴侣各自的日记数量
-        user_notes_count = all_notes.filter(user_id=user_id).count()
-        partner_notes_count = all_notes.filter(user_id=couple_id).count() if couple_id else 0
-
-        # 按月份分组统计
+        # 月度统计
         monthly_stats = {}
-        for note in all_notes:
+        for note in all_notes:  # 月度统计基于所有日记，不受日期查询影响
             month_key = note.created_at.strftime("%Y-%m")
             if month_key not in monthly_stats:
                 monthly_stats[month_key] = {
@@ -643,18 +669,19 @@ def lovesync(request):
                     'count': 0
                 }
             monthly_stats[month_key]['count'] += 1
-
-        # 转换为列表并排序
         monthly_list = sorted(monthly_stats.values(), key=lambda x: (x['year'], x['month']), reverse=True)
 
         return render(request, 'lovesync.html', {
             'grouped_notes': formatted_groups,
             'mood_stats': mood_stats,
             'monthly_stats': monthly_list,
-            'total_notes': all_notes.count(),
+            'total_notes': filtered_notes.count(),
             'user_notes_count': user_notes_count,
             'partner_notes_count': partner_notes_count,
+            'query_date': query_date,  # 将查询日期回传给模板
+            'target_date': target_date,  # 传递目标日期对象给模板
         })
+
     if request.method == 'POST':
         try:
             # 处理表单数据
