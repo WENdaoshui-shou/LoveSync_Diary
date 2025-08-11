@@ -334,6 +334,18 @@
                             <div class = "w-10 h-10 rounded-full overflow-hidden" >
                                 <!-- 使用default过滤器确保没有头像时显示默认图片 -->
                                 <img src = "
+
+
+
+
+
+
+
+
+
+
+
+
                                         {{ user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=1' }}"
                                      alt = "我的头像"
                                      class = "w-full h-full object-cover" >
@@ -350,6 +362,18 @@
                             <div class = "w-10 h-10 rounded-full overflow-hidden" >
                                 <!-- 确保伴侣有头像，没有则显示默认 -->
                                 <img src = "
+
+
+
+
+
+
+
+
+
+
+
+
                                         {{ user.profile.couple.user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=2' }}"
                                      alt = "{{ user.profile.couple.user.name }}的头像"
                                      class = "w-full h-full object-cover" >
@@ -377,13 +401,13 @@
 
                 <!-- 本周心情统计 -->
                 <div class = "mt-6 pt-6 border-t border-neutral-200" >
-                    <h3 class="text-lg font-semibold text-neutral-800 flex items-center justify-between mb-4">
-                        <span>本周心情</span>
-                        <span class="text-xs text-primary/70 hover:text-primary transition-colors cursor-pointer"
-                              id="write-diary-hint">
+                    <h3 class = "text-lg font-semibold text-neutral-800 flex items-center justify-between mb-4" >
+                        <span >本周心情</span >
+                        <span class = "text-xs text-primary/70 hover:text-primary transition-colors cursor-pointer"
+                              id = "write-diary-hint" >
                             点击卡片写日记
-                        </span>
-                    </h3>
+                        </span >
+                    </h3 >
                     <div class = "grid grid-cols-2 md:grid-cols-6 gap-3" >
                         {% for item in mood_stats %}
                             <div class = "bg-{{ item.css_class }}/10 rounded-lg p-3 text-center cursor-pointer diary-trigger hover:scale-105 transition-transform duration-300"
@@ -411,51 +435,55 @@
                         <div class = "relative" >
                             <!-- 日期标题（动态显示今天/昨天/具体日期） -->
                             <div class = "text-center mb-4" >
-                                <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer" onclick="toggleQueryForm(this)">
+                                <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer"
+                                      onclick = "toggleQueryForm(this)" >
                                     <i class = "fa-solid fa-calendar-day mr-2" ></i >
                                     {{ date_group.date_title }}  <!-- 动态日期标题：今天/昨天/具体日期 -->
                                 </span >
-                            </div>
-                            <div class = "query-form hidden mb-6 bg-white rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto border border-gray-100">
-                                <form method="get" class="flex flex-wrap gap-8 items-end justify-center">
-                                    <div class="flex-1 min-w-[200px]">
-                                        <label for="query_date" class="block text-xl font-bold text-gray-900 mb-3">选择查询日期</label>
+                            </div >
+                            <div class = "query-form hidden mb-6 bg-white rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto border border-gray-100" >
+                                <form method = "get" class = "flex flex-wrap gap-8 items-end justify-center" >
+                                    <div class = "flex-1 min-w-[200px]" >
+                                        <label for = "query_date" class = "block text-xl font-bold text-gray-900 mb-3" >选择查询日期</label >
                                         <input
-                                            type="date"
-                                            id="query_date"
-                                            name="query_date"
-                                            class="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                            value="{% now 'Y-m-d' %}"
-                                            {% if query_date %}value="{{ query_date }}"{% endif %}
+                                                type = "date"
+                                                id = "query_date"
+                                                name = "query_date"
+                                                class = "w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                                value = "{% now 'Y-m-d' %}"
+                                                {% if query_date %}value="{{ query_date }}"{% endif %}
                                         >
-                                    </div>
-                                    <div class="flex gap-4">
-                                        <button type="submit" class="px-8 py-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 flex items-center gap-3 font-semibold">
-                                            <i class="fa fa-search"></i> 查找日记
-                                        </button>
+                                    </div >
+                                    <div class = "flex gap-4" >
+                                        <button type = "submit"
+                                                class = "px-8 py-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 flex items-center gap-3 font-semibold" >
+                                            <i class = "fa fa-search" ></i > 查找日记
+                                        </button >
                                         {% if query_date %}
-                                            <a href="{% url 'lovesync' %}" class="px-8 py-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-all duration-300 font-semibold">
+                                            <a href = "{% url 'lovesync' %}"
+                                               class = "px-8 py-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-all duration-300 font-semibold" >
                                                 清除查询
-                                            </a>
+                                            </a >
                                         {% endif %}
-                                    </div>
-                                </form>
+                                    </div >
+                                </form >
 
                                 <!-- 查询结果提示 -->
                                 {% if query_date %}
-                                    <div class="mt-6 text-lg text-gray-700 text-center">
-                                        显示 <span class="font-bold text-primary">{{ query_date }}</span> 的日记（共 <span class="font-bold text-primary">{{ total_notes }}</span> 篇）
-                                    </div>
+                                    <div class = "mt-6 text-lg text-gray-700 text-center" >
+                                        显示 <span class = "font-bold text-primary" >{{ query_date }}</span > 的日记（共 <span
+                                            class = "font-bold text-primary" >{{ total_notes }}</span > 篇）
+                                    </div >
                                 {% endif %}
-                            </div>
+                            </div >
 
                             <!-- 该日期下的所有日记 -->
                             {% for note in date_group.notes %}
                             <!-- 判断日记属于当前用户还是情侣，设置不同布局 -->
                                 <div class = "{% if note.user == request.user %}md:w-1/2 md:pl-12{% else %}md:ml-auto md:w-1/2 md:pr-12 partner-card{% endif %} {% if not forloop.first %}mt-8{% endif %}" >
                                     <div class = "bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
-                                 style = "--mood-color: {{ note.get_mood_color }};"
-                                 data-mood = "{{ note.mood }}" >
+                                         style = "--mood-color: {{ note.get_mood_color }};"
+                                         data-mood = "{{ note.mood }}" >
 
                                  <!-- 心情指示器（动态图标） -->
                                 <div class = "absolute -left-3 -top-3 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mood-indicator"
@@ -490,8 +518,8 @@
                                 </p >
 
                                  <!-- 日记图片 -->
-                                {% if note.note_images.exists %}
-                                    <div class = "{% if note.note_images.count > 1 %}grid grid-cols-2 gap-2{% else %}block{% endif %} mb-4" >
+                                        {% if note.note_images.exists %}
+                                            <div class = "{% if note.note_images.count > 1 %}grid grid-cols-2 gap-2{% else %}block{% endif %} mb-4" >
                                     {% for image in note.note_images.all %}
                                         <div class = "rounded-lg overflow-hidden" >
                                         <img src = "{{ image.noteimage.url }}"
@@ -500,7 +528,7 @@
                                         </div >
                                     {% endfor %}
                                     </div >
-                                {% endif %}
+                                        {% endif %}
 
                                  <!-- 操作区（点赞数、评论按钮） -->
                                 <div class = "flex justify-between items-center" >
@@ -549,8 +577,8 @@
                                 </div >
 
                                  <!-- 回应区域（动态显示评论） -->
-                                {% if note.comments > 0 %}
-                                    <div class = "mt-4 pt-4 border-t border-neutral-100" >
+                                        {% if note.comments > 0 %}
+                                            <div class = "mt-4 pt-4 border-t border-neutral-100" >
                                     {% for comment in note.comment_set.all|slice:":1" %}
                                         <div class = "flex items-start mb-2" >
                                         <div class = "w-6 h-6 rounded-full overflow-hidden mr-2" >
@@ -565,29 +593,30 @@
                                         </div >
                                     </div >
                                     {% endfor %}
-                                        <!-- 显示更多评论按钮（如果有） -->
-                                        {% if note.comments > 1 %}
-                                            <button class = "text-xs text-primary mt-1 view-all-comments"
-                                                    data-note-id = "{{ note.id }}" >
+                                                <!-- 显示更多评论按钮（如果有） -->
+                                                {% if note.comments > 1 %}
+                                                    <button class = "text-xs text-primary mt-1 view-all-comments"
+                                                            data-note-id = "{{ note.id }}" >
                                         查看全部{{ note.comments }}条评论
                                     </button >
-                                        {% endif %}
+                                                {% endif %}
                                 </div >
-                                {% endif %}
+                                        {% endif %}
                             </div >
                                 </div >
                             {% endfor %}
                         </div >
-                    {% empty %}
-                        <!-- 无日记时显示 -->
+                        {% empty %}
+                    <!-- 无日记时显示 -->
                         <div class = "text-center py-12" >
                             <!-- 日期标题（动态显示今天/昨天/具体日期） -->
                             <div class = "text-center mb-4" >
-                                <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer" onclick="toggleQueryForm(this)">
+                                <span class = "inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer"
+                                      onclick = "toggleQueryForm(this)" >
                                     <i class = "fa-solid fa-calendar-day mr-2" ></i >
                                     {{ grouped_notes.date_title }}  <!-- 动态日期标题：今天/昨天/具体日期 -->
                                 </span >
-                            </div>
+                            </div >
                             <p class = "text-neutral-500" >还没有日记哦，开始记录你们的故事吧～</p >
                         </div >
                     {% endfor %}
@@ -652,16 +681,18 @@
                 </div >
 
                 <!-- 分享选项 -->
-                <div class="mb-6">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-sm font-medium text-neutral-700">分享给TA</label>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="share-with-partner" name="share_with_partner" class="sr-only peer" checked>
-                            <div id="share-toggle" class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" ></div>
-                        </label>
-                    </div>
-                    <p class="text-xs text-neutral-500 mt-1">开启后，你的伴侣将看到这篇日记</p>
-                </div>
+                <div class = "mb-6" >
+                    <div class = "flex items-center justify-between" >
+                        <label class = "block text-sm font-medium text-neutral-700" >分享给TA</label >
+                        <label class = "relative inline-flex items-center cursor-pointer" >
+                            <input type = "checkbox" id = "share-with-partner" name = "share_with_partner"
+                                   class = "sr-only peer" checked >
+                            <div id = "share-toggle"
+                                 class = "w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" ></div >
+                        </label >
+                    </div >
+                    <p class = "text-xs text-neutral-500 mt-1" >开启后，你的伴侣将看到这篇日记</p >
+                </div >
 
                 <!-- 提交按钮 -->
                 <div class = "flex justify-end space-x-3" >
@@ -685,13 +716,8 @@
         document.querySelectorAll('.diary-trigger').forEach(trigger => {
             moodColors[trigger.dataset.mood] = trigger.dataset.color;
         });
-
         let currentMoodColor = '#FF6B8B';
-        let lastValue = ''; // 全局变量：记录编辑器上一次值（用于协作对比）
         let currentDocumentId = "{{ document.id|default:'' }}"; // 当前日记ID
-        let currentRevision = 0;
-        let isProcessingRemoteOp = false;
-        let collaborationSocket = null;
 
         // DOM加载后初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -855,9 +881,23 @@
             });
         }
 
+        let currentRevision = 0; // 初始版本号，从0开始
+        let lastValue = ""; // 初始基准值（编辑器内容）
+        let isProcessingRemoteOp = false; // 标记是否正在处理远程操作
+        let collaborationSocket = null; // WebSocket实例
+        let inputDebounceTimer = null; // 防抖定时器
+        let isComposing = false; // 标记是否正在输入中文等需要组合的字符
+
         // 初始化实时协作（WebSocket连接）
         function initCollaboration() {
+            // 确保有文档ID或编辑器存在
             if (!currentDocumentId && !document.getElementById('context')) return;
+
+            // 避免重复连接
+            if (collaborationSocket && collaborationSocket.readyState === WebSocket.OPEN) {
+                console.log("已存在活跃的WebSocket连接，无需重新初始化");
+                return;
+            }
 
             // 连接WebSocket
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -870,49 +910,151 @@
                 console.log("实时协作连接已建立");
                 // 初始化编辑器基准值
                 const editor = document.getElementById('context');
-                if (editor) lastValue = editor.value;
+                if (editor) {
+                    lastValue = editor.value;
+                    // 确保事件只绑定一次
+                    unbindEditorEvents(editor);
+                    bindEditorEvents(editor);
+                }
             };
 
             // 接收远程操作
             collaborationSocket.onmessage = function (event) {
-                const data = JSON.parse(event.data);
+                console.log("收到原始消息:", event.data);
+
+                let data;
+                try {
+                    data = JSON.parse(event.data);
+                    if (typeof data !== 'object' || data === null) {
+                        throw new Error("解析结果不是有效的对象");
+                    }
+                } catch (error) {
+                    console.error("消息处理失败:", error.message);
+                    console.error("问题消息内容:", event.data);
+                    return;
+                }
+
+                // 验证必要字段
+                if (data.user_id === undefined) {
+                    console.warn("消息缺少user_id字段:", data);
+                    return;
+                }
+                if (data.revision === undefined) {
+                    console.warn("消息缺少revision字段:", data);
+                    return;
+                }
+
                 // 忽略自己发送的操作
-                if (data.user_id === "{{ request.user.id }}") return;
+                const currentUserId = "{{ request.user.id }}";
+                if (data.user_id === currentUserId) {
+                    return;
+                }
 
                 isProcessingRemoteOp = true;
                 try {
-                    applyOperationToEditor(data); // 应用远程操作
-                    currentRevision = data.revision; // 更新版本号
+                    // 版本号验证，确保操作顺序正确
+                    if (data.revision !== currentRevision) {
+                        console.warn(`版本不匹配，期望: ${currentRevision}, 收到: ${data.revision}`);
+                        // 这里可以添加版本同步逻辑
+                    }
+
+                    applyOperationToEditor(data);
+                    console.log("成功应用远程操作，当前版本:", currentRevision);
+                    currentRevision ++; // 本地版本号递增
+                } catch (opError) {
+                    console.error("应用操作失败:", opError);
                 } finally {
                     isProcessingRemoteOp = false;
                 }
             };
 
             // 连接关闭重连
-            collaborationSocket.onclose = function () {
-                console.log("协作连接关闭，3秒后重连...");
+            collaborationSocket.onclose = function (event) {
+                console.log(`协作连接关闭 (${event.code})，3秒后重连...`);
+                // 避免立即重连导致的资源耗尽
                 setTimeout(initCollaboration, 3000);
             };
 
-            // 绑定编辑器事件（发送本地操作）
-            bindEditorEvents();
+            // 连接错误处理
+            collaborationSocket.onerror = function (error) {
+                console.error("WebSocket错误:", error);
+            };
+
+            // 绑定编辑器事件
+            const editor = document.getElementById('context');
+            if (editor) {
+                bindEditorEvents(editor);
+            }
+        }
+
+        // 处理弹窗显示事件
+        const diaryModal = document.getElementById('new-diary-modal');
+        if (diaryModal) {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    if (!diaryModal.classList.contains('hidden')) {
+                        const editor = document.getElementById('context');
+                        if (editor) {
+                            unbindEditorEvents(editor);
+                            bindEditorEvents(editor);
+                            console.log("弹窗显示，重新绑定编辑器事件");
+                        }
+                    }
+                });
+            });
+            observer.observe(diaryModal, {attributes: true, attributeFilter: ['class']});
+        }
+
+        // 解绑编辑器事件，防止重复绑定
+        function unbindEditorEvents(editor) {
+            // 移除事件监听器，使用命名函数便于移除
+            editor.removeEventListener('input', handleInput);
+            editor.removeEventListener('compositionstart', handleCompositionStart);
+            editor.removeEventListener('compositionend', handleCompositionEnd);
         }
 
         // 绑定编辑器事件（捕获本地操作并发送）
-        function bindEditorEvents() {
+        function bindEditorEvents(editor) {
+            // 先解绑再绑定，确保只绑定一次
+            unbindEditorEvents(editor);
+
+            // 监听输入事件
+            editor.addEventListener('input', handleInput);
+            // 处理中文等需要组合的输入
+            editor.addEventListener('compositionstart', handleCompositionStart);
+            editor.addEventListener('compositionend', handleCompositionEnd);
+        }
+
+        // 处理输入法组合开始
+        function handleCompositionStart() {
+            isComposing = true;
+        }
+
+        // 处理输入法组合结束
+        function handleCompositionEnd() {
+            isComposing = false;
+            // 组合结束后手动触发一次输入处理
+            handleInput();
+        }
+
+        // 处理输入事件
+        function handleInput() {
+            // 如果正在处理远程操作或输入法组合中，则不处理
+            if (isProcessingRemoteOp || isComposing) return;
+
             const editor = document.getElementById('context');
             if (!editor) return;
 
-            editor.addEventListener('input', function () {
-                if (isProcessingRemoteOp) return; // 忽略远程操作触发的本地变化
-
+            clearTimeout(inputDebounceTimer);
+            inputDebounceTimer = setTimeout(() => {
                 const newValue = editor.value;
                 const oldValue = lastValue;
 
-                // 计算操作类型（插入/删除）
+                // 计算差异
+                const diffStart = findDiffStart(oldValue, newValue);
+
                 if (newValue.length > oldValue.length) {
                     // 插入操作
-                    const diffStart = findDiffStart(oldValue, newValue);
                     const insertedText = newValue.substring(diffStart);
                     sendOperation({
                         op_type: 'insert',
@@ -922,8 +1064,8 @@
                     });
                 } else if (newValue.length < oldValue.length) {
                     // 删除操作
-                    const diffStart = findDiffStart(newValue, oldValue);
-                    const deletedText = oldValue.substring(diffStart);
+                    const deletedLength = oldValue.length - newValue.length;
+                    const deletedText = oldValue.substring(diffStart, diffStart + deletedLength);
                     sendOperation({
                         op_type: 'delete',
                         position: diffStart,
@@ -932,54 +1074,192 @@
                     });
                 }
 
-                lastValue = newValue; // 更新基准值
-            });
+                // 更新基准值
+                lastValue = newValue;
+            }, 100); // 100ms防抖，减少频繁操作
         }
 
         // 发送操作到后端
         function sendOperation(operation) {
-            if (collaborationSocket && collaborationSocket.readyState === WebSocket.OPEN) {
-                collaborationSocket.send(JSON.stringify(operation));
+            // 检查WebSocket实例和连接状态
+            if (!collaborationSocket) {
+                console.error("发送失败：WebSocket实例未初始化");
+                return false;
             }
+
+            if (collaborationSocket.readyState !== WebSocket.OPEN) {
+                const stateText = getReadyStateText(collaborationSocket.readyState);
+                console.warn(`发送失败：WebSocket状态为${stateText}`);
+                return false;
+            }
+
+            // 验证操作对象有效性
+            if (!operation || typeof operation !== 'object') {
+                console.error("发送失败：无效的操作对象", operation);
+                return false;
+            }
+
+            // 验证必要的操作字段
+            const requiredFields = ['op_type', 'position'];
+            const missingFields = requiredFields.filter(field => !(field in operation));
+            if (missingFields.length > 0) {
+                console.error("发送失败：操作对象缺少必要字段", missingFields);
+                return false;
+            }
+
+            // 获取并验证用户ID
+            const userId = "{{ request.user.id }}";
+            if (!userId || userId === "None") {
+                console.error("发送失败：用户没有登录", {
+                    rawUserId: userId,
+                    tip: "请确认用户已登录且页面通过Django视图渲染"
+                });
+                return false;
+            }
+
+            // 验证版本号
+            if (currentRevision === undefined) {
+                console.error("发送失败：currentRevision未初始化");
+                return false;
+            }
+
+            // 构造完整消息
+            const message = {
+                ...operation,
+                user_id: userId,
+                revision: currentRevision
+            };
+
+            // 序列化并发送
+            try {
+                const jsonMessage = JSON.stringify(message);
+                collaborationSocket.send(jsonMessage);
+                console.log("操作发送成功", {
+                    opType: operation.op_type,
+                    position: operation.position,
+                    revision: currentRevision
+                });
+                currentRevision++;
+                return true;
+            } catch (error) {
+                console.error("发送失败：JSON序列化错误", {
+                    error: error.message,
+                    message: message
+                });
+                return false;
+            }
+        }
+
+        // 辅助函数：
+        function getReadyStateText(state) {
+            const states = {
+                0: "CONNECTING（连接中）",
+                1: "OPEN（已连接）",
+                2: "CLOSING（关闭中）",
+                3: "CLOSED（已关闭）"
+            };
+            return states[state] || `未知状态（${state}）`;
         }
 
         // 找到两个字符串首次差异的位置
         function findDiffStart(str1, str2) {
+            // 验证输入为字符串
+            if (typeof str1 !== 'string' || typeof str2 !== 'string') {
+                console.error('findDiffStart 输入不是字符串', str1, str2);
+                return 0;
+            }
+
             const minLength = Math.min(str1.length, str2.length);
             for (let i = 0; i < minLength; i++) {
-                if (str1[i] !== str2[i]) return i;
+                if (str1.charCodeAt(i) !== str2.charCodeAt(i)) {
+                    return i;
+                }
             }
-            return minLength; // 前minLength个字符相同
+            return minLength;
         }
 
         // 应用远程操作到本地编辑器
         function applyOperationToEditor(operation) {
+            // 检查编辑器元素
             const editor = document.getElementById('context');
-            if (!editor) return;
+            if (!editor) {
+                console.error("编辑器元素不存在，无法应用操作");
+                return;
+            }
 
-            const currentValue = editor.value;
+            let currentValue;
+            try {
+                currentValue = editor.value;
+                if (currentValue === undefined) {
+                    throw new Error("editor.value 未定义");
+                }
+            } catch (e) {
+                console.error("获取编辑器当前值失败:", e);
+                currentValue = "";
+            }
+
             let newValue = currentValue;
 
             // 根据操作类型处理
             if (operation.op_type === 'insert') {
-                // 插入操作
-                newValue = currentValue.substring(0, operation.position)
+                // 验证插入操作所需参数
+                if (operation.position === undefined || operation.text === undefined) {
+                    console.error("插入操作缺少必要参数", operation);
+                    return;
+                }
+
+                // 确保位置在有效范围内
+                const pos = Math.max(0, Math.min(operation.position, currentValue.length));
+                newValue = currentValue.substring(0, pos)
                     + operation.text
-                    + currentValue.substring(operation.position);
+                    + currentValue.substring(pos);
             } else if (operation.op_type === 'delete') {
-                // 删除操作
-                newValue = currentValue.substring(0, operation.position)
-                    + currentValue.substring(operation.position + operation.text.length);
+                // 验证删除操作所需参数
+                if (operation.position === undefined || operation.text === undefined) {
+                    console.error("删除操作缺少必要参数", operation);
+                    return;
+                }
+
+                // 确保位置和长度在有效范围内
+                const pos = Math.max(0, Math.min(operation.position, currentValue.length));
+                const deleteLength = Math.min(operation.text.length, currentValue.length - pos);
+                newValue = currentValue.substring(0, pos)
+                    + currentValue.substring(pos + deleteLength);
+            } else {
+                console.warn("未知的操作类型", operation.op_type);
+                return;
             }
 
-            // 更新编辑器内容并保持光标位置
-            const cursorPos = operation.position + operation.text.length;
-            editor.value = newValue;
-            editor.setSelectionRange(cursorPos, cursorPos);
+            // 保存当前光标位置
+            const startPos = editor.selectionStart;
+            const endPos = editor.selectionEnd;
 
-            // 更新本地基准值（避免触发本地input事件）
+            // 更新编辑器内容
+            editor.value = newValue;
+
+            // 调整光标位置
+            if (operation.op_type === 'insert') {
+                // 插入操作后调整光标
+                if (startPos >= operation.position) {
+                    const newPos = startPos + operation.text.length;
+                    editor.setSelectionRange(newPos, newPos);
+                } else {
+                    editor.setSelectionRange(startPos, endPos);
+                }
+            } else if (operation.op_type === 'delete') {
+                // 删除操作后调整光标
+                if (startPos > operation.position) {
+                    const newPos = Math.max(operation.position, startPos - operation.text.length);
+                    editor.setSelectionRange(newPos, newPos);
+                } else {
+                    editor.setSelectionRange(startPos, endPos);
+                }
+            }
+
+            // 更新本地基准值
             lastValue = newValue;
         }
+
 
         // 获取情侣关系建立日期
         const joinedDateElement = document.getElementById('days-together');
@@ -1056,9 +1336,9 @@
 </body >
 </html >
 
-<script>
+<script >
 function toggleQueryForm(elem) {
     const form = elem.closest('div').nextElementSibling;
     form.classList.toggle('hidden');
 }
-</script>
+</script >

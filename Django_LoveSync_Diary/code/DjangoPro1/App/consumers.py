@@ -1,4 +1,5 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
+import json
 from .ot import transform_operations
 
 
@@ -24,13 +25,18 @@ class CollaborationConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         try:
-            data = eval(text_data)
-            # 模拟服务器操作序列，实际应从数据库获取
+            data = json.loads(text_data)
+            print("还原后的汉字:", data.get('text'))  # 应输出 "好"
+            user_id = data.get('user_id')
+            if not user_id:
+                print("客户端消息缺少 user_id，忽略处理")
+                return
+
             server_ops = []
-            # 转换客户端操作
             transformed_ops = transform_operations([data], server_ops)
             if transformed_ops:
                 data = transformed_ops[0]
+                data['user_id'] = user_id
                 await self.channel_layer.group_send(
                     self.room_name,
                     {
@@ -43,4 +49,10 @@ class CollaborationConsumer(AsyncWebsocketConsumer):
 
     async def operation_message(self, event):
         data = event['data']
-        await self.send(text_data=str(data))
+        # 打印要发送的内容和目标房间
+        print(f"准备发送消息到房间 {self.room_name}: {data}")
+        try:
+            await self.send(text_data=json.dumps(data))
+            print("消息发送成功")  # 确认发送操作完成
+        except Exception as e:
+            print(f"消息发送失败: {str(e)}")  # 捕获发送时的错误
