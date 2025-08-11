@@ -147,6 +147,7 @@ def verify_code(request):
     return response
 
 
+@csrf_exempt
 # 登录
 def user_login(request):
     if request.user.is_authenticated:
@@ -280,7 +281,6 @@ def user_register(request):
                 messages.error(request, '注册失败，请重试')
             return render(request, 'register.html')
         except Exception as e:
-            logger.error(f"注册异常: {str(e)}")
             messages.error(request, '注册过程中发生错误, 请稍后再试')
             return render(request, 'register.html')
 
@@ -1176,5 +1176,3 @@ def couple_places(request):
 def couple_test(request):
     if request.method == 'GET':
         return render(request, 'couple_test.html')
-
-

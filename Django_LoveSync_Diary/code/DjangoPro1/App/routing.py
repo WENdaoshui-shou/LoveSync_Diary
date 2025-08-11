@@ -11,8 +11,8 @@ from channels.auth import AuthMiddlewareStack
 from . import consumers
 
 websocket_urlpatterns = [
-    re_path(r'ws/collaboration/(?P<document_id>\w+)/$', consumers.CollaborationConsumer.as_asgi()),
     re_path(r'ws/collaboration/new/$', consumers.CollaborationConsumer.as_asgi()),
+    re_path(r'ws/collaboration/(?P<document_id>\w+)/$', consumers.CollaborationConsumer.as_asgi()),
 ]
 
 application = ProtocolTypeRouter({

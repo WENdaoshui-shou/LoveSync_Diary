@@ -13,7 +13,13 @@ SECRET_KEY = 'django-insecure-4-d)(2%**9snt1r8m&z3)ds955jsptqd+##9=95us9-xb8ur##
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*'
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://7975812d.r7.cpolar.top",
+]
 
 # Application definition
 
@@ -42,30 +48,39 @@ CHANNEL_LAYERS = {
 # settings.py 中的日志配置示例
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'colored',  # 使用彩色格式化器
+            'formatter': 'colored',
+            'stream': 'ext://sys.stdout',
         },
     },
     'formatters': {
         'colored': {
-            '()': 'colorlog.ColoredFormatter',  # 需要安装colorlog库
+            '()': 'colorlog.ColoredFormatter',
             'format': '%(log_color)s%(asctime)s - %(levelname)s - %(message)s',
             'log_colors': {
                 'DEBUG': 'cyan',
-                'INFO': 'red',
+                'INFO': 'green',
                 'WARNING': 'yellow',
                 'ERROR': 'red',
                 'CRITICAL': 'red,bg_white',
             },
+            'datefmt': '%Y-%m-%d %H:%M:%S',  # 统一时间格式
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,  # 关键修改：禁止日志向上传播
+        },
+        # 处理django.server的日志（避免重复输出请求日志）
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
@@ -153,6 +168,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+# 必须配置 ASGI 应用
+ASGI_APPLICATION = 'DjangoPrp1.asgi.application'
 
 STATIC_URL = '/static/'  # 静态文件的 URL 前缀
 STATICFILES_DIRS = [

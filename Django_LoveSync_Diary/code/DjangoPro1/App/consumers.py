@@ -1,116 +1,46 @@
-# -*- coding: utf-8 -*-
-# @Time        :2025/7/29 10:41
-# @Author      :文刀水寿
-# @File        : consumers.py.py
-"""
- @Description :
-"""
-import json
-import threading
-from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .ot import Operation, transform, transform_operations
-from .models import CollaborativeDocument, DocumentOperation
+from .ot import transform_operations
 
 
 class CollaborationConsumer(AsyncWebsocketConsumer):
-    document_locks = {}  # 文档锁，用于并发控制
-    document_operations = {}  # 文档操作缓存
-
     async def connect(self):
-        self.document_id = self.scope['url_route']['kwargs']['document_id']
-        self.group_name = f'document_{self.document_id}'
-
-        if self.document_id not in self.document_locks:
-            self.document_locks[self.document_id] = threading.Lock()
-
-        # 加入群组
-        await self.channel_layer.group_add(
-            self.group_name,
-            self.channel_name
-        )
-
-        await self.accept()
+        try:
+            await self.accept()
+            self.room_name = self.scope['url_route']['kwargs'].get('document_id', 'new')
+            await self.channel_layer.group_add(
+                self.room_name,
+                self.channel_name
+            )
+            print("WebSocket 握手成功")
+        except Exception as e:
+            print(f"连接失败：{str(e)}")
 
     async def disconnect(self, close_code):
-        # 离开群组
         await self.channel_layer.group_discard(
-            self.group_name,
+            self.room_name,
             self.channel_name
         )
+        print(f"连接关闭，代码：{close_code}")
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        user_id = self.scope["user"].id
-        operation = Operation(
-            op_type=data['op_type'],
-            position=data['position'],
-            text=data.get('text', '')
-        )
-        client_revision = data.get('revision', 0)
-
-        # 原子操作：处理操作并保存到数据库
-        async with sync_to_async(self.document_locks[self.document_id].acquire)():
-            try:
-                # 获取文档和最新操作
-                document = await sync_to_async(CollaborativeDocument.objects.get)(id=self.document_id)
-                server_operations = await sync_to_async(list)(
-                    DocumentOperation.objects.filter(
-                        document=document,
-                        revision__gt=client_revision
-                    ).order_by('timestamp')
-                )
-
-                # 应用操作转换
-                transformed_ops = transform_operations([operation], [op.to_operation() for op in server_operations])
-                if not transformed_ops:
-                    return  # 操作被完全转换掉，无需执行
-
-                # 应用操作到文档
-                transformed_op = transformed_ops[0]
-                new_content = apply_operation(document.content, transformed_op)
-
-                # 保存操作到数据库
-                new_revision = document.documentoperation_set.count() + 1
-                await sync_to_async(DocumentOperation.objects.create)(
-                    document=document,
-                    user_id=user_id,
-                    operation_type=transformed_op.op_type,
-                    position=transformed_op.position,
-                    text=transformed_op.text,
-                    revision=new_revision
-                )
-
-                # 更新文档内容
-                document.content = new_content
-                await sync_to_async(document.save)()
-
-                # 广播到所有客户端
+        try:
+            data = eval(text_data)
+            # 模拟服务器操作序列，实际应从数据库获取
+            server_ops = []
+            # 转换客户端操作
+            transformed_ops = transform_operations([data], server_ops)
+            if transformed_ops:
+                data = transformed_ops[0]
                 await self.channel_layer.group_send(
-                    self.group_name,
+                    self.room_name,
                     {
-                        'type': 'document_operation',
-                        'operation': {
-                            'user_id': user_id,
-                            'op_type': transformed_op.op_type,
-                            'position': transformed_op.position,
-                            'text': transformed_op.text,
-                            'revision': new_revision
-                        }
+                        'type': 'operation.message',
+                        'data': data
                     }
                 )
-            finally:
-                self.document_locks[self.document_id].release()
+        except Exception as e:
+            print(f"处理消息出错：{str(e)}")
 
-    async def document_operation(self, event):
-        """处理接收到的操作并更新编辑器"""
-        await self.send(text_data=json.dumps(event['operation']))
-
-
-def apply_operation(content, operation):
-    """将操作应用到文档内容"""
-    if operation.op_type == 'insert':
-        return content[:operation.position] + operation.text + content[operation.position:]
-    elif operation.op_type == 'delete':
-        return content[:operation.position] + content[operation.position + len(operation.text):]
-    return content
+    async def operation_message(self, event):
+        data = event['data']
+        await self.send(text_data=str(data))
