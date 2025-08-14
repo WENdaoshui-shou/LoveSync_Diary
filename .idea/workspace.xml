@@ -13,8 +13,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -40,11 +40,12 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "D:/小题旅行科技/xhs_RPA",
+    "last_opened_file_path": "D:/小题旅行科技/FS_RPA",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   },
@@ -59,7 +60,7 @@
     ]
   }
 }]]></component>
-  <component name="RunManager" selected="Django Server.Django_LoveSync_Diary">
+  <component name="RunManager" selected="Django 服务器.Django_LoveSync_Diary">
     <configuration name="collaborative_editor.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Django_LoveSync_Diary/Django_LoveSync_Diary/code/DjangoPro1/templates/collaborative_editor.html" useBuiltInWebServerPort="true">
       <method v="2" />
     </configuration>
@@ -129,7 +130,7 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
-      <changelist id="" name="更改" comment="" />
+      <changelist id="200415a2-a5bb-47de-9de9-d2a7c095b81d" name="更改" comment="" />
       <created>1747129804754</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -141,6 +142,7 @@
       <workItem from="1754289793643" duration="725000" />
       <workItem from="1754374379935" duration="73000" />
       <workItem from="1754374465320" duration="3700000" />
+      <workItem from="1755135692780" duration="4010000" />
     </task>
     <task id="LOCAL-00001" summary="5-13-项目初始化">
       <created>1747129830894</created>

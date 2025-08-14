@@ -292,7 +292,7 @@ def community(request):
         user = request.user
 
         print(f"用户ID: {user.id} ")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        print(f"头像路径: {user.profile.userAvatar}")
 
         # 只显示已分享的动态
         moment = Moment.objects.filter(is_shared=True).select_related('user__profile').order_by('-created_at')
@@ -311,7 +311,7 @@ def message(request):
         user = request.user
 
         print(f"用户ID: {user.id}")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        print(f"头像路径: {user.profile.userAvatar}")
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
 
@@ -328,7 +328,7 @@ def favorites(request):
         user = request.user
 
         print(f"用户ID: {user.id}")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        print(f"头像路径: {user.profile.userAvatar}")
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
 
@@ -345,7 +345,7 @@ def photo_album(request):
         user = request.user
 
         print(f"用户ID: {user.id}")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        print(f"头像路径: {user.profile.userAvatar}")
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').order_by('-created_at')
         photo = Photo.objects.filter(user=request.user).order_by('-uploaded_at')
@@ -451,7 +451,7 @@ def moments(request):
         user = request.user
 
         print(f"用户ID: {user.id}")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
+        print(f"头像路径: {user.profile.userAvatar}")
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').order_by('-created_at')
 
@@ -641,12 +641,23 @@ def lovesync(request):
         for note in filtered_notes:
             mood_counts[note.mood] += 1
 
+        # 计算本周时间范围（周一0点至今）
+        today = datetime.now().date()
+        week_start = today - timedelta(days=today.weekday())
+        week_start_datetime = datetime.combine(week_start, datetime.min.time())
+
+        # 筛选本周笔记并统计心情次数
+        weekly_mood_counts = {choice[0]: 0 for choice in Note.MOOD_CHOICES}
+        for note in all_notes.filter(created_at__gte=week_start_datetime):
+            weekly_mood_counts[note.mood] += 1
+
         mood_stats = []
         for mood, count in mood_counts.items():
             temp_note = Note(mood=mood)
             mood_stats.append({
                 'mood': mood,
                 'count': count,
+                'weekly_count': weekly_mood_counts[mood],
                 'color': temp_note.get_mood_color(),
                 'icon': temp_note.get_mood_icon(),
                 'display': temp_note.get_mood_display_text(),
@@ -727,8 +738,8 @@ def personal_center(request):
         user = request.user
 
         print(f"用户ID: {user.id}")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        print(f"情侣ID: {user.profile.couple.user.id}")  # 调试输出
+        print(f"头像路径: {user.profile.userAvatar}")
+        print(f"情侣ID: {user.profile.couple.user.id}")
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
 
@@ -743,8 +754,8 @@ def settings_view(request, tab='profile'):
     if request.method == 'GET':
         user = request.user
         print(f"用户ID: {user.id}")
-        print(f"头像路径: {user.profile.userAvatar}")  # 调试输出
-        print(f": {user.profile.couple_joined_at}")  # 调试输出
+        print(f"头像路径: {user.profile.userAvatar}")
+        print(f": {user.profile.couple_joined_at}")
 
         moment = Moment.objects.filter(user=request.user).select_related('user__profile').all()
 
