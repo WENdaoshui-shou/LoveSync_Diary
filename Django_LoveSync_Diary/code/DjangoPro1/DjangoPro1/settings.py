@@ -177,12 +177,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-# 必须配置 ASGI 应用
+# 配置 ASGI 应用
 ASGI_APPLICATION = 'DjangoPrp1.asgi.application'
 
-STATIC_URL = '/static/'  # 静态文件的 URL 前缀
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # 全局静态文件目录（可选）
+    os.path.join(BASE_DIR, 'static'),  # 全局静态文件目录
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # 生产环境收集静态文件的目录
 
@@ -239,4 +239,4 @@ DASHSCOPE_MODEL = os.getenv('DASHSCOPE_MODEL', 'qwen-plus')  # 使用的模型�
 # 会话配置
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
-SESSION_COOKIE_AGE = 3600  # 会话有效期1小时
+SESSION_COOKIE_AGE = 3600 * 24  # 会话有效期24小时

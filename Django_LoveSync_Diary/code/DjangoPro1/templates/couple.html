@@ -234,7 +234,9 @@
                     class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 transition-custom">
                     <i class="fa fa-arrow-left text-primary"></i>
                 </button>
-                <h1 class="ml-3 text-xl font-bold text-primary">情侣设置</h1>
+                <h1 class="ml-3 text-xl font-bold text-primary">
+                    {% if has_couple %}情侣设置{% else %}绑定情侣{% endif %}
+                </h1>
             </div>
             <div class="flex items-center space-x-3">
                 <button
@@ -250,13 +252,172 @@
     </header>
 
     <main class="container mx-auto px-6 py-6">
+        <!-- 未绑定情侣：显示绑定引导页面 -->
+        {% if not has_couple %}
+        <div class="max-w-2xl mx-auto">
+            <!-- 引导标题 -->
+            <div class="text-center mb-10 animate-fade-in">
+                <div
+                    class="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex bg-gradient-love flex items-center justify-center float-animation text-white shadow-md">
+                    <i class="fa fa-heart text-5xl"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-neutral-800 mb-2">找到你的另一半</h2>
+                <p class="text-neutral-600">绑定情侣后，即可开启专属你们的恋爱空间</p>
+            </div>
+
+            <!-- 待处理请求提示 -->
+            {% if pending_request %}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-8 animate-slide-up">
+                <div class="flex items-start">
+                    <div
+                        class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="fa fa-clock-o text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="font-medium text-neutral-800">待处理的邀请</h3>
+                        <p class="text-neutral-600 text-sm mt-1">你已向 <span class="text-primary font-medium">{{
+                                pending_request.user.username }}</span> 发送了情侣邀请，等待对方回应...</p>
+                        <button onclick="cancelRequest({{ pending_request.id }})"
+                            class="mt-3 text-sm text-primary hover:text-primary/80">
+                            <i class="fa fa-times-circle mr-1"></i>取消邀请
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 收到的请求提示 -->
+            {% if received_request %}
+            <div class="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-8 animate-slide-up">
+                <div class="flex items-start">
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="fa fa-envelope text-primary"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <h3 class="font-medium text-neutral-800">收到情侣邀请</h3>
+                        <p class="text-neutral-600 text-sm mt-1"><span class="text-primary font-medium">{{
+                                received_request.user.username }}</span> 想与你绑定为情侣</p>
+                        <div class="flex gap-3 mt-3">
+                            <a href="{% url 'couple_accept' received_request.id %}"
+                                class="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-custom">
+                                <i class="fa fa-check mr-1"></i>接受
+                            </a>
+                            <a href="{% url 'couple_reject' received_request.id %}"
+                                class="px-4 py-2 border border-neutral-300 text-neutral-700 text-sm rounded-lg hover:bg-neutral-50 transition-custom">
+                                <i class="fa fa-times mr-1"></i>拒绝
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 绑定方式选择 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8 animate-slide-up">
+                <h3 class="text-lg font-bold mb-5 text-neutral-800">绑定情侣的方式</h3>
+
+                <!-- 方式1：通过邀请码绑定 -->
+                <div class="mb-6">
+                    <h4 class="font-medium text-neutral-800 mb-3 flex items-center">
+                        <i class="fa fa-key text-primary mr-2"></i>通过邀请码绑定
+                    </h4>
+                    <form method="post" action="{% url 'couple_request' %}" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-neutral-700 text-sm mb-2">输入对方的邀请码</label>
+                            <div class="flex">
+                                <input type="text" name="couple_code" placeholder="请输入邀请码"
+                                    class="flex-1 px-4 py-3 rounded-l-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
+                                <button type="submit"
+                                    class="px-6 py-3 bg-primary text-white rounded-r-lg hover:bg-primary/90 transition-custom">
+                                    绑定
+                                </button>
+                            </div>
+                            <p class="text-xs text-neutral-500 mt-1">邀请码可在对方的情侣设置页面获取</p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 方式2：生成自己的邀请码 -->
+                <div>
+                    <h4 class="font-medium text-neutral-800 mb-3 flex items-center">
+                        <i class="fa fa-qrcode text-primary mr-2"></i>让对方扫描你的邀请码
+                    </h4>
+                    <div class="bg-neutral-50 rounded-lg p-4 flex flex-col items-center">
+                        <div class="w-48 h-48 bg-white p-2 rounded-lg mb-4 flex items-center justify-center">
+                            <!-- 二维码区域 -->
+                            <div class="text-center">
+                                <i class="fa fa-qrcode text-5xl text-neutral-300 mb-2"></i>
+                                <p class="text-xs text-neutral-500">你的邀请码</p>
+                                <p class="font-medium mt-1 text-primary">{{ user.profile.couple_code }}</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-neutral-600 text-center">
+                            让对方在绑定页面输入上方邀请码<br>或直接扫描二维码
+                        </p>
+                        <button onclick="copyCode('{{ user.profile.couple_code }}')"
+                            class="mt-4 px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-custom text-sm">
+                            <i class="fa fa-copy mr-1"></i>复制邀请码
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能介绍 -->
+            <div class="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl p-6 animate-slide-up">
+                <h3 class="text-lg font-bold mb-4 text-center text-neutral-800">绑定情侣后可解锁</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                            <i class="fa fa-calendar-heart-o text-primary"></i>
+                        </div>
+                        <p class="text-sm font-medium">恋爱纪念日</p>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                            <i class="fa fa-comments text-primary"></i>
+                        </div>
+                        <p class="text-sm font-medium">私密聊天</p>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                            <i class="fa fa-picture-o text-primary"></i>
+                        </div>
+                        <p class="text-sm font-medium">情侣相册</p>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                            <i class="fa fa-book text-primary"></i>
+                        </div>
+                        <p class="text-sm font-medium">双人日记</p>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                            <i class="fa fa-gift text-primary"></i>
+                        </div>
+                        <p class="text-sm font-medium">礼物记录</p>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                            <i class="fa fa-line-chart text-primary"></i>
+                        </div>
+                        <p class="text-sm font-medium">恋爱统计</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 已绑定情侣：显示情侣设置页面 -->
+        {% else %}
         <!-- 情侣关系卡片 -->
         <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-fade-in">
             <div class="flex flex-col md:flex-row items-center">
                 <div class="relative mb-4 md:mb-0">
                     <div class="relative w-28 h-28 rounded-full overflow-hidden border-4 border-primary/20">
-                        <img src="{{ user.profile.userAvatar.url }}" alt="情侣合照" class="w-full h-full object-cover"
-                            onload="this.classList.remove('img-loading')" loading="lazy">
+                        <img src="{{ user.profile.userAvatar.url }}" alt="情侣合照"
+                            class="w-full h-full object-cover img-loading" onload="this.classList.remove('img-loading')"
+                            loading="lazy">
                         <div class="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full">
                         </div>
                     </div>
@@ -659,6 +820,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </main>
 
     <!-- 解除情侣关系确认弹窗 -->
@@ -716,6 +878,54 @@
     <script>
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function () {
+            // 返回按钮
+            document.getElementById('backBtn').addEventListener('click', function () {
+                window.history.back();
+            });
+
+            // 未绑定情侣状态下的功能
+            {% if not has_couple %}
+            // 复制邀请码功能
+            window.copyCode = function (code) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showToast('邀请码已复制，快去发给对方吧', 'success');
+                }).catch(() => {
+                    showToast('复制失败，请手动复制', 'error');
+                });
+            };
+
+            // 取消邀请功能
+            window.cancelRequest = function (profileId) {
+                if (confirm('确定要取消邀请吗？')) {
+                    // 获取CSRF Token
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                    fetch(`/couple/cancel/${profileId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast('邀请已取消', 'success');
+                                setTimeout(() => window.location.reload(), 1000);
+                            } else {
+                                showToast(data.error || '操作失败，请重试', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            showToast('网络错误，请重试', 'error');
+                            console.error('Error:', error);
+                        });
+                }
+            };
+            {% endif %}
+
+            // 已绑定情侣状态下的功能
+            {% if has_couple %}
             // 处理模态框
             const breakupBtn = document.getElementById('breakupBtn');
             const breakupModal = document.getElementById('breakupModal');
@@ -726,9 +936,6 @@
             const deleteAccountModal = document.getElementById('deleteAccountModal');
             const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-
-            const dateElement = document.querySelector('#days-together span');
-            const dateStr = dateElement.textContent.trim();
 
             // 打开解除情侣关系模态框
             breakupBtn.addEventListener('click', function () {
@@ -776,13 +983,23 @@
 
             // 确认解除情侣关系
             confirmBreakupBtn.addEventListener('click', function () {
-                // 这里添加解除情侣关系的AJAX请求
+                // 获取CSRF Token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
                 simulateApiRequest('解除情侣关系中...', '情侣关系已解除', function () {
-                    closeModal(breakupModal);
-                    // 重定向到主页或关系管理页面
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1000);
+                    fetch('/couple/breakup/', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrfToken }
+                    }).then(response => {
+                        if (response.ok) {
+                            closeModal(breakupModal);
+                            setTimeout(() => {
+                                window.location.href = '/couple/settings/';
+                            }, 1000);
+                        } else {
+                            showToast('操作失败，请重试', 'error');
+                        }
+                    });
                 });
             });
 
@@ -794,19 +1011,28 @@
                     return;
                 }
 
-                // 这里添加删除账号的AJAX请求
-                simulateApiRequest('删除账号中...', '账号已成功删除', function () {
-                    closeModal(deleteAccountModal);
-                    // 重定向到登录页
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 1000);
-                });
-            });
+                // 获取CSRF Token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            // 返回按钮
-            document.getElementById('backBtn').addEventListener('click', function () {
-                window.history.back();
+                simulateApiRequest('删除账号中...', '账号已成功删除', function () {
+                    fetch('/account/delete/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({ password: password })
+                    }).then(response => {
+                        if (response.ok) {
+                            closeModal(deleteAccountModal);
+                            setTimeout(() => {
+                                window.location.href = '/login/';
+                            }, 1000);
+                        } else {
+                            showToast('密码错误或操作失败', 'error');
+                        }
+                    });
+                });
             });
 
             // 表单输入动画效果
@@ -853,7 +1079,6 @@
                     // 获取主题颜色
                     const themeColor = this.querySelector('.h-24').style.background;
                     if (themeColor) {
-                        // 这里可以添加动态改变主题颜色的逻辑
                         updateThemeColors(themeColor);
                     }
                 });
@@ -865,13 +1090,6 @@
                 input.addEventListener('input', function () {
                     const colorPreview = this.previousElementSibling;
                     colorPreview.style.backgroundColor = this.value;
-
-                    // 更新主题颜色
-                    if (this.id === 'primaryColor') {
-                        document.documentElement.style.setProperty('--primary-color', this.value);
-                    } else if (this.id === 'secondaryColor') {
-                        document.documentElement.style.setProperty('--secondary-color', this.value);
-                    }
                 });
             });
 
@@ -885,12 +1103,45 @@
                     return;
                 }
 
+                // 获取CSRF Token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
                 // 保存设置
                 simulateApiRequest('保存设置中...', '设置已成功保存', function () {
-                    // 更新本地存储
-                    localStorage.setItem('coupleSettings', JSON.stringify(formData));
+                    fetch('/couple/update-settings/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify(formData)
+                    }).then(response => {
+                        if (response.ok) {
+                            // 保存成功
+                        } else {
+                            showToast('保存失败，请重试', 'error');
+                        }
+                    });
                 });
             });
+
+            // 计算相恋天数
+            const dateElement = document.querySelector('#days-together span');
+            const dateStr = dateElement.textContent.trim();
+
+            // 解析日期字符串为 Date 对象
+            const [year, month, day, hour, minute] = dateStr.match(/\d+/g);
+            const joinedDate = new Date(year, month - 1, day, hour, minute); // 月份从0开始
+
+            // 计算当前时间与指定日期的差值（毫秒）
+            const now = new Date();
+            const diffMs = now - joinedDate;
+
+            // 转换为天数（取绝对值）
+            const diffDays = Math.abs(Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+
+            // 更新DOM显示
+            dateElement.textContent = diffDays;
 
             // 收集表单数据
             function collectFormData() {
@@ -902,18 +1153,18 @@
                     anniversary: document.querySelector('input[type="date"]').value,
                     story: document.querySelector('textarea').value,
                     theme: getSelectedTheme(),
-                    primaryColor: document.querySelector('#primaryColor').value,
-                    secondaryColor: document.querySelector('#secondaryColor').value,
+                    primaryColor: document.querySelectorAll('input[type="color"]')[0].value,
+                    secondaryColor: document.querySelectorAll('input[type="color"]')[1].value,
                     privacy: {
                         relationshipVisibility: document.querySelector('input[name="visibility"]:checked').value,
-                        postsVisible: document.querySelector('#postsVisible').checked,
-                        anniversariesVisible: document.querySelector('#anniversariesVisible').checked,
-                        giftsVisible: document.querySelector('#giftsVisible').checked
+                        postsVisible: document.querySelectorAll('input[type="checkbox"]')[0].checked,
+                        anniversariesVisible: document.querySelectorAll('input[type="checkbox"]')[1].checked,
+                        giftsVisible: document.querySelectorAll('input[type="checkbox"]')[2].checked
                     },
                     notifications: {
-                        partnerMessages: document.querySelector('#partnerMessages').checked,
-                        activities: document.querySelector('#activities').checked,
-                        anniversaries: document.querySelector('#anniversaries').checked
+                        partnerMessages: document.querySelectorAll('input[type="checkbox"]')[3].checked,
+                        activities: document.querySelectorAll('input[type="checkbox"]')[4].checked,
+                        anniversaries: document.querySelectorAll('input[type="checkbox"]')[5].checked
                     }
                 };
             }
@@ -941,11 +1192,9 @@
 
             // 更新主题颜色
             function updateThemeColors(themeColor) {
-                // 解析主题颜色并应用到根元素
                 document.documentElement.style.setProperty('--theme-gradient', themeColor);
-
-                // 这里可以添加更复杂的颜色解析和应用逻辑
             }
+            {% endif %}
 
             // 模拟API请求
             function simulateApiRequest(loadingMsg, successMsg, callback) {
@@ -1001,23 +1250,7 @@
                     }, 3000);
                 }
             }
-
-            // 获取原始日期字符串（格式：2025年7月29日 13:58）
-            // 解析日期字符串为 Date 对象
-            const [year, month, day, hour, minute] = dateStr.match(/\d+/g);
-            const joinedDate = new Date(year, month - 1, day, hour, minute); // 月份从0开始
-
-            // 计算当前时间与指定日期的差值（毫秒）
-            const now = new Date();
-            const diffMs = now - joinedDate;
-
-            // 转换为天数（取绝对值）
-            const diffDays = Math.abs(Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-
-            // 更新DOM显示
-            dateElement.textContent = diffDays;
         });
-
     </script>
 </body>
 

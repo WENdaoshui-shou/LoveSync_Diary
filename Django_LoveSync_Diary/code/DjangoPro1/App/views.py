@@ -39,81 +39,106 @@ def user_index(request):
 def couple_request(request):
     """处理情侣绑定请求"""
     if request.method == 'POST':
-        code = request.POST.get('couple_code')
+        code = request.POST.get('couple_code', '').strip()
+
+        if not code:
+            messages.error(request, '请输入邀请码')
+            return redirect('couple')  # 使用URL名称重定向，确保urls.py中存在该名称
 
         try:
             target_profile = Profile.objects.get(couple_code=code)
         except Profile.DoesNotExist:
             messages.error(request, '无效的邀请码')
-            return redirect('couple_settings')
+            return redirect('couple')
 
         # 不能邀请自己
         if target_profile.user == request.user:
-            messages.error(request, '不能邀请自己')
-            return redirect('couple_settings')
+            messages.error(request, '不能邀请自己成为情侣')
+            return redirect('couple')
 
         try:
             request.user.profile.send_couple_request(target_profile)
             messages.success(request, f'已向 {target_profile.user.username} 发送情侣邀请')
         except ValidationError as e:
             messages.error(request, str(e))
+        except Exception as e:
+            messages.error(request, f'操作失败：{str(e)}')
 
-        return redirect('couple_settings')
+        return redirect('couple')
 
-    return render(request, 'couple/request.html')
+    # 如果是GET请求，重定向到情侣设置页面
+    return redirect('couple')
 
 
 @login_required
 def couple_accept(request, profile_id):
     """接受情侣请求"""
     target_profile = get_object_or_404(Profile, id=profile_id)
+    user_profile = request.user.profile
 
     # 检查是否有待处理的请求
-    if request.user.profile.couple_pending != target_profile:
+    if user_profile.couple_pending != target_profile:
         messages.error(request, '没有待处理的邀请')
-        return redirect('couple_settings')
+        return redirect('couple')
 
     try:
-        request.user.profile.accept_couple_request()
+        user_profile.accept_couple_request()
         messages.success(request, f'已与 {target_profile.user.username} 成为情侣')
     except ValidationError as e:
         messages.error(request, str(e))
+    except Exception as e:
+        messages.error(request, f'操作失败：{str(e)}')
 
-    return redirect('couple_settings')
+    return redirect('couple')
 
 
 @login_required
 def couple_reject(request, profile_id):
     """拒绝情侣请求"""
     target_profile = get_object_or_404(Profile, id=profile_id)
+    user_profile = request.user.profile
 
     # 检查是否有待处理的请求
-    if request.user.profile.couple_pending != target_profile:
+    if user_profile.couple_pending != target_profile:
         messages.error(request, '没有待处理的邀请')
-        return redirect('couple_settings')
+        return redirect('couple')
 
     try:
-        request.user.profile.reject_couple_request()
+        user_profile.reject_couple_request()
         messages.success(request, f'已拒绝 {target_profile.user.username} 的情侣邀请')
     except ValidationError as e:
         messages.error(request, str(e))
+    except Exception as e:
+        messages.error(request, f'操作失败：{str(e)}')
 
-    return redirect('couple_settings')
+    return redirect('couple')
 
 
 @login_required
 def couple_breakup(request):
     """解除情侣关系"""
+    user_profile = request.user.profile
+
+    # 检查是否有情侣关系
+    if not user_profile.couple:
+        messages.error(request, '你当前没有情侣关系')
+        return redirect('couple')
+
     if request.method == 'POST':
         try:
-            request.user.profile.break_up()
-            messages.success(request, '已解除情侣关系')
+            user_profile.break_up()
+            messages.success(request, '已成功解除情侣关系')
         except ValidationError as e:
             messages.error(request, str(e))
+        except Exception as e:
+            messages.error(request, f'操作失败：{str(e)}')
 
-        return redirect('couple_settings')
+        return redirect('couple')
 
-    return render(request, 'couple/breakup_confirm.html')
+    # GET请求显示确认页面
+    return render(request, 'breakup_confirm.html', {
+        'partner': user_profile.couple.user
+    })
 
 
 @login_required
@@ -123,9 +148,11 @@ def couple(request):
     profile = user.profile
     context = {
         'user': user,
-        'has_couple': user.profile.couple is not None,
-        'pending_request': user.profile.couple_pending,
-        'received_request': Profile.objects.filter(couple_pending=profile).first() if not profile.couple else None
+        'has_couple': profile.couple is not None,
+        'pending_request': profile.couple_pending,
+        'received_request': Profile.objects.filter(
+            couple_pending=profile
+        ).first() if not profile.couple else None
     }
     return render(request, 'couple.html', context)
 

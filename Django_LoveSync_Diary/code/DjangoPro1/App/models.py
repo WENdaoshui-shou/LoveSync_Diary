@@ -117,15 +117,15 @@ class Profile(models.Model):
         """发送情侣绑定请求"""
         # 检查是否已经是情侣
         if self.couple == target_profile:
-            raise ValidationError(_("你们已经是情侣关系了"))
+            raise ValidationError("你们已经是情侣关系了")
 
         # 检查对方是否已经有情侣
         if target_profile.couple:
-            raise ValidationError(_("对方已经有情侣了"))
+            raise ValidationError("对方已经有情侣了")
 
         # 检查是否有未处理的请求
         if self.couple_pending or target_profile.couple_pending:
-            raise ValidationError(("有未处理的情侣请求"))
+            raise ValidationError("有未处理的情侣请求")
 
         # 发送请求
         self.couple_pending = target_profile
