@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邀请伴侣</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-semibold text-gray-900">邀请伴侣</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'lovesync' %}" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-heart mr-1"></i>回到双人日记
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="text-center mb-8">
+                <div
+                    class="w-24 h-24 bg-gradient-to-r from-pink-400 to-red-400 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-user-plus text-white text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">邀请伴侣加入</h2>
+                <p class="text-gray-600">分享你的专属邀请码，让伴侣加入你们的爱恋之旅</p>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">你的邀请码</h3>
+                <div class="bg-white rounded-lg p-6 text-center shadow-sm">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2">{{ couple_code }}</div>
+                    <p class="text-gray-600 text-sm">让伴侣在情侣设置页面输入此邀请码</p>
+
+                    <button onclick="copyInviteCode()"
+                        class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-copy mr-2"></i>复制邀请码
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <i class="fas fa-qrcode text-green-600"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">二维码方式</h4>
+                    <p class="text-gray-600 text-sm">你可以截图分享屏幕上的邀请码</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <i class="fas fa-share-alt text-blue-600"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">分享方式</h4>
+                    <p class="text-gray-600 text-sm">通过微信、QQ等方式发送邀请码</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <i class="fas fa-check-circle text-purple-600"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">确认绑定</h4>
+                    <p class="text-gray-600 text-sm">伴侣输入邀请码后等待确认</p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="{% url 'couple_web:couple' %}"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-cog mr-2"></i>查看情侣状态
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyInviteCode() {
+            const code = "{{ couple_code }}";
+            navigator.clipboard.writeText(code).then(function () {
+                // 显示复制成功的提示
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check mr-2"></i>已复制!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            }).catch(function (err) {
+                console.error('复制失败: ', err);
+                alert('复制失败: ' + err);
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,279 @@
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.views.generic import TemplateView
+from .models import Anniversary, CoupleTask, TaskCompletion
+from .serializers import AnniversarySerializer, CoupleTaskSerializer, TaskCompletionSerializer
+
+
+class AnniversaryViewSet(viewsets.ModelViewSet):
+    """纪念日视图集"""
+    queryset = Anniversary.objects.all()
+    serializer_class = AnniversarySerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """获取当前用户的纪念日"""
+        return self.queryset.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """创建纪念日时自动关联当前用户"""
+        serializer.save(user=self.request.user)
+
+
+class CoupleTaskViewSet(viewsets.ModelViewSet):
+    """情侣任务视图集"""
+    queryset = CoupleTask.objects.all()
+    serializer_class = CoupleTaskSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """获取当前用户的情侣任务"""
+        return self.queryset.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """创建情侣任务时自动关联当前用户"""
+        serializer.save(user=self.request.user)
+
+
+class TaskCompletionViewSet(viewsets.ModelViewSet):
+    """任务完成记录视图集"""
+    queryset = TaskCompletion.objects.all()
+    serializer_class = TaskCompletionSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """获取当前用户的任务完成记录"""
+        return self.queryset.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """创建任务完成记录时自动关联当前用户"""
+        serializer.save(user=self.request.user)
+
+
+# 情侣首页视图
+@login_required
+def couple_view(request):
+    """情侣首页视图"""
+    from core.models import Profile
+    
+    # 获取当前用户的个人资料
+    profile = request.user.profile
+    
+    # 获取当前用户发送的请求（当前用户发送给他人的请求）
+    sent_request = profile.couple_pending
+    
+    # 获取当前用户收到的请求（他人发送给当前用户的请求）
+    # 使用try-except处理OneToOneField反向关系可能的异常
+    try:
+        received_request = profile.pending_partner
+    except:
+        received_request = None
+    
+    # 检查是否已有情侣
+    has_couple = profile.couple is not None
+    
+    context = {
+        'profile': profile,
+        'sent_request': sent_request,  # 当前用户发送的请求
+        'received_request': received_request,  # 当前用户收到的请求
+        'has_couple': has_couple
+    }
+    
+    return render(request, 'couple.html', context)
+
+
+# 邀请伴侣视图
+@login_required
+def invite_partner_view(request):
+    """邀请伴侣视图"""
+    from core.models import Profile
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        couple_code = request.POST.get('couple_code', '').strip()
+        
+        if couple_code:
+            try:
+                # 查找拥有该邀请码的用户
+                target_profile = Profile.objects.get(couple_code=couple_code)
+                
+                # 检查是否是自己
+                if target_profile == request.user.profile:
+                    messages.error(request, '不能向自己发送情侣请求')
+                else:
+                    # 发送情侣请求
+                    request.user.profile.send_couple_request(target_profile)
+                    messages.success(request, '情侣请求已发送，请等待对方回应')
+            except Profile.DoesNotExist:
+                messages.error(request, '邀请码无效，请检查后重新输入')
+            except Exception as e:
+                messages.error(request, f'发送请求失败: {str(e)}')
+        else:
+            messages.error(request, '请输入邀请码')
+    
+    return redirect('couple_web:couple')
+
+
+# 爱情故事视图
+@login_required
+def love_story_view(request):
+    """爱情故事视图"""
+    return render(request, 'couple.html')
+
+
+# 情侣测试视图
+@login_required
+def couple_test_view(request):
+    """情侣测试视图"""
+    return render(request, 'couple_test.html')
+
+
+# 情侣景点视图
+@login_required
+def couple_places_view(request):
+    """情侣景点视图"""
+    return render(request, 'couple_places.html')
+
+
+# 情侣推荐视图
+@login_required
+def couple_recommendation_view(request):
+    """情侣推荐视图"""
+    return render(request, 'couple_recommendation.html')
+
+
+# 情侣历史视图
+@login_required
+def couple_history_view(request):
+    """情侣历史视图"""
+    return render(request, 'couple.html')
+
+
+# 接受情侣请求视图
+@login_required
+def accept_request(request):
+    """接受情侣请求"""
+    from core.models import Profile
+    
+    try:
+        # 获取当前用户的个人资料
+        profile = request.user.profile
+        # 调用模型方法接受请求
+        profile.accept_couple_request()
+        messages.success(request, '已成功接受情侣请求')
+    except Exception as e:
+        messages.error(request, f'接受请求失败: {str(e)}')
+    
+    return redirect('couple_web:couple')
+
+
+# 拒绝情侣请求视图
+@login_required
+def reject_request(request):
+    """拒绝情侣请求"""
+    from core.models import Profile
+    
+    try:
+        # 获取当前用户的个人资料
+        profile = request.user.profile
+        # 调用模型方法拒绝请求
+        profile.reject_couple_request()
+        messages.success(request, '已成功拒绝情侣请求')
+    except Exception as e:
+        messages.error(request, f'拒绝请求失败: {str(e)}')
+    
+    return redirect('couple_web:couple')
+
+
+# 取消情侣请求视图
+@login_required
+def cancel_request(request):
+    """取消情侣请求"""
+    from core.models import Profile
+    
+    try:
+        # 获取当前用户的个人资料
+        profile = request.user.profile
+        # 调用模型方法取消请求
+        if profile.couple_pending:
+            # 清除待处理请求
+            requester = profile
+            recipient = profile.couple_pending
+            
+            requester.couple_pending = None
+            
+            # 如果收件人也有对应的待处理请求，也需要清除
+            if recipient.couple_pending == requester:
+                recipient.couple_pending = None
+                recipient.save()
+            
+            requester.save()
+            messages.success(request, '已成功取消情侣请求')
+        else:
+            messages.error(request, '没有待取消的情侣请求')
+    except Exception as e:
+        messages.error(request, f'取消请求失败: {str(e)}')
+    
+    return redirect('couple_web:couple')
+
+
+# 解除情侣关系视图
+@login_required
+def breakup(request):
+    """解除情侣关系"""
+    from core.models import Profile
+    
+    try:
+        # 获取当前用户的个人资料
+        profile = request.user.profile
+        # 调用模型方法解除情侣关系
+        if profile.couple:
+            profile.break_up()
+            messages.success(request, '已成功解除情侣关系')
+        else:
+            messages.error(request, '你没有情侣关系')
+    except Exception as e:
+        messages.error(request, f'解除情侣关系失败: {str(e)}')
+    
+    return redirect('couple_web:couple')
+
+
+# 情侣设置视图
+@login_required
+def couple_settings(request):
+    """保存情侣设置"""
+    from core.models import Profile
+    
+    if request.method == 'POST':
+        try:
+            # 获取当前用户的个人资料
+            profile = request.user.profile
+            
+            # 保存基本信息
+            my_nickname = request.POST.get('my_nickname')
+            if my_nickname:
+                profile.user.name = my_nickname
+                profile.user.save()
+            
+            # 保存恋爱纪念日
+            anniversary = request.POST.get('anniversary')
+            if anniversary:
+                from django.utils import timezone
+                from datetime import datetime
+                anniversary_date = datetime.strptime(anniversary, '%Y-%m-%d').date()
+                # 转换为datetime对象
+                anniversary_datetime = datetime.combine(anniversary_date, datetime.min.time())
+                profile.couple_joined_at = timezone.make_aware(anniversary_datetime)
+            
+            # 保存其他设置
+            # 这里可以根据需要添加更多设置的保存逻辑
+            
+            profile.save()
+            messages.success(request, '设置已保存')
+        except Exception as e:
+            messages.error(request, f'保存设置失败: {str(e)}')
+    
+    return redirect('couple_web:couple')

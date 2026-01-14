@@ -1,0 +1,1332 @@
+{% extends 'base.html' %}
+
+{% block title %}我的动态 - LoveSync{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+        .transition-custom {
+            transition: all 0.3s ease;
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+
+        .bg-gradient-love {
+            background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+        }
+
+        .self-badge {
+            position: relative;
+        }
+
+        .self-badge::after {
+            content: '我';
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background-color: #FF6B8B;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 背景装饰元素 -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+    </div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+        style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+        style="animation-delay: -4s;"></div>
+</div>
+
+<!-- 主内容区 -->
+<div class="flex-grow pt-24 pb-16 relative z-10">
+    <div class="container mx-auto px-4">
+        <!-- 个人信息头部 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in">
+            <div class="flex flex-col md:flex-row items-center">
+                <div
+                    class="w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6 border-4 border-primary/20 self-badge">
+                    <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+                </div>
+                <div class="text-center md:text-left">
+                    <h2 class="text-2xl font-bold text-neutral-800 mb-1">{{ user.name }}</h2>
+                    <p class="text-neutral-600 mb-1">分享我们的爱情故事</p>
+                    <p class="text-neutral-700 mb-3 text-sm italic">"你是我的今天和所有的明天"</p>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                        <div class="text-center">
+                            <p id="moments-count" class="text-2xl font-bold text-primary">{{ moments.count }}</p>
+                            <p class="text-neutral-500 text-sm">动态</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-primary">0</p>
+                            <p class="text-neutral-500 text-sm">粉丝</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-primary">0</p>
+                            <p class="text-neutral-500 text-sm">关注</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 发布动态表单 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 animate-slide-up">
+            <h3 class="text-xl font-semibold text-neutral-800 mb-4">分享你的此刻</h3>
+            <form id="postForm" method="POST" enctype="multipart/form-data" action="{% url 'moments' %}">
+                {% csrf_token %}
+
+                <!-- 动态内容 -->
+                <div class="mb-4">
+                    <textarea id="postContent" rows="4" name="content"
+                        class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
+                        placeholder="分享你们的甜蜜瞬间..."></textarea>
+                </div>
+
+                <!--标签 -->
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="tag-travel" name="tags" value="旅行"
+                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                        <label for="tag-travel" class="text-sm text-neutral-700">旅行</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="tag-food" name="tags" value="美食"
+                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                        <label for="tag-food" class="text-sm text-neutral-700">美食</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="tag-anniversary" name="tags" value="纪念日"
+                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                        <label for="tag-anniversary" class="text-sm text-neutral-700">纪念日</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="tag-daily" name="tags" value="日常"
+                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                        <label for="tag-daily" class="text-sm text-neutral-700">日常</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="tag-gift" name="tags" value="礼物"
+                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                        <label for="tag-gift" class="text-sm text-neutral-700">礼物</label>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <label for="image" class="cursor-pointer">
+                            <i class="fa-solid fa-image text-primary text-xl"></i>
+                            <span class="text-sm text-neutral-700 ml-1">添加图片</span>
+                            <input type="file" name="image" id="image" class="hidden" accept="image/*" multiple>
+                        </label>
+
+                        <!-- 预览图片位置-->
+                        <div class="mt-4 grid grid-cols-2 gap-2" id="image-preview"></div>
+                    </div>
+                    <button type="submit"
+                        class="px-6 py-2 bg-gradient-love text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center">
+                        <i class="fa-solid fa-paper-plane mr-2"></i>
+                        <span>发布动态</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 动态列表 -->
+        <div class="space-y-6">
+            {% for moment in moments %}
+            <!-- 动态1 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card animate-fade-in"
+                style="animation-delay: 0.1s" data-moment-id="{{ moment.id }}">
+                <div class="p-6">
+                    <!-- 用户信息 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full overflow-hidden self-badge">
+                                <img src="{{ moment.user.profile.userAvatar.url }}" alt="用户头像"
+                                    class="w-full h-full object-cover">
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-neutral-900">{{ moment.user.name }}</h4>
+                                <p class="text-neutral-500 text-xs">{{ moment.created_at|timesince }}前</p>
+
+                                <div class="flex flex-wrap gap-2 mt-3">
+                                    {% for tag in moment.tags.all %}
+                                    <span class="px-2 py-1 text-xs font-medium text-primary bg-primary/20 rounded-full">
+                                        {{ tag.name }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <!-- 用户头像和名称 -->
+                            </div>
+                            <div class="relative">
+                                <button class="text-neutral-400 hover:text-neutral-700 transition-custom"
+                                    id="moreBtn-{{ moment.id }}">
+                                    <i class="fa-solid fa-ellipsis-h"></i>
+                                </button>
+                                <div class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50 hidden"
+                                    id="menu-{{ moment.id }}">
+                                    {% if moment.is_shared %}
+                                    <a href="#"
+                                        class="block px-4 py-2 text-yellow-500 hover:bg-yellow-50 transition-custom unshare-btn"
+                                        data-moment-id="{{ moment.id }}">
+                                        <i class="fa-solid fa-undo mr-2"></i> 取消分享
+                                    </a>
+                                    {% else %}
+                                    <a href="#" class="block px-4 py-2
+                                           {% if moment.is_shared %}
+                                              text-gray-400 cursor-not-allowed opacity-50
+                                           {% else %}
+                                              text-blue-500 hover:bg-blue-50 transition-custom share-btn
+                                           {% endif %}" data-moment-id="{{ moment.id }}"
+                                        data-is-shared="{{ moment.is_shared|lower }}">
+                                        <i
+                                            class="fa-solid fa-{% if moment.is_shared %}check{% else %}share-alt{% endif %} mr-2"></i>
+                                        {% if moment.is_shared %}已分享{% else %}分享到社区{% endif %}
+                                    </a>
+                                    {% endif %}
+                                    <a href="#"
+                                        class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom delete-btn"
+                                        data-moment-id="{{ moment.id }}">
+                                        <i class="fa-solid fa-trash-can mr-2"></i> 删除动态
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- 分享确认弹窗 -->
+                            <div id="share-confirm-modal"
+                                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                                <div
+                                    class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">确认分享</h3>
+                                    <p class="text-gray-600 mb-6">你确定要将这条动态分享到社区吗？</p>
+                                    <div class="flex justify-end space-x-3">
+                                        <button id="cancel-share-btn"
+                                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
+                                            取消
+                                        </button>
+                                        <button id="confirm-share-btn"
+                                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-custom">
+                                            <i class="fa fa-share-alt mr-2"></i>分享
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 删除确认模态框 -->
+                            <div id="delete-modal"
+                                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                                <div
+                                    class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">确认删除</h3>
+                                    <p class="text-gray-600 mb-6">你确定要删除这条动态吗？此操作不可撤销。</p>
+                                    <div class="flex justify-end space-x-3">
+                                        <button id="cancel-delete-btn"
+                                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
+                                            取消
+                                        </button>
+                                        <button id="confirm-delete-btn"
+                                            class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-custom">
+                                            <i class="fa fa-trash mr-2"></i>删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 取消分享确认模态框 -->
+                            <div id="unshare-modal"
+                                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                                <div
+                                    class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">确认取消分享</h3>
+                                    <p class="text-gray-600 mb-6">你确定要取消这条动态的分享吗？它将不再显示在社区中。</p>
+                                    <div class="flex justify-end space-x-3">
+                                        <button id="cancel-unshare-btn"
+                                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
+                                            取消
+                                        </button>
+                                        <button id="confirm-unshare-btn"
+                                            class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-custom">
+                                            <i class="fa fa-undo mr-2"></i>取消分享
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 动态内容 -->
+                    <div class="mt-4">
+                        <p class="text-neutral-800">{{ moment.content }}</p>
+                    </div>
+
+                    <!-- 动态图片 -->
+                    <div class="mt-4 grid gap-2
+                                    sm:grid-cols-2
+                                    md:grid-cols-3
+                                    lg:grid-cols-4">
+                        {% for image in moment.moment_images.all %}
+                        <img src="{{ image.image.url }}" alt="动态图片"
+                            class="rounded-lg w-full h-40 object-cover hover-scale">
+                        {% endfor %}
+                    </div>
+
+                    <!-- 点赞评论数 -->
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                                <i class="fa-regular fa-heart"></i>
+                                <span>{{ moment.likes }}</span>
+                            </button>
+                            <button
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                                <i class="fa-regular fa-comment"></i>
+                                <span>{{ moment.comments }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 获取CSRF令牌
+    function getCSRFToken() {
+        const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+        return cookieValue ? cookieValue.pop() : '';
+    }
+
+    // 封装模态框操作函数
+    function setupModal(modalId, openBtnsClass, closeBtnId, confirmBtnId, confirmCallback) {
+        const modal = document.getElementById(modalId);
+        const openBtns = document.querySelectorAll(openBtnsClass);
+        const closeBtn = document.getElementById(closeBtnId);
+        const confirmBtn = document.getElementById(confirmBtnId);
+        const modalContent = modal.querySelector('div');
+
+        // Add null checks for all required elements
+        if (!modal || !modalContent || !closeBtn || !confirmBtn) {
+            console.warn(`Modal elements missing for ${modalId}`);
+            return {
+                getCurrentId: () => null
+            };
+        }
+
+        let currentId = null;
+
+        // 打开模态框
+        if (openBtns.length > 0) {
+            openBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    currentId = this.getAttribute('data-moment-id');
+
+                    // 显示模态框并添加动画
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modalContent.classList.add('scale-100');
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                    }, 10);
+                });
+            });
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                // 重置currentId，确保下次点击能正确获取新的ID
+                currentId = null;
+                // 确保按钮状态被重置
+                confirmBtn.disabled = false;
+                // 恢复确认按钮的原始内容
+                if (confirmBtnId === 'confirm-share-btn') {
+                    confirmBtn.innerHTML = '<i class="fa fa-share-alt mr-2"></i>分享';
+                } else if (confirmBtnId === 'confirm-delete-btn') {
+                    confirmBtn.innerHTML = '<i class="fa fa-trash mr-2"></i>删除';
+                } else if (confirmBtnId === 'confirm-unshare-btn') {
+                    confirmBtn.innerHTML = '<i class="fa fa-undo mr-2"></i>取消分享';
+                }
+            }, 500);
+        }
+
+        // 绑定关闭按钮事件
+        closeBtn.addEventListener('click', closeModal);
+
+        // 确认操作
+        confirmBtn.addEventListener('click', function () {
+            if (!currentId) return;
+
+            // 显示加载状态
+            this.disabled = true;
+            if (confirmBtnId === 'confirm-share-btn') {
+                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>分享';
+            } else if (confirmBtnId === 'confirm-delete-btn') {
+                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>删除';
+            } else if (confirmBtnId === 'confirm-unshare-btn') {
+                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>取消分享';
+            }
+
+            // 执行回调函数
+            confirmCallback(currentId, this, modal, closeModal);
+        });
+
+        return {
+            getCurrentId: () => currentId,
+            closeModal: closeModal
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 移动端菜单切换
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', function () {
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.add('translate-y-0', 'opacity-100');
+                }, 50);
+            } else {
+                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 200);
+            }
+        });
+
+        // 发布动态表单提交
+        const postForm = document.getElementById('postForm');
+        if (postForm) {
+            postForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const content = document.getElementById('postContent').value;
+                if (!content.trim()) {
+                    alert('请输入动态内容');
+                    return;
+                }
+
+                this.submit();
+
+                // 清空表单
+                document.getElementById('postContent').value = '';
+
+                // 清空标签选择
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+                // 清空文件选择
+                document.getElementById('image').value = '';
+                document.getElementById('image-preview').innerHTML = '';
+            });
+        }
+
+        // 预览上传图片
+        const imageInput = document.getElementById('image');
+        if (imageInput) {
+            imageInput.addEventListener('change', function (e) {
+                const previewContainer = document.getElementById('image-preview');
+                previewContainer.innerHTML = ''; // 清空旧预览
+
+                const files = e.target.files;
+                for (const file of files) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = "rounded-lg w-full h-40 object-cover hover-scale";
+                    previewContainer.appendChild(img);
+                }
+            });
+        }
+
+        // 设置分享功能
+        setupModal(
+            'share-confirm-modal',
+            '.share-btn:not(.opacity-50)',
+            'cancel-share-btn',
+            'confirm-share-btn',
+            (momentId, btn, modal, closeModal) => {
+                fetch(`/share-moment/${momentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 更新UI
+                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
+                            const shareBtn = momentCard.querySelector('.share-btn');
+
+                            shareBtn.classList.remove('text-blue-500', 'hover:bg-blue-50', 'share-btn');
+                            shareBtn.classList.add('text-gray-400', 'cursor-not-allowed', 'opacity-50');
+                            shareBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> 已分享';
+
+                            // 更新data属性
+                            shareBtn.setAttribute('data-is-shared', 'true');
+
+                            // 更新菜单中的按钮
+                            const menuBtn = momentCard.querySelector(`[data-moment-id="${momentId}"]`);
+                            menuBtn.classList.remove('share-btn');
+                            menuBtn.classList.add('unshare-btn');
+                            menuBtn.classList.remove('text-blue-500', 'hover:bg-blue-50');
+                            menuBtn.classList.add('text-yellow-500', 'hover:bg-yellow-50');
+                            menuBtn.innerHTML = '<i class="fa-solid fa-undo mr-2"></i> 取消分享';
+
+                            closeModal();
+                        } else {
+                            alert(data.error || '分享失败，请重试');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa fa-share-alt mr-2"></i>分享';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('网络错误，请重试');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-share-alt mr-2"></i>分享';
+                    });
+            }
+        );
+
+
+        // 设置删除功能
+        setupModal(
+            'delete-modal',
+            '.delete-btn',
+            'cancel-delete-btn',
+            'confirm-delete-btn',
+            (momentId, btn, modal, closeModal) => {
+                fetch(`/moments/${momentId}/delete/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // 从DOM中移除动态卡片
+                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
+                            momentCard.classList.add('opacity-0');
+
+                            setTimeout(() => {
+                                momentCard.remove();
+                                closeModal();
+
+                                // 更新动态数量
+                                const momentsCountElement = document.getElementById('moments-count');
+                                if (momentsCountElement) {
+                                    const currentCount = parseInt(momentsCountElement.textContent);
+                                    momentsCountElement.textContent = currentCount - 1;
+                                }
+                            }, 300);
+                        } else {
+                            throw new Error('删除失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('删除失败，请重试');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-trash mr-2"></i>删除';
+                    })
+                    .finally(() => {
+                        // 确保按钮状态被重置
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-trash mr-2"></i>删除';
+                    });
+            }
+        );
+
+        // 设置取消分享功能
+        setupModal(
+            'unshare-modal',
+            '.unshare-btn',
+            'cancel-unshare-btn',
+            'confirm-unshare-btn',
+            (momentId, btn, modal, closeModal) => {
+                fetch(`/unshare-moment/${momentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 更新UI
+                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
+                            const unshareBtn = momentCard.querySelector('.unshare-btn');
+
+                            // 切换按钮状态
+                            unshareBtn.classList.remove('text-yellow-500', 'hover:bg-yellow-50', 'unshare-btn');
+                            unshareBtn.classList.add('text-blue-500', 'hover:bg-blue-50', 'share-btn');
+                            unshareBtn.innerHTML = '<i class="fa-solid fa-share-alt mr-2"></i> 分享到社区';
+
+                            // 更新data属性
+                            unshareBtn.setAttribute('data-is-shared', 'false');
+
+                            // 如果是在社区页面，移除该动态
+                            if (window.location.pathname === '/community/') {
+                                momentCard.classList.add('opacity-0');
+                                setTimeout(() => {
+                                    momentCard.remove();
+                                }, 300);
+                            }
+
+                            closeModal();
+                        } else {
+                            alert(data.error || '取消分享失败，请重试');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa fa-undo mr-2"></i>取消分享';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('网络错误，请重试');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-undo mr-2"></i>取消分享';
+                    })
+                    .finally(() => {
+                        // 确保按钮状态被重置
+                        if (!btn.disabled) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa fa-undo mr-2"></i>取消分享';
+                        }
+                    });
+            }
+        );
+
+        // 菜单按钮功能
+        document.querySelectorAll('[id^="moreBtn-"]').forEach(button => {
+            button.addEventListener('click', function () {
+                const menuId = this.id.replace('moreBtn-', 'menu-');
+                const menu = document.getElementById(menuId);
+
+                // 关闭其他所有菜单
+                document.querySelectorAll('[id^="menu-"]').forEach(otherMenu => {
+                    if (otherMenu.id !== menuId) {
+                        otherMenu.classList.add('hidden');
+                    }
+                });
+
+                // 切换当前菜单
+                menu.classList.toggle('hidden');
+            });
+        });
+
+        // 点击其他区域关闭菜单
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('[id^="moreBtn-"]') && !e.target.closest('[id^="menu-"]')) {
+                document.querySelectorAll('[id^="menu-"]').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
+
+        // 点赞功能
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                const icon = this.querySelector('i');
+                const count = this.querySelector('span');
+
+                fetch(`/api/moment/moments/${momentId}/like/`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.is_liked) {
+                            icon.classList.remove('fa-regular');
+                            icon.classList.add('fa-solid');
+                            icon.style.color = '#FF6B8B';
+                        } else {
+                            icon.classList.remove('fa-solid');
+                            icon.classList.add('fa-regular');
+                            icon.style.color = '';
+                        }
+                        count.textContent = data.likes;
+                    })
+                    .catch(error => {
+                        console.error('点赞失败:', error);
+                        alert('点赞失败，请重试');
+                    });
+            });
+        });
+
+        // 评论功能
+        document.querySelectorAll('.comment-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const postCard = this.closest('.post-card');
+                const momentId = postCard.getAttribute('data-moment-id');
+
+                // 检查是否已有评论区，没有则创建
+                let commentSection = postCard.querySelector('.comment-section');
+                if (!commentSection) {
+                    // 创建评论区
+                    commentSection = document.createElement('div');
+                    commentSection.className = 'comment-section bg-neutral-50 p-4 border-t border-neutral-100';
+
+                    // 添加评论区内容
+                    commentSection.innerHTML = `
+                        <div class="space-y-4">
+                            <!-- 评论列表 -->
+                            <div class="comments-list space-y-3">
+                                <!-- 评论将通过JavaScript动态加载 -->
+                            </div>
+                            <!-- 评论输入 -->
+                            <div class="flex space-x-3">
+                                <div class="w-8 h-8 rounded-full overflow-hidden">
+                                    <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1 relative">
+                                    <input type="text" placeholder="写下你的评论..." class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
+                                    <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // 将评论区添加到动态卡片底部
+                    postCard.appendChild(commentSection);
+
+                    // 添加评论提交事件监听器
+                    const commentInput = commentSection.querySelector('.comment-input');
+                    const commentSubmit = commentSection.querySelector('.comment-submit');
+
+                    // 点击发送按钮提交评论
+                    commentSubmit.addEventListener('click', function () {
+                        const content = commentInput.value.trim();
+                        if (!content) return;
+
+                        submitComment(momentId, content, postCard, commentInput);
+                    });
+
+                    // 按下回车键提交评论
+                    commentInput.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
+                            const content = this.value.trim();
+                            if (!content) return;
+
+                            submitComment(momentId, content, postCard, this);
+                        }
+                    });
+                }
+
+                // 显示评论区
+                commentSection.classList.toggle('hidden');
+
+                // 如果评论区域显示，则加载评论
+                if (!commentSection.classList.contains('hidden')) {
+                    const commentsList = commentSection.querySelector('.comments-list');
+                    // 显示加载状态
+                    commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">加载评论中...</div>';
+
+                    fetch(`/api/moment/moments/${momentId}/comments/`, {
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-CSRFToken': getCSRFToken()
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            commentsList.innerHTML = '';
+
+                            if (data.comments.length === 0) {
+                                commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">暂无评论，快来抢沙发吧~</div>';
+                                return;
+                            }
+
+                            // 渲染一级评论，二级回复嵌套在对应一级评论下
+                            data.comments.forEach(comment => {
+                                if (comment.parent_id === null) { // 只渲染一级评论
+                                    const commentElement = renderComment(comment);
+                                    commentsList.appendChild(commentElement);
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            console.error('获取评论失败:', error);
+                            commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
+                        });
+                }
+            });
+        });
+
+        // 删除评论
+        function deleteComment(element, momentId, commentId) {
+            if (confirm('确定要删除这条评论吗？')) {
+                fetch(`/api/moment/moments/${momentId}/delete_comment/${commentId}/`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.message === '评论删除成功') {
+                            // 在移除元素之前保存对post-card的引用
+                            const postCard = element.closest('.post-card');
+
+                            // 移除主评论DOM（包含其下所有二级回复）
+                            const commentDiv = element.closest('.comment-slide');
+                            if (commentDiv) commentDiv.remove();
+
+                            // 更新评论数
+                            if (postCard) {
+                                const commentBtn = postCard.querySelector('.comment-btn span');
+                                if (commentBtn) {
+                                    commentBtn.textContent = data.comments;
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('删除评论失败:', error);
+                        alert(`删除失败：${error.message}`);
+                    });
+            }
+        }
+
+        // 评论点赞功能
+        function likeComment(element, momentId, commentId) {
+            const icon = element.querySelector('i');
+            const countSpan = element.querySelector('span') || element.textContent.split(' ')[1];
+
+            fetch(`/api/moment/moments/${momentId}/comment/${commentId}/like/`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_liked) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        icon.style.color = '#FF6B8B';
+                    } else {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        icon.style.color = '';
+                    }
+                    const countElement = element.querySelector('span');
+                    if (countElement) {
+                        countElement.textContent = data.likes;
+                    } else {
+                        element.innerHTML = `<i class="${icon.className}"></i> ${data.likes}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('点赞失败:', error);
+                    alert('点赞失败，请重试');
+                });
+        }
+
+        // 回复点赞功能
+        function likeReply(element, replyId) {
+            const icon = element.querySelector('i');
+            const countSpan = element.querySelector('span') || element.textContent.split(' ')[1];
+
+            fetch(`/api/moment/reply/${replyId}/like/`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_liked) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        icon.style.color = '#FF6B8B';
+                    } else {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        icon.style.color = '';
+                    }
+                    const countElement = element.querySelector('span');
+                    if (countElement) {
+                        countElement.textContent = data.likes;
+                    } else {
+                        element.innerHTML = `<i class="${icon.className}"></i> ${data.likes}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('点赞失败:', error);
+                    alert('点赞失败，请重试');
+                });
+        }
+
+        // 提交回复功能
+        function submitReply(element, momentId, commentId, content) {
+            fetch(`/api/moment/moments/${momentId}/comment/`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ content: content, parent_id: commentId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === '评论成功') {
+                        // 清空回复输入框
+                        const textarea = element.closest('.reply-input-container').querySelector('textarea');
+                        textarea.value = '';
+
+                        // 隐藏回复输入框
+                        element.closest('.reply-input-container').classList.add('hidden');
+
+                        // 重新加载评论
+                        const commentSection = element.closest('.comment-section');
+                        const commentsList = commentSection.querySelector('.comments-list');
+                        const momentId = commentSection.closest('.post-card').getAttribute('data-moment-id');
+
+                        fetch(`/api/moment/moments/${momentId}/comments/`, {
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-CSRFToken': getCSRFToken()
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                commentsList.innerHTML = '';
+
+                                if (data.comments.length === 0) {
+                                    commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">暂无评论，快来抢沙发吧~</div>';
+                                    return;
+                                }
+
+                                // 渲染一级评论，二级回复嵌套在对应一级评论下
+                                data.comments.forEach(comment => {
+                                    if (comment.parent_id === null) { // 只渲染一级评论
+                                        const commentElement = renderComment(comment);
+                                        commentsList.appendChild(commentElement);
+                                    }
+                                });
+                            })
+                            .catch(error => {
+                                console.error('获取评论失败:', error);
+                                commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error('回复失败:', error);
+                    alert('回复失败，请重试');
+                });
+        }
+
+        // 删除回复功能
+        function deleteReply(element, momentId, replyId) {{
+                fetch(`/api/moment/moments/${momentId}/delete_comment/${replyId}/`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.message === '评论删除成功') {
+                            // 在移除元素之前保存对post-card的引用
+                            const postCard = element.closest('.post-card');
+
+                            // 移除回复DOM元素
+                            const replyDiv = element.closest('.reply-item');
+                            if (replyDiv) replyDiv.remove();
+
+                            // 更新评论数
+                            if (postCard) {
+                                const commentBtn = postCard.querySelector('.comment-btn span');
+                                if (commentBtn) {
+                                    commentBtn.textContent = data.comments;
+                                }
+                            }
+                            alert('回复删除成功！');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('删除回复失败:', error);
+                        alert(`删除失败：${error.message}`);
+                    });
+            }
+        }
+
+        // 渲染评论
+        function renderComment(comment) {
+            const div = document.createElement('div');
+            div.className = 'flex space-x-3 comment-slide';
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full overflow-hidden">
+                    <img src="${comment.avatar}" alt="${comment.user}的头像" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-lg p-3">
+                        <div class="flex justify-between items-center">
+                            <h5 class="font-medium text-sm text-neutral-900">${comment.user}</h5>
+                            <span class="text-neutral-400 text-xs">${new Date(comment.created_at).toLocaleString()}</span>
+                        </div>
+                        <p class="text-neutral-700 text-sm mt-1">${comment.content}</p>
+                    </div>
+                    <div class="flex space-x-3 mt-2">
+                        <button class="text-neutral-500 hover:text-primary text-xs transition-custom comment-like" data-comment-id="${comment.id}">
+                            <i class="fa-regular fa-heart"></i> ${comment.likes || 0}
+                        </button>
+                        <button class="text-neutral-500 hover:text-primary text-xs transition-custom reply-btn" data-comment-id="${comment.id}">
+                            回复
+                        </button>
+                        ${comment.is_author ? `
+                        <button class="text-neutral-500 hover:text-red-500 text-xs transition-custom comment-delete" data-comment-id="${comment.id}">
+                            <i class="fa-regular fa-trash-can"></i> 删除
+                        </button>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- 回复输入框 -->
+                    <div class="ml-10 mt-2 hidden reply-input-container" data-comment-id="${comment.id}">
+                        <div class="flex items-start space-x-2">
+                            <div class="w-6 h-6 rounded-full overflow-hidden">
+                                <img src="{{ user.profile.userAvatar.url }}" alt="我的头像" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <textarea class="w-full p-2 text-xs border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="写下你的回复..." rows="1"></textarea>
+                                <div class="flex justify-end mt-1">
+                                    <button class="text-xs bg-primary text-white px-2 py-1 rounded-full hover:bg-primary/90 transition-colors reply-submit" data-comment-id="${comment.id}">发送</button>
+                                    <button class="text-xs text-neutral-500 hover:text-neutral-700 ml-2 reply-cancel">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 回复列表 -->
+                    ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="ml-10 mt-2 space-y-2">
+                            ${comment.replies.map(reply => `
+                                <div class="flex space-x-2 reply-item" data-reply-id="${reply.id}">
+                                    <div class="w-6 h-6 rounded-full overflow-hidden">
+                                        <img src="${reply.avatar}" alt="${reply.user}的头像" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="bg-neutral-100 rounded-lg p-2">
+                                            <div class="flex justify-between items-center">
+                                                <h6 class="font-medium text-xs text-neutral-900">${reply.user}</h6>
+                                                <span class="text-neutral-400 text-xs">${new Date(reply.created_at).toLocaleString()}</span>
+                                            </div>
+                                            <p class="text-neutral-700 text-xs mt-1">${reply.content}</p>
+                                        </div>
+                                        <div class="flex space-x-3 mt-2">
+                                            <button class="reply-like-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-reply-id="${reply.id}">
+                                                <i class="fa-regular fa-heart"></i> ${reply.likes || 0}
+                                            </button>
+                                            <button class="reply-reply-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-reply-id="${reply.id}">
+                                                回复
+                                            </button>
+                                            ${reply.is_author ? `
+                                            <button class="reply-delete-btn text-neutral-500 hover:text-red-500 text-xs transition-custom" data-reply-id="${reply.id}">
+                                                <i class="fa-regular fa-trash-can"></i> 删除
+                                            </button>
+                                            ` : ''}
+                                        </div>
+                                        <!-- 回复的回复输入框 -->
+                                        <div class="reply-reply-input-container hidden ml-10 mt-2" data-reply-id="${reply.id}">
+                                            <div class="flex items-start space-x-2">
+                                                <div class="w-6 h-6 rounded-full overflow-hidden">
+                                                    <img src="{{ user.profile.userAvatar.url }}" alt="我的头像" class="w-full h-full object-cover">
+                                                </div>
+                                                <div class="flex-1">
+                                                    <textarea class="reply-reply-textarea w-full p-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="写下你的回复..." rows="1"></textarea>
+                                                    <div class="flex justify-end mt-2">
+                                                        <button class="reply-reply-submit text-xs bg-primary text-white px-3 py-1 rounded-full hover:bg-primary/90 transition-colors" data-reply-id="${reply.id}">
+                                                            发送
+                                                        </button>
+                                                        <button class="text-xs text-neutral-500 hover:text-neutral-700 ml-2 reply-reply-cancel">取消</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            // 添加删除按钮事件监听
+            const deleteBtn = div.querySelector('.comment-delete');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function () {
+                    const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                    deleteComment(this, momentId, comment.id);
+                });
+            }
+
+            // 添加评论点赞事件监听
+            const commentLikeBtn = div.querySelector('.comment-like');
+            if (commentLikeBtn) {
+                commentLikeBtn.addEventListener('click', function () {
+                    const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                    const commentId = this.getAttribute('data-comment-id');
+                    likeComment(this, momentId, commentId);
+                });
+            }
+
+            // 添加回复按钮事件监听
+            const replyBtns = div.querySelectorAll('.reply-btn');
+            replyBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const commentId = this.getAttribute('data-comment-id');
+                    const replyInput = div.querySelector(`.reply-input-container[data-comment-id="${commentId}"]`);
+                    replyInput.classList.toggle('hidden');
+                });
+            });
+
+            // 添加回复取消按钮事件监听
+            const replyCancelBtn = div.querySelector('.reply-cancel');
+            if (replyCancelBtn) {
+                replyCancelBtn.addEventListener('click', function () {
+                    const replyInput = this.closest('.reply-input-container');
+                    replyInput.classList.add('hidden');
+                });
+            }
+
+            // 添加回复提交按钮事件监听
+            const replySubmitBtn = div.querySelector('.reply-submit');
+            if (replySubmitBtn) {
+                replySubmitBtn.addEventListener('click', function () {
+                    const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                    const commentId = this.getAttribute('data-comment-id');
+                    const textarea = this.closest('.reply-input-container').querySelector('textarea');
+                    const content = textarea.value.trim();
+
+                    if (content) {
+                        submitReply(this, momentId, commentId, content);
+                    }
+                });
+            }
+
+            // 添加回复点赞事件监听
+            const replyLikeBtns = div.querySelectorAll('.reply-like-btn');
+            replyLikeBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const replyId = this.getAttribute('data-reply-id');
+                    likeReply(this, replyId);
+                });
+            });
+
+            // 添加回复的回复按钮事件监听
+            const replyReplyBtns = div.querySelectorAll('.reply-reply-btn');
+            replyReplyBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const replyId = this.getAttribute('data-reply-id');
+                    const replyInput = div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"]`);
+                    replyInput.classList.toggle('hidden');
+                });
+            });
+
+            // 添加回复的回复取消按钮事件监听
+            const replyReplyCancelBtns = div.querySelectorAll('.reply-reply-cancel');
+            replyReplyCancelBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const replyInput = this.closest('.reply-reply-input-container');
+                    replyInput.classList.add('hidden');
+                });
+            });
+
+            // 添加回复删除按钮事件监听
+            const replyDeleteBtns = div.querySelectorAll('.reply-delete-btn');
+            replyDeleteBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                    const replyId = this.getAttribute('data-reply-id');
+                    deleteReply(this, momentId, replyId);
+                });
+            });
+
+            return div;
+        }
+
+        // 提交评论函数
+        function submitComment(momentId, content, postCard, inputElement) {
+            fetch(`/api/moment/moments/${momentId}/comment/`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ content: content })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === '评论成功') {
+                        // 清空输入框
+                        inputElement.value = '';
+
+                        // 更新评论数
+                        const commentBtn = postCard.querySelector('.comment-btn span');
+                        commentBtn.textContent = data.comments;
+
+                        // 更新评论列表
+                        const commentSection = postCard.querySelector('.comment-section');
+                        const commentsList = commentSection.querySelector('.comments-list');
+
+                        fetch(`/api/moment/moments/${momentId}/comments/`, {
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-CSRFToken': getCSRFToken()
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                commentsList.innerHTML = '';
+
+                                if (data.comments.length === 0) {
+                                    commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">暂无评论，快来抢沙发吧~</div>';
+                                    return;
+                                }
+
+                                // 渲染一级评论，二级回复嵌套在对应一级评论下
+                                data.comments.forEach(comment => {
+                                    if (comment.parent_id === null) { // 只渲染一级评论
+                                        const commentElement = renderComment(comment);
+                                        commentsList.appendChild(commentElement);
+                                    }
+                                });
+                            })
+                            .catch(error => {
+                                console.error('获取评论失败:', error);
+                                commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error('评论失败:', error);
+                    alert('评论失败，请重试');
+                });
+        }
+
+        // 用户下拉菜单
+        const userAvatar = document.getElementById('userAvatar');
+        const userOptions = document.getElementById('userOptions');
+        const userDropdown = document.getElementById('userDropdown');
+
+        let userCloseTimer;
+
+        if (userAvatar && userOptions && userDropdown) {
+            // 鼠标经过头像时打开菜单
+            userAvatar.addEventListener('mouseenter', function () {
+                clearTimeout(userCloseTimer);
+                userOptions.classList.remove('hidden');
+            });
+
+            // 鼠标悬停在下拉菜单时保持菜单打开
+            userDropdown.addEventListener('mouseenter', function () {
+                clearTimeout(userCloseTimer);
+                userOptions.classList.remove('hidden');
+            });
+
+            // 鼠标离开下拉菜单时关闭菜单
+            userDropdown.addEventListener('mouseleave', function () {
+                userCloseTimer = setTimeout(() => {
+                    userOptions.classList.add('hidden');
+                }, 500);
+            });
+        }
+
+        // 更多选项下拉菜单
+        const moreButton = document.getElementById('moreButton');
+        const moreOptions = document.getElementById('moreOptions');
+        const moreDropdown = document.getElementById('moreDropdown');
+
+        let moreCloseTimer;
+
+        if (moreButton && moreOptions && moreDropdown) {
+            // 鼠标经过按钮时打开菜单
+            moreButton.addEventListener('mouseenter', function () {
+                clearTimeout(moreCloseTimer);
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标悬停在下拉菜单时保持菜单打开
+            moreDropdown.addEventListener('mouseenter', function () {
+                clearTimeout(moreCloseTimer);
+                moreOptions.classList.remove('hidden');
+            });
+
+            // 鼠标离开下拉菜单时关闭菜单
+            moreDropdown.addEventListener('mouseleave', function () {
+                moreCloseTimer = setTimeout(() => {
+                    moreOptions.classList.add('hidden');
+                }, 500);
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}情侣小游戏 - LoveSync{% endblock %}
+
+{% block content %}
+<!-- 游戏列表页面 -->
+<div class="container mx-auto px-4 py-8">
+    <!-- 页面标题 -->
+    <div class="bg-white rounded-xl shadow-lg p-6 hover-scale mb-8 animate-fade-in">
+        <p class="text-neutral-500 mt-1">一起玩游戏，增进你们的感情</p>
+    </div>
+
+    <!-- 游戏类型筛选 -->
+    <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+        <div class="flex flex-wrap gap-2">
+            <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                全部游戏
+            </button>
+            <button class="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-custom">
+                情侣问答
+            </button>
+            <button class="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-custom">
+                默契度挑战
+            </button>
+            <button class="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-custom">
+                情侣小游戏
+            </button>
+        </div>
+    </div>
+
+    <!-- 游戏列表 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for game in games %}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale transition-custom">
+            <div class="h-48 bg-gradient-to-br from-primary to-secondary relative overflow-hidden">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    {% if game.game_type == 'quiz' %}
+                    <i class="fa-solid fa-question text-white text-6xl opacity-30"></i>
+                    {% elif game.game_type == 'compatibility' %}
+                    <i class="fa-solid fa-heart text-white text-6xl opacity-30"></i>
+                    {% else %}
+                    <i class="fa-solid fa-gamepad text-white text-6xl opacity-30"></i>
+                    {% endif %}
+                </div>
+                <div class="absolute bottom-0 left-0 p-4">
+                    <span class="bg-white text-primary px-3 py-1 rounded-full text-sm font-medium">{{
+                        game.get_game_type_display }}</span>
+                </div>
+            </div>
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-neutral-900 mb-2">{{ game.name }}</h3>
+                <p class="text-neutral-600 mb-4 line-clamp-2">{{ game.description }}</p>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-neutral-500">
+                            <i class="fa-solid fa-star text-yellow-400"></i> 4.8
+                        </span>
+                        <span class="text-sm text-neutral-500">
+                            <i class="fa-solid fa-users text-primary"></i> {{ game.sessions.count }} 人玩过
+                        </span>
+                    </div>
+                    <a href="{% url 'game_web:game_detail' game_id=game.id %}"
+                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                        开始游戏
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <i class="fa-solid fa-gamepad text-6xl text-neutral-300 mb-4"></i>
+            <p class="text-neutral-500">暂无游戏数据</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

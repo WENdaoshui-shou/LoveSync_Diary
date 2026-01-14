@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}游戏详情 - LoveSync{% endblock %}
+
+{% block content %}
+<!-- 游戏详情页面 -->
+<div class="container mx-auto px-4 py-8">
+    <!-- 游戏信息和开始按钮 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- 游戏信息 -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="w-full md:w-1/3">
+                    <div
+                        class="h-64 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-question text-white text-8xl opacity-30"></i>
+                    </div>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <h3 class="text-xl font-semibold text-neutral-900 mb-2">游戏介绍</h3>
+                    <p class="text-neutral-600 mb-4">
+                        这个游戏将测试你对伴侣的了解程度。你将回答一系列关于伴侣喜好、习惯和回忆的问题，看看你们的默契度有多高。
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-neutral-50 rounded-lg p-3">
+                            <div class="text-sm text-neutral-500">游戏类型</div>
+                            <div class="font-medium">情侣问答</div>
+                        </div>
+                        <div class="bg-neutral-50 rounded-lg p-3">
+                            <div class="text-sm text-neutral-500">游戏难度</div>
+                            <div class="font-medium">中等</div>
+                        </div>
+                        <div class="bg-neutral-50 rounded-lg p-3">
+                            <div class="text-sm text-neutral-500">问题数量</div>
+                            <div class="font-medium">20题</div>
+                        </div>
+                        <div class="bg-neutral-50 rounded-lg p-3">
+                            <div class="text-sm text-neutral-500">预计时长</div>
+                            <div class="font-medium">15分钟</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1">
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <span class="font-medium">4.8</span>
+                            <span class="text-sm text-neutral-500">(1,234人评价)</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <i class="fa-solid fa-users text-primary"></i>
+                            <span class="text-sm text-neutral-500">1,234人玩过</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 开始游戏按钮 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-center">
+            <div class="text-center mb-6">
+                <div class="text-4xl font-bold text-primary mb-2">准备好了吗？</div>
+                <div class="text-neutral-600">点击开始游戏，测试你和伴侣的默契度</div>
+            </div>
+            <button
+                class="w-full py-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom text-lg font-medium btn-pulse">
+                <i class="fa-solid fa-play mr-2"></i> 开始游戏
+            </button>
+            <div class="mt-4 text-center text-sm text-neutral-500">
+                <i class="fa-solid fa-info-circle mr-1"></i>
+                游戏需要与伴侣一起完成，建议邀请伴侣同时参与
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏规则 -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-semibold text-neutral-900 mb-4">游戏规则</h3>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-primary mt-1 flex-shrink-0"></i>
+                <span class="text-neutral-600">游戏包含20道关于伴侣的问题，每题5分，满分100分</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-primary mt-1 flex-shrink-0"></i>
+                <span class="text-neutral-600">你将有30秒时间回答每个问题</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-primary mt-1 flex-shrink-0"></i>
+                <span class="text-neutral-600">回答完成后，系统将自动计算你的得分</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-primary mt-1 flex-shrink-0"></i>
+                <span class="text-neutral-600">得分超过80分将获得"默契情侣"成就</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-primary mt-1 flex-shrink-0"></i>
+                <span class="text-neutral-600">你可以多次玩这个游戏，挑战更高分数</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 玩家评价 -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-semibold text-neutral-900 mb-4">玩家评价</h3>
+        <div class="space-y-4">
+            <!-- 评价示例 -->
+            <div class="flex gap-4 pb-4 border-b border-neutral-200">
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-medium flex-shrink-0">
+                    小A
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="font-medium">非常有趣的游戏</div>
+                        <div class="text-sm text-neutral-500">2025-12-15</div>
+                    </div>
+                    <div class="flex items-center gap-1 mb-2">
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                    </div>
+                    <div class="text-neutral-600">
+                        和男朋友一起玩了这个游戏，发现我们的默契度居然这么高！游戏设计得很有趣，问题也很贴近生活。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评价示例 -->
+            <div class="flex gap-4 pb-4 border-b border-neutral-200">
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-medium flex-shrink-0">
+                    小B
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="font-medium">增进感情的好工具</div>
+                        <div class="text-sm text-neutral-500">2025-12-10</div>
+                    </div>
+                    <div class="flex items-center gap-1 mb-2">
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star text-yellow-400"></i>
+                        <i class="fa-solid fa-star-half-stroke text-yellow-400"></i>
+                    </div>
+                    <div class="text-neutral-600">
+                        这个游戏让我和女朋友有了很多话题，我们一起回忆了很多美好的时光。虽然有些问题答错了，但反而让我们更了解彼此了。
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 text-center">
+            <a href="#" class="text-primary hover:text-primary/90 transition-custom">
+                查看更多评价 <i class="fa-solid fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- 排行榜入口 -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h3 class="text-xl font-semibold text-neutral-900 mb-1">查看排行榜</h3>
+                <p class="text-neutral-600">看看其他情侣的默契度有多高，挑战排行榜第一名</p>
+            </div>
+            <a href="{% url 'game_web:game_leaderboard' game_id=1 %}"
+                class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom inline-flex items-center">
+                <i class="fa-solid fa-trophy mr-2"></i> 查看排行榜
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+<!-- 智能体聊天窗口 -->
+<div class="chat-widget">
+    <div class="chat-header">
+        <h3>双人日记小助手</h3>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <!-- 消息会通过JS动态加载 -->
+    </div>
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="想问关于双人日记的问题吗？">
+        <button onclick="sendMessage()">发送</button>
+    </div>
+</div>
+
+<script>
+    // 初始化聊天会话
+    let sessionId = null;
+
+    // 页面加载时初始化智能体
+    window.onload = function () {
+        fetch("/AI/chat/init/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"  // 关键：携带CSRF令牌
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionId = data.session_id;
+                    // 显示初始回复
+                    addMessageToUI("assistant", data.response);
+                } else {
+                    addMessageToUI("system", "小助手暂时离线，请稍后再试~");
+                }
+            });
+    };
+
+    // 发送消息到智能体
+    function sendMessage() {
+        const input = document.getElementById("userInput");
+        const message = input.value.trim();
+        if (!message || !sessionId) return;
+
+        // 显示用户消息
+        addMessageToUI("user", message);
+        input.value = "";
+
+        // 发送请求
+        fetch("/AI/chat/message/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                session_id: sessionId,
+                message: message
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addMessageToUI("assistant", data.response);
+                } else {
+                    addMessageToUI("system", "消息发送失败：" + data.error);
+                }
+            });
+    }
+
+    // 添加消息到界面
+    function addMessageToUI(role, content) {
+        const messagesDiv = document.getElementById("chatMessages");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${role}`;
+        messageDiv.innerHTML = `<strong>${role === 'user' ? '你' : '小助手'}：</strong>${content}`;
+        messagesDiv.appendChild(messageDiv);
+        // 滚动到底部
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+</script>

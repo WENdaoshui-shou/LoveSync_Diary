@@ -1,30 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="200415a2-a5bb-47de-9de9-d2a7c095b81d" name="更改" comment="" />
+    <list default="true" id="60fc4500-533f-42b9-b1c0-3e28bf5e8c73" name="更改" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="HTML File" />
-        <option value="Python Script" />
-      </list>
-    </option>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="ef88a010-4725-4192-a486-1c0a7fbcbc21" />
-  </component>
-  <component name="MarkdownSettingsMigration">
-    <option name="stateVersion" value="1" />
-  </component>
-  <component name="ProjectId" id="2x2IaVm1Xg47m5llI8cVGdj23Gp" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="380WeKs2UrLDgXMJdqaSBaMEHEI" />
   <component name="ProjectViewState">
     <option name="autoscrollToSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -34,25 +23,19 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "D:/it/PythonCharm专业版/PyCharmProject/Django_hanzhong",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
     "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "MTConfigurable",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
-    ],
     "GitStage.ChangesTree.GroupingKeys": [
       "directory",
       "module",
@@ -60,43 +43,10 @@
     ]
   }
 }]]></component>
-  <component name="RunManager" selected="Django 服务器.Django_LoveSync_Diary">
-    <configuration name="collaborative_editor.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Django_LoveSync_Diary/Django_LoveSync_Diary/code/DjangoPro1/templates/collaborative_editor.html" useBuiltInWebServerPort="true">
-      <method v="2" />
-    </configuration>
-    <configuration name="couple.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Django_LoveSync_Diary/Django_LoveSync_Diary/code/DjangoPro1/templates/couple.html" useBuiltInWebServerPort="true">
-      <method v="2" />
-    </configuration>
-    <configuration name="test.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Django_LoveSync_Diary/Django_LoveSync_Diary/code/DjangoPro1/templates/test.html" useBuiltInWebServerPort="true">
-      <method v="2" />
-    </configuration>
-    <configuration name="websocket.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Django_LoveSync_Diary/Django_LoveSync_Diary/code/DjangoPro1/templates/websocket.html" useBuiltInWebServerPort="true">
-      <method v="2" />
-    </configuration>
-    <configuration name="manage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Django_LoveSync_Diary" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/manage.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Django_LoveSync_Diary" type="Python.DjangoServer" factoryName="Django server">
-      <module name="Django_LoveSync_Diary" />
+  <component name="RunManager">
+    <configuration name="LoveSync_Diary" type="Python.DjangoServer" factoryName="Django server">
+      <module name="LoveSync_Diary" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -118,108 +68,27 @@
       <option name="customRunCommand" value="" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.manage" />
-      </list>
-    </recent_temporary>
   </component>
-  <component name="ShelveChangesManager">
-    <option name="remove_strategy" value="true" />
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PY-252.23892.515" />
+        <option value="bundled-python-sdk-7e47963ff851-f0eec537fc84-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.23892.515" />
+      </set>
+    </attachedChunks>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
-      <changelist id="200415a2-a5bb-47de-9de9-d2a7c095b81d" name="更改" comment="" />
-      <created>1747129804754</created>
+      <changelist id="60fc4500-533f-42b9-b1c0-3e28bf5e8c73" name="更改" comment="" />
+      <created>1767937063950</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1747129804754</updated>
-      <workItem from="1747129807128" duration="449000" />
-      <workItem from="1753326715764" duration="11000" />
-      <workItem from="1753753516711" duration="23928000" />
-      <workItem from="1753839099051" duration="24801000" />
-      <workItem from="1754289793643" duration="725000" />
-      <workItem from="1754374379935" duration="73000" />
-      <workItem from="1754374465320" duration="3700000" />
-      <workItem from="1755135692780" duration="4630000" />
-      <workItem from="1755511862165" duration="13000" />
-      <workItem from="1755585291680" duration="1194000" />
-      <workItem from="1755669165248" duration="24000" />
+      <updated>1767937063950</updated>
+      <workItem from="1767937065622" duration="128000" />
     </task>
-    <task id="LOCAL-00001" summary="5-13-项目初始化">
-      <created>1747129830894</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1747129830894</updated>
-    </task>
-    <task id="LOCAL-00002" summary="7-29-1 准备完成OT算法">
-      <created>1753756573858</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1753756573858</updated>
-    </task>
-    <task id="LOCAL-00003" summary="7-29-2  大体页面基本完成">
-      <created>1753783611367</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1753783611367</updated>
-    </task>
-    <task id="LOCAL-00004" summary="7-30-1 剩余核心技术">
-      <created>1753863533687</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1753863533688</updated>
-    </task>
-    <task id="LOCAL-00005" summary="8-14-1 修改日记页面以周一为单位统计日记数量">
-      <created>1755140011280</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1755140011280</updated>
-    </task>
-    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="orgin/master" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="5-13-项目初始化" />
-    <MESSAGE value="7-29-1 准备完成OT算法" />
-    <MESSAGE value="7-29-2  大体页面基本完成" />
-    <MESSAGE value="7-30-1 剩余核心技术" />
-    <MESSAGE value="8-14-1 修改日记页面以周一为单位统计日记数量" />
-    <option name="LAST_COMMIT_MESSAGE" value="8-14-1 修改日记页面以周一为单位统计日记数量" />
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Django_LoveSync_Diary$manage.coverage" NAME="manage 覆盖结果" MODIFIED="1747130134740" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

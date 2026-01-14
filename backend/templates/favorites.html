@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+
+{% block title %}LoveSync - 我的收藏{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+            .bg-gradient-love {
+                background: -webkit-linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+                background: -moz-linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+                background: -o-linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);                                
+            }
+            /* 收藏卡片翻转效果 */
+            .flip-card {
+                perspective: 1000px;
+                height: 320px; /* 固定卡片高度 */
+            }
+            .flip-card-inner {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* 优化动画曲线 */
+                transform-style: preserve-3d;
+            }
+            .flip-card:hover .flip-card-inner,
+            .flip-card:focus-within .flip-card-inner {
+                transform: rotateY(180deg);
+            }
+            .load-more-btn {
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            .load-more-btn::before {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                bottom: 0;
+                left: -100%;
+                background: #FF6B8B;
+                transition: left 0.3s ease;
+            }
+            .load-more-btn:hover::before {
+                left: 0;
+            }
+            .flip-card-front,
+            .flip-card-back {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+                border-radius: 1.25rem; /* 增加圆角 */
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); /* 优化阴影 */
+                overflow: hidden; /* 确保内容不溢出圆角 */
+            }
+            .flip-card-front {
+                background-color: white;
+                transition: all 0.3s ease;
+            }
+            .flip-card-front:hover {
+                transform: translateY(-5px); /* 悬停时轻微上浮 */
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .flip-card-back {
+                transform: rotateY(180deg);
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+                color: white;
+                padding: 1.5rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            /* 收藏分类标签 */
+            .tag {
+                display: inline-block;
+                padding: 0.3rem 0.8rem;
+                font-size: 0.75rem;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                margin-right: 0.5rem;
+                margin-top: 0.5rem;
+            }
+            /* 加载更多按钮动效 */
+            .load-more-btn {
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            .load-more-btn::before {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                bottom: 0;
+                left: -100%;
+                background: #FF6B8B;
+                transition: left 0.3s ease;
+            }
+            .load-more-btn:hover::before {
+                left: 0;
+            }
+            /* 新增分隔线样式 */
+            .divider {
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(255, 107, 139, 0.2), transparent);
+                margin: 2rem 0;
+            }
+            /* 图片渐变遮罩 */
+            .img-gradient {
+                position: relative;
+            }
+            .img-gradient::after {
+                content: "";
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 50%;
+                background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+                pointer-events: none;
+            }
+            /* 平滑滚动 */
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<!-- 主内容区 -->
+<main class="flex-grow pt-20 pb-16">
+    <div class="container mx-auto px-4">
+        <!-- 页面标题（延续浪漫风格） -->
+        <div class="mb-12 text-center">
+            <h1 class="text-3xl font-bold text-neutral-800 mb-2">
+                「收藏的不是风景，是与你有关的四季」
+            </h1>
+            <p class="text-neutral-600 text-sm">
+                在这里封存心动碎片，随时开启专属浪漫回忆
+            </p>
+        </div>
+
+        <!-- 收藏分类导航 -->
+        <div class="mb-8">
+            <div class="flex flex-wrap gap-2">
+                <button class="px-4 py-2 bg-primary text-white rounded-full text-sm shadow-sm">全部收藏</button>
+                <button
+                    class="px-4 py-2 bg-white text-neutral-700 hover:bg-neutral-50 rounded-full text-sm transition-all shadow-sm">旅行</button>
+                <button
+                    class="px-4 py-2 bg-white text-neutral-700 hover:bg-neutral-50 rounded-full text-sm transition-all shadow-sm">美食</button>
+                <button
+                    class="px-4 py-2 bg-white text-neutral-700 hover:bg-neutral-50 rounded-full text-sm transition-all shadow-sm">纪念日</button>
+                <button
+                    class="px-4 py-2 bg-white text-neutral-700 hover:bg-neutral-50 rounded-full text-sm transition-all shadow-sm">日常</button>
+                <button
+                    class="px-4 py-2 bg-white text-neutral-700 hover:bg-neutral-50 rounded-full text-sm transition-all shadow-sm">礼物</button>
+            </div>
+        </div>
+
+        <!-- 收藏卡片网格 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- 收藏卡片示例（带翻转效果） -->
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <!-- 正面：图片展示 -->
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=101" alt="海边日落"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">海边日落</h4>
+                            <p class="text-neutral-500 text-sm">2023.05.20</p>
+                        </div>
+                    </div>
+                    <!-- 背面：收藏详情 -->
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">旅行</span>
+                            <span class="tag">纪念日</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            第一次一起看日落，你说夕阳像我害羞的脸
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>128</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 更多收藏卡片... -->
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=102" alt="双人晚餐"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">纪念日晚餐</h4>
+                            <p class="text-neutral-500 text-sm">2023.02.14</p>
+                        </div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">美食</span>
+                            <span class="tag">纪念日</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            你亲手做的牛排和红酒，比餐厅的更浪漫
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>96</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=103" alt="街头自拍"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">街头自拍</h4>
+                            <p class="text-neutral-500 text-sm">2023.03.08</p>
+                        </div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">日常</span>
+                            <span class="tag">自拍</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            逛超市时偷偷拍的你，连发呆都很可爱
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>64</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=104" alt="生日礼物"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">生日礼物</h4>
+                            <p class="text-neutral-500 text-sm">2023.06.15</p>
+                        </div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">礼物</span>
+                            <span class="tag">纪念日</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            你亲手做的手工礼物，花了整整一个月时间
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>87</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=105" alt="咖啡时光"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">咖啡时光</h4>
+                            <p class="text-neutral-500 text-sm">2023.04.02</p>
+                        </div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">日常</span>
+                            <span class="tag">美食</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            周末的咖啡馆，你低头看书的样子真美
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>52</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=106" alt="游乐园"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">游乐园</h4>
+                            <p class="text-neutral-500 text-sm">2023.07.08</p>
+                        </div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">旅行</span>
+                            <span class="tag">日常</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            坐过山车时你紧紧抓着我的手，像个孩子一样害怕
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>113</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=107" alt="雪景"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">初雪</h4>
+                            <p class="text-neutral-500 text-sm">2023.12.25</p>
+                        </div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">旅行</span>
+                            <span class="tag">纪念日</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            第一场雪，我们堆的雪人至今还在相册里微笑
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>145</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="img-gradient">
+                            <img src="https://picsum.photos/300/200?random=108" alt="演唱会"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-neutral-800">演唱会</h4>
+                            <p class="text-neutral-500 text-sm">2023.08.20</p>
+                        </div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <span class="tag">日常</span>
+                            <span class="tag">纪念日</span>
+                        </div>
+                        <p class="text-white/80 mb-4">
+                            我们一起听了喜欢的乐队现场，你跟着音乐摇摆的样子
+                        </p>
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>92</span>
+                            </div>
+                            <button
+                                class="bg-white text-primary px-3 py-2 rounded-full transition-all hover:bg-neutral-100">
+                                查看原图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载更多按钮移至网格外部 -->
+        <div class="text-center mt-8">
+            <button
+                class="px-8 py-3 bg-white border border-primary text-primary rounded-full load-more-btn shadow-sm hover:shadow-md hover:scale-105 transition-all">
+                加载更多收藏 <i class="fa-solid fa-chevron-down ml-2"></i>
+            </button>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,1185 @@
+{% extends 'base.html' %}
+
+{% block title %}LoveSync 双人日记{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+        .diary-trigger {
+            transition: all 0.3s ease;
+            position: relative;
+            background-color: var(--mood-bg-color, rgba(255, 107, 139, 0.1));
+            color: var(--mood-color, #FF6B8B);
+        }
+
+        .diary-trigger:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: var(--mood-hover-bg-color, rgba(255, 107, 139, 0.2));
+        }
+
+        .diary-trigger:hover::after {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 0.875rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .diary-trigger:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mood-modal {
+            background-color: var(--mood-color, #FF6B8B);
+        }
+
+        .blur-effect {
+            backdrop-filter: blur(4px);
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .transition-custom {
+            transition: all 0.3s ease;
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+
+        .bg-gradient-love {
+            background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+        }
+        
+        /* 自定义弹跳动画 */
+        @keyframes custom-bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-2px);
+            }
+        }
+
+        .animate-custom-bounce {
+            animation: custom-bounce 1.5s infinite;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<!-- 主内容区 -->
+<main class="flex-grow pt-24 pb-16 relative z-10">
+    <div class="container mx-auto px-4">
+        <!-- 顶部数据概览 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-2xl font-bold text-neutral-800 mb-1">我们的爱情日记</h2>
+                    <p class="text-neutral-600">已共同记录 <span class="text-primary font-semibold">{{ total_notes }}</span>
+                        篇日记 · 相恋 <span class="text-primary font-semibold" id="days-together"
+                            data-joined-date="{{ user.profile.couple_joined_at|date:" Y-m-d"}}"></span> 天</p>
+                </div>
+
+                <div class="flex space-x-4">
+                    <!-- 我的信息卡片 -->
+                    <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full overflow-hidden">
+                            <!-- 使用default过滤器确保没有头像时显示默认图片 -->
+                            <img src="
+
+
+
+
+
+
+
+
+
+
+
+
+                                    {{ user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=1' }}"
+                                alt="我的头像" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">我</p>
+                            <p class="text-xs text-neutral-500">已写 {{ user_notes_count|default:0 }} 篇</p>
+                        </div>
+                    </div>
+
+                    <!-- 伴侣信息卡片 -->
+                    {% if user.profile.couple %}
+                    <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full overflow-hidden">
+                            <!-- 确保伴侣有头像，没有则显示默认 -->
+                            <img src="
+
+
+
+
+
+
+
+
+
+
+
+
+                                    {{ user.profile.couple.user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=2' }}"
+                                alt="{{ user.profile.couple.user.name }}的头像" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">{{ user.profile.couple.user.name|default:"伴侣" }}</p>
+                            <p class="text-xs text-neutral-500">已写 {{ partner_notes_count|default:0 }} 篇</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- 没有伴侣时显示邀请卡片 -->
+                    <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3 cursor-pointer hover:bg-neutral-200 transition-colors"
+                        onclick="location.href='{% url 'couple_web:invite_partner' %}'">
+                        <div
+                            class="w-10 h-10 rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center">
+                            <i class="fa fa-user-plus text-neutral-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-neutral-700">邀请伴侣</p>
+                            <p class="text-xs text-primary">一起记录美好时光</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 本周心情统计 -->
+            <div class="mt-6 pt-6 border-t border-neutral-200">
+                <h3 class="text-lg font-semibold text-neutral-800 flex items-center justify-between mb-4">
+                    <span>本周心情</span>
+                    <span class="text-xs text-primary/70 hover:text-primary transition-colors cursor-pointer"
+                        id="write-diary-hint">
+                        点击卡片写日记
+                    </span>
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                    {% for item in mood_stats %}
+                    <div class="bg-{{ item.css_class }}/10 rounded-lg p-3 text-center cursor-pointer diary-trigger hover:scale-105 transition-transform duration-300"
+                        data-mood="{{ item.mood }}" data-color="{{ item.color }}">
+                        <div class="text-2xl mb-1">{{ item.icon }}</div>
+                        <p class="text-sm font-medium">{{ item.display }}</p>
+                        <p class="text-xs text-{{ item.css_class }}">{{ item.weekly_count }} 次</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 时间轴双视角布局 -->
+        <div class="relative">
+            <!-- 时间轴分割线 -->
+            <div
+                class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2">
+            </div>
+
+            <!-- 时间轴条目 -->
+            <div class="space-y-12">
+                <!-- 日记列表（按日期分组展示） -->
+                {% for date_group in grouped_notes %}
+                <div class="relative">
+                    <!-- 日期标题（动态显示今天/昨天/具体日期） -->
+                    <div class="text-center mb-4">
+                        <span
+                            class="inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer"
+                            onclick="toggleQueryForm(this)">
+                            <i class="fa-solid fa-calendar-day mr-2"></i>
+                            {{ date_group.date_title }} <!-- 动态日期标题：今天/昨天/具体日期 -->
+                        </span>
+                    </div>
+                    <div
+                        class="query-form hidden mb-6 bg-white rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto border border-gray-100">
+                        <form method="get" class="flex flex-wrap gap-8 items-end justify-center">
+                            <div class="flex-1 min-w-[200px]">
+                                <label for="query_date"
+                                    class="block text-xl font-bold text-gray-900 mb-3">选择查询日期</label>
+                                <input type="date" id="query_date" name="query_date"
+                                    class="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                    value="{% now 'Y-m-d' %}" {% if query_date %}value="{{ query_date }}" {% endif %}>
+                            </div>
+                            <div class="flex gap-4">
+                                <button type="submit"
+                                    class="px-8 py-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 flex items-center gap-3 font-semibold">
+                                    <i class="fa fa-search"></i> 查找日记
+                                </button>
+                                {% if query_date %}
+                                <a href="{% url 'lovesync' %}"
+                                    class="px-8 py-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-all duration-300 font-semibold">
+                                    清除查询
+                                </a>
+                                {% endif %}
+                            </div>
+                        </form>
+
+                        <!-- 查询结果提示 -->
+                        {% if query_date %}
+                        <div class="mt-6 text-lg text-gray-700 text-center">
+                            显示 <span class="font-bold text-primary">{{ query_date }}</span> 的日记（共 <span
+                                class="font-bold text-primary">{{ total_notes }}</span> 篇）
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 该日期下的所有日记 -->
+                    {% for note in date_group.notes %}
+                    <!-- 判断日记属于当前用户还是情侣，设置不同布局 -->
+                    <div
+                        class="{% if note.user == request.user %}md:w-1/2 md:pl-12{% else %}md:ml-auto md:w-1/2 md:pr-12 partner-card{% endif %} {% if not forloop.first %}mt-8{% endif %}">
+                        <div class="bg-white rounded-xl shadow-md p-5 relative diary-card-hover"
+                            style="--mood-color: {{ note.get_mood_color }};" data-mood="{{ note.mood }}">
+
+                            <!-- 心情指示器（动态图标） -->
+                            <div class="absolute -left-3 -top-3 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mood-indicator"
+                                style="color: {{ note.get_mood_color }}">
+                                {{ note.get_mood_icon }}
+                            </div>
+
+                            <!-- 用户信息和时间 -->
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
+                                        <!-- 动态用户头像 -->
+                                        <img src="{{ note.user.profile.userAvatar.url }}" alt="{{ note.user.name }}的头像"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <!-- 动态显示用户名（区分"我"和TA） -->
+                                    <span class="font-medium">
+                                        {% if note.user == request.user %}我{% else %}
+                                        {{ note.user.name }}{% endif %}
+                                    </span>
+                                </div>
+                                <!-- 动态显示时间（格式化到小时分钟） -->
+                                <span class="text-sm text-neutral-500">
+                                    {{ note.created_at|date:"H:i" }}
+                                </span>
+                            </div>
+
+                            <!-- 日记内容 -->
+                            <p class="text-neutral-700 mb-4">
+                                {{ note.context }}
+                            </p>
+
+                            <!-- 日记图片 -->
+                            {% if note.note_images.exists %}
+                            <div
+                                class="{% if note.note_images.count > 1 %}grid grid-cols-2 gap-2{% else %}block{% endif %} mb-4">
+                                {% for image in note.note_images.all %}
+                                <div class="rounded-lg overflow-hidden">
+                                    <img src="{{ image.noteimage.url }}" alt="日记图片"
+                                        class="w-full {% if note.note_images.count == 1 %}h-auto{% else %}h-32{% endif %} object-cover">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <!-- 操作区（点赞数、评论按钮） -->
+                            <div class="flex justify-between items-center">
+                                <!-- 动态心情标签 -->
+                                <span class="text-xs px-2 py-1 rounded-full"
+                                    style="color: {{ note.get_mood_color }}; background-color: {{ note.get_mood_color }}26;">
+                                    {{ note.get_mood_display_text }}
+                                </span>
+                                <div class="flex items-center space-x-3">
+                                    <!-- 动态点赞数 -->
+                                    <button class="like-btn text-neutral-400 hover:text-primary transition-colors"
+                                        data-note-id="{{ note.id }}">
+                                        <i class="fa-regular fa-heart"></i>
+                                        <span>{% if note.likes > 0 %} {{ note.likes }} {% else %} 0 {% endif %}</span>
+                                    </button>
+                                    <!-- 评论按钮 -->
+                                    <button class="text-neutral-400 hover:text-primary transition-colors response-btn"
+                                        data-diary-id="{{ note.id }}">
+                                        <i class="fa-regular fa-comment"></i>
+                                        {% if note.comments > 0 %} {{ note.comments }} {% endif %}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 评论区域 -->
+                            <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
+                                <div class="space-y-4">
+                                    <!-- 评论列表 -->
+                                    <div class="comments-list space-y-3">
+                                        <!-- 评论将通过JavaScript动态加载 -->
+                                    </div>
+                                    <!-- 评论输入框 -->
+                                    <div id="comment-input-{{ note.id }}" class="flex items-start space-x-2 mt-2">
+                                        <div class="w-6 h-6 rounded-full overflow-hidden">
+                                            <img src="{{ user.profile.userAvatar.url }}" alt="我的头像"
+                                                class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1">
+                                            <textarea
+                                                class="w-full p-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                                                placeholder="写下你的回应..." rows="1" data-note-id="{{ note.id }}"
+                                                class="comment-input"></textarea>
+                                            <div class="flex justify-end mt-2">
+                                                <button
+                                                    class="text-xs bg-primary text-white px-3 py-1 rounded-full hover:bg-primary/90 transition-colors comment-submit"
+                                                    data-note-id="{{ note.id }}">
+                                                    发送
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% empty %}
+                <!-- 无日记时显示 -->
+                <div class="text-center py-12">
+                    <!-- 日期标题（动态显示今天/昨天/具体日期） -->
+                    <div class="text-center mb-4">
+                        <span
+                            class="inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer"
+                            onclick="toggleQueryForm(this)">
+                            <i class="fa-solid fa-calendar-day mr-2"></i>
+                            {{ grouped_notes.date_title }} <!-- 动态日期标题：今天/昨天/具体日期 -->
+                        </span>
+                    </div>
+                    <p class="text-neutral-500">还没有日记哦，开始记录你们的故事吧～</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="bg-white border-t border-neutral-200 py-8">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-love rounded-full text-white">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <span class="text-lg font-bold">LoveSync</span>
+            </div>
+            <div class="text-neutral-500 text-sm">
+                &copy; 2025 LoveSync. 每篇日记都是一棵树，年轮里藏着我们的故事
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- 日记编辑模态框 -->
+<div id="new-diary-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div
+        class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up relative z-10">
+        <div class="p-6 border-b border-neutral-200 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-neutral-800">写日记</h3>
+            <button id="close-diary-modal" class="text-neutral-500 hover:text-neutral-800">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <form id="diary-form" method="POST" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            <input type="hidden" name="mood" id="mood-input">
+            <input type="hidden" id="mood-color-input">
+
+            <!-- 日记内容 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-neutral-700 mb-2">记录今日心动</label>
+                <textarea id="context" name="context" rows="6"
+                    class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom resize-none"
+                    placeholder="记录今天的心情和故事..."></textarea>
+            </div>
+
+            <!-- 上传照片 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-neutral-700 mb-2">上传照片（可选）</label>
+                <div class="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer"
+                    id="photo-upload-area">
+                    <input type="file" id="photo-input" name="photos" multiple accept="image/*" class="hidden">
+                    <i class="fa-solid fa-cloud-upload-alt text-3xl text-neutral-400 mb-3"></i>
+                    <p class="text-neutral-600 mb-2">点击或拖拽照片到这里</p>
+                    <p class="text-neutral-500 text-sm">支持 JPG, PNG, GIF 格式</p>
+                </div>
+                <div id="photo-preview-container" class="grid grid-cols-3 gap-2 mt-3 hidden"></div>
+            </div>
+
+            <!-- 分享选项 -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between">
+                    <label class="block text-sm font-medium text-neutral-700">分享给TA</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="share-with-partner" name="share_with_partner" class="sr-only peer"
+                            checked>
+                        <div id="share-toggle"
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                        </div>
+                    </label>
+                </div>
+                <p class="text-xs text-neutral-500 mt-1">开启后，你的伴侣将看到这篇日记</p>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="cancel-diary"
+                    class="px-6 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50 transition-custom">
+                    取消
+                </button>
+                <button type="submit" id="saveButton"
+                    class="px-6 py-2 text-white rounded-lg hover:opacity-90 transition-custom shadow-md hover:shadow-lg flex items-center">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>
+                    <span>保存日记</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    const moodColors = {};
+    document.querySelectorAll('.diary-trigger').forEach(trigger => {
+        moodColors[trigger.dataset.mood] = trigger.dataset.color;
+    });
+    let currentMoodColor = '#FF6B8B';
+    let currentDocumentId = "{{ document.id|default:'' }}"; // 当前日记ID
+    let lastValue = ''; // 用于跟踪编辑器内容变化
+
+    // 切换查询日期表单显示/隐藏
+    function toggleQueryForm(element) {
+        // 找到包含日期标题的父div，然后获取其下一个兄弟元素（查询表单）
+        const parentDiv = element.closest('.text-center');
+        const queryForm = parentDiv.nextElementSibling;
+        if (queryForm && queryForm.classList.contains('query-form')) {
+            queryForm.classList.toggle('hidden');
+        }
+    }
+
+    // 初始化心情卡片样式
+    function initMoodCardsStyle() {
+        const moodCards = document.querySelectorAll('.diary-trigger');
+
+        moodCards.forEach((card, index) => {
+            // 从data属性获取颜色，默认使用主题色
+            const color = card.dataset.color || '#FF6B8B';
+
+            // 为每个卡片添加延迟动画
+            card.style.animationDelay = `${index * 0.1}s`;
+
+            // 设置初始样式
+            card.classList.add('animate-fade-in');
+
+            // 使用CSS变量来存储颜色，以便在CSS中使用
+            card.style.setProperty('--mood-color', color);
+            card.style.setProperty('--mood-bg-color', `rgba(${hexToRgb(color)}, 0.1)`);
+            card.style.setProperty('--mood-hover-bg-color', `rgba(${hexToRgb(color)}, 0.2)`);
+
+            // 设置背景颜色和文字颜色
+            card.style.backgroundColor = `rgba(${hexToRgb(color)}, 0.1)`;
+
+            // 设置计数文字颜色
+            const countElement = card.querySelector('p:last-child');
+            if (countElement) {
+                countElement.style.color = color;
+            }
+        });
+    }
+
+    // 将十六进制颜色转换为RGB值
+    function hexToRgb(hex) {
+        // 移除#号
+        hex = hex.replace('#', '');
+
+        // 处理短格式颜色代码
+        if (hex.length === 3) {
+            hex = hex.split('').map(char => char + char).join('');
+        }
+
+        // 转换为RGB值
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        return `${r}, ${g}, ${b}`;
+    }
+
+    // 初始化心情触发
+    function initMoodTriggers() {
+        const triggers = document.querySelectorAll('.diary-trigger');
+        const moodInput = document.getElementById('mood-input');
+        const moodColorInput = document.getElementById('mood-color-input');
+
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const mood = trigger.dataset.mood;
+                currentMoodColor = moodColors[mood];
+                moodInput.value = mood;
+                moodColorInput.value = currentMoodColor;
+                updateSaveButtonColor();
+                openDiaryModal();
+            });
+        });
+    }
+
+    // 更新保存按钮颜色
+    function updateSaveButtonColor() {
+        const saveButton = document.getElementById('saveButton');
+        const shareToggle = document.getElementById('share-toggle');
+
+        saveButton.style.backgroundColor = currentMoodColor;
+        saveButton.style.backgroundImage = `linear-gradient(135deg, ${currentMoodColor} 0%, ${currentMoodColor} 100%)`;
+        saveButton.classList.remove('bg-gradient-love');
+    }
+
+    // 初始化模态框
+    function initDiaryModal() {
+        document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
+        document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
+
+        const saveButton = document.getElementById('saveButton');
+        saveButton.addEventListener('click', function () {
+            this.classList.add('bg-gradient-love');
+        });
+    }
+
+    // 打开日记模态框
+    function openDiaryModal() {
+        const modal = document.getElementById('new-diary-modal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        // 重置编辑器状态（针对新日记）
+        const editor = document.getElementById('context');
+        lastValue = editor.value; // 初始化基准值
+    }
+
+    // 关闭日记模态框
+    function closeDiaryModal() {
+        const modal = document.getElementById('new-diary-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // 初始化照片上传
+    function initPhotoUpload() {
+        const uploadArea = document.getElementById('photo-upload-area');
+        const input = document.getElementById('photo-input');
+        const previewContainer = document.getElementById('photo-preview-container');
+
+        uploadArea.addEventListener('click', () => input.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-primary');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-primary');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary');
+            if (e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+                previewPhotos(input.files, previewContainer);
+            }
+        });
+
+        input.addEventListener('change', (e) => {
+            previewPhotos(e.target.files, previewContainer);
+        });
+    }
+
+    // 预览照片
+    function previewPhotos(files, container) {
+        container.innerHTML = '';
+        if (!files.length) return container.classList.add('hidden');
+
+        container.classList.remove('hidden');
+        Array.from(files).forEach(file => {
+            if (!file.type.startsWith('image/')) return;
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.className = 'w-full h-24 object-cover rounded-lg';
+            container.appendChild(img);
+        });
+    }
+
+    // 获取CSRF令牌（提前定义，避免作用域问题）
+    function getCSRFToken() {
+        const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+        return cookieValue ? cookieValue.pop() : '';
+    }
+
+    // 删除评论功能
+    function deleteComment(element, noteId, commentId) {
+        if (confirm('确定要删除这条评论吗？')) {
+            fetch(`/api/note/notes/${noteId}/delete_comment/${commentId}/`, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.message === '评论删除成功') {
+                        // 移除主评论DOM（包含其下所有二级回复）
+                        const commentDiv = element.closest('.comment-slide');
+                        if (commentDiv) commentDiv.remove();
+
+                        // 更新评论数（后端已返回所有评论数，含一级+二级）
+                        const diaryCard = element.closest('.diary-card-hover');
+                        if (diaryCard) {
+                            const responseBtn = diaryCard.querySelector('.response-btn');
+                            const countSpan = responseBtn.querySelector('span');
+                            if (countSpan) {
+                                const newCount = Math.max(0, parseInt(data.comments || 0));
+                                if (newCount > 0) {
+                                    countSpan.textContent = newCount;
+                                } else {
+                                    countSpan.remove(); // 无评论时移除数字
+                                }
+                            }
+                        }
+                        alert('评论删除成功！');
+                    }
+                })
+                .catch(error => {
+                    console.error('删除评论失败:', error);
+                    alert(`删除失败：${error.message}`);
+                });
+        }
+    }
+
+    // 评论点赞功能
+    function likeComment(element, noteId, commentId) {
+        fetch(`/api/note/notes/${noteId}/comment/${commentId}/like/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === '点赞成功' || data.message === '取消点赞成功') {
+                    const likeBtn = element;
+                    const icon = likeBtn.querySelector('i');
+                    const countSpan = likeBtn.querySelector('span');
+
+                    if (data.is_liked) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        icon.style.color = '#FF6B8B';
+                    } else {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        icon.style.color = '';
+                    }
+                    countSpan.textContent = data.likes;
+                }
+            })
+            .catch(error => {
+                console.error('评论点赞失败:', error);
+                alert('评论点赞失败，请重试');
+            });
+    }
+
+    // 回复点赞功能
+    function likeReply(element, noteId, replyId) {
+        fetch(`/api/note/notes/${noteId}/comment/${replyId}/like/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === '点赞成功' || data.message === '取消点赞成功') {
+                    const likeBtn = element;
+                    const icon = likeBtn.querySelector('i');
+                    const countSpan = likeBtn.querySelector('span');
+
+                    if (data.is_liked) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        icon.style.color = '#FF6B8B';
+                    } else {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        icon.style.color = '';
+                    }
+                    countSpan.textContent = data.likes;
+                }
+            })
+            .catch(error => {
+                console.error('回复点赞失败:', error);
+                alert('回复点赞失败，请重试');
+            });
+    }
+
+    // 提交回复功能
+    function submitReply(element, noteId, commentId, content) {
+        fetch(`/api/note/notes/${noteId}/comment/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ content: content, parent_id: commentId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === '评论成功') {
+                    // 清空回复输入框
+                    const replyInput = element.closest('.reply-input-container');
+                    const textarea = replyInput.querySelector('textarea');
+                    textarea.value = '';
+                    replyInput.classList.add('hidden');
+
+                    // 重新加载评论
+                    const commentSection = element.closest('.comment-section');
+                    const commentsList = commentSection.querySelector('.comments-list');
+
+                    fetch(`/api/note/notes/${noteId}/comments/`, {
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-CSRFToken': getCSRFToken()
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            commentsList.innerHTML = '';
+
+                            if (data.comments.length === 0) {
+                                commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">暂无评论，快来抢沙发吧~</div>';
+                                return;
+                            }
+
+                            data.comments.forEach(comment => {
+                                const commentElement = renderComment(comment);
+                                commentsList.appendChild(commentElement);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('获取评论失败:', error);
+                            commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
+                        });
+                }
+            })
+            .catch(error => {
+                console.error('回复失败:', error);
+                alert('回复失败，请重试');
+            });
+    }
+
+    // 删除回复功能
+    function deleteReply(element, noteId, replyId) {
+        if (confirm('确定要删除这条回复吗？')) {
+            const deleteUrl = `/api/note/notes/${noteId}/delete_comment/${replyId}/`;
+
+            fetch(deleteUrl, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.message === '评论删除成功') {
+                        // 移除回复DOM元素
+                        const replyDiv = element.closest('.reply-item');
+                        if (replyDiv) replyDiv.remove();
+
+                        // 更新评论数（后端已返回所有评论数，含一级+二级）
+                        const diaryCard = element.closest('.diary-card-hover');
+                        if (diaryCard) {
+                            const responseBtn = diaryCard.querySelector('.response-btn');
+                            const countSpan = responseBtn.querySelector('span');
+                            if (countSpan) {
+                                const newCount = Math.max(0, parseInt(data.comments || 0));
+                                if (newCount > 0) {
+                                    countSpan.textContent = newCount;
+                                } else {
+                                    countSpan.remove(); // 无评论时移除数字
+                                }
+                            }
+                        }
+                        alert('回复删除成功！');
+                    }
+                })
+                .catch(error => {
+                    console.error('删除回复失败:', error);
+                    alert(`删除失败：${error.message}`);
+                });
+        }
+    }
+
+    // 渲染评论
+    function renderComment(comment) {
+        const div = document.createElement('div');
+        div.className = 'flex space-x-3 comment-slide';
+        div.innerHTML = `
+                <div class="w-6 h-6 rounded-full overflow-hidden">
+                    <img src="${comment.avatar}" alt="${comment.user}的头像" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-lg p-3">
+                        <div class="flex justify-between items-center">
+                            <h5 class="font-medium text-sm text-neutral-900">${comment.user}</h5>
+                            <span class="text-neutral-400 text-xs">${new Date(comment.created_at).toLocaleString()}</span>
+                        </div>
+                        <p class="text-neutral-700 text-sm mt-1">${comment.content}</p>
+                    </div>
+                    <div class="flex space-x-3 mt-2">
+                        <button class="text-neutral-500 hover:text-primary text-xs transition-custom comment-like" data-comment-id="${comment.id}">
+                            <i class="fa-regular fa-heart"></i> 0
+                        </button>
+                        <button class="text-neutral-500 hover:text-primary text-xs transition-custom reply-btn" data-comment-id="${comment.id}">
+                            回复
+                        </button>
+                        ${comment.is_author ? `
+                        <button class="text-neutral-500 hover:text-red-500 text-xs transition-custom comment-delete" data-comment-id="${comment.id}">
+                            <i class="fa-regular fa-trash-can"></i> 删除
+                        </button>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- 回复输入框 -->
+                    <div class="ml-10 mt-2 hidden reply-input-container">
+                        <div class="flex items-start space-x-2">
+                            <div class="w-5 h-5 rounded-full overflow-hidden">
+                                <img src="${comment.avatar}" alt="我的头像" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <textarea class="w-full p-2 text-xs border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="写下你的回复..." rows="1" data-comment-id="${comment.id}"></textarea>
+                                <div class="flex justify-end mt-1">
+                                    <button class="text-xs bg-primary text-white px-2 py-1 rounded-full hover:bg-primary/90 transition-colors reply-submit" data-comment-id="${comment.id}">发送</button>
+                                    <button class="text-xs text-neutral-500 hover:text-neutral-700 ml-2 reply-cancel">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 回复列表 -->
+                    ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="ml-10 mt-2 space-y-2">
+                            ${comment.replies.map(reply => `
+                                <div class="flex space-x-2 reply-item" data-reply-id="${reply.id}">
+                                    <div class="w-5 h-5 rounded-full overflow-hidden">
+                                        <img src="${reply.avatar}" alt="${reply.user}的头像" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="bg-neutral-100 rounded-lg p-2">
+                                            <div class="flex justify-between items-center">
+                                                <h6 class="font-medium text-xs text-neutral-900">${reply.user}</h6>
+                                                <span class="text-neutral-400 text-xs">${new Date(reply.created_at).toLocaleString()}</span>
+                                            </div>
+                                            <p class="text-neutral-700 text-xs mt-1">${reply.content}</p>
+                                        </div>
+                                        <div class="flex space-x-3 mt-1">
+                                            <button class="text-neutral-500 hover:text-primary text-xs transition-custom reply-like" data-reply-id="${reply.id}">
+                                                <i class="fa-regular fa-heart"></i> 0
+                                            </button>
+                                            <button class="text-neutral-500 hover:text-primary text-xs transition-custom reply-btn" data-comment-id="${comment.id}">
+                                                回复
+                                            </button>
+                                            ${reply.is_author ? `
+                                            <button class="text-neutral-500 hover:text-red-500 text-xs transition-custom reply-delete" data-reply-id="${reply.id}">
+                                                <i class="fa-regular fa-trash-can"></i> 删除
+                                            </button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+        // 添加删除按钮事件监听
+        const deleteBtn = div.querySelector('.comment-delete');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function () {
+                const noteId = this.closest('.comment-section').closest('.diary-card-hover').querySelector('.response-btn').dataset.diaryId;
+                deleteComment(this, noteId, comment.id);
+            });
+        }
+
+        // 添加点赞按钮事件监听
+        const likeBtn = div.querySelector('.comment-like');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', function () {
+                const noteId = this.closest('.comment-section').closest('.diary-card-hover').querySelector('.response-btn').dataset.diaryId;
+                likeComment(this, noteId, comment.id);
+            });
+        }
+
+        // 添加回复按钮事件监听
+        const replyBtns = div.querySelectorAll('.reply-btn');
+        replyBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const replyInput = div.querySelector('.reply-input-container');
+                replyInput.classList.toggle('hidden');
+            });
+        });
+
+        // 添加回复取消按钮事件监听
+        const replyCancelBtn = div.querySelector('.reply-cancel');
+        if (replyCancelBtn) {
+            replyCancelBtn.addEventListener('click', function () {
+                const replyInput = div.querySelector('.reply-input-container');
+                replyInput.classList.add('hidden');
+            });
+        }
+
+        // 添加回复提交按钮事件监听
+        const replySubmitBtn = div.querySelector('.reply-submit');
+        if (replySubmitBtn) {
+            replySubmitBtn.addEventListener('click', function () {
+                const noteId = this.closest('.comment-section').closest('.diary-card-hover').querySelector('.response-btn').dataset.diaryId;
+                const commentId = this.getAttribute('data-comment-id');
+                const textarea = div.querySelector(`textarea[data-comment-id="${commentId}"]`);
+                const content = textarea.value.trim();
+
+                if (content) {
+                    submitReply(this, noteId, commentId, content);
+                }
+            });
+        }
+
+        // 添加回复点赞按钮事件监听
+        const replyLikeBtns = div.querySelectorAll('.reply-like');
+        replyLikeBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const noteId = this.closest('.comment-section').closest('.diary-card-hover').querySelector('.response-btn').dataset.diaryId;
+                const replyId = this.getAttribute('data-reply-id');
+                likeReply(this, noteId, replyId);
+            });
+        });
+
+        // 添加回复删除按钮事件监听
+        const replyDeleteBtns = div.querySelectorAll('.reply-delete');
+        replyDeleteBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                // 1. 逐层查找，确保参数正确
+                const diaryCard = this.closest('.diary-card-hover');
+                const noteId = diaryCard ? diaryCard.querySelector('.response-btn').dataset.diaryId : '';
+                const replyId = this.getAttribute('data-reply-id');
+
+                // 2. 参数校验
+                if (!noteId || !replyId) {
+                    alert('参数错误，无法删除！');
+                    return;
+                }
+
+                deleteReply(this, noteId, replyId);
+            });
+        });
+
+        return div;
+    }
+
+    // 所有事件监听和功能都放在同一个DOMContentLoaded事件监听器中
+    // DOM加载后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        initMoodCardsStyle();
+        initMoodTriggers();
+        initDiaryModal();
+        initPhotoUpload();
+
+        // 点赞按钮事件
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const noteId = this.getAttribute('data-note-id');
+                const icon = this.querySelector('i');
+                const countSpan = this.querySelector('span');
+
+                fetch(`/api/note/notes/${noteId}/like/`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.is_liked) {
+                            icon.classList.remove('fa-regular');
+                            icon.classList.add('fa-solid');
+                            icon.style.color = '#FF6B8B';
+                        } else {
+                            icon.classList.remove('fa-solid');
+                            icon.classList.add('fa-regular');
+                            icon.style.color = '';
+                        }
+                        countSpan.textContent = data.likes;
+                    })
+                    .catch(error => {
+                        console.error('点赞失败:', error);
+                        alert('点赞失败，请重试');
+                    });
+            });
+        });
+
+        // 评论按钮事件
+        document.querySelectorAll('.response-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const diaryId = this.getAttribute('data-diary-id');
+                const noteCard = this.closest('.diary-card-hover');
+                const commentSection = noteCard.querySelector('.comment-section');
+
+                commentSection.classList.toggle('hidden');
+                if (!commentSection.classList.contains('hidden')) {
+                    const commentsList = commentSection.querySelector('.comments-list');
+                    commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">加载评论中...</div>';
+
+                    fetch(`/api/note/notes/${diaryId}/comments/`, {
+                        credentials: 'same-origin',
+                        headers: { 'X-CSRFToken': getCSRFToken() }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            commentsList.innerHTML = '';
+
+                            if (data.comments.length === 0) {
+                                commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">暂无评论，快来抢沙发吧~</div>';
+                                return;
+                            }
+
+                            data.comments.forEach(comment => {
+                                const commentElement = renderComment(comment);
+                                commentsList.appendChild(commentElement);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('获取评论失败:', error);
+                            commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
+                        });
+                }
+            });
+        });
+
+        // 评论提交事件
+        document.querySelectorAll('.comment-submit').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const noteId = this.getAttribute('data-note-id');
+                const textarea = document.querySelector(`textarea[data-note-id="${noteId}"]`);
+                const content = textarea.value.trim();
+                const noteCard = this.closest('.diary-card-hover');
+                const commentSection = noteCard.querySelector('.comment-section');
+                const commentsList = commentSection.querySelector('.comments-list');
+
+                if (!content) {
+                    alert('请输入评论内容');
+                    return;
+                }
+
+                fetch(`/api/note/notes/${noteId}/comment/`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({ content: content })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message === '评论成功') {
+                            // 清空评论输入框
+                            textarea.value = '';
+
+                            // 更新评论列表
+                            fetch(`/api/note/notes/${noteId}/comments/`, {
+                                credentials: 'same-origin',
+                                headers: {
+                                    'X-CSRFToken': getCSRFToken()
+                                }
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    commentsList.innerHTML = '';
+
+                                    if (data.comments.length === 0) {
+                                        commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">暂无评论，快来抢沙发吧~</div>';
+                                        return;
+                                    }
+
+                                    data.comments.forEach(comment => {
+                                        const commentElement = renderComment(comment);
+                                        commentsList.appendChild(commentElement);
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('获取评论失败:', error);
+                                    commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
+                                });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('评论失败:', error);
+                        alert('评论失败，请重试');
+                    });
+            });
+        });
+
+
+    });
+</script>
+
+{% endblock content %}

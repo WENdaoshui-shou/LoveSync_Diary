@@ -1,0 +1,1456 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LoveSync - 爱享公社{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+            #sidebar::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            #sidebar::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb {
+                background: #e0e0e0;
+                border-radius: 10px;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb:hover {
+                background: #d0d0d0;
+            }
+
+            #sidebar::-webkit-scrollbar-thumb:active {
+                background: #c0c0c0;
+            }
+
+            /* 聊天窗口样式 */
+            .chat-widget {
+                font-family: 'Segoe UI', system-ui, sans-serif;
+            }
+
+            /* 消息样式 */
+            .message {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+
+            .user-message {
+                flex-direction: row-reverse;
+            }
+
+            .user-message .message-content {
+                background: #4F46E5; /* 主色调，可替换为你的primary色值 */
+                color: white;
+                border-radius: 18px;
+            }
+
+            /* 强化滚动体验的样式 */
+            .chat-messages {
+                /* 确保文本换行正常 */
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* 美化滚动条（可选，提升视觉效果） */
+            .chat-messages::-webkit-scrollbar {
+                width: 6px; /* 滚动条宽度 */
+            }
+
+            .chat-messages::-webkit-scrollbar-track {
+                background: #f1f1f1; /* 滚动条轨道颜色 */
+                border-radius: 10px;
+            }
+
+            .chat-messages::-webkit-scrollbar-thumb {
+                background: #ccc; /* 滚动条滑块颜色 */
+                border-radius: 10px;
+            }
+
+            .chat-messages::-webkit-scrollbar-thumb:hover {
+                background: #aaa; /* 滑块 hover 颜色 */
+            }
+
+            .assistant-message .message-content {
+                background: #F3F4F6;
+                border-radius: 18px;
+            }
+
+            .system-message .message-content {
+                background: #EEF2FF;
+                color: #3B82F6;
+            }
+
+            .message-content {
+                padding: 8px 14px;
+                line-height: 1.5;
+                word-break: break-word;
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            /* 动画效果 */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* 输入框聚焦效果 */
+            #userInput:focus {
+                box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); /* 主色调透明阴影 */
+            }
+
+            /* 最小化/展开动画 */
+            .chat-collapsed .chat-messages,
+            .chat-collapsed .chat-input {
+                display: none;
+            }
+
+            .chat-collapsed {
+                max-height: 60px;
+                overflow: hidden;
+            }
+
+            .post-card {
+                transition: all 0.3s ease;
+            }
+
+            .post-card:hover {
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                transform: translateY(-2px);
+            }
+
+            .like-animation {
+                animation: like 0.5s ease;
+            }
+
+            @keyframes like {
+                0% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.3);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            .comment-slide {
+                animation: slideUp 0.3s ease;
+            }
+
+            @keyframes slideUp {
+                from {
+                    transform: translateY(20px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- 背景装饰元素 -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+    </div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+        style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+        style="animation-delay: -4s;"></div>
+</div>
+
+<!-- 新增固定导航栏 -->
+<div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 overflow-y-auto md:block hidden border-r border-neutral-200 transition-all duration-300"
+    id="sidebar">
+    <div class="p-4 flex justify-between items-center border-b border-neutral-200">
+        <div class="flex items-center space-x-2">
+            <div
+                class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-sm transform hover:rotate-12 transition-all duration-300">
+                <i class="fa-solid fa-heart text-lg"></i>
+            </div>
+            <span class="font-bold text-neutral-800 text-lg">LoveSync</span>
+        </div>
+        <!-- 导航栏关闭开启按钮 -->
+        <button id="toggleSidebar"
+            class="text-neutral-700 hover:text-primary transition-all duration-200 p-2 rounded-full hover:bg-neutral-100 active:scale-95">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+    <div class="p-4 space-y-4">
+        <div class="space-y-1">
+            <a href="{% url 'index' %}"
+                class="flex items-center space-x-3 text-primary bg-primary/5 border-l-4 border-primary px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>双人日记</span>
+            </a>
+            <a href="{% url 'personal_center' %}"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-blog w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>主页</span>
+            </a>
+            <a href="{% url 'message' %}"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-download w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>消息</span>
+            </a>
+            <a href="#"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-list-ol w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>排行榜</span>
+            </a>
+            <a href="#"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>订阅</span>
+            </a>
+            <a href="#"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-user-plus w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>关注</span>
+            </a>
+            <a href="{% url 'favorites' %}"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-bookmark w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>收藏</span>
+            </a>
+            <a href="#"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>历史</span>
+            </a>
+            <a href="#"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>会员中心</span>
+            </a>
+            <a href="{% url 'mall' %}"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>购物商城</span>
+            </a>
+            <a href="{% url 'game_web:game_list' %}"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-gamepad w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>情侣游戏</span>
+            </a>
+        </div>
+        <div class="border-t border-neutral-200 mt-4 pt-4">
+            <a href="#"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>联系我们</span>
+            </a>
+            <div class="mt-3 space-y-2 text-xs text-neutral-500 pl-2">
+                <p>工作时间: 8:30 - 22:00</p>
+                <p>客服电话: 187-0022-2185</p>
+                <p><a href="#" class="hover:text-primary transition-custom">关于我们</a>
+                    <a href="#" class="hover:text-primary transition-custom">招贤纳士</a>
+                </p>
+                <p><a href="#" class="hover:text-primary transition-custom">商务合作</a>
+                    <a href="#" class="hover:text-primary transition-custom">寻求报道</a>
+                </p>
+                <p>18700222185@163.com在线客服</p>
+                <p>京ICP备19004658号</p>
+                <p>经营性网站备案信息</p>
+                <p>公安备案号110110110110
+                    营业执照</p>
+                <p>互联网违法和不良信息举报中心</p>
+                <p>家长监护
+                    中国互联网举报中心</p>
+                <p>网络110报警服务
+                    账号管理规范</p>
+                <p>版权与免责声明
+                    出版物许可证</p>
+            </div>
+        </div>
+        <div class="border-t border-neutral-200 mt-4 pt-4">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-24 h-24 relative">
+                    <div
+                        class="w-24 h-24 rounded-full bg-gradient-love flex items-center justify-center text-white  hover:scale-110 hover:rotate-12 transition-all duration-300">
+                        <i class="fa-solid fa-heart text-gradient text-6xl"></i>
+                    </div>
+                </div>
+            </div>
+            <p class="text-xs text-neutral-500 text-center">©2003-2025 陕西文刀水寿网络技术有限责任公司</p>
+        </div>
+    </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="flex-grow pt-24 pb-16 relative z-10 pl-64">
+    <div class="container mx-auto px-4">
+        <!-- 小屏幕下换行显示 -->
+        <div class="flex flex-col md:flex-row flex-wrap">
+            <!-- 中间内容区 -->
+            <div class="w-full md:w-3/4 md:px-6 space-y-6">
+                <!-- 轮播图 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
+                    <div class="relative aspect-video h-full ">
+                        <div class="absolute inset-0 carousel-container">
+                            <!-- 轮播图项 1 -->
+                            <div class="w-full h-full bg-cover bg-center carousel-item">
+                                <img id="dynamicImage" src="" alt="动态图片" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black opacity-30"></div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <h3 class="text-2xl font-bold text-white text-shadow">情侣专属活动</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 轮播图导航按钮 -->
+                        <button
+                            class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-primary transition-custom carousel-prev">
+                            <i class="fa-solid fa-chevron-left text-2xl"></i>
+                        </button>
+                        <button
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-primary transition-custom carousel-next">
+                            <i class="fa-solid fa-chevron-right text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 动态内容列表 -->
+                {% for moment in moments %}
+                <!-- 动态1 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card w-full"
+                    data-moment-id="{{ moment.id }}">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden">
+                                    <img src="{{ moment.user.profile.userAvatar.url }}" alt="发布者头像"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-neutral-900">{{ moment.user.name }}</h4>
+                                    <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
+                                </div>
+                            </div>
+                            <button class="text-neutral-400 hover:text-neutral-700 transition-custom">
+                                <i class="fa-solid fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+
+                        <div class="mt-4">
+                            <p class="text-neutral-800">{{ moment.content }}</p>
+                        </div>
+
+                        <!-- 动态图片 -->
+                        <div class="mt-4 grid gap-2
+                                    sm:grid-cols-2
+                                    md:grid-cols-3
+                                    lg:grid-cols-4">
+                            {% for image in moment.moment_images.all %}
+                            <img src="{{ image.image.url }}" alt="动态图片"
+                                class="rounded-lg w-full h-40 object-cover hover-scale">
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-4 flex justify-between items-center">
+                            <div class="flex space-x-4">
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                                    <i class="fa-regular fa-heart"></i>
+                                    <span>{{ moment.likes }}</span>
+                                </button>
+                                <button
+                                    class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                                    <i class="fa-regular fa-comment"></i>
+                                    <span>{{ moment.comments }}</span>
+                                </button>
+                            </div>
+                            <button
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                                <i class="fa-regular fa-share-from-square"></i>
+                                <span>分享</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 评论区域 -->
+                    <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
+                        <div class="space-y-4">
+                            <!-- 评论列表 -->
+                            <div class="comments-list space-y-3">
+                                <!-- 评论将通过JavaScript动态加载 -->
+                            </div>
+                            <!-- 发表评论 -->
+                            <div class="flex space-x-3 mt-2">
+                                <div class="w-8 h-8 rounded-full overflow-hidden">
+                                    <img src="{{ user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=1' }}"
+                                        alt="用户头像" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1 relative">
+                                    <input type="text" placeholder="写下你的评论..."
+                                        class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
+                                    <button
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- 加载更多 -->
+                <button
+                    class="w-full py-3 bg-white rounded-xl shadow-lg text-primary font-medium hover:bg-neutral-50 transition-custom">
+                    加载更多
+                </button>
+            </div>
+
+            <!-- 右侧内容区 -->
+            <div class="w-full md:w-1/4 space-y-6 mt-6 md:mt-0">
+
+                <!-- 智能体聊天窗口 -->
+                <div
+                    class="chat-widget fixed bottom-6 right-4 z-50 max-w-sm w-full bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 transform hover:shadow-2xl">
+                    <!-- 聊天窗口头部 -->
+                    <div class="chat-header bg-gradient-to-r from-primary to-primary/50 text-white p-3 cursor-pointer transition-all duration-300 hover:from-primary/90 hover:to-primary/60"
+                        onclick="toggleChatWindow()">
+                        <div class="flex items-center justify-between gap-3">
+
+                            <!-- 标题区域：增强文字层次 -->
+                            <div class="flex-1 min-w-0 ">
+                                <h3 class="text-base font-semibold truncate">LoveSync-AI</h3>
+                                <p class="text-xs text-white/80 mt-0.5">双人日记小助手</p>
+                            </div>
+
+                            <!-- 状态标签：优化样式 -->
+                            <span
+                                class="text-xs bg-white/15 backdrop-blur-sm px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-green-300 animate-pulse"></span>
+                                在线
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 聊天消息区域 -->
+                    <div class="chat-messages h-[400px] overflow-y-auto p-4 space-y-4" id="chatMessages">
+                    </div>
+
+                    <!-- 输入区域 -->
+                    <div class="chat-input p-4 border-t border-neutral-100">
+                        <div class="flex gap-2">
+                            <input type="text" id="userInput" placeholder="和我说说你的需求吧..."
+                                class="flex-1 px-4 py-2 border border-neutral-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                                onkeydown="if(event.key === 'Enter') sendMessage()">
+                            <button onclick="sendMessage()"
+                                class="bg-primary hover:bg-primary/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成就系统入口 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
+                        <i class="fa-solid fa-trophy text-primary mr-2"></i>
+                        成就系统
+                    </h3>
+                    <a href="{% url 'game_web:achievements' %}"
+                        class="block w-full py-3 bg-primary/10 text-primary font-medium hover:bg-primary/20 transition-custom rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-rocket mr-2"></i>查看我的成就
+                    </a>
+                </div>
+
+                <!-- 热门话题 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
+                        <i class="fa-solid fa-fire text-primary mr-2"></i>
+                        热门话题
+                    </h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                <span
+                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情人节计划#</span>
+                                <span class="text-neutral-700 text-sm">2.4k 动态</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                <span
+                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情侣穿搭#</span>
+                                <span class="text-neutral-700 text-sm">1.8k 动态</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                <span
+                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#爱情保鲜秘诀#</span>
+                                <span class="text-neutral-700 text-sm">1.5k 动态</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                <span
+                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情侣旅行#</span>
+                                <span class="text-neutral-700 text-sm">1.2k 动态</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
+                                <span
+                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#恋爱周年纪念#</span>
+                                <span class="text-neutral-700 text-sm">980 动态</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 推荐关注模块 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
+                        <i class="fa-solid fa-user-plus text-primary mr-2"></i>
+                        推荐关注
+                    </h3>
+                    <ul class="space-y-4">
+                        <li>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                    <img src="https://picsum.photos/200/200?random=21" alt="推荐用户头像"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-neutral-900 font-medium text-sm">甜甜的小两口</h4>
+                                    <p class="text-neutral-500 text-xs">分享日常甜蜜瞬间</p>
+                                </div>
+                                <button
+                                    class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                    关注
+                                </button>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                    <img src="https://picsum.photos/200/200?random=3" alt="推荐用户头像"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-neutral-900 font-medium text-sm">情侣摄影师</h4>
+                                    <p class="text-neutral-500 text-xs">记录爱情的每一刻</p>
+                                </div>
+                                <button
+                                    class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                    关注
+                                </button>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                    <img src="https://picsum.photos/200/200?random=4" alt="推荐用户头像"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-neutral-900 font-medium text-sm">恋爱导师</h4>
+                                    <p class="text-neutral-500 text-xs">分享恋爱技巧与建议</p>
+                                </div>
+                                <button
+                                    class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                    关注
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 社区活动 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-neutral-900 mb-4">社区活动</h3>
+                        <div class="space-y-4">
+                            <div class="bg-gradient-love rounded-lg p-4 text-white">
+                                <h4 class="font-semibold">七夕情侣摄影大赛</h4>
+                                <p class="text-white/80 text-sm mt-1">分享你们的甜蜜照片，赢取浪漫奖品</p>
+                                <div class="mt-3 text-xs bg-white/20 inline-block px-3 py-1 rounded-full">
+                                    还有3天结束
+                                </div>
+                            </div>
+                            <div
+                                class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
+                                <h4 class="font-medium text-neutral-900">情侣默契大考验</h4>
+                                <p class="text-neutral-600 text-sm mt-1">测试你们的默契程度，看看是否心灵相通</p>
+                                <div
+                                    class="mt-3 text-xs bg-primary/10 text-primary inline-block px-3 py-1 rounded-full">
+                                    进行中
+                                </div>
+                            </div>
+                            <div
+                                class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
+                                <h4 class="font-medium text-neutral-900">爱情故事征集</h4>
+                                <p class="text-neutral-600 text-sm mt-1">分享你们的爱情故事，让更多人感受幸福</p>
+                                <div
+                                    class="mt-3 text-xs bg-neutral-100 text-neutral-600 inline-block px-3 py-1 rounded-full">
+                                    即将开始
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 热门情侣 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-4">热门情侣</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex -space-x-2">
+                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                        <img src="https://picsum.photos/200/200?random=12" alt="情侣头像1"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                        <img src="https://picsum.photos/200/200?random=13" alt="情侣头像2"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-sm text-neutral-900">甜蜜二人组</h4>
+                                    <p class="text-neutral-500 text-xs">3.2k 粉丝</p>
+                                </div>
+                            </div>
+                            <button
+                                class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                关注
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex -space-x-2">
+                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                        <img src="https://picsum.photos/200/200?random=14" alt="情侣头像1"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                        <img src="https://picsum.photos/200/200?random=15" alt="情侣头像2"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-sm text-neutral-900">旅行伴侣</h4>
+                                    <p class="text-neutral-500 text-xs">2.8k 粉丝</p>
+                                </div>
+                            </div>
+                            <button
+                                class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                关注
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex -space-x-2">
+                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                        <img src="https://picsum.photos/200/200?random=16" alt="情侣头像1"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                        <img src="https://picsum.photos/200/200?random=17" alt="情侣头像2"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-sm text-neutral-900">美食爱好者</h4>
+                                    <p class="text-neutral-500 text-xs">2.5k 粉丝</p>
+                                </div>
+                            </div>
+                            <button
+                                class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
+                                关注
+                            </button>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full mt-4 py-2 text-center text-primary text-sm border border-primary rounded-lg hover:bg-primary hover:text-white transition-custom">
+                        查看更多
+                    </button>
+                </div>
+
+                <!-- 应用下载 -->
+                <div class="bg-gradient-love rounded-xl shadow-lg p-6 text-white hover-scale">
+                    <h3 class="text-lg font-semibold mb-2">下载 LoveSync 应用</h3>
+                    <p class="text-white/80 text-sm mb-4">随时随地记录你们的爱情故事</p>
+                    <div class="flex space-x-3">
+                        <a href="#"
+                            class="bg-white/20 hover:bg-white/30 transition-custom rounded-lg px-3 py-2 flex items-center space-x-2">
+                            <i class="fa-brands fa-apple text-lg"></i>
+                            <div>
+                                <div class="text-xs">下载</div>
+                                <div class="text-sm font-medium">App Store</div>
+                            </div>
+                        </a>
+                        <a href="#"
+                            class="bg-white/20 hover:bg-white/30 transition-custom rounded-lg px-3 py-2 flex items-center space-x-2">
+                            <i class="fa-brands fa-android text-lg"></i>
+                            <div>
+                                <div class="text-xs">下载</div>
+                                <div class="text-sm font-medium">Google Play</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // 轮播
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageElement = document.getElementById('dynamicImage');
+        let a = 1; // 初始化变量 a
+        const maxImageNumber = 16; // 假设图片编号从 1 到 5，可根据实际情况修改
+
+        // 定义函数用于更新图片地址
+        function updateImage() {
+            a++;
+            if (a > maxImageNumber) {
+                a = 1; // 如果 a 超过最大图片编号，则重置为 1
+            }
+            imageElement.src = `../static/images/${a}.jpg`;
+        }
+
+        // 初始调用一次更新图片地址
+        updateImage();
+
+        // 设置定时器，每 5 秒更新一次图片地址，可根据需要调整时间间隔
+        setInterval(updateImage, 1000);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleSidebarButton = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+
+        // 切换导航栏显示/隐藏
+        toggleSidebarButton.addEventListener('click', function () {
+            sidebar.classList.toggle('hidden');
+        });
+
+        // 点赞动效
+        const likeButtons = document.querySelectorAll('.like-btn');
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-regular')) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid', 'text-primary', 'like-animation');
+                } else {
+                    icon.classList.remove('fa-solid', 'text-primary');
+                    icon.classList.add('fa-regular');
+                }
+            });
+        });
+
+        // 初始化聊天会话
+        initChatSession();
+
+        // 初始化点赞和评论功能
+        initLikeCommentFunctionality();
+    });
+
+    // 聊天窗口功能
+    function toggleChatWindow() {
+        const chatWidget = document.querySelector('.chat-widget');
+        chatWidget.classList.toggle('chat-collapsed');
+    }
+
+    // 全局会话ID
+    let sessionId = null;
+
+    // 初始化聊天会话
+    function initChatSession() {
+        fetch('/AI/chat/init/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionId = data.session_id;
+                    addMessage(data.response, 'assistant');
+                } else {
+                    // 初始化失败时显示错误消息
+                    addMessage('小助手暂时离线，请稍后再试~', 'assistant');
+                }
+            })
+            .catch(error => {
+                console.error('初始化聊天会话失败:', error);
+                // 网络错误时显示友好消息
+                addMessage('小助手暂时连接不上，请检查网络后重试~', 'assistant');
+            });
+    }
+
+    // 发送消息
+    function sendMessage() {
+        const userInput = document.getElementById('userInput');
+        const message = userInput.value.trim();
+        if (message) {
+            // 显示用户消息
+            addMessage(message, 'user');
+            // 清空输入框
+            userInput.value = '';
+
+            if (!sessionId) {
+                console.error('会话未初始化');
+                return;
+            }
+
+            // 调用AI API获取回复
+            fetch('/AI/chat/message/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    message: message
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        addMessage(data.response, 'assistant');
+                    } else {
+                        addMessage('抱歉，我暂时无法回复你的消息。', 'assistant');
+                    }
+                })
+                .catch(error => {
+                    console.error('发送消息失败:', error);
+                    addMessage('抱歉，我暂时无法回复你的消息。', 'assistant');
+                });
+        }
+    }
+
+    // 获取CSRF令牌
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // 添加消息到聊天窗口
+    function addMessage(text, type) {
+        const messagesDiv = document.getElementById("chatMessages");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${type}-message flex items-start`;
+
+        let avatar = "";
+        if (type === "user") {
+            avatar = `<div class="avatar w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-700 ml-3 flex-shrink-0">
+                <img src = "{{ user.profile.userAvatar.url }}" alt = "用户头像"
+                         class = "w-full h-full object-cover" >
+              </div>`;
+        } else {
+            avatar = `<div class = "w-8 h-8 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md  animate-pulse-slow" >
+                                  <i class = "fa-solid fa-heart text-xl" ></i >
+                            </div >`
+        }
+
+        messageDiv.innerHTML = `
+        ${avatar}
+        <div class="message-content px-4 py-2 max-w-[80%]">${text}</div>
+    `;
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // 初始化点赞和评论功能
+    function initLikeCommentFunctionality() {
+        // 点赞按钮事件
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                const icon = this.querySelector('i');
+                const countSpan = this.querySelector('span');
+
+                fetch(`/api/moment/moments/${momentId}/like/`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.is_liked) {
+                            icon.classList.remove('fa-regular');
+                            icon.classList.add('fa-solid', 'text-primary', 'like-animation');
+                        } else {
+                            icon.classList.remove('fa-solid', 'text-primary');
+                            icon.classList.add('fa-regular');
+                        }
+                        countSpan.textContent = data.likes;
+                    })
+                    .catch(error => {
+                        console.error('点赞失败:', error);
+                        alert('点赞失败，请重试');
+                    });
+            });
+        });
+
+        // 评论按钮事件
+        document.querySelectorAll('.comment-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const postCard = this.closest('.post-card');
+                const commentSection = postCard.querySelector('.comment-section');
+                commentSection.classList.toggle('hidden');
+
+                // 如果评论区域显示，则加载评论
+                if (!commentSection.classList.contains('hidden')) {
+                    const momentId = postCard.getAttribute('data-moment-id');
+                    loadComments(momentId, postCard);
+                }
+            });
+        });
+
+        // 评论提交事件（回车键）
+        document.querySelectorAll('.comment-input').forEach(input => {
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    submitComment(this);
+                }
+            });
+        });
+
+        // 评论提交事件（点击按钮）
+        document.querySelectorAll('.comment-submit').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = this.closest('.flex').querySelector('.comment-input');
+                submitComment(input);
+            });
+        });
+    }
+
+    // 加载评论
+    function loadComments(momentId, postCard) {
+        const commentsList = postCard.querySelector('.comments-list');
+
+        // 显示加载状态
+        commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">加载评论中...</div>';
+
+        fetch(`/api/moment/moments/${momentId}/comments/`, {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                commentsList.innerHTML = '';
+
+                if (data.comments.length === 0) {
+                    commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">暂无评论，快来抢沙发吧~</div>';
+                    return;
+                }
+
+                // 渲染一级评论，二级回复嵌套在对应一级评论下
+                data.comments.forEach(comment => {
+                    if (comment.parent_id === null) { // 只渲染一级评论
+                        const commentElement = renderComment(comment);
+                        commentsList.appendChild(commentElement);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('加载评论失败:', error);
+                commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
+            });
+    }
+
+    // 删除评论
+    function deleteComment(element, momentId, commentId) {{
+            fetch(`/api/moment/moments/${momentId}/delete_comment/${commentId}/`, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.message === '评论删除成功') {
+                        // 在移除元素之前保存对post-card的引用
+                        const postCard = element.closest('.post-card');
+
+                        // 移除主评论DOM（包含其下所有二级回复）
+                        const commentDiv = element.closest('.comment-slide');
+                        if (commentDiv) commentDiv.remove();
+
+                        // 更新评论数
+                        if (postCard) {
+                            const commentBtn = postCard.querySelector('.comment-btn span');
+                            if (commentBtn) {
+                                commentBtn.textContent = data.comments;
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('删除评论失败:', error);
+                    alert(`删除失败：${error.message}`);
+                });
+        }
+    }
+
+    // 评论点赞功能
+    function likeComment(element, momentId, commentId) {
+        const icon = element.querySelector('i');
+        const countSpan = element.querySelector('span') || element.textContent.split(' ')[1];
+
+        fetch(`/api/moment/moments/${momentId}/comment/${commentId}/like/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_liked) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = '#FF6B8B';
+                } else {
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    icon.style.color = '';
+                }
+                const countElement = element.querySelector('span');
+                if (countElement) {
+                    countElement.textContent = data.likes;
+                } else {
+                    element.innerHTML = `<i class="${icon.className}"></i> ${data.likes}`;
+                }
+            })
+            .catch(error => {
+                console.error('点赞失败:', error);
+                alert('点赞失败，请重试');
+            });
+    }
+
+    // 回复点赞功能
+    function likeReply(element, replyId) {
+        const icon = element.querySelector('i');
+        const countSpan = element.querySelector('span') || element.textContent.split(' ')[1];
+        const momentId = element.closest('.post-card').getAttribute('data-moment-id');
+
+        fetch(`/api/moment/moments/${momentId}/comment/${replyId}/like/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_liked) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = '#FF6B8B';
+                } else {
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    icon.style.color = '';
+                }
+                const countElement = element.querySelector('span');
+                if (countElement) {
+                    countElement.textContent = data.likes;
+                } else {
+                    element.innerHTML = `<i class="${icon.className}"></i> ${data.likes}`;
+                }
+            })
+            .catch(error => {
+                console.error('点赞失败:', error);
+                alert('点赞失败，请重试');
+            });
+    }
+
+    // 删除回复功能
+    function deleteReply(element, momentId, replyId) {
+        fetch(`/api/moment/moments/${momentId}/delete_comment/${replyId}/`, {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message === '评论删除成功') {
+                    // 在移除元素之前保存对post-card的引用
+                    const postCard = element.closest('.post-card');
+
+                    // 移除回复DOM元素
+                    const replyDiv = element.closest('.reply-item');
+                    if (replyDiv) replyDiv.remove();
+
+                    // 更新评论数
+                    if (postCard) {
+                        const commentBtn = postCard.querySelector('.comment-btn span');
+                        if (commentBtn) {
+                            commentBtn.textContent = data.comments;
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('删除回复失败:', error);
+                alert(`删除失败：${error.message}`);
+            });
+    }
+
+    // 渲染评论
+    function renderComment(comment) {
+        const div = document.createElement('div');
+        div.className = 'flex space-x-3 comment-slide';
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full overflow-hidden">
+                <img src="${comment.avatar}" alt="${comment.user}的头像" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1">
+                <div class="bg-white rounded-lg p-3">
+                    <div class="flex justify-between items-center">
+                        <h5 class="font-medium text-sm text-neutral-900">${comment.user}</h5>
+                        <span class="text-neutral-400 text-xs">${new Date(comment.created_at).toLocaleString()}</span>
+                    </div>
+                    <p class="text-neutral-700 text-sm mt-1">${comment.content}</p>
+                </div>
+                <div class="flex space-x-3 mt-2">
+                    <button class="text-neutral-500 hover:text-primary text-xs transition-custom comment-like" data-comment-id="${comment.id}">
+                        <i class="fa-regular fa-heart"></i> ${comment.likes || 0}
+                    </button>
+                    <button class="reply-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-comment-id="${comment.id}">
+                        回复
+                    </button>
+                    ${comment.is_author ? `
+                    <button class="text-neutral-500 hover:text-red-500 text-xs transition-custom comment-delete">
+                        <i class="fa-regular fa-trash-can"></i> 删除
+                    </button>
+                    ` : ''}
+                </div>
+                
+                <!-- 回复输入框 -->
+                <div class="reply-input-container hidden ml-10 mt-2" data-comment-id="${comment.id}">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-6 h-6 rounded-full overflow-hidden">
+                            <img src="{{ user.profile.userAvatar.url }}" alt="我的头像" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <textarea class="reply-textarea w-full p-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="写下你的回复..." rows="1"></textarea>
+                            <div class="flex justify-end mt-2">
+                                <button class="reply-submit text-xs bg-primary text-white px-3 py-1 rounded-full hover:bg-primary/90 transition-colors">
+                                    发送
+                                </button>
+                                <button class="text-xs text-neutral-500 hover:text-neutral-700 ml-2 reply-cancel">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 回复列表 -->
+                ${comment.replies.length > 0 ? `
+                    <div class="ml-10 mt-2 space-y-2">
+                        ${comment.replies.map(reply => `
+                            <div class="flex space-x-2 reply-item" data-reply-id="${reply.id}">
+                                <div class="w-6 h-6 rounded-full overflow-hidden">
+                                    <img src="${reply.avatar}" alt="${reply.user}的头像" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1">
+                                    <div class="bg-neutral-100 rounded-lg p-2">
+                                        <div class="flex justify-between items-center">
+                                            <h6 class="font-medium text-xs text-neutral-900">${reply.user}</h6>
+                                            <span class="text-neutral-400 text-xs">${new Date(reply.created_at).toLocaleString()}</span>
+                                        </div>
+                                        <p class="text-neutral-700 text-xs mt-1">${reply.content}</p>
+                                    </div>
+                                    <div class="flex space-x-3 mt-2">
+                                        <button class="reply-like-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-reply-id="${reply.id}">
+                                            <i class="fa-regular fa-heart"></i> ${reply.likes || 0}
+                                        </button>
+                                        <button class="reply-reply-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-reply-id="${reply.id}">
+                                            回复
+                                        </button>
+                                        ${reply.is_author ? `
+                                        <button class="reply-delete-btn text-neutral-500 hover:text-red-500 text-xs transition-custom" data-reply-id="${reply.id}">
+                                            <i class="fa-regular fa-trash-can"></i> 删除
+                                        </button>
+                                        ` : ''}
+                                    </div>
+                                    <!-- 回复的回复输入框 -->
+                                    <div class="reply-reply-input-container hidden ml-10 mt-2" data-reply-id="${reply.id}">
+                                        <div class="flex items-start space-x-2">
+                                            <div class="w-6 h-6 rounded-full overflow-hidden">
+                                                <img src="{{ user.profile.userAvatar.url }}" alt="我的头像" class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="flex-1">
+                                                <textarea class="reply-reply-textarea w-full p-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="写下你的回复..." rows="1"></textarea>
+                                                <div class="flex justify-end mt-2">
+                                                    <button class="reply-reply-submit text-xs bg-primary text-white px-3 py-1 rounded-full hover:bg-primary/90 transition-colors" data-reply-id="${reply.id}">
+                                                        发送
+                                                    </button>
+                                                    <button class="text-xs text-neutral-500 hover:text-neutral-700 ml-2 reply-reply-cancel">取消</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        // 添加删除按钮事件监听
+        const deleteBtn = div.querySelector('.comment-delete');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function () {
+                const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                deleteComment(this, momentId, comment.id);
+            });
+        }
+
+        // 添加评论点赞事件监听
+        const commentLikeBtn = div.querySelector('.comment-like');
+        if (commentLikeBtn) {
+            commentLikeBtn.addEventListener('click', function () {
+                const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                const commentId = this.getAttribute('data-comment-id');
+                likeComment(this, momentId, commentId);
+            });
+        }
+
+        // 添加回复按钮事件监听
+        const replyBtn = div.querySelector('.reply-btn');
+        if (replyBtn) {
+            replyBtn.addEventListener('click', function () {
+                const commentId = this.getAttribute('data-comment-id');
+                const replyInput = div.querySelector(`.reply-input-container[data-comment-id="${commentId}"]`);
+                replyInput.classList.toggle('hidden');
+                if (!replyInput.classList.contains('hidden')) {
+                    replyInput.querySelector('.reply-textarea').focus();
+                }
+            });
+        }
+
+        // 添加回复取消按钮事件监听
+        const replyCancelBtn = div.querySelector('.reply-cancel');
+        if (replyCancelBtn) {
+            replyCancelBtn.addEventListener('click', function () {
+                const replyInput = this.closest('.reply-input-container');
+                replyInput.classList.add('hidden');
+            });
+        }
+
+        // 添加回复提交事件监听
+        const replySubmitBtn = div.querySelector('.reply-submit');
+        if (replySubmitBtn) {
+            replySubmitBtn.addEventListener('click', function () {
+                const replyTextarea = div.querySelector('.reply-textarea');
+                const content = replyTextarea.value.trim();
+                if (!content) return;
+
+                const postCard = div.closest('.post-card');
+                const momentId = postCard.getAttribute('data-moment-id');
+                const parentId = comment.id;
+
+                submitReply(momentId, parentId, content, postCard);
+
+                // 清空并隐藏回复输入框
+                replyTextarea.value = '';
+                div.querySelector('.reply-input-container').classList.add('hidden');
+            });
+        }
+
+        // 添加回复点赞事件监听
+        const replyLikeBtns = div.querySelectorAll('.reply-like-btn');
+        replyLikeBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const replyId = this.getAttribute('data-reply-id');
+                likeReply(this, replyId);
+            });
+        });
+
+        // 添加回复的回复按钮事件监听
+        const replyReplyBtns = div.querySelectorAll('.reply-reply-btn');
+        replyReplyBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const replyId = this.getAttribute('data-reply-id');
+                const replyInput = div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"]`);
+                replyInput.classList.toggle('hidden');
+                if (!replyInput.classList.contains('hidden')) {
+                    replyInput.querySelector('.reply-reply-textarea').focus();
+                }
+            });
+        });
+
+        // 添加回复的回复取消按钮事件监听
+        const replyReplyCancelBtns = div.querySelectorAll('.reply-reply-cancel');
+        replyReplyCancelBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const replyInput = this.closest('.reply-reply-input-container');
+                replyInput.classList.add('hidden');
+            });
+        });
+
+        // 添加回复的回复提交事件监听
+        const replyReplySubmitBtns = div.querySelectorAll('.reply-reply-submit');
+        replyReplySubmitBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const replyId = this.getAttribute('data-reply-id');
+                const replyTextarea = div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"] .reply-reply-textarea`);
+                const content = replyTextarea.value.trim();
+                if (!content) return;
+
+                const postCard = div.closest('.post-card');
+                const momentId = postCard.getAttribute('data-moment-id');
+                const parentId = replyId;
+
+                submitReply(momentId, parentId, content, postCard);
+
+                // 清空并隐藏回复输入框
+                replyTextarea.value = '';
+                div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"]`).classList.add('hidden');
+            });
+        });
+
+        // 添加回复删除按钮事件监听
+        const replyDeleteBtns = div.querySelectorAll('.reply-delete-btn');
+        replyDeleteBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                const replyId = this.getAttribute('data-reply-id');
+                deleteReply(this, momentId, replyId);
+            });
+        });
+
+        return div;
+    }
+
+    // 提交评论
+    function submitComment(input) {
+        const content = input.value.trim();
+        if (!content) return;
+
+        const postCard = input.closest('.post-card');
+        const momentId = postCard.getAttribute('data-moment-id');
+        const commentsList = postCard.querySelector('.comments-list');
+
+        fetch(`/api/moment/moments/${momentId}/comment/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ content: content })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === '评论成功') {
+                    // 清空输入框
+                    input.value = '';
+
+                    // 更新评论数
+                    const commentBtn = postCard.querySelector('.comment-btn span');
+                    commentBtn.textContent = data.comments;
+
+                    // 如果评论列表不为空，添加新评论到顶部
+                    if (!commentsList.innerHTML.includes('暂无评论')) {
+                        const commentElement = renderComment(data.comment);
+                        commentsList.insertBefore(commentElement, commentsList.firstChild);
+                    } else {
+                        // 否则重新加载评论
+                        loadComments(momentId, postCard);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('评论失败:', error);
+                alert('评论失败，请重试');
+            });
+    }
+
+    // 提交回复
+    function submitReply(momentId, parentId, content, postCard) {
+        const commentsList = postCard.querySelector('.comments-list');
+
+        fetch(`/api/moment/moments/${momentId}/comment/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ content: content, parent_id: parentId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === '评论成功') {
+                    // 更新评论数
+                    const commentBtn = postCard.querySelector('.comment-btn span');
+                    commentBtn.textContent = data.comments;
+
+                    // 重新加载评论以显示最新的回复
+                    loadComments(momentId, postCard);
+                }
+            })
+            .catch(error => {
+                console.error('回复失败:', error);
+                alert('回复失败，请重试');
+            });
+    }
+</script>
+
+{% endblock %}

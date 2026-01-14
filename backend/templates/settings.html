@@ -1,0 +1,785 @@
+{% extends 'base.html' %}
+{% block title %}情侣社区 - 设置{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+  @layer utilities {
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+    
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+    
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+    
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+    
+        input:checked + .slider {
+            background-color: #FF6B8B;
+        }
+    
+        input:focus + .slider {
+            box-shadow: 0 0 1px #FF6B8B;
+        }
+    
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+    
+        .gradient-text {
+            background-image: linear-gradient(to right, #ff758c, #ff7eb3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div
+  class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col overflow-x-hidden relative scroll-smooth">
+  <!-- 背景装饰元素 -->
+  <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+    </div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+      style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+      style="animation-delay: -4s;"></div>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="flex-grow pt-24 pb-16 relative z-10">
+    <div class="container mx-auto px-4">
+      <!-- 设置页面标题 -->
+      <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
+        <h2 class="text-2xl font-bold text-neutral-900">设置中心</h2>
+        <p class="text-neutral-500 mt-1">管理你的个人信息和应用偏好</p>
+      </div>
+
+      <!-- 设置选项卡 -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden mt-6">
+
+        <!-- 选项卡 -->
+        <div class="flex flex-wrap border-b border-neutral-200">
+          <button class="px-6 py-4 text-primary border-b-2 border-primary font-medium" id="tab-profile">
+            <i class="fa-solid fa-user mr-2"></i>个人信息
+          </button>
+          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+            id="tab-notifications">
+            <i class="fa-solid fa-bell mr-2"></i>通知设置
+          </button>
+          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+            id="tab-privacy">
+            <i class="fa-solid fa-shield mr-2"></i>隐私设置
+          </button>
+          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+            id="tab-account">
+            <i class="fa-solid fa-cog mr-2"></i>账号安全
+          </button>
+          <button class="px-6 py-4 text-neutral-500 hover:text-primary border-b-2 border-transparent font-medium"
+            id="tab-appearance">
+            <i class="fa-solid fa-paint-brush mr-2"></i>外观设置
+          </button>
+        </div>
+
+        <!-- 个人信息设置 -->
+        <div class="p-6" id="content-profile">
+          <form action="{% url 'settings' 'profile' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- 头像设置 -->
+              <div class="md:col-span-1">
+                <div class="bg-neutral-50 rounded-xl p-4 text-center">
+                  <div class="relative w-32 h-32 mx-auto mb-4 cursor-pointer" id="avatar-container">
+                    <div
+                      class="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full opacity-20 animate-pulse">
+                    </div>
+                    <div class="absolute inset-1 bg-white rounded-full overflow-hidden border-2 border-primary">
+                      <img src="{{ user.profile.userAvatar.url}}" alt="用户头像" class="w-full h-full object-cover"
+                        id="avatar-image">
+                    </div>
+                    <button
+                      class="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-custom"
+                      id="camera-button">
+                      <i class="fa-solid fa-camera"></i>
+                    </button>
+                  </div>
+                  <input type="file" id="avatarInput" name="userAvatar" accept="image/*" class="hidden">
+                  <button
+                    class="w-full py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom"
+                    id="change-avatar-button">
+                    更换头像
+                  </button>
+                  <p class="text-xs text-neutral-500 mt-2">支持 JPG, PNG 格式</p>
+                </div>
+              </div>
+
+              <!-- 基本信息设置 -->
+              <div class="md:col-span-2 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">昵称</label>
+                    <input type="text" name="name" value="{{ user.name }}"
+                      class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">性别</label>
+                    <div class="flex space-x-4 mt-2">
+                      <label class="inline-flex items-center">
+                        <input type="radio" name="gender" value="female" class="form-radio h-4 w-4 text-primary">
+                        <span class="ml-2 text-neutral-700">女</span>
+                      </label>
+                      <label class="inline-flex items-center">
+                        <input type="radio" name="gender" value="male" class="form-radio h-4 w-4 text-primary">
+                        <span class="ml-2 text-neutral-700">男</span>
+                      </label>
+                      <label class="inline-flex items-center">
+                        <input type="radio" name="gender" value="other" checked class="form-radio h-4 w-4 text-primary">
+                        <span class="ml-2 text-neutral-700">保密</span>
+                      </label>
+                      <label class="inline-flex items-center">
+                        <span class="ml-2 text-neutral-700 text-xs">(默认为保密)</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">出生日期</label>
+                    <input type="date" value="{{user.profile.birth_date|date:'Y-m-d'}}"
+                      class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">所在地</label>
+                    <select name="location"
+                      class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
+                      <option value="">请选择所在地</option>
+                      <option value="北京市">北京市</option>
+                      <option value="上海市">上海市</option>
+                      <option value="重庆市">重庆市</option>
+                      <option value="天津市">天津市</option>
+                    </select>
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">个人简介</label>
+                    <textarea name="bio" rows="3"
+                      class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">{{ user.profile.bio }}</textarea>
+                  </div>
+                  <div class="pt-4">
+                    <button type="submit"
+                      class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm">
+                      保存设置
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- 通知设置 -->
+        <div class="p-6 hidden" id="content-notifications">
+
+          <!-- 声音和震动 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-medium mb-4">声音和震动</h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">开启通知声音</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">开启震动提醒</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">夜间免打扰 (22:00-07:00)</span>
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 消息通知 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-medium mb-4">消息通知</h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">情侣消息</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">社区消息</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">系统消息</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">评论和回复</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">点赞和收藏</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 推送内容 -->
+          <div class="bg-neutral-50 rounded-xl p-4">
+            <h4 class="text-lg font-medium mb-4">推送内容</h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">纪念日提醒</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">情侣活动推荐</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">热门话题提醒</span>
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">优惠活动推送</span>
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button
+              class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm margin-auto">
+              保存设置
+            </button>
+          </div>
+        </div>
+
+        <!-- 隐私设置 -->
+        <div class="p-6 hidden" id="content-privacy">
+
+          <!-- 个人信息可见性 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-medium mb-4">个人信息可见性</h4>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-2">个人主页</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="profile_visibility" value="everyone" checked
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">所有人可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="profile_visibility" value="friends"
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅好友可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="profile_visibility" value="private"
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅自己可见</span>
+                  </label>
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">显示在线状态</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">允许被搜索</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">显示地理位置</span>
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 内容可见性 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-medium mb-4">内容可见性</h4>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-2">动态</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="moments_visibility" value="everyone" checked
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">所有人可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="moments_visibility" value="friends"
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅好友可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="moments_visibility" value="private"
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅自己可见</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-2">相册</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="album_visibility" value="everyone"
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">所有人可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="album_visibility" value="friends" checked
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅好友可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="album_visibility" value="private" class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅自己可见</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-2">收藏</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="favorites_visibility" value="everyone"
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">所有人可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="favorites_visibility" value="friends" checked
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅好友可见</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="favorites_visibility" value="private"
+                      class="form-radio h-4 w-4 text-primary">
+                    <span class="ml-2 text-neutral-700">仅自己可见</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 互动设置 -->
+          <div class="bg-neutral-50 rounded-xl p-4">
+            <h4 class="text-lg font-medium mb-4">互动设置</h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">允许陌生人私信</span>
+                <label class="switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">允许评论</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-neutral-700">允许转发</span>
+                <label class="switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm">
+              保存设置
+            </button>
+          </div>
+        </div>
+
+        <!-- 账号安全 -->
+        <div class="p-6 hidden" id="content-account">
+
+          <!-- 登录信息 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-medium mb-4">登录信息</h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
+                <div>
+                  <span class="block text-neutral-700">手机号码</span>
+                  <span class="text-sm text-neutral-500">{{ user.username }}</span>
+                </div>
+                <button class="text-primary hover:text-primary/80 transition-custom">
+                  更换
+                </button>
+              </div>
+              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
+                <div>
+                  <span class="block text-neutral-700">邮箱地址</span>
+                  <span class="text-sm text-neutral-500">{{ user.email }}</span>
+                </div>
+                <button class="text-primary hover:text-primary/80 transition-custom">
+                  更换
+                </button>
+              </div>
+              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
+                <div>
+                  <span class="block text-neutral-700">登录密码</span>
+                  <span class="text-sm text-neutral-500">{{ user.password }}</span>
+                </div>
+                <button class="text-primary hover:text-primary/80 transition-custom">
+                  修改
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 外观设置 -->
+        <div class="p-6 hidden" id="content-appearance">
+
+          <!-- 主题颜色 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-semibold mb-2">主题颜色</h4>
+            <div class="flex flex-wrap gap-2">
+              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary"></div>
+              </button>
+              <button class="w-8 h-8 rounded-full border-2 border-transparent hover:border-primary transition-custom">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-primary"></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 字体设置 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-semibold mb-2">字体设置</h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
+                <div>
+                  <label class="text-sm font-medium">字体大小</label>
+                  <div class="flex items-center space-x-2">
+                    <button class="text-primary hover:text-primary/80 transition-custom">
+                      <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <span class="text-sm">16px</span>
+                    <button class="text-primary hover:text-primary/80 transition-custom">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-sm font-medium">字体类型</label>
+                  <select class="text-sm font-medium">
+                    <option value="default">默认字体</option>
+                    <option value="sans-serif">无衬线字体</option>
+                    <option value="serif">衬线字体</option>
+                    <option value="monospace">等宽字体</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
+                <div>
+                  <label class="text-sm font-medium">行高</label>
+                  <div class="flex items-center space-x-2">
+                    <button class="text-primary hover:text-primary/80 transition-custom">
+                      <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <span class="text-sm">1.5</span>
+                    <button class="text-primary hover:text-primary/80 transition-custom">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 界面风格 -->
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <h4 class="text-lg font-semibold mb-2">界面风格</h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center py-2 border-b border-neutral-200">
+                <div>
+                  <label class="text-sm font-medium">页面布局</label>
+                  <select class="text-sm font-medium">
+                    <option value="default">默认布局</option>
+                    <option value="compact">紧凑布局</option>
+                    <option value="wide">宽屏布局</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm font-medium">背景图片</label>
+                  <select class="text-sm font-medium">
+                    <option value="none">无背景</option>
+                    <option value="default">默认背景</option>
+                    <option value="custom">自定义背景</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock content %}
+
+  {% block extra_js %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // ======================
+      // 选项卡切换功能
+      // ======================
+      const tabs = {
+        'tab-profile': 'content-profile',
+        'tab-notifications': 'content-notifications',
+        'tab-privacy': 'content-privacy',
+        'tab-account': 'content-account',
+        'tab-appearance': 'content-appearance',
+      };
+
+      // 获取 URL 参数并设置默认选项卡
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeTabParam = urlParams.get('tab');
+      let activeTab = activeTabParam || 'tab-profile';
+
+      // 验证选项卡有效性
+      if (!Object.keys(tabs).includes(activeTab)) {
+        activeTab = 'tab-profile';
+      }
+
+      // 切换选项卡函数
+      function switchTab(activeTabId) {
+        // 隐藏所有选项卡和内容
+        Object.keys(tabs).forEach(tabId => {
+          const tabButton = document.getElementById(tabId);
+          const contentId = tabs[tabId];
+
+          if (tabButton) {
+            tabButton.classList.remove('text-primary', 'border-primary');
+            tabButton.classList.add('text-neutral-500', 'border-transparent');
+          }
+
+          if (contentId) {
+            document.getElementById(contentId).classList.add('hidden');
+          }
+        });
+
+        // 激活当前选项卡
+        const currentTabButton = document.getElementById(activeTabId);
+        const currentContentId = tabs[activeTabId];
+
+        if (currentTabButton && currentContentId) {
+          currentTabButton.classList.add('text-primary', 'border-primary');
+          document.getElementById(currentContentId).classList.remove('hidden');
+        }
+      }
+
+      // 初始化选项卡
+      switchTab(activeTab);
+
+      // 绑定选项卡点击事件
+      Object.keys(tabs).forEach(tabId => {
+        const tabButton = document.getElementById(tabId);
+        if (tabButton) {
+          tabButton.addEventListener('click', () => {
+            switchTab(tabId);
+            history.pushState({}, '', `?tab=${tabId.split('-')[1]}`); // 更新 URL 参数
+          });
+        }
+      });
+
+
+      // ======================
+      // 头像上传功能（支持三种触发方式）
+      // ======================
+      const avatarContainer = document.getElementById('avatar-container');
+      const avatarImage = document.getElementById('avatar-image');
+      const cameraButton = document.getElementById('camera-button');
+      const changeAvatarButton = document.getElementById('change-avatar-button');
+      const avatarInput = document.getElementById('avatarInput');
+      let originalAvatarUrl = avatarImage.src; // 存储原始头像 URL
+
+      // 触发文件选择的公共函数
+      function triggerFileSelection() {
+        avatarInput.click();
+      }
+
+      // 绑定三种触发方式
+      if (avatarContainer) {
+        avatarContainer.addEventListener('click', (e) => {
+          // 排除相机按钮的点击事件
+          if (!cameraButton.contains(e.target)) {
+            triggerFileSelection();
+          }
+        });
+      }
+
+      if (cameraButton) {
+        cameraButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          triggerFileSelection(); // 统一调用公共函数
+        });
+      }
+
+      if (changeAvatarButton) {
+        changeAvatarButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          triggerFileSelection(); // 统一调用公共函数
+        });
+      }
+
+      // 处理文件选择和预览
+      if (avatarInput && avatarImage) {
+        avatarInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // 文件类型验证
+          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+          if (!allowedTypes.includes(file.type)) {
+            alert('仅支持 JPG/PNG/GIF 格式！');
+            e.target.value = ''; // 清空无效文件
+            return;
+          }
+
+          // 保存原始头像 URL（用于取消上传）
+          originalAvatarUrl = avatarImage.src;
+
+          // 图片预览
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            // 淡入效果
+            avatarImage.style.opacity = '0';
+            setTimeout(() => {
+              avatarImage.src = event.target.result;
+              avatarImage.style.opacity = '1';
+            }, 200);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+
+      // ======================
+      // 表单验证与提交处理
+      // ======================
+      const profileForm = document.querySelector('form[action*="profile"]');
+      const nameInput = document.querySelector('input[name="name"]');
+
+      if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+          // 昵称验证
+          if (nameInput && nameInput.value.trim().length < 2) {
+            alert('昵称至少需要 2 个字符！');
+            e.preventDefault();
+            return;
+          }
+
+          // 显示加载状态
+          const submitButton = e.target.querySelector('button[type="submit"]');
+          if (submitButton) {
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 保存中...';
+
+            // 延迟恢复按钮状态（模拟异步请求）
+            setTimeout(() => {
+              submitButton.disabled = false;
+              submitButton.innerHTML = originalText;
+            }, 1500);
+          }
+        });
+      }
+    });
+
+    // 获取 CSRF 令牌（供 AJAX 使用）
+    function getCSRFToken() {
+      const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+      return csrfInput ? csrfInput.value : '';
+    }
+  </script>
+  {% endblock extra_js %}
