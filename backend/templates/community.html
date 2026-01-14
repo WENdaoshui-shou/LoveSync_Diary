@@ -892,6 +892,30 @@
 
     // 初始化点赞和评论功能
     function initLikeCommentFunctionality() {
+        // 初始化点赞状态
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            const momentId = btn.closest('.post-card').getAttribute('data-moment-id');
+            const icon = btn.querySelector('i');
+
+            // 调用is_liked API检查是否已点赞
+            fetch(`/api/moment/moments/${momentId}/is_liked/`, {
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_liked) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid', 'text-primary');
+                    }
+                })
+                .catch(error => {
+                    console.error('获取点赞状态失败:', error);
+                });
+        });
+
         // 点赞按钮事件
         document.querySelectorAll('.like-btn').forEach(btn => {
             btn.addEventListener('click', function () {
@@ -995,7 +1019,8 @@
     }
 
     // 删除评论
-    function deleteComment(element, momentId, commentId) {{
+    function deleteComment(element, momentId, commentId) {
+        {
             fetch(`/api/moment/moments/${momentId}/delete_comment/${commentId}/`, {
                 method: 'DELETE',
                 credentials: 'same-origin',

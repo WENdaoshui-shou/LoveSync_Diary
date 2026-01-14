@@ -1036,6 +1036,36 @@
         initDiaryModal();
         initPhotoUpload();
 
+        // 初始化点赞状态
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            const noteId = btn.getAttribute('data-note-id');
+            const icon = btn.querySelector('i');
+            
+            // 调用is_liked API检查是否已点赞
+            fetch(`/api/note/notes/${noteId}/is_liked/`, {
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.is_liked) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        icon.style.color = '#FF6B8B';
+                    }
+                })
+                .catch(error => {
+                    console.error('获取点赞状态失败:', error);
+                });
+        });
+        
         // 点赞按钮事件
         document.querySelectorAll('.like-btn').forEach(btn => {
             btn.addEventListener('click', function () {

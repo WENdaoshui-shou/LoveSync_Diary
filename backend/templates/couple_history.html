@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}情侣关系历史 | 恋爱空间{% endblock %}
+
+{% block content %}
+<main class="container mx-auto px-6 pt-24 pb-16">
+    <!-- 页面标题 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-neutral-800">情侣关系历史</h1>
+        <p class="text-neutral-600 mt-2">记录你们曾经的美好时光</p>
+    </div>
+
+    <!-- 历史记录卡片 -->
+    <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-fade-in">
+        {% if history_data %}
+        <div class="space-y-6">
+            {% for history in history_data %}
+            <div class="border-b border-neutral-200 pb-6 last:border-b-0 last:pb-0 animate-slide-up"
+                data-record-id="{{ history.record_id }}">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <!-- 伴侣信息 -->
+                    <div class="flex items-center mb-4 md:mb-0 md:mr-6">
+                        <div class="relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20">
+                            <img src="{{ history.partner.profile.userAvatar.url }}" alt="{{ history.partner.username }}"
+                                class="w-full h-full object-cover img-loading"
+                                onload="this.classList.remove('img-loading')" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full">
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="font-bold text-lg">{{ history.partner.name }}</h3>
+                            <p class="text-sm text-neutral-500">@{{ history.partner.username }}</p>
+                        </div>
+                    </div>
+
+                    <!-- 删除按钮 -->
+                    <button onclick="deleteHistoryRecord({{ history.record_id }})"
+                        class="text-red-500 hover:text-red-600 transition-custom text-sm mb-4 md:mb-0">
+                        <i class="fa fa-trash mr-1"></i>删除记录
+                    </button>
+                </div>
+
+                <!-- 关系时间信息 -->
+                <div class="flex-1 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-xs text-neutral-500">开始时间</p>
+                        <p class="font-medium">{{ history.started_at }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-neutral-500">结束时间</p>
+                        <p class="font-medium">{{ history.ended_at }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-neutral-500">相恋时长</p>
+                        <p class="font-medium text-primary">{{ history.duration }}</p>
+                    </div>
+                </div>
+
+                <!-- 关系进度条 -->
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm text-neutral-500 mb-1">
+                        <span>{{ history.started_at }}</span>
+                        <span>{{ history.ended_at }}</span>
+                    </div>
+                    <div class="h-2 bg-neutral-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
+                            style="width: {{ history.duration_days}}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- 无历史记录状态 -->
+        <div class="text-center py-12">
+            <div class="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fa fa-history text-4xl text-neutral-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-neutral-800 mb-2">暂无情侣关系历史</h3>
+            <p class="text-neutral-600 mb-6">你还没有任何结束的情侣关系记录</p>
+            <a href="{% url 'couple:couple' %}"
+                class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-lg">
+                <i class="fa fa-heart mr-2"></i>
+                去绑定情侣
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="text-center animate-slide-up" style="animation-delay: 0.5s">
+        <a href="{% url 'couple:couple' %}"
+            class="inline-flex items-center px-6 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-custom">
+            <i class="fa fa-arrow-left mr-2"></i>
+            返回情侣设置
+        </a>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 页面加载动画
+    document.addEventListener('DOMContentLoaded', function () {
+        // 添加页面加载完成的动画效果
+        const elements = document.querySelectorAll('.animate-slide-up');
+        elements.forEach((el, index) => {
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    // 删除历史记录函数
+    function deleteHistoryRecord(recordId) {{
+            // 发送AJAX请求删除记录
+            fetch(`/couple/history/delete/${recordId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 删除成功，移除对应的DOM元素
+                        const recordElement = document.querySelector(`[data-record-id="${recordId}"]`);
+                        if (recordElement) {
+                            // 添加删除动画
+                            recordElement.style.opacity = '0';
+                            recordElement.style.transform = 'translateY(20px)';
+                            recordElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+                            setTimeout(() => {
+                                recordElement.remove();
+
+                                // 检查是否还有记录
+                                const remainingRecords = document.querySelectorAll('.animate-slide-up');
+                                if (remainingRecords.length === 0) {
+                                    // 如果没有记录了，刷新页面以显示空状态
+                                    window.location.reload();
+                                }
+                            }, 300);
+                        }
+                    } else {
+                        alert('删除失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('删除记录时发生错误:', error);
+                    alert('删除失败，请稍后重试。');
+                });
+        }
+    }
+
+    // 获取CSRF Token的辅助函数
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // 查找csrftoken cookie
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

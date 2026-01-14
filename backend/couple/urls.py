@@ -4,7 +4,7 @@ from .views import (
     AnniversaryViewSet, CoupleTaskViewSet, TaskCompletionViewSet,
     couple_view, invite_partner_view, 
     love_story_view, couple_test_view, couple_places_view, 
-    couple_recommendation_view, couple_history_view,
+    couple_recommendation_view, couple_history_view, delete_couple_history,
     accept_request, reject_request, cancel_request, breakup, couple_settings
 )
 
@@ -30,6 +30,7 @@ web_urlpatterns = [
     path('places/', couple_places_view, name='couple_places'),
     path('recommendation/', couple_recommendation_view, name='couple_recommendation'),
     path('history/', couple_history_view, name='couple_history'),
+    path('history/delete/<int:history_id>/', delete_couple_history, name='delete_couple_history'),
 ]
 
 urlpatterns = [

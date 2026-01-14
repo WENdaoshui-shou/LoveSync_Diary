@@ -226,6 +226,12 @@ def lovesync(request):
         except (AttributeError, Exception):
             couple_user = None
             couple_id = None
+        
+        # 检查用户是否绑定情侣，未绑定则重定向到情侣设置页面
+        if not couple_id:
+            from django.contrib import messages
+            messages.error(request, '请先绑定情侣关系，才能使用双人日记功能')
+            return redirect('couple:couple')
 
         base_filters = Q(user_id=user_id)
         if couple_id:

@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.generic import TemplateView
+from django.db import models
 from .models import Anniversary, CoupleTask, TaskCompletion
 from .serializers import AnniversarySerializer, CoupleTaskSerializer, TaskCompletionSerializer
 
@@ -149,7 +150,77 @@ def couple_recommendation_view(request):
 @login_required
 def couple_history_view(request):
     """情侣历史视图"""
-    return render(request, 'couple.html')
+    from core.models import CoupleRelationHistory
+    
+    # 获取当前用户的所有情侣关系历史记录
+    # 包括作为user1和user2的记录
+    user = request.user
+    relation_history = CoupleRelationHistory.objects.filter(
+        models.Q(user1=user) | models.Q(user2=user)
+    ).order_by('-ended_at')
+    
+    # 准备历史记录数据，添加伴侣信息和关系时长
+    history_data = []
+    for record in relation_history:
+        # 确定伴侣是谁
+        if record.user1 == user:
+            partner = record.user2
+        else:
+            partner = record.user1
+        
+        # 计算关系时长
+        duration = record.ended_at - record.started_at
+        duration_days = duration.days
+        duration_months = duration_days // 30
+        duration_years = duration_days // 365
+        
+        # 格式化关系时长
+        if duration_years > 0:
+            duration_str = f"{duration_years}年{duration_months % 12}个月"
+        elif duration_months > 0:
+            duration_str = f"{duration_months}个月{duration_days % 30}天"
+        else:
+            duration_str = f"{duration_days}天"
+        
+        history_data.append({
+            'partner': partner,
+            'started_at': record.started_at.strftime('%Y-%m-%d'),
+            'ended_at': record.ended_at.strftime('%Y-%m-%d'),
+            'duration': duration_str,
+            'duration_days': duration_days,
+            'record_id': record.id
+        })
+    
+    context = {
+        'history_data': history_data
+    }
+    
+    return render(request, 'couple_history.html', context)
+
+
+# 删除情侣关系历史记录
+@login_required
+def delete_couple_history(request, history_id):
+    """删除情侣关系历史记录"""
+    from core.models import CoupleRelationHistory
+    from django.http import JsonResponse
+    
+    try:
+        # 获取历史记录
+        history = CoupleRelationHistory.objects.get(id=history_id)
+        
+        # 检查当前用户是否是记录的参与者
+        if request.user != history.user1 and request.user != history.user2:
+            return JsonResponse({'success': False, 'message': '你没有权限删除这条记录'}, status=403)
+        
+        # 删除记录
+        history.delete()
+        
+        return JsonResponse({'success': True, 'message': '记录已成功删除'})
+    except CoupleRelationHistory.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '记录不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'删除失败: {str(e)}'}, status=500)
 
 
 # 接受情侣请求视图
