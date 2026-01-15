@@ -225,7 +225,7 @@
                             class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-user mr-2 w-5 text-center"></i>主页
                         </a>
-                        <a href="{% url 'message' %}"
+                        <a href="{% url 'message:list' %}"
                             class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>消息
                         </a>
@@ -294,7 +294,7 @@
                 <a href="{% url 'personal_center' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-user mr-3 w-5 text-center"></i>主页
                 </a>
-                <a href="{% url 'message' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+                <a href="{% url 'message:list' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>消息
                 </a>
                 <a href="{% url 'settings' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
@@ -319,6 +319,35 @@
     </div>
 
     {% endblock %}
+
+    <!-- 消息提示区域 -->
+    {% if messages %}
+    <div class="container mx-auto px-4 py-4">
+        <div class="space-y-3">
+            {% for message in messages %}
+            <div
+                class="flex items-center justify-between px-5 py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl {% if message.tags %}{% if message.tags == 'error' %}bg-primary/10 text-red-600 border border-red-200{% elif message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-200{% else %}bg-secondary/10 text-purple-700 border border-purple-200{% endif %}{% else %}bg-neutral-100 text-neutral-700 border border-neutral-200{% endif %}">
+                <div class="flex items-center">
+                    {% if message.tags == 'error' %}
+                    <i class="fa-solid fa-circle-exclamation text-red-500 mr-3 text-lg"></i>
+                    {% elif message.tags == 'success' %}
+                    <i class="fa-solid fa-circle-check text-green-500 mr-3 text-lg"></i>
+                    {% elif message.tags == 'warning' %}
+                    <i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-3 text-lg"></i>
+                    {% else %}
+                    <i class="fa-solid fa-circle-info text-secondary-500 mr-3 text-lg"></i>
+                    {% endif %}
+                    <span class="font-semibold text-lg">{{ message }}</span>
+                </div>
+                <button class="text-neutral-400 hover:text-neutral-600 transition-colors focus:outline-none"
+                    onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-times text-lg"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- 主要内容区域 -->
     {% block content %}

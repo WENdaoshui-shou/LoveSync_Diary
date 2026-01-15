@@ -2,20 +2,14 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.utils import timezone
-from datetime import datetime, timedelta
-import pytz
-from .models import Note, NoteImage, Like, Comment
-from .serializers import NoteSerializer
 from django.shortcuts import render, redirect
-from django.db.models import Q, Count  
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Count
 from django.utils import timezone
 from datetime import datetime, date, timedelta
 import pytz
-from .models import Note 
+from .models import Note, NoteImage, Like, Comment
+from .serializers import NoteSerializer
 
 
 SHANGHAI_TZ = pytz.timezone('Asia/Shanghai')
@@ -231,7 +225,7 @@ def lovesync(request):
         if not couple_id:
             from django.contrib import messages
             messages.error(request, '请先绑定情侣关系，才能使用双人日记功能')
-            return redirect('couple:couple')
+            return redirect('couple_web:couple')
 
         base_filters = Q(user_id=user_id)
         if couple_id:
@@ -364,11 +358,9 @@ def lovesync(request):
                     NoteImage.objects.create(notemoment=note, noteimage=photo)
 
             # 重定向到lovesync页面，而不是返回JSON响应
-            from django.shortcuts import redirect
             return redirect('lovesync')
         except Exception as e:
             # 如果出现错误，也重定向到lovesync页面
-            from django.shortcuts import redirect
             return redirect('lovesync')
 
     from django.http import HttpResponseNotAllowed

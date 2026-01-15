@@ -319,6 +319,7 @@ class VIPMember(models.Model):
     end_date = models.DateTimeField(null=True, blank=True, verbose_name='到期时间')
     is_active = models.BooleanField(default=False, verbose_name='是否活跃')
     renewal_count = models.IntegerField(default=0, verbose_name='续费次数')
+    total_recharge = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name='累计充值金额')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     
@@ -358,13 +359,38 @@ class VIPMember(models.Model):
         return True
     
     def check_vip_status(self):
-        """检查VIP状态"""
+        """检查VIP状态并处理到期情况"""
         from django.utils import timezone
         now = timezone.now()
         if self.end_date and self.end_date < now:
             self.is_active = False
+            # VIP到期后，保持等级不变，但标记为非活跃状态
             self.save()
         return self.is_active
+    
+    def update_vip_level(self):
+        """根据累计充值金额更新VIP等级"""
+        total = self.total_recharge
+        new_level = 'normal'
+        
+        # 根据累计充值金额确定VIP等级
+        if total >= 1000:
+            new_level = 'diamond'  # 钻石VIP：累计充值1000元以上
+        elif total >= 500:
+            new_level = 'platinum'  # 铂金VIP：累计充值500-999元
+        elif total >= 200:
+            new_level = 'gold'  # 黄金VIP：累计充值200-499元
+        elif total >= 100:
+            new_level = 'silver'  # 白银VIP：累计充值100-199元
+        elif total >= 50:
+            new_level = 'bronze'  # 青铜VIP：累计充值50-99元
+        
+        # 如果等级发生变化，更新等级
+        if self.level != new_level:
+            self.level = new_level
+            self.save()
+        
+        return new_level
 
 # VIP特权模型
 class VIPPrivilege(models.Model):
@@ -383,6 +409,98 @@ class VIPPrivilege(models.Model):
     def __str__(self):
         return f'{self.name} - {self.get_required_level_display()}'
 
+
+# VIP充值订单模型
+class VIPOrder(models.Model):
+    """VIP充值订单模型"""
+    STATUS_CHOICES = [
+        ('pending', '待支付'),
+        ('success', '支付成功'),
+        ('failed', '支付失败'),
+        ('cancelled', '已取消'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vip_orders', verbose_name='用户')
+    amount = models.IntegerField(verbose_name='充值金额')
+    duration = models.IntegerField(verbose_name='充值时长(天)')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='订单状态')
+    order_number = models.CharField(max_length=50, unique=True, verbose_name='订单号')
+    paid_at = models.DateTimeField(null=True, blank=True, verbose_name='支付时间')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    
+    class Meta:
+        verbose_name = 'VIP充值订单'
+        verbose_name_plural = 'VIP充值订单管理'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f'订单 {self.order_number} - {self.get_status_display()}'
+
+# 成就系统模型
+
+# 成就定义模型
+class Achievement(models.Model):
+    """成就定义模型"""
+    title = models.CharField(max_length=100, verbose_name='成就标题')
+    description = models.TextField(verbose_name='成就描述')
+    icon = models.CharField(max_length=10, verbose_name='成就图标')  # 使用emoji作为图标
+    requirement = models.CharField(max_length=200, verbose_name='解锁要求')
+    category = models.CharField(max_length=50, verbose_name='成就分类')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    
+    class Meta:
+        verbose_name = '成就'
+        verbose_name_plural = '成就管理'
+        ordering = ['category', 'title']
+    
+    def __str__(self):
+        return f'{self.title} - {self.category}'
+
+# 用户成就模型
+class UserAchievement(models.Model):
+    """用户成就模型"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_achievements', verbose_name='用户')
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE, related_name='user_achievements', verbose_name='成就')
+    unlocked = models.BooleanField(default=False, verbose_name='是否解锁')
+    progress = models.IntegerField(default=0, verbose_name='进度')
+    unlocked_at = models.DateTimeField(null=True, blank=True, verbose_name='解锁时间')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    
+    class Meta:
+        verbose_name = '用户成就'
+        verbose_name_plural = '用户成就管理'
+        unique_together = ('user', 'achievement')
+        ordering = ['-unlocked_at', '-updated_at']
+    
+    def __str__(self):
+        return f'{self.user.username} - {self.achievement.title}'
+
+    def unlock(self):
+        """解锁成就"""
+        if not self.unlocked:
+            self.unlocked = True
+            self.progress = 100
+            self.unlocked_at = timezone.now()
+            self.save()
+            return True
+        return False
+
+    def update_progress(self, new_progress):
+        """更新成就进度"""
+        old_progress = self.progress
+        self.progress = min(new_progress, 100)
+        
+        # 如果进度达到100%，自动解锁成就
+        if self.progress >= 100 and not self.unlocked:
+            self.unlock()
+        else:
+            self.save()
+        
+        return self.progress != old_progress
+
 # 用户注册时自动创建 Profile 模型
 @receiver(post_save, sender=User)
 def create_and_save_user_profile(sender, instance, created, **kwargs):
@@ -390,5 +508,97 @@ def create_and_save_user_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
         # 为新用户创建默认VIP记录
         VIPMember.objects.create(user=instance)
+        # 为新用户初始化成就
+        init_user_achievements(instance)
     # 每次保存用户时都保存 Profile
     instance.profile.save()
+
+def init_user_achievements(user):
+    """为新用户初始化成就"""
+    # 获取所有成就
+    achievements = Achievement.objects.all()
+    
+    # 为每个成就创建用户成就记录
+    for achievement in achievements:
+        UserAchievement.objects.create(
+            user=user,
+            achievement=achievement,
+            unlocked=False,
+            progress=0
+        )
+
+# 监听动态创建事件，解锁"记录美好"成就
+def unlock_record_moment_achievement(sender, instance, created, **kwargs):
+    """当用户创建第一条动态时，解锁"记录美好"成就"""
+    if created:
+        user = instance.user
+        # 检查用户是否是第一次创建动态
+        moment_count = sender.objects.filter(user=user).count()
+        if moment_count == 1:
+            # 查找"记录美好"成就
+            try:
+                achievement = Achievement.objects.get(title='记录美好')
+                # 获取用户成就记录
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=user,
+                    achievement=achievement
+                )
+                # 解锁成就
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass
+
+# 监听照片上传事件，解锁"爱的相册"成就
+def unlock_photo_album_achievement(sender, instance, created, **kwargs):
+    """当用户上传第一张照片时，解锁"爱的相册"成就"""
+    if created:
+        user = instance.user
+        # 检查用户是否是第一次上传照片
+        photo_count = sender.objects.filter(user=user).count()
+        if photo_count == 1:
+            # 查找"爱的相册"成就
+            try:
+                achievement = Achievement.objects.get(title='爱的相册')
+                # 获取用户成就记录
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=user,
+                    achievement=achievement
+                )
+                # 解锁成就
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass
+
+# 导入并注册信号
+try:
+    from moment.models import Moment
+    post_save.connect(unlock_record_moment_achievement, sender=Moment)
+except ImportError:
+    pass
+
+try:
+    from photo.models import Photo
+    post_save.connect(unlock_photo_album_achievement, sender=Photo)
+except ImportError:
+    pass
+
+# 监听情侣绑定事件，解锁"初次相遇"成就
+@receiver(post_save, sender=Profile)
+def unlock_first_meeting_achievement(sender, instance, created, **kwargs):
+    """当用户绑定情侣关系时，解锁"初次相遇"成就"""
+    if not created and instance.couple:
+        # 检查用户是否刚刚绑定情侣关系
+        # 通过检查couple_joined_at是否刚刚设置
+        if instance.couple_joined_at:
+            # 查找"初次相遇"成就
+            try:
+                achievement = Achievement.objects.get(title='初次相遇')
+                # 获取用户成就记录
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=instance.user,
+                    achievement=achievement
+                )
+                # 解锁成就
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass

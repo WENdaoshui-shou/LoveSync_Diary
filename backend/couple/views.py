@@ -59,6 +59,19 @@ class TaskCompletionViewSet(viewsets.ModelViewSet):
 def couple_view(request):
     """情侣首页视图"""
     from core.models import Profile
+    import logging
+    
+    # 设置日志记录器
+    logger = logging.getLogger('django')
+    
+    from django.contrib import messages
+    
+    # 调用get_messages()获取消息，但会保存并重新添加
+    all_messages = list(messages.get_messages(request))
+
+    # 将消息重新添加回请求中，确保模板能显示
+    for message in all_messages:
+        messages.add_message(request, message.level, message.message, extra_tags=message.tags)
     
     # 获取当前用户的个人资料
     profile = request.user.profile
@@ -129,6 +142,13 @@ def love_story_view(request):
 @login_required
 def couple_test_view(request):
     """情侣测试视图"""
+    from core.models import Profile
+    
+    # 检查用户是否绑定情侣
+    if not request.user.profile.couple:
+        messages.error(request, '请先绑定情侣关系，才能使用情侣测试功能！')
+        return redirect('couple_web:couple')
+    
     return render(request, 'couple_test.html')
 
 
@@ -136,6 +156,13 @@ def couple_test_view(request):
 @login_required
 def couple_places_view(request):
     """情侣景点视图"""
+    from core.models import Profile
+    
+    # 检查用户是否绑定情侣
+    if not request.user.profile.couple:
+        messages.error(request, '请先绑定情侣关系，才能使用情侣景点功能！')
+        return redirect('couple_web:couple')
+    
     return render(request, 'couple_places.html')
 
 
@@ -143,6 +170,13 @@ def couple_places_view(request):
 @login_required
 def couple_recommendation_view(request):
     """情侣推荐视图"""
+    from core.models import Profile
+    
+    # 检查用户是否绑定情侣
+    if not request.user.profile.couple:
+        messages.error(request, '请先绑定情侣关系，才能使用情侣推荐功能！')
+        return redirect('couple_web:couple')
+    
     return render(request, 'couple_recommendation.html')
 
 

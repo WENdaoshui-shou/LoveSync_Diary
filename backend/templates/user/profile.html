@@ -1,0 +1,561 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.name }}的主页{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+        .tab-active {
+            border-bottom: 2px solid #FF6B8B;
+            color: #FF6B8B;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+        }
+        @media (max-width: 640px) {
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 背景装饰元素 -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+    </div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+        style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+        style="animation-delay: -4s;"></div>
+</div>
+
+<!-- 主内容区 -->
+<main class="flex-grow pt-24 pb-16 relative z-10">
+    <div class="container mx-auto px-4">
+        <!-- 顶部信息区 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <!-- 左侧：返回按钮 -->
+                <a href="javascript:history.back()"
+                    class="text-neutral-600 hover:text-primary transition-colors md:hidden">
+                    <i class="fa-solid fa-arrow-left text-xl"></i>
+                </a>
+                <!-- 中间：用户信息 -->
+                <div class="flex items-center space-x-6">
+                    <!-- 头像 -->
+                    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20">
+                        <img src="{{ profile_user.profile.userAvatar.url }}" alt="{{ profile_user.name }}"
+                            class="w-full h-full object-cover">
+                    </div>
+                    <!-- 个人信息：修复变量渲染+交互+兜底 -->
+                    <div class="flex-1 min-w-0">
+                        <h1 class="text-2xl font-bold text-neutral-900 truncate">{{ profile_user.name|default:profile_user.username }}</h1>
+                        <p class="text-neutral-600 mt-1 truncate">{{ profile_user.profile.userBio|default:"暂无简介" }}</p>
+                        
+                        <!-- 粉丝/关注数：核心修复 -->
+                        <div class="flex items-center space-x-6 mt-3">
+                            <!-- 粉丝数：修复变量空格+添加默认值+函数传参 -->
+                            <div class="flex items-center space-x-1">
+                                <span class="font-semibold text-neutral-900" id="followersCount">{{ followers_count|default:"0" }}</span>
+                                <span class="text-neutral-500 cursor-pointer hover:text-primary transition-colors"
+                                    onclick="showFollowList('followers')">粉丝</span>
+                            </div>
+                            
+                            <!-- 关注数：同上 -->
+                            <div class="flex items-center space-x-1">
+                                <span class="font-semibold text-neutral-900" id="followingCount">{{ following_count|default:"0" }}</span>
+                                <span class="text-neutral-500 cursor-pointer hover:text-primary transition-colors"
+                                    onclick="showFollowList('following')">关注</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧：操作按钮 -->
+                    <div class="flex space-x-3">
+                        <!-- 私信按钮 -->
+                        <a href="{% url 'message:send_private_message' %}?recipient_id={{ profile_user.id }}"
+                            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span class="hidden md:inline ml-1">发私信</span>
+                        </a>
+                        <!-- 关注/取消关注按钮 -->
+                        {% if request.user != profile_user %}
+                        <button id="followBtn"
+                            class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors shadow-md hover:shadow-lg"
+                            onclick="toggleFollow()">
+                            {% if is_following %}
+                            <i class="fa-solid fa-user-check"></i>
+                            <span class="hidden md:inline ml-1">已关注</span>
+                            {% else %}
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span class="hidden md:inline ml-1">关注</span>
+                            {% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容标签栏 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex border-b border-neutral-200">
+                <button id="momentsTab"
+                    class="px-6 py-3 font-medium text-neutral-900 border-b-2 border-primary text-primary"
+                    onclick="switchTab('moments')">
+                    动态
+                </button>
+                <button id="photosTab"
+                    class="px-6 py-3 font-medium text-neutral-600 hover:text-primary transition-colors"
+                    onclick="switchTab('photos')">
+                    相册
+                </button>
+            </div>
+        </div>
+
+        <!-- 动态内容区 -->
+        <div id="momentsContent" class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            {% if moments.exists %}
+            <div class="space-y-6" id="momentsList">
+                {% for moment in moments %}
+                <!-- 动态卡片 -->
+                <div class="border-b border-neutral-200 pb-6 last:border-b-0 last:pb-0">
+                    <div class="flex items-start justify-between">
+                        <!-- 动态内容 -->
+                        <div class="flex-1">
+                            <p class="text-neutral-800 mb-3">{{ moment.content }}</p>
+
+                            <!-- 动态图片 -->
+                            {% if moment.moment_images.exists %}
+                            <div class="grid grid-cols-3 gap-2 mb-3">
+                                {% for image in moment.moment_images.all %}
+                                <div class="aspect-square rounded-lg overflow-hidden">
+                                    <img src="{{ image.image.url }}" alt="动态图片"
+                                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <!-- 动态信息 -->
+                            <div class="flex items-center space-x-4 text-neutral-500 text-sm">
+                                <span>{{ moment.created_at|date:"Y-m-d H:i" }}</span>
+                                <button class="flex items-center space-x-1 hover:text-primary transition-colors">
+                                    <i class="fa-regular fa-heart"></i>
+                                    <span>{{ moment.likes }}</span>
+                                </button>
+                                <button class="flex items-center space-x-1 hover:text-primary transition-colors">
+                                    <i class="fa-regular fa-comment"></i>
+                                    <span>{{ moment.comments }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- 加载更多指示器 -->
+            <div class="text-center mt-6" id="loadMoreIndicator">
+                <div class="hidden" id="loadingSpinner">
+                    <i class="fa-solid fa-spinner fa-spin text-neutral-400"></i>
+                    <span class="text-neutral-400 ml-2">加载中...</span>
+                </div>
+                <div class="hidden" id="noMoreMoments">
+                    <i class="fa-solid fa-infinity text-neutral-300 mr-2"></i>
+                    <span class="text-neutral-300">没有更多动态了</span>
+                </div>
+            </div>
+            {% else %}
+            <!-- 空状态 -->
+            <div class="text-center py-16">
+                <i class="fa-solid fa-feather text-4xl text-neutral-300 mb-4"></i>
+                <p class="text-neutral-500">该用户暂无动态</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 相册内容区 -->
+        <div id="photosContent" class="bg-white rounded-xl shadow-lg p-6 mb-6 hidden">
+            {% if photos.exists %}
+            <div class="image-grid">
+                {% for photo in photos %}
+                <div class="aspect-square rounded-lg overflow-hidden hover:scale-105 transition-transform duration-300">
+                    <img src="{{ photo.image.url }}" alt="相册图片" class="w-full h-full object-cover">
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- 空状态 -->
+            <div class="text-center py-16">
+                <i class="fa-solid fa-images text-4xl text-neutral-300 mb-4"></i>
+                <p class="text-neutral-500">该用户暂无相册图片</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<!-- 粉丝/关注列表弹窗 -->
+<div id="followModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4" id="followModalContent">
+        <!-- 弹窗内容将通过AJAX加载 -->
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 初始化变量（提取核心参数，简化逻辑）
+    const profileUserId = {{ profile_user.id }};
+    let currentTab = 'moments';
+    let isFollowing = {{ is_following| lower }} === 'true';
+    let currentPage = 2;
+    let hasMore = true;
+    let isLoading = false;
+
+    // 获取CSRF令牌的函数
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    // 抖音风格核心样式参数（可统一调整）
+    const styleConfig = {
+        primaryColor: 'text-primary', // 复用项目主色
+        tabActiveClass: 'px-6 py-3 font-medium border-b-2 border-primary text-primary',
+        tabInactiveClass: 'px-6 py-3 font-medium text-neutral-600 hover:text-primary transition-colors duration-300',
+        btnFollowClass: 'px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-300 shadow-md hover:shadow-lg',
+        btnFollowedClass: 'px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg'
+    };
+
+    // 切换标签（抖音风格平滑动效）
+    function switchTab(tabName) {
+        if (currentTab === tabName) return;
+        currentTab = tabName;
+
+        // 更新标签样式（简化逻辑，避免重复赋值）
+        const tabs = ['momentsTab', 'photosTab'];
+        tabs.forEach(tabId => {
+            const tab = document.getElementById(tabId);
+            if (tab) {
+                tab.className = tabId === (tabName + 'Tab') ? styleConfig.tabActiveClass : styleConfig.tabInactiveClass;
+            }
+        });
+
+        // 显示对应内容（抖音极简切换，无多余动画）
+        const contents = ['momentsContent', 'photosContent'];
+        contents.forEach(contentId => {
+            const content = document.getElementById(contentId);
+            if (content) {
+                content.classList.toggle('hidden', contentId !== (tabName + 'Content'));
+            }
+        });
+    }
+
+    // 统一处理关注/取消关注（合并冗余逻辑）
+    function toggleFollow() {
+        const followBtn = document.getElementById('followBtn');
+        if (!followBtn || followBtn.disabled) return;
+
+        // 禁用按钮，防止重复点击（抖音风格加载状态）
+        followBtn.disabled = true;
+        followBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span class="hidden md:inline ml-1">${isFollowing ? '取消中...' : '关注中...'}</span>`;
+
+        // 拼接请求URL（修复空格问题，统一接口）
+        const url = isFollowing ? "{% url 'user:unfollow' %}" : "{% url 'user:follow' %}";
+
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                'following_id': profileUserId
+            })
+        })
+
+            .then(response => {
+                if (!response.ok) throw new Error('请求失败');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    isFollowing = !isFollowing;
+                    // 更新UI（抖音风格按钮样式切换）
+                    updateFollowUI(data.followers_count, !isFollowing);
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error(`${isFollowing ? '取消关注' : '关注'}失败:`, error);
+                showMessage(`${isFollowing ? '取消关注' : '关注'}失败，请重试`, 'error');
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                followBtn.disabled = false;
+            });
+    }
+
+    // 更新关注UI（抖音风格极简样式）
+    function updateFollowUI(followersCount, following) {
+        const followersEl = document.getElementById('followersCount');
+        const followBtn = document.getElementById('followBtn');
+        if (followersEl) followersEl.textContent = followersCount;
+
+        if (followBtn) {
+            if (following) {
+                followBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span class="hidden md:inline ml-1">关注</span>';
+                followBtn.className = styleConfig.btnFollowClass;
+            } else {
+                followBtn.innerHTML = '<i class="fa-solid fa-user-check"></i><span class="hidden md:inline ml-1">已关注</span>';
+                followBtn.className = styleConfig.btnFollowedClass;
+            }
+        }
+    }
+
+    // 快捷函数：显示粉丝列表
+    function showFollowers() {
+        showFollowList('followers');
+    }
+
+    // 快捷函数：显示关注列表
+    function showFollowing() {
+        showFollowList('following');
+    }
+
+    // 显示粉丝/关注列表（抖音风格极简弹窗）
+    function showFollowList(listType) {
+        // 统一请求逻辑，避免重复代码
+        const url = listType === 'followers' ? "{% url 'user:get_followers' profile_user.id %}" : "{% url 'user:get_following' profile_user.id %}";
+        const title = listType === 'followers' ? '粉丝列表' : '关注列表';
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('获取列表失败');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    renderFollowList(title, listType === 'followers' ? data.followers : data.following);
+                    document.getElementById('followModal').classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error(`获取${title}失败:`, error);
+                showMessage(`获取${title}失败，请重试`, 'error');
+            });
+    }
+
+    // 渲染关注/粉丝列表（抖音风格极简布局）
+    function renderFollowList(title, users) {
+        const modalContent = document.getElementById('followModalContent');
+        if (!modalContent) return;
+
+        // 抖音风格列表模板（简化、无多余装饰）
+        let listHtml = `
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-neutral-900">${title}</h3>
+                    <button onclick="closeFollowModal()" class="text-neutral-500 hover:text-neutral-900 transition-colors">
+                        <i class="fa-solid fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="space-y-2 max-h-80 overflow-y-auto">
+        `;
+
+        if (users && users.length > 0) {
+            listHtml += users.map(user => `
+                <a href="/user/profile/${user.id}/" class="flex items-center space-x-2 p-2 hover:bg-neutral-50 rounded-lg transition-colors duration-200">
+                    <div class="w-10 h-10 rounded-full overflow-hidden">
+                        <img src="${user.avatar || '/static/images/default-avatar.png'}" alt="${user.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-neutral-900 truncate">${user.name}</h4>
+                    </div>
+                </a>
+            `).join('');
+        } else {
+            listHtml += '<p class="text-neutral-500 text-center py-6">暂无数据</p>';
+        }
+
+        listHtml += `
+                </div>
+            </div>
+        `;
+        modalContent.innerHTML = listHtml;
+    }
+
+    // 关闭弹窗（抖音风格点击外部关闭）
+    function closeFollowModal() {
+        const modal = document.getElementById('followModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // 加载更多动态（无限滚动，优化加载状态）
+    function loadMoreMoments() {
+        if (isLoading || !hasMore) return;
+
+        isLoading = true;
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const noMoreMoments = document.getElementById('noMoreMoments');
+        
+        if (loadingSpinner) {
+            loadingSpinner.classList.remove('hidden');
+        }
+
+        fetch(`/user/load-more-moments/${profileUserId}/?page=${currentPage}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('加载动态失败');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const momentsList = document.getElementById('momentsList');
+                    if (momentsList && data.moments.length > 0) {
+                        // 动态模板
+                        data.moments.forEach(moment => {
+                            const momentHtml = `
+                            <div class="border-b border-neutral-100 pb-4 pt-4 animate-fadeIn">
+                                <div class="flex-1">
+                                    <p class="text-neutral-800 mb-2">${moment.content || ''}</p>
+                                    <!-- 动态图片 -->
+                                    ${moment.images && moment.images.length > 0 ? `
+                                        <div class="grid grid-cols-${moment.images.length > 3 ? 3 : moment.images.length} gap-1 mb-2">
+                                            ${moment.images.map(img => `
+                                                <div class="aspect-square rounded-lg overflow-hidden hover:scale-105 transition-transform duration-300">
+                                                    <img src="${img}" alt="动态图片" class="w-full h-full object-cover">
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                    <!-- 动态信息 -->
+                                    <div class="flex items-center space-x-4 text-neutral-500 text-xs">
+                                        <span>${moment.created_at || ''}</span>
+                                        <button class="flex items-center space-x-1 hover:text-primary transition-colors">
+                                            <i class="fa-regular fa-heart"></i>
+                                            <span>${moment.likes_count || 0}</span>
+                                        </button>
+                                        <button class="flex items-center space-x-1 hover:text-primary transition-colors">
+                                            <i class="fa-regular fa-comment"></i>
+                                            <span>${moment.comments_count || 0}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                            momentsList.insertAdjacentHTML('beforeend', momentHtml);
+                        });
+                    }
+
+                    // 更新状态
+                    hasMore = data.has_next;
+                    if (hasMore) {
+                        currentPage++;
+                    } else {
+                        // 显示"没有更多动态了"
+                        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+                        if (noMoreMoments) noMoreMoments.classList.remove('hidden');
+                    }
+                } else {
+                    // 检查是否是"没有更多动态了"的情况
+                    if (data.message === '没有更多动态了') {
+                        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+                        if (noMoreMoments) noMoreMoments.classList.remove('hidden');
+                        hasMore = false;
+                    }
+                }
+                isLoading = false;
+                if (loadingSpinner) loadingSpinner.classList.add('hidden');
+            })
+            .catch(error => {
+                console.error('加载更多动态失败:', error);
+                isLoading = false;
+                if (loadingSpinner) loadingSpinner.classList.add('hidden');
+            });
+    }
+
+    // 显示消息提示（抖音风格轻量提示）
+    function showMessage(message, type = 'success') {
+        // 移除旧提示，避免叠加
+        const oldTips = document.querySelectorAll('.toast-message');
+        oldTips.forEach(tip => tip.remove());
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `toast-message fixed top-16 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg shadow-md z-50 transition-all duration-300 ${type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+            }`;
+        messageDiv.innerHTML = `
+            <div class="flex items-center text-sm">
+                <i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-1.5"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        document.body.appendChild(messageDiv);
+
+        // 自动消失（抖音风格渐隐）
+        setTimeout(() => {
+            messageDiv.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => messageDiv.remove(), 300);
+        }, 2500);
+    }
+
+    // 初始化事件监听
+    document.addEventListener('DOMContentLoaded', function () {
+        // 点击弹窗外部关闭
+        const followModal = document.getElementById('followModal');
+        if (followModal) {
+            followModal.addEventListener('click', function (e) {
+                if (e.target === this) closeFollowModal();
+            });
+        }
+
+        // 无限滚动实现
+        window.addEventListener('scroll', function() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                loadMoreMoments();
+            }
+        });
+
+        // 初始化标签状态（默认选中动态）
+        switchTab('moments');
+    });
+</script>
+{% endblock %}

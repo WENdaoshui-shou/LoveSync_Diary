@@ -1,0 +1,119 @@
+{% extends 'vip/vip_base.html' %}
+
+{% block vip_content %}
+<h2 class="text-2xl font-bold text-neutral-800 mb-6">会员信息</h2>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- 当前会员状态卡片 -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-xl shadow-sm border border-primary/20">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-neutral-800">当前会员等级</h3>
+            <div class="text-3xl">
+                {% if user.vip.level == 'normal' %}
+                <i class="fa-solid fa-circle text-neutral-400"></i>
+                {% elif user.vip.level == 'bronze' %}
+                <i class="fa-solid fa-circle text-amber-600"></i>
+                {% elif user.vip.level == 'silver' %}
+                <i class="fa-solid fa-circle text-gray-400"></i>
+                {% elif user.vip.level == 'gold' %}
+                <i class="fa-solid fa-circle text-yellow-500"></i>
+                {% elif user.vip.level == 'platinum' %}
+                <i class="fa-solid fa-circle text-blue-400"></i>
+                {% elif user.vip.level == 'diamond' %}
+                <i class="fa-solid fa-circle text-purple-500"></i>
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-primary mb-2">
+            {{ user.vip.get_level_display }}
+        </div>
+        <div class="text-neutral-600 mb-4">
+            {% if user.vip.is_active %}
+            <i class="fa-solid fa-check-circle text-green-500 mr-2"></i>会员已激活
+            {% else %}
+            <i class="fa-solid fa-exclamation-circle text-red-500 mr-2"></i>会员未激活
+            {% endif %}
+        </div>
+        <a href="{% url 'vip:create_recharge' %}"
+            class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+            <i class="fa-solid fa-plus mr-2"></i>
+            {% if user.vip.is_active %}
+            续费会员
+            {% else %}
+            开通会员
+            {% endif %}
+        </a>
+    </div>
+
+    <!-- 会员有效期卡片 -->
+    <div class="bg-gradient-to-br from-secondary/10 to-secondary/5 p-6 rounded-xl shadow-sm border border-secondary/20">
+        <h3 class="text-lg font-semibold text-neutral-800 mb-4">会员有效期</h3>
+        {% if user.vip.is_active %}
+        <div class="mb-4">
+            <div class="text-sm text-neutral-600 mb-1">开通时间</div>
+            <div class="text-lg font-medium">
+                {{ user.vip.start_date|date:'Y年m月d日 H:i' }}
+            </div>
+        </div>
+        <div class="mb-4">
+            <div class="text-sm text-neutral-600 mb-1">到期时间</div>
+            <div class="text-2xl font-bold text-secondary mb-1">
+                {{ user.vip.end_date|date:'Y年m月d日 H:i' }}
+            </div>
+            <div class="text-sm text-neutral-600">
+                剩余 {{ user.vip.end_date|timeuntil }}
+                {% if user.vip.end_date|timeuntil == '0分钟' %}即将到期{% endif %}
+            </div>
+        </div>
+        <div class="flex items-center text-sm text-neutral-600">
+            <i class="fa-solid fa-arrow-rotate-right mr-2"></i>
+            已续费 {{ user.vip.renewal_count }} 次
+        </div>
+        <div class="flex items-center text-sm text-neutral-600 mt-2">
+            <i class="fa-solid fa-dollar-sign mr-2"></i>
+            累计充值 ¥{{ user.vip.total_recharge }}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <i class="fa-solid fa-calendar-times text-5xl text-neutral-300 mb-4"></i>
+            <div class="text-lg text-neutral-600 mb-2">会员尚未开通</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 会员权益概览 -->
+<div class="mt-8">
+    <h3 class="text-lg font-semibold text-neutral-800 mb-4">会员权益概览</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-neutral-100">
+            <div class="text-2xl text-primary mb-2">
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <div class="font-medium text-neutral-800">专属标识</div>
+            <div class="text-sm text-neutral-600">尊贵的会员标识</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-neutral-100">
+            <div class="text-2xl text-primary mb-2">
+                <i class="fa-solid fa-gift"></i>
+            </div>
+            <div class="font-medium text-neutral-800">专属福利</div>
+            <div class="text-sm text-neutral-600">定期赠送精美礼品</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-neutral-100">
+            <div class="text-2xl text-primary mb-2">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <div class="font-medium text-neutral-800">优先体验</div>
+            <div class="text-sm text-neutral-600">新功能优先体验</div>
+        </div>
+    </div>
+    <div class="mt-4 text-center">
+        <a href="{% url 'vip:benefits' %}"
+            class="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
+            <span>查看全部权益</span>
+            <i class="fa-solid fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -26,7 +26,8 @@ urlpatterns = [
     path('personal_center/', personal_center_view, name='personal_center'),
     path('settings/<str:setting_type>/', settings_view, name='settings'),
     path('settings/', settings_view, name='settings'),
-    path('message/', message_view, name='message'),
+    # 替换旧的message_view为新的消息应用路由
+    path('message/', include('message.urls')),
     
     # 直接映射常用视图，保持向后兼容性
     # Moment应用视图
@@ -83,12 +84,15 @@ api_urlpatterns = [
 
 # Web视图路由 - 单独定义，使用不同的命名空间
 web_urlpatterns = [
+    path('core/', include('core.urls')),
     path('moment/', include('moment.urls', namespace='moment_web')),
     path('couple/', include('couple.urls', namespace='couple_web')),
     path('mall/', include('mall.urls', namespace='mall_web')),
     path('photo/', include('photo.urls', namespace='photo_web')),
     path('note/', include('note.urls', namespace='note_web')),
     path('game/', include('game.urls', namespace='game_web')),
+    path('vip/', include('vip.urls', namespace='vip_web')),
+    path('user/', include('user.urls', namespace='user')),
 ]
 
 # 将API路由和Web视图路由添加到主URL列表中

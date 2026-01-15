@@ -535,3 +535,54 @@ def delete_account(request):
     
     # 如果不是POST请求，重定向到情侣页面
     return redirect('couple')
+
+
+# 成就页面视图
+@login_required
+def achievements_view(request):
+    """成就页面"""
+    return render(request, 'achievements.html')
+
+
+# 成就数据API视图
+@login_required
+def get_achievements_data(request):
+    """获取用户成就数据"""
+    from .models import Achievement, UserAchievement
+    
+    # 获取用户的所有成就
+    user_achievements = UserAchievement.objects.filter(user=request.user).select_related('achievement')
+    
+    # 构建成就数据
+    achievements_data = []
+    for ua in user_achievements:
+        achievement = ua.achievement
+        achievements_data.append({
+            'id': achievement.id,
+            'title': achievement.title,
+            'description': achievement.description,
+            'icon': achievement.icon,
+            'unlocked': ua.unlocked,
+            'date': ua.unlocked_at.strftime('%Y-%m-%d') if ua.unlocked_at else None,
+            'progress': ua.progress
+        })
+    
+    # 计算统计数据
+    total = len(achievements_data)
+    unlocked = len([a for a in achievements_data if a['unlocked']])
+    completion_rate = round((unlocked / total) * 100) if total > 0 else 0
+    recent_unlocked = len([a for a in achievements_data if a['unlocked']])
+    
+    # 构建响应数据
+    response_data = {
+        'achievements': achievements_data,
+        'stats': {
+            'totalAchievements': total,
+            'unlockedAchievements': unlocked,
+            'completionRate': completion_rate,
+            'recentAchievements': recent_unlocked
+        }
+    }
+    
+    import json
+    return HttpResponse(json.dumps(response_data), content_type='application/json')

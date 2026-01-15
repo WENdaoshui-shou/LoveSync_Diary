@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}会员中心 - LoveSync{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 pt-24 pb-12">
+    <div class="flex flex-col md:flex-row gap-8">
+        <!-- 会员中心侧边导航 -->
+        <div class="md:w-1/4">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-2xl font-bold text-primary mb-6">会员中心</h2>
+                <nav class="space-y-2">
+                    <a href="{% url 'vip:index' %}"
+                        class="block px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'index' %}bg-primary/10 text-primary font-semibold{% else %}text-neutral-700 hover:bg-neutral-50{% endif %} transition-colors">
+                        <i class="fa-solid fa-user-circle mr-3"></i>会员信息
+                    </a>
+                    <a href="{% url 'vip:benefits' %}"
+                        class="block px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'benefits' %}bg-primary/10 text-primary font-semibold{% else %}text-neutral-700 hover:bg-neutral-50{% endif %} transition-colors">
+                        <i class="fa-solid fa-gift mr-3"></i>会员权益
+                    </a>
+                    <a href="{% url 'vip:recharge_records' %}"
+                        class="block px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'recharge_records' %}bg-primary/10 text-primary font-semibold{% else %}text-neutral-700 hover:bg-neutral-50{% endif %} transition-colors">
+                        <i class="fa-solid fa-history mr-3"></i>充值记录
+                    </a>
+                    <a href="{% url 'vip:create_recharge' %}"
+                        class="block px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'create_recharge' %}bg-primary/10 text-primary font-semibold{% else %}text-neutral-700 hover:bg-neutral-50{% endif %} transition-colors">
+                        <i class="fa-solid fa-plus-circle mr-3"></i>开通/续费会员
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 会员中心内容 -->
+        <div class="md:w-3/4">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                {% block vip_content %}
+                <!-- 子模块内容将在这里显示 -->
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

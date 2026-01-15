@@ -1,217 +1,220 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>成就系统 - LoveSync</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block title %}成就系统 - LoveSync{% endblock %}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
+{% block extra_css %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-        header h1 {
-            color: #e74c3c;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
+    header h1 {
+        color: #e74c3c;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
 
-        header p {
-            color: #777;
-            font-size: 1.1rem;
-        }
+    header p {
+        color: #777;
+        font-size: 1.1rem;
+    }
 
+    .achievements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .achievement-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .achievement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .achievement-card.unlocked {
+        border-left: 5px solid #2ecc71;
+    }
+
+    .achievement-card.locked {
+        border-left: 5px solid #bdc3c7;
+        opacity: 0.7;
+    }
+
+    .achievement-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .achievement-card.unlocked .achievement-icon {
+        color: #2ecc71;
+    }
+
+    .achievement-card.locked .achievement-icon {
+        color: #bdc3c7;
+    }
+
+    .achievement-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .achievement-description {
+        color: #777;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    .achievement-progress {
+        margin-top: 15px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 10px;
+        background-color: #ecf0f1;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 5px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background-color: #3498db;
+        border-radius: 5px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-size: 0.85rem;
+        color: #95a5a6;
+        text-align: right;
+    }
+
+    .achievement-date {
+        font-size: 0.8rem;
+        color: #95a5a6;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .achievement-card.locked .achievement-date {
+        display: none;
+    }
+
+    .filter-tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        gap: 10px;
+    }
+
+    .filter-tab {
+        padding: 10px 20px;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .filter-tab.active {
+        background-color: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+    }
+
+    .filter-tab:hover {
+        background-color: #f8f9fa;
+    }
+
+    .filter-tab.active:hover {
+        background-color: #c0392b;
+    }
+
+    .stats-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background-color: white;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: #777;
+    }
+
+    @media (max-width: 768px) {
         .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .achievement-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .achievement-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .achievement-card.unlocked {
-            border-left: 5px solid #2ecc71;
-        }
-
-        .achievement-card.locked {
-            border-left: 5px solid #bdc3c7;
-            opacity: 0.7;
-        }
-
-        .achievement-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .achievement-card.unlocked .achievement-icon {
-            color: #2ecc71;
-        }
-
-        .achievement-card.locked .achievement-icon {
-            color: #bdc3c7;
-        }
-
-        .achievement-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .achievement-description {
-            color: #777;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-
-        .achievement-progress {
-            margin-top: 15px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background-color: #ecf0f1;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background-color: #3498db;
-            border-radius: 5px;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-size: 0.85rem;
-            color: #95a5a6;
-            text-align: right;
-        }
-
-        .achievement-date {
-            font-size: 0.8rem;
-            color: #95a5a6;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .achievement-card.locked .achievement-date {
-            display: none;
-        }
-
-        .filter-tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            gap: 10px;
-        }
-
-        .filter-tab {
-            padding: 10px 20px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .filter-tab.active {
-            background-color: #e74c3c;
-            color: white;
-            border-color: #e74c3c;
-        }
-
-        .filter-tab:hover {
-            background-color: #f8f9fa;
-        }
-
-        .filter-tab.active:hover {
-            background-color: #c0392b;
+            grid-template-columns: 1fr;
         }
 
         .stats-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(2, 1fr);
         }
 
-        .stat-card {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .filter-tabs {
+            flex-wrap: wrap;
         }
+    }
+</style>
+{% endblock %}
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #e74c3c;
-            margin-bottom: 5px;
-        }
+{% block content %}
+<!-- 背景装饰元素 -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+    </div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+        style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+        style="animation-delay: -4s;"></div>
+</div>
 
-        .stat-label {
-            font-size: 1rem;
-            color: #777;
-        }
-
-        @media (max-width: 768px) {
-            .achievements-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-summary {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .filter-tabs {
-                flex-wrap: wrap;
-            }
-        }
-    </style>
-</head>
-
-<body>
+<!-- 主内容区 -->
+<main class="flex-grow pt-32 pb-16 relative z-10">
     <div class="container">
         <header>
             <h1>🏆 成就系统</h1>
@@ -247,113 +250,80 @@
             <!-- 成就卡片将通过JavaScript动态生成 -->
         </div>
     </div>
+</main>
+{% endblock %}
 
-    <script>
-        // 模拟成就数据
-        const achievements = [
-            {
-                id: 1,
-                title: "初次相遇",
-                description: "成功邀请伴侣加入LoveSync",
-                icon: "💕",
-                unlocked: true,
-                date: "2024-01-15",
-                progress: 100
-            },
-            {
-                id: 2,
-                title: "甜蜜开始",
-                description: "完成第一次情侣测试",
-                icon: "🧪",
-                unlocked: true,
-                date: "2024-01-16",
-                progress: 100
-            },
-            {
-                id: 3,
-                title: "爱的足迹",
-                description: "添加第一个情侣景点",
-                icon: "🗺️",
-                unlocked: false,
-                progress: 0
-            },
-            {
-                id: 4,
-                title: "记录美好",
-                description: "发布第一条动态",
-                icon: "📝",
-                unlocked: true,
-                date: "2024-01-18",
-                progress: 100
-            },
-            {
-                id: 5,
-                title: "爱的相册",
-                description: "上传第一张照片到相册",
-                icon: "📸",
-                unlocked: false,
-                progress: 0
-            },
-            {
-                id: 6,
-                title: "游戏达人",
-                description: "完成第一个情侣游戏",
-                icon: "🎮",
-                unlocked: false,
-                progress: 0
-            },
-            {
-                id: 7,
-                title: "纪念时刻",
-                description: "添加第一个纪念日",
-                icon: "🎉",
-                unlocked: false,
-                progress: 0
-            },
-            {
-                id: 8,
-                title: "每日打卡",
-                description: "连续7天登录",
-                icon: "📅",
-                unlocked: false,
-                progress: 3
-            }
-        ];
+{% block extra_js %}
+<script>
+    // 成就数据
+    let achievements = [];
 
-        // 渲染成就卡片
-        function renderAchievements(filter = 'all') {
-            const grid = document.getElementById('achievementsGrid');
-            let filteredAchievements = achievements;
+    // 加载成就数据
+    function loadAchievementsData() {
+        fetch('/core/achievements/data/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络请求失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                achievements = data.achievements;
+                // 更新统计数据
+                updateStats(data.stats);
+                // 渲染成就
+                renderAchievements('all');
+            })
+            .catch(error => {
+                console.error('加载成就数据失败:', error);
+                // 显示错误信息
+                const grid = document.getElementById('achievementsGrid');
+                grid.innerHTML = `
+                    <div class="text-center py-12 text-neutral-500">
+                        <i class="fa-solid fa-exclamation-circle text-4xl mb-4 opacity-50"></i>
+                        <p>加载成就数据失败，请刷新页面重试</p>
+                    </div>
+                `;
+            });
+    }
 
-            if (filter === 'unlocked') {
-                filteredAchievements = achievements.filter(a => a.unlocked);
-            } else if (filter === 'locked') {
-                filteredAchievements = achievements.filter(a => !a.unlocked);
-            }
+    // 渲染成就卡片
+    function renderAchievements(filter = 'all') {
+        const grid = document.getElementById('achievementsGrid');
+        let filteredAchievements = achievements;
 
-            grid.innerHTML = filteredAchievements.map(achievement => `
-                <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}">
-                    <div class="achievement-icon">${achievement.icon}</div>
-                    <h3 class="achievement-title">${achievement.title}</h3>
-                    <p class="achievement-description">${achievement.description}</p>
-                    ${!achievement.unlocked ? `
-                        <div class="achievement-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${achievement.progress}%"></div>
-                            </div>
-                            <div class="progress-text">${achievement.progress}% 完成</div>
-                        </div>
-                    ` : ''}
-                    ${achievement.unlocked ? `<div class="achievement-date">解锁于 ${achievement.date}</div>` : ''}
-                </div>
-            `).join('');
-
-            // 更新统计数据
-            updateStats();
+        if (filter === 'unlocked') {
+            filteredAchievements = achievements.filter(a => a.unlocked);
+        } else if (filter === 'locked') {
+            filteredAchievements = achievements.filter(a => !a.unlocked);
         }
 
-        // 更新统计数据
-        function updateStats() {
+        grid.innerHTML = filteredAchievements.map(achievement => `
+            <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}">
+                <div class="achievement-icon">${achievement.icon}</div>
+                <h3 class="achievement-title">${achievement.title}</h3>
+                <p class="achievement-description">${achievement.description}</p>
+                ${!achievement.unlocked ? `
+                    <div class="achievement-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${achievement.progress}%"></div>
+                        </div>
+                        <div class="progress-text">${achievement.progress}% 完成</div>
+                    </div>
+                ` : ''}
+                ${achievement.unlocked ? `<div class="achievement-date">解锁于 ${achievement.date}</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    // 更新统计数据
+    function updateStats(stats) {
+        if (stats) {
+            document.getElementById('totalAchievements').textContent = stats.totalAchievements;
+            document.getElementById('unlockedAchievements').textContent = stats.unlockedAchievements;
+            document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
+            document.getElementById('recentAchievements').textContent = stats.recentAchievements;
+        } else {
             const total = achievements.length;
             const unlocked = achievements.filter(a => a.unlocked).length;
             const completionRate = Math.round((unlocked / total) * 100);
@@ -364,22 +334,23 @@
             document.getElementById('completionRate').textContent = `${completionRate}%`;
             document.getElementById('recentAchievements').textContent = recent;
         }
+    }
 
-        // 过滤标签点击事件
-        document.querySelectorAll('.filter-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // 移除所有active类
-                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                // 添加active类到当前点击的标签
-                tab.classList.add('active');
-                // 渲染对应过滤条件的成就
-                renderAchievements(tab.dataset.filter);
-            });
+    // 过滤标签点击事件
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // 移除所有active类
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            // 添加active类到当前点击的标签
+            tab.classList.add('active');
+            // 渲染对应过滤条件的成就
+            renderAchievements(tab.dataset.filter);
         });
+    });
 
-        // 初始化
-        renderAchievements();
-    </script>
-</body>
-
-</html>
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function () {
+        loadAchievementsData();
+    });
+</script>
+{% endblock %}

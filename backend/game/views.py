@@ -2,8 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import (
     Game, GameQuestion, GameSession, GameAnswer, 
     GameScore, Achievement, UserAchievement, GameLeaderboard
@@ -155,6 +156,13 @@ class GameLeaderboardViewSet(viewsets.ModelViewSet):
 @login_required
 def game_list_view(request):
     """游戏列表视图"""
+    from core.models import Profile
+    
+    # 检查用户是否绑定情侣
+    if not request.user.profile.couple:
+        messages.error(request, '请先绑定情侣关系，才能使用情侣游戏功能！')
+        return redirect('couple_web:couple')
+    
     # 从数据库获取所有激活状态的游戏
     games = Game.objects.filter(is_active=True)
     
@@ -179,4 +187,5 @@ def game_leaderboard_view(request, game_id):
 @login_required
 def achievements_view(request):
     """成就列表视图"""
-    return render(request, 'achievements.html')
+    # 重定向到core应用的成就页面
+    return redirect('/core/achievements/')

@@ -1,0 +1,217 @@
+{% extends 'vip/vip_base.html' %}
+
+{% block vip_content %}
+<h2 class="text-2xl font-bold text-neutral-800 mb-6">开通/续费会员</h2>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- 当前会员信息卡片 -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-xl shadow-sm border border-primary/20">
+        <h3 class="text-lg font-semibold text-neutral-800 mb-4">当前会员信息</h3>
+
+        <div class="space-y-4">
+            <div>
+                <div class="text-sm text-neutral-600 mb-1">当前等级</div>
+                <div class="flex items-center">
+                    <div class="text-3xl mr-3">
+                        {% if user.vip.level == 'normal' %}
+                        <i class="fa-solid fa-circle text-neutral-400"></i>
+                        {% elif user.vip.level == 'bronze' %}
+                        <i class="fa-solid fa-circle text-amber-600"></i>
+                        {% elif user.vip.level == 'silver' %}
+                        <i class="fa-solid fa-circle text-gray-400"></i>
+                        {% elif user.vip.level == 'gold' %}
+                        <i class="fa-solid fa-circle text-yellow-500"></i>
+                        {% elif user.vip.level == 'platinum' %}
+                        <i class="fa-solid fa-circle text-blue-400"></i>
+                        {% elif user.vip.level == 'diamond' %}
+                        <i class="fa-solid fa-circle text-purple-500"></i>
+                        {% endif %}
+                    </div>
+                    <div class="text-xl font-bold text-primary">{{ user.vip.get_level_display }}</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="text-sm text-neutral-600 mb-1">到期时间</div>
+                <div class="text-lg font-medium">
+                    {% if user.vip.is_active %}
+                    {{ user.vip.end_date|date:'Y年m月d日 H:i' }}
+                    {% else %}
+                    <span class="text-neutral-400">尚未开通</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-primary/20">
+                <div class="text-sm text-neutral-600 mb-2">充值说明</div>
+                <ul class="text-xs text-neutral-500 space-y-1">
+                    <li><i class="fa-solid fa-check text-primary mr-1"></i>充值后立即生效</li>
+                    <li><i class="fa-solid fa-check text-primary mr-1"></i>支持自动续费</li>
+                    <li><i class="fa-solid fa-check text-primary mr-1"></i>可多次叠加时长</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 充值金额选择表单 -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-neutral-200">
+        <h3 class="text-lg font-semibold text-neutral-800 mb-4">选择充值金额</h3>
+
+        <form id="rechargeForm" method="POST" action="{% url 'vip:create_recharge' %}">
+            {% csrf_token %}
+
+            <div class="space-y-4 mb-6">
+                {% for option in recharge_options %}
+                <label
+                    class="block p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md 
+                            {% if forloop.first %}border-primary bg-primary/5{% else %}border-neutral-200 hover:border-primary hover:bg-primary/5{% endif %}">
+                    <input type="radio" name="amount" value="{{ option.amount }}"
+                        class="mr-3 text-primary focus:ring-primary" {% if forloop.first %}checked{% endif %}>
+                    <div class="inline-block">
+                        <div class="font-medium text-neutral-800">
+                            ¥{{ option.amount }} - {{ option.duration }}
+                        </div>
+                        <div class="text-sm text-neutral-600">{{ option.description }}</div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            <button type="submit"
+                class="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium text-lg flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rocket"></i>
+                立即充值
+            </button>
+        </form>
+
+        <!-- 支付说明 -->
+        <div class="mt-6 pt-4 border-t border-neutral-200">
+            <div class="text-xs text-neutral-500">
+                <div class="flex items-center mb-1">
+                    <i class="fa-solid fa-lock text-primary mr-1"></i>
+                    <span>安全支付</span>
+                </div>
+                <div class="text-center text-xs">
+                    本系统为演示环境，暂不支持真实支付，充值后仅用于演示
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AJAX提交脚本 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rechargeForm = document.getElementById('rechargeForm');
+
+        rechargeForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // 获取表单数据
+            const formData = new FormData(rechargeForm);
+
+            // 发送AJAX请求
+            fetch(rechargeForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // 处理响应
+                    if (data.success) {
+                        // 显示成功消息
+                        showMessage('充值成功！' + data.message, 'success');
+                        // 2秒后刷新页面
+                        setTimeout(() => {
+                            window.location.href = '{% url "vip:index" %}';
+                        }, 2000);
+                    } else {
+                        // 显示错误消息
+                        showMessage('充值失败：' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    // 显示网络错误
+                    showMessage('网络错误，请重试', 'error');
+                    console.error('Error:', error);
+                });
+        });
+
+        // 显示消息的函数
+        function showMessage(message, type) {
+            // 创建消息元素
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 z-50 transform transition-all duration-300 animate-fade-in 
+                                   ${type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
+
+            // 添加图标
+            const icon = document.createElement('i');
+            icon.className = `fa-solid ${type === 'success' ? 'fa-check-circle text-green-500' : 'fa-exclamation-circle text-red-500'} text-xl`;
+            messageDiv.appendChild(icon);
+
+            // 添加文本
+            const text = document.createElement('span');
+            text.textContent = message;
+            messageDiv.appendChild(text);
+
+            // 添加关闭按钮
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'ml-auto text-neutral-400 hover:text-neutral-600';
+            closeBtn.innerHTML = '<i class="fa-solid fa-times"></i>';
+            closeBtn.addEventListener('click', () => {
+                messageDiv.remove();
+            });
+            messageDiv.appendChild(closeBtn);
+
+            // 添加到页面
+            document.body.appendChild(messageDiv);
+
+            // 3秒后自动移除
+            setTimeout(() => {
+                messageDiv.classList.add('animate-fade-out');
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 300);
+            }, 3000);
+        }
+    });
+</script>
+
+<!-- 添加动画样式 -->
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    .animate-fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+</style>
+{% endblock %}

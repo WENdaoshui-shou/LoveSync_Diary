@@ -206,7 +206,7 @@
                 <i class="fa-solid fa-blog w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>主页</span>
             </a>
-            <a href="{% url 'message' %}"
+            <a href="{% url 'message:list' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-download w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>消息</span>
@@ -236,7 +236,7 @@
                 <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>历史</span>
             </a>
-            <a href="#"
+            <a href="{% url 'vip_web:index' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>会员中心</span>
@@ -335,12 +335,20 @@
                     <div class="p-8">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <!-- 头像 -->
+                                <a href="{% url 'user:profile' moment.user.id %}"
+                                    class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                    title="查看{{ moment.user.name }}的主页">
                                     <img src="{{ moment.user.profile.userAvatar.url }}" alt="发布者头像"
                                         class="w-full h-full object-cover">
-                                </div>
+                                </a>
+                                <!-- 昵称 -->
                                 <div>
-                                    <h4 class="font-semibold text-neutral-900">{{ moment.user.name }}</h4>
+                                    <a href="{% url 'user:profile' moment.user.id %}"
+                                        class="font-semibold text-neutral-900 hover:text-primary transition-all duration-300"
+                                        title="查看{{ moment.user.name }}的主页">
+                                        {{ moment.user.name }}
+                                    </a>
                                     <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
                                 </div>
                             </div>
@@ -528,12 +536,16 @@
                     <ul class="space-y-4">
                         <li>
                             <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                <a href="#"
+                                    class="block w-10 h-10 rounded-full overflow-hidden mr-3 hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                    title="查看甜甜的小两口的主页">
                                     <img src="https://picsum.photos/200/200?random=21" alt="推荐用户头像"
                                         class="w-full h-full object-cover">
-                                </div>
+                                </a>
                                 <div class="flex-1">
-                                    <h4 class="text-neutral-900 font-medium text-sm">甜甜的小两口</h4>
+                                    <a href="#"
+                                        class="block text-neutral-900 font-medium text-sm hover:text-primary transition-all duration-300"
+                                        title="查看甜甜的小两口的主页">甜甜的小两口</a>
                                     <p class="text-neutral-500 text-xs">分享日常甜蜜瞬间</p>
                                 </div>
                                 <button
@@ -544,12 +556,16 @@
                         </li>
                         <li>
                             <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                <a href="#"
+                                    class="block w-10 h-10 rounded-full overflow-hidden mr-3 hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                    title="查看情侣摄影师的主页">
                                     <img src="https://picsum.photos/200/200?random=3" alt="推荐用户头像"
                                         class="w-full h-full object-cover">
-                                </div>
+                                </a>
                                 <div class="flex-1">
-                                    <h4 class="text-neutral-900 font-medium text-sm">情侣摄影师</h4>
+                                    <a href="#"
+                                        class="block text-neutral-900 font-medium text-sm hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
+                                        title="查看情侣摄影师的主页">情侣摄影师</a>
                                     <p class="text-neutral-500 text-xs">记录爱情的每一刻</p>
                                 </div>
                                 <button
@@ -560,12 +576,16 @@
                         </li>
                         <li>
                             <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                <a href="#"
+                                    class="block w-10 h-10 rounded-full overflow-hidden mr-3 hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                    title="查看恋爱导师的主页">
                                     <img src="https://picsum.photos/200/200?random=4" alt="推荐用户头像"
                                         class="w-full h-full object-cover">
-                                </div>
+                                </a>
                                 <div class="flex-1">
-                                    <h4 class="text-neutral-900 font-medium text-sm">恋爱导师</h4>
+                                    <a href="#"
+                                        class="block text-neutral-900 font-medium text-sm hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
+                                        title="查看恋爱导师的主页">恋爱导师</a>
                                     <p class="text-neutral-500 text-xs">分享恋爱技巧与建议</p>
                                 </div>
                                 <button
@@ -618,17 +638,23 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <div class="flex -space-x-2">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                    <a href="#"
+                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                        title="查看甜蜜二人组的主页">
                                         <img src="https://picsum.photos/200/200?random=12" alt="情侣头像1"
                                             class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                    </a>
+                                    <a href="#"
+                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                        title="查看甜蜜二人组的主页">
                                         <img src="https://picsum.photos/200/200?random=13" alt="情侣头像2"
                                             class="w-full h-full object-cover">
-                                    </div>
+                                    </a>
                                 </div>
                                 <div>
-                                    <h4 class="font-medium text-sm text-neutral-900">甜蜜二人组</h4>
+                                    <a href="#"
+                                        class="block font-medium text-sm text-neutral-900 hover:text-primary transition-all duration-300"
+                                        title="查看甜蜜二人组的主页">甜蜜二人组</a>
                                     <p class="text-neutral-500 text-xs">3.2k 粉丝</p>
                                 </div>
                             </div>
@@ -640,17 +666,23 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <div class="flex -space-x-2">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                    <a href="#"
+                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                        title="查看旅行伴侣的主页">
                                         <img src="https://picsum.photos/200/200?random=14" alt="情侣头像1"
                                             class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                    </a>
+                                    <a href="#"
+                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                        title="查看旅行伴侣的主页">
                                         <img src="https://picsum.photos/200/200?random=15" alt="情侣头像2"
                                             class="w-full h-full object-cover">
-                                    </div>
+                                    </a>
                                 </div>
                                 <div>
-                                    <h4 class="font-medium text-sm text-neutral-900">旅行伴侣</h4>
+                                    <a href="#"
+                                        class="block font-medium text-sm text-neutral-900 hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
+                                        title="查看旅行伴侣的主页">旅行伴侣</a>
                                     <p class="text-neutral-500 text-xs">2.8k 粉丝</p>
                                 </div>
                             </div>
@@ -662,17 +694,23 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <div class="flex -space-x-2">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                    <a href="#"
+                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                        title="查看美食爱好者的主页">
                                         <img src="https://picsum.photos/200/200?random=16" alt="情侣头像1"
                                             class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                                    </a>
+                                    <a href="#"
+                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                        title="查看美食爱好者的主页">
                                         <img src="https://picsum.photos/200/200?random=17" alt="情侣头像2"
                                             class="w-full h-full object-cover">
-                                    </div>
+                                    </a>
                                 </div>
                                 <div>
-                                    <h4 class="font-medium text-sm text-neutral-900">美食爱好者</h4>
+                                    <a href="#"
+                                        class="block font-medium text-sm text-neutral-900 hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
+                                        title="查看美食爱好者的主页">美食爱好者</a>
                                     <p class="text-neutral-500 text-xs">2.5k 粉丝</p>
                                 </div>
                             </div>

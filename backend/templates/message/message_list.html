@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}消息中心{% endblock %}
+
+{% block content %}
+<!-- 背景装饰元素 -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+    </div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+        style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+        style="animation-delay: -4s;"></div>
+</div>
+
+<!-- 主内容区 -->
+<main class="flex-grow pt-24 pb-16 relative z-10">
+    <div class="container mx-auto px-4">
+        <!-- 左侧消息列表 -->
+        <div class="w-full space-y-6">
+            <!-- 页面标题 -->
+            <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
+                <h2 class="text-2xl font-bold text-neutral-900">消息中心</h2>
+                <p class="text-neutral-500 mt-1">查看你的评论、回复和系统通知</p>
+            </div>
+
+            <!-- 消息分类标签 -->
+            <div class="bg-white rounded-xl shadow-lg p-4 flex flex-wrap gap-2">
+                <a href="{% url 'message:list' %}"
+                    class="px-4 py-2 rounded-full {% if not current_type and not current_is_read and request.resolver_match.url_name == 'list' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                    全部消息 <span class="ml-1 bg-white text-primary text-xs px-2 py-0.5 rounded-full">{{ unread_count
+                        }}</span>
+                </a>
+
+                {% for type_value, type_label in message_types %}
+                <a href="{% url 'message:list' %}?type={{ type_value }}"
+                    class="px-4 py-2 rounded-full {% if current_type == type_value %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                    {{ type_label }}
+                </a>
+                {% endfor %}
+
+                <!-- 新增私信列表链接 -->
+                <a href="{% url 'message:private_chat_list' %}"
+                    class="px-4 py-2 rounded-full {% if request.resolver_match.url_name == 'private_chat_list' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                    私信会话
+                </a>
+
+                <a href="{% url 'message:list' %}?is_read=false"
+                    class="px-4 py-2 rounded-full {% if current_is_read == 'false' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                    未读消息
+                </a>
+
+                <a href="{% url 'message:list' %}?is_read=true"
+                    class="px-4 py-2 rounded-full {% if current_is_read == 'true' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                    已读消息
+                </a>
+            </div>
+
+            <!-- 消息搜索框 -->
+            <div class="bg-white rounded-xl shadow-lg p-4 hover-scale">
+                <div class="relative">
+                    <input type="text" placeholder="搜索消息..."
+                        class="w-full pl-10 pr-4 py-3 rounded-lg border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                </div>
+            </div>
+
+            <!-- 消息列表 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                {% if message_list %}
+                {% for message in message_list %}
+                <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not message.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"
+                    onclick="window.location.href='{% url 'message:detail' message.id %}'">
+                    <div class="flex">
+                        <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
+                            {% if message.type == 'system' %}
+                            <img src="https://picsum.photos/200/200?random=100" alt="系统头像"
+                                class="w-full h-full object-cover">
+                            {% elif message.type == 'private' %}
+                            <img src="https://picsum.photos/200/200?random=200" alt="用户头像"
+                                class="w-full h-full object-cover">
+                            {% else %}
+                            <img src="https://picsum.photos/200/200?random=300" alt="业务头像"
+                                class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-semibold text-neutral-900">
+                                    {% if message.type == 'system' %}系统通知{% elif message.type == 'private' %}用户私信{% else
+                                    %}业务提醒{% endif %}
+                                </h4>
+                                <span class="text-neutral-400 text-xs">
+                                    {{ message.create_time|date:"Y-m-d H:i" }}
+                                </span>
+                            </div>
+                            <p class="text-neutral-700 mt-1 line-clamp-2">
+                                {{ message.content }}
+                            </p>
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
+                                    {{ message.get_type_display }}
+                                </span>
+                                {% if not message.is_read %}
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">
+                                    未读
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- 分页导航 -->
+                <div class="p-4 text-center">
+                    <div class="flex justify-center items-center gap-2">
+                        {% if message_list.has_previous %}
+                        <a href="?page={{ message_list.previous_page_number }}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_is_read %}&is_read={{ current_is_read }}{% endif %}"
+                            class="px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                            上一页
+                        </a>
+                        {% endif %}
+
+                        <span class="px-4 py-2 bg-primary text-white rounded-lg">
+                            第 {{ message_list.number }} / {{ message_list.paginator.num_pages }} 页
+                        </span>
+
+                        {% if message_list.has_next %}
+                        <a href="?page={{ message_list.next_page_number }}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_is_read %}&is_read={{ current_is_read }}{% endif %}"
+                            class="px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                            下一页
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <!-- 空状态 -->
+                <div class="p-12 text-center">
+                    <i class="fa-solid fa-envelope-open text-5xl text-neutral-300 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-neutral-900 mb-2">暂无消息</h3>
+                    <p class="text-neutral-500">您还没有收到任何消息，稍后再来看看吧</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 消息列表操作
+    document.addEventListener('DOMContentLoaded', function () {
+        // 搜索功能
+        const searchInput = document.querySelector('input[placeholder="搜索消息..."]');
+        if (searchInput) {
+            searchInput.addEventListener('input', function (e) {
+                // 这里可以实现实时搜索或延迟搜索
+                const searchTerm = e.target.value;
+                console.log('搜索关键词:', searchTerm);
+                // 可以通过AJAX请求获取搜索结果
+            });
+        }
+
+        // 批量操作功能（可扩展）
+        console.log('消息列表页面加载完成');
+    });
+</script>
+{% endblock %}

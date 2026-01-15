@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'mall',
     'collab',
     'game',
+    'vip',
+    'message',  # 消息功能模块
+    'user',  # 用户功能模块
     # 其他应用
     'channels',
     'AI',
@@ -151,11 +154,13 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'vip.middleware.VIPStatusCheckMiddleware',  # VIP状态检查中间件
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 # 消息存储配置，使用SessionStorage确保消息在渲染后被清除
+# 使用Session存储消息，更稳定且无4KB限制
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 ROOT_URLCONF = 'LoveSync.urls'
@@ -293,6 +298,8 @@ DASHSCOPE_BASE_URL = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs
 DASHSCOPE_MODEL = os.getenv('DASHSCOPE_MODEL', 'qwen-plus')  # 使用的模型名称
 
 # 会话配置
+# 使用Redis存储session
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 3600 * 24  # 会话有效期24小时
+SESSION_COOKIE_SAMESITE = 'Lax'  # 确保消息在重定向过程中不会丢失
