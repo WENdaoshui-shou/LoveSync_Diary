@@ -10,62 +10,127 @@ from .models import Message, PrivateChat, MESSAGE_TYPES
 @login_required
 def message_list(request):
     """消息列表页"""
-    # 获取消息类型筛选
-    message_type = request.GET.get('type')
-    # 获取已读/未读筛选
-    is_read = request.GET.get('is_read')
-    
-    # 构建查询集
-    messages_query = Message.objects.filter(
+    # 构建查询集 - 只获取未删除的消息
+    all_messages = Message.objects.filter(
         user=request.user,
         is_deleted=False
-    )
+    ).order_by('-create_time')
     
-    # 按类型筛选
-    if message_type:
-        messages_query = messages_query.filter(type=message_type)
+    # 按用户分组，每个用户只显示一条最新消息
+    # 对于私信，按sender分组；对于其他消息，按类型分组
+    grouped_messages = {}
+    for message in all_messages:
+        if message.type == 'private' and message.private_chat and message.private_chat.sender:
+            # 私信按发送者ID分组，确保只保留最新的一条
+            key = f'private_{message.private_chat.sender.id}'
+        else:
+            # 其他消息类型，每个消息独立显示
+            key = f'{message.type}_{message.id}'
+        
+        # 只保留最新的消息（因为all_messages已经按时间倒序排序）
+        if key not in grouped_messages:
+            grouped_messages[key] = message
     
-    # 按已读状态筛选
-    if is_read is not None:
-        messages_query = messages_query.filter(is_read=is_read.lower() == 'true')
+    # 转换为列表并按时间倒序排序（确保最新消息在最前）
+    sorted_messages = sorted(grouped_messages.values(), key=lambda x: x.create_time, reverse=True)
     
     # 分页处理
-    paginator = Paginator(messages_query, 10)  # 每页10条
+    paginator = Paginator(sorted_messages, 10)  # 每页10条
     page = request.GET.get('page', 1)
     
     try:
-        message_list = paginator.page(page)
+        page_obj = paginator.page(page)
     except PageNotAnInteger:
-        message_list = paginator.page(1)
+        page_obj = paginator.page(1)
     except EmptyPage:
-        message_list = paginator.page(paginator.num_pages)
+        page_obj = paginator.page(paginator.num_pages)
+    
+    # 计算未读消息数
+    unread_count = Message.objects.filter(user=request.user, is_read=False, is_deleted=False).count()
+    
+    # 计算总消息数（分组后的数量）
+    total_message_count = len(grouped_messages)
+    
+    # 获取未读消息列表（用于未读消息标签页）
+    unread_messages_query = Message.objects.filter(
+        user=request.user,
+        is_read=False,
+        is_deleted=False
+    ).order_by('-create_time')
+    
+    # 按用户分组未读消息
+    unread_messages_grouped = {}
+    for message in unread_messages_query:
+        if message.type == 'private' and message.private_chat and message.private_chat.sender:
+            # 私信按发送者ID分组
+            key = f'private_{message.private_chat.sender.id}'
+        else:
+            # 其他消息按类型分组
+            key = f'{message.type}_{message.id}'
+        
+        if key not in unread_messages_grouped:
+            unread_messages_grouped[key] = message
+    
+    # 转换为列表并按时间倒序排序
+    unread_messages = sorted(unread_messages_grouped.values(), key=lambda x: x.create_time, reverse=True)
+    
+    # 获取私信会话列表数据
+    from core.models import User
+    
+    # 获取当前用户发送和接收的所有私信
+    sent_chats = PrivateChat.objects.filter(sender=request.user, message__is_deleted=False)
+    received_chats = PrivateChat.objects.filter(recipient=request.user, message__is_deleted=False)
+    
+    # 获取所有唯一的聊天对象
+    chat_partners = set()
+    for chat in sent_chats:
+        chat_partners.add(chat.recipient)
+    for chat in received_chats:
+        chat_partners.add(chat.sender)
+    
+    # 构建会话列表，包含最后一条消息和未读消息数
+    conversations = []
+    for partner in chat_partners:
+        # 获取与该用户的所有私信
+        partner_chats = PrivateChat.objects.filter(
+            ((models.Q(sender=request.user) & models.Q(recipient=partner)) |
+             (models.Q(sender=partner) & models.Q(recipient=request.user))),
+            message__is_deleted=False
+        ).order_by('-message__create_time')
+        
+        if partner_chats.exists():
+            last_message = partner_chats.first()
+            # 计算未读消息数
+            unread_count = PrivateChat.objects.filter(
+                sender=partner,
+                recipient=request.user,
+                message__is_read=False,
+                message__is_deleted=False
+            ).count()
+            
+            conversations.append({
+                'partner': partner,
+                'last_message': last_message,
+                'unread_count': unread_count,
+                'chat_count': partner_chats.count()
+            })
+    
+    # 按最后一条消息时间排序
+    if conversations:
+        conversations.sort(key=lambda x: x['last_message'].message.create_time, reverse=True)
     
     context = {
-        'message_list': message_list,
-        'message_types': MESSAGE_TYPES,
-        'current_type': message_type,
-        'current_is_read': is_read,
-        'unread_count': Message.objects.filter(user=request.user, is_read=False, is_deleted=False).count(),
+        'grouped_messages': grouped_messages,
+        'page_obj': page_obj,
+        'unread_count': unread_count,
+        'unread_messages': unread_messages,
+        'total_message_count': total_message_count,
+        'conversations': conversations,
     }
     
     return render(request, 'message/message_list.html', context)
 
-@login_required
-def message_detail(request, message_id):
-    """消息详情页"""
-    message = get_object_or_404(Message, id=message_id, user=request.user, is_deleted=False)
-    
-    # 标记为已读
-    if not message.is_read:
-        message.is_read = True
-        message.save()
-    
-    context = {
-        'message': message,
-        'unread_count': Message.objects.filter(user=request.user, is_read=False, is_deleted=False).count(),
-    }
-    
-    return render(request, 'message/message_detail.html', context)
+
 
 @login_required
 def update_message_status(request):
@@ -133,59 +198,7 @@ def mark_all_read(request):
     
     return JsonResponse({'success': False, 'message': '请求方式错误'})
 
-@login_required
-def private_chat_list(request):
-    """私信会话列表"""
-    # 获取所有参与的私信会话
-    from core.models import User
-    
-    # 获取当前用户发送和接收的所有私信
-    sent_chats = PrivateChat.objects.filter(sender=request.user, message__is_deleted=False)
-    received_chats = PrivateChat.objects.filter(recipient=request.user, message__is_deleted=False)
-    
-    # 获取所有唯一的聊天对象
-    chat_partners = set()
-    for chat in sent_chats:
-        chat_partners.add(chat.recipient)
-    for chat in received_chats:
-        chat_partners.add(chat.sender)
-    
-    # 构建会话列表，包含最后一条消息和未读消息数
-    conversations = []
-    for partner in chat_partners:
-        # 获取与该用户的所有私信
-        partner_chats = PrivateChat.objects.filter(
-            ((models.Q(sender=request.user) & models.Q(recipient=partner)) |
-             (models.Q(sender=partner) & models.Q(recipient=request.user))),
-            message__is_deleted=False
-        ).order_by('-message__create_time')
-        
-        if partner_chats.exists():
-            last_message = partner_chats.first()
-            # 计算未读消息数
-            unread_count = PrivateChat.objects.filter(
-                sender=partner,
-                recipient=request.user,
-                message__is_read=False,
-                message__is_deleted=False
-            ).count()
-            
-            conversations.append({
-                'partner': partner,
-                'last_message': last_message,
-                'unread_count': unread_count,
-                'chat_count': partner_chats.count()
-            })
-    
-    # 按最后一条消息时间排序
-    conversations.sort(key=lambda x: x['last_message'].message.create_time, reverse=True)
-    
-    context = {
-        'conversations': conversations,
-        'unread_count': Message.objects.filter(user=request.user, is_read=False, is_deleted=False).count(),
-    }
-    
-    return render(request, 'message/private_chat_list.html', context)
+
 
 @login_required
 def private_chat_detail(request, user_id):
@@ -222,7 +235,7 @@ def private_chat_detail(request, user_id):
         
     except User.DoesNotExist:
         messages.error(request, '用户不存在')
-        return redirect('message:private_chat_list')
+        return redirect('message:list')
 
 @login_required
 def send_private_message(request):

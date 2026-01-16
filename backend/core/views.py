@@ -568,7 +568,7 @@ def get_achievements_data(request):
         })
     
     # 计算统计数据
-    total = len(achievements_data)
+    total = Achievement.objects.count()
     unlocked = len([a for a in achievements_data if a['unlocked']])
     completion_rate = round((unlocked / total) * 100) if total > 0 else 0
     recent_unlocked = len([a for a in achievements_data if a['unlocked']])

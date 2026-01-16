@@ -26,9 +26,7 @@ def profile(request, user_id):
     
     # 获取粉丝数和关注数
     followers_count = Follow.objects.filter(following=profile_user, is_deleted=False).count()
-    print(f"DEBUG: followers_count = {followers_count}")
     following_count = Follow.objects.filter(follower=profile_user, is_deleted=False).count()
-    print(f"DEBUG: following_count = {following_count}")
     
     # 获取动态列表
     moments = Moment.objects.filter(
@@ -49,8 +47,7 @@ def profile(request, user_id):
         'photos': photos,
         'unread_count': 0,  # 可根据实际情况添加未读消息数
     }
-    print(context)
-    
+
     return render(request, 'user/profile.html', context)
 
 @login_required

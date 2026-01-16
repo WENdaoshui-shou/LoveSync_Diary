@@ -226,8 +226,14 @@
                             <i class="fa-solid fa-user mr-2 w-5 text-center"></i>主页
                         </a>
                         <a href="{% url 'message:list' %}"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>消息
+                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-bookmark mr-2 w-5 text-center"></i>消息
+                            </div>
+                            <span id="unread-count-badge"
+                                class="hidden bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                0
+                            </span>
                         </a>
                         <a href="{% url 'settings' %}"
                             class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
@@ -478,5 +484,42 @@
     </script>
     {% block extra_js %}{% endblock %}
 </body>
+<script>
+    // 动态获取未读消息数量并显示
+    document.addEventListener('DOMContentLoaded', function () {
+        // 检查用户是否登录（通过是否存在token判断）
+        const token = localStorage.getItem('access');
+        if (token) {
+            // 调用未读消息数量API
+            fetch('/message/unread-count/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Failed to fetch unread count');
+                })
+                .then(data => {
+                    const unreadCount = data.unread_count || 0;
+                    const badge = document.getElementById('unread-count-badge');
+                    if (badge) {
+                        if (unreadCount > 0) {
+                            badge.textContent = unreadCount;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching unread count:', error);
+                });
+        }
+    });
+</script>
 
 </html>

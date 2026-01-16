@@ -217,65 +217,7 @@
                                 </div>
                             </div>
 
-                            <!-- 分享确认弹窗 -->
-                            <div id="share-confirm-modal"
-                                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-                                <div
-                                    class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">确认分享</h3>
-                                    <p class="text-gray-600 mb-6">你确定要将这条动态分享到社区吗？</p>
-                                    <div class="flex justify-end space-x-3">
-                                        <button id="cancel-share-btn"
-                                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
-                                            取消
-                                        </button>
-                                        <button id="confirm-share-btn"
-                                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-custom">
-                                            <i class="fa fa-share-alt mr-2"></i>分享
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- 删除确认模态框 -->
-                            <div id="delete-modal"
-                                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-                                <div
-                                    class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">确认删除</h3>
-                                    <p class="text-gray-600 mb-6">你确定要删除这条动态吗？此操作不可撤销。</p>
-                                    <div class="flex justify-end space-x-3">
-                                        <button id="cancel-delete-btn"
-                                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
-                                            取消
-                                        </button>
-                                        <button id="confirm-delete-btn"
-                                            class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-custom">
-                                            <i class="fa fa-trash mr-2"></i>删除
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 取消分享确认模态框 -->
-                            <div id="unshare-modal"
-                                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-                                <div
-                                    class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">确认取消分享</h3>
-                                    <p class="text-gray-600 mb-6">你确定要取消这条动态的分享吗？它将不再显示在社区中。</p>
-                                    <div class="flex justify-end space-x-3">
-                                        <button id="cancel-unshare-btn"
-                                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
-                                            取消
-                                        </button>
-                                        <button id="confirm-unshare-btn"
-                                            class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-custom">
-                                            <i class="fa fa-undo mr-2"></i>取消分享
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -316,6 +258,61 @@
         </div>
     </div>
 </div>
+
+<!-- 分享确认弹窗 -->
+<div id="share-confirm-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-999 hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">确认分享</h3>
+        <p class="text-gray-600 mb-6">你确定要将这条动态分享到社区吗？</p>
+        <div class="flex justify-end space-x-3">
+            <button id="cancel-share-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
+                取消
+            </button>
+            <button id="confirm-share-btn"
+                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-custom">
+                <i class="fa fa-share-alt mr-2"></i>分享
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-999 hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">确认删除</h3>
+        <p class="text-gray-600 mb-6">你确定要删除这条动态吗？此操作不可撤销。</p>
+        <div class="flex justify-end space-x-3">
+            <button id="cancel-delete-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
+                取消
+            </button>
+            <button id="confirm-delete-btn"
+                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-custom">
+                <i class="fa fa-trash mr-2"></i>删除
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 取消分享确认模态框 -->
+<div id="unshare-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-999 hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 transform transition-all">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">确认取消分享</h3>
+        <p class="text-gray-600 mb-6">你确定要取消这条动态的分享吗？它将不再显示在社区中。</p>
+        <div class="flex justify-end space-x-3">
+            <button id="cancel-unshare-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-custom">
+                取消
+            </button>
+            <button id="confirm-unshare-btn"
+                class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-custom">
+                <i class="fa fa-undo mr-2"></i>取消分享
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -343,13 +340,19 @@
         }
 
         let currentId = null;
+        let currentBtn = null;
+        let currentCard = null;
 
         // 打开模态框
         if (openBtns.length > 0) {
             openBtns.forEach(btn => {
                 btn.addEventListener('click', function (e) {
                     e.preventDefault();
+                    e.stopPropagation(); // 阻止事件冒泡
                     currentId = this.getAttribute('data-moment-id');
+                    currentBtn = this;
+                    // 只获取带有post-card类的元素
+                    currentCard = this.closest('.post-card');
 
                     // 显示模态框并添加动画
                     modal.classList.remove('hidden');
@@ -368,8 +371,10 @@
 
             setTimeout(() => {
                 modal.classList.add('hidden');
-                // 重置currentId，确保下次点击能正确获取新的ID
+                // 重置所有变量，确保下次点击能正确获取新的ID
                 currentId = null;
+                currentBtn = null;
+                currentCard = null;
                 // 确保按钮状态被重置
                 confirmBtn.disabled = false;
                 // 恢复确认按钮的原始内容
@@ -400,8 +405,15 @@
                 this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>取消分享';
             }
 
-            // 执行回调函数
-            confirmCallback(currentId, this, modal, closeModal);
+            // 保存当前的按钮和卡片引用
+            const currentConfirmBtn = this;
+            const currentActionBtn = currentBtn;
+            const currentActionCard = currentCard;
+
+
+
+            // 执行回调函数，传递currentBtn和currentCard以便获取正确的动态卡片
+            confirmCallback(currentId, currentConfirmBtn, modal, closeModal, currentActionBtn, currentActionCard);
         });
 
         return {
@@ -481,7 +493,7 @@
             '.share-btn:not(.opacity-50)',
             'cancel-share-btn',
             'confirm-share-btn',
-            (momentId, btn, modal, closeModal) => {
+            (momentId, btn, modal, closeModal, currentBtn) => {
                 fetch(`/share-moment/${momentId}/`, {
                     method: 'POST',
                     headers: {
@@ -491,9 +503,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // 更新UI
-                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
-                            const shareBtn = momentCard.querySelector('.share-btn');
+                            // 更新UI - 使用currentBtn获取正确的卡片
+                            const momentCard = currentBtn.closest('.post-card');
+                            const shareBtn = currentBtn;
 
                             shareBtn.classList.remove('text-blue-500', 'hover:bg-blue-50', 'share-btn');
                             shareBtn.classList.add('text-gray-400', 'cursor-not-allowed', 'opacity-50');
@@ -503,7 +515,7 @@
                             shareBtn.setAttribute('data-is-shared', 'true');
 
                             // 更新菜单中的按钮
-                            const menuBtn = momentCard.querySelector(`[data-moment-id="${momentId}"]`);
+                            const menuBtn = currentBtn;
                             menuBtn.classList.remove('share-btn');
                             menuBtn.classList.add('unshare-btn');
                             menuBtn.classList.remove('text-blue-500', 'hover:bg-blue-50');
@@ -535,7 +547,10 @@
             '.delete-btn',
             'cancel-delete-btn',
             'confirm-delete-btn',
-            (momentId, btn, modal, closeModal) => {
+            (momentId, btn, modal, closeModal, currentBtn, currentCard) => {
+                // 确保只操作要删除的动态卡片
+                const targetCard = currentCard;
+
                 fetch(`/moments/${momentId}/delete/`, {
                     method: 'DELETE',
                     headers: {
@@ -545,11 +560,9 @@
                     .then(response => {
                         if (response.ok) {
                             // 从DOM中移除动态卡片
-                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
-                            momentCard.classList.add('opacity-0');
-
-                            setTimeout(() => {
-                                momentCard.remove();
+                            if (targetCard && targetCard.classList.contains('post-card')) {
+                                // 直接移除卡片，不添加动画效果，避免影响其他卡片
+                                targetCard.remove();
                                 closeModal();
 
                                 // 更新动态数量
@@ -558,13 +571,14 @@
                                     const currentCount = parseInt(momentsCountElement.textContent);
                                     momentsCountElement.textContent = currentCount - 1;
                                 }
-                            }, 300);
+                            } else {
+                                closeModal();
+                            }
                         } else {
                             throw new Error('删除失败');
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
                         alert('删除失败，请重试');
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fa fa-trash mr-2"></i>删除';
@@ -583,7 +597,7 @@
             '.unshare-btn',
             'cancel-unshare-btn',
             'confirm-unshare-btn',
-            (momentId, btn, modal, closeModal) => {
+            (momentId, btn, modal, closeModal, currentBtn) => {
                 fetch(`/unshare-moment/${momentId}/`, {
                     method: 'POST',
                     headers: {
@@ -593,9 +607,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // 更新UI
-                            const momentCard = document.querySelector(`[data-moment-id="${momentId}"]`).closest('.post-card');
-                            const unshareBtn = momentCard.querySelector('.unshare-btn');
+                            // 更新UI - 使用currentBtn获取正确的卡片
+                            const momentCard = currentBtn.closest('.post-card');
+                            const unshareBtn = currentBtn;
 
                             // 切换按钮状态
                             unshareBtn.classList.remove('text-yellow-500', 'hover:bg-yellow-50', 'unshare-btn');
@@ -638,7 +652,8 @@
 
         // 菜单按钮功能
         document.querySelectorAll('[id^="moreBtn-"]').forEach(button => {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function (e) {
+                e.stopPropagation(); // 阻止事件冒泡
                 const menuId = this.id.replace('moreBtn-', 'menu-');
                 const menu = document.getElementById(menuId);
 
