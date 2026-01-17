@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ meta_title }}{% endblock %}
+
+{% block meta %}
+<meta name="description" content="{{ meta_description }}">
+<meta property="og:title" content="{{ meta_title }}">
+<meta property="og:description" content="{{ meta_description }}">
+{% if moment and moment.moment_images and moment.moment_images.first and moment.moment_images.first.image %}
+<meta property="og:image" content="{{ moment.moment_images.first.image.url }}">
+{% endif %}
+<meta property="og:type" content="article">
+{% endblock %}
+
+{% block content %}
+<!-- 主内容区 -->
+<div class="flex-grow pt-24 pb-16 relative z-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-2xl mx-auto">
+            {% if error %}
+            <!-- 错误提示页面 -->
+            <div class="text-center py-16 bg-white rounded-xl shadow-lg">
+                <div class="text-6xl mb-4">😢</div>
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ error }}</h1>
+                <p class="text-gray-600 mb-8">
+                    {% if error == '动态不存在' %}
+                    您访问的动态不存在或已被删除
+                    {% else %}
+                    访问动态时出现错误，请稍后重试
+                    {% endif %}
+                </p>
+                <a href="{% url 'community' %}"
+                    class="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                    返回社区
+                </a>
+            </div>
+            {% else %}
+            <!-- 动态分享页面 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card w-full">
+                <div class="p-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <!-- 头像 -->
+                            {% if moment.user and moment.user.username %}
+                            {% if moment.user.profile and moment.user.profile.userAvatar %}
+                            <img src="{{ moment.user.profile.userAvatar.url }}" alt="{{ moment.user.username }}"
+                                class="w-10 h-10 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                {{ moment.user.username|first }}
+                            </div>
+                            {% endif %}
+                            <!-- 昵称 -->
+                            <div>
+                                <h2 class="font-semibold text-neutral-900">{{ moment.user.name }}</h2>
+                                <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
+                            </div>
+                            {% else %}
+                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                用
+                            </div>
+                            <div>
+                                <h2 class="font-semibold text-neutral-900">用户</h2>
+                                <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <button class="text-neutral-400 hover:text-neutral-700 transition-custom">
+                            <i class="fa-solid fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-neutral-800">{{ moment.content }}</p>
+                    </div>
+
+                    <!-- 动态图片 -->
+                    {% if moment and moment.moment_images and moment.moment_images.exists %}
+                    <div class="mt-4 grid gap-2
+                                sm:grid-cols-2
+                                md:grid-cols-3
+                                lg:grid-cols-4">
+                        {% for image in moment.moment_images.all %}
+                        {% if image and image.image %}
+                        <img src="{{ image.image.url }}" alt="动态图片" class="rounded-lg w-full h-40 object-cover">
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <div class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                                <i class="fa-regular fa-heart"></i>
+                                <span>{{ moment.likes }}</span>
+                            </div>
+                            <div class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                                <i class="fa-regular fa-comment"></i>
+                                <span>{{ moment.comments }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                            <i class="fa-regular fa-share-from-square"></i>
+                            <span>分享</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 评论区域 -->
+                <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
+                    <div class="space-y-4">
+                        <!-- 评论列表 -->
+                        <div class="comments-list space-y-3">
+                            <!-- 评论将通过JavaScript动态加载 -->
+                        </div>
+                        <!-- 发表评论 -->
+                        <div class="flex space-x-3 mt-2">
+                            <div class="w-8 h-8 rounded-full overflow-hidden">
+                                {% if user and user.profile and user.profile.userAvatar %}
+                                <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+                                {% else %}
+                                <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 relative">
+                                <input type="text" placeholder="写下你的评论..."
+                                    class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
+                                <button
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 查看更多动态按钮 -->
+            <div class="mt-6">
+                <a href="{% url 'community' %}"
+                    class="block w-full py-3 bg-white rounded-xl text-center text-primary font-medium hover:bg-neutral-50 transition-custom border border-neutral-200 shadow-sm">
+                    查看更多动态
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,9 +5,9 @@ from django.conf.urls.static import static
 from core.views import (
     IndexView, login_view, register_view, logout_view,
     personal_center_view, settings_view, verify_code,
-    message_view, delete_account
+    message_view, delete_account, share_place_view
 )
-from moment.views import community_view, moments_view, hot_moments_view, favorites_view, share_moment, delete_moment, unshare_moment
+from moment.views import community_view, moments_view, hot_moments_view, share_moment, delete_moment, unshare_moment
 from photo.views import photo_album, delete_photo, download_photo
 from note.views import lovesync
 
@@ -29,12 +29,15 @@ urlpatterns = [
     # 替换旧的message_view为新的消息应用路由
     path('message/', include('message.urls')),
     
+    # 分享功能路由
+    path('share/place/<int:place_id>/', share_place_view, name='share_place'),
+    
     # 直接映射常用视图，保持向后兼容性
     # Moment应用视图
     path('community/', community_view, name='community'),
     path('moments/', moments_view, name='moments'),
     path('hot-moments/', hot_moments_view, name='hot_moments'),
-    path('favorites/', favorites_view, name='favorites'),
+
     # 动态分享、删除和取消分享
     path('share-moment/<int:moment_id>/', share_moment, name='share_moment'),
     path('moments/<int:moment_id>/delete/', delete_moment, name='delete_moment'),

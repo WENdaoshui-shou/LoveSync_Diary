@@ -17,25 +17,11 @@
     <div class="container mx-auto px-4">
         <!-- 左侧消息列表 -->
         <div class="w-full space-y-6">
-            <!-- 页面标题 + 消息总数（右上角） -->
-            <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-2xl font-bold text-neutral-900">消息中心</h2>
-                        <p class="text-neutral-500 mt-1">查看你的评论、回复和系统通知</p>
-                    </div>
-                    <!-- 消息总数显示 -->
-                    <span class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full flex-shrink-0">
-                        共 {{ total_message_count|default:0 }} 条
-                    </span>
-                </div>
-            </div>
-
             <!-- 核心功能标签（消息列表 + 未读消息） -->
             <div class="bg-white rounded-xl shadow-lg p-4 flex flex-wrap gap-3">
                 <button id="btn-message-list"
                     class="px-4 py-2 rounded-full {% if not request.GET.filter or request.GET.filter != 'unread' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
-                    所有消息
+                    所有消息 <span class="ml-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">{{ total_message_count|default:0 }}</span>
                 </button>
 
                 <button id="btn-unread-messages"

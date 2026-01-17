@@ -39,3 +39,46 @@ class Follow(models.Model):
     
     def __str__(self):
         return f"{self.follower.name} 关注了 {self.following.name}"
+
+
+class Collection(models.Model):
+    """用户收藏模型"""
+    # 收藏类型选择
+    CONTENT_TYPE_CHOICES = [
+        ('moment', '动态'),
+        ('place', '地点'),
+    ]
+    
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='collections',
+        verbose_name='用户'
+    )
+    content_type = models.CharField(
+        max_length=10,
+        choices=CONTENT_TYPE_CHOICES,
+        verbose_name='收藏类型'
+    )
+    object_id = models.PositiveIntegerField(
+        verbose_name='收藏对象ID'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='收藏时间'
+    )
+    
+    class Meta:
+        verbose_name = '用户收藏'
+        verbose_name_plural = '用户收藏管理'
+        # 联合唯一索引，避免重复收藏
+        unique_together = ('user', 'content_type', 'object_id')
+        indexes = [
+            # 用户+类型+对象ID的唯一索引
+            Index(fields=['user', 'content_type', 'object_id'], name='unique_user_content_object'),
+            # 用户+类型的索引，用于快速查询用户收藏的特定类型内容
+            Index(fields=['user', 'content_type', 'created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.name} 收藏了 {self.content_type} {self.object_id}"

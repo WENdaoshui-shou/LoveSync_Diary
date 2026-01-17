@@ -1,0 +1,842 @@
+{% extends 'base.html' %}
+
+{% block title %}我的收藏 | LoveSync{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 标签页样式 */
+    .tab-btn {
+        position: relative;
+        overflow: hidden;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px 8px 0 0;
+        margin-right: 0.5rem;
+        color: #6B7280;
+    }
+
+    .tab-btn:hover {
+        color: #722ED1;
+        background-color: rgba(114, 46, 209, 0.05);
+        transform: translateY(-1px);
+    }
+
+    .tab-btn.tab-active {
+        color: #FF6B8B;
+        font-weight: 600;
+        background-color: rgba(255, 107, 139, 0.05);
+        box-shadow: 0 2px 4px rgba(255, 107, 139, 0.1);
+    }
+
+    .tab-btn.tab-active:hover {
+        color: #722ED1;
+        background-color: rgba(114, 46, 209, 0.05);
+    }
+
+    /* 优化取消收藏按钮 */
+    .uncollect-btn {
+        transition: all 0.3s ease;
+        padding: 4px;
+        border-radius: 50%;
+    }
+
+    .uncollect-btn:hover {
+        background-color: rgba(114, 46, 209, 0.1);
+        transform: scale(1.1);
+    }
+
+    /* 收藏地点卡片样式 */
+    .place-card {
+        transition: all 0.3s ease;
+    }
+
+    .place-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+    }
+
+    .place-card .fa-star,
+    .place-card .fa-star-half-o,
+    .place-card .fa-star-o {
+        color: #FF6B8B;
+        transition: color 0.3s ease;
+    }
+
+    .place-card:hover .fa-star,
+    .place-card:hover .fa-star-half-o,
+    .place-card:hover .fa-star-o {
+        color: #722ED1;
+    }
+
+    .place-card .fa-map-marker {
+        color: #FF6B8B;
+        transition: color 0.3s ease;
+    }
+
+    .place-card:hover .fa-map-marker {
+        color: #722ED1;
+    }
+
+    .place-card .price-tag {
+        color: #FF6B8B;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .place-card:hover .price-tag {
+        color: #722ED1;
+    }
+
+    .place-card .place-type-tag {
+        background-color: rgba(255, 107, 139, 0.1);
+        color: #FF6B8B;
+        transition: all 0.3s ease;
+    }
+
+    .place-card:hover .place-type-tag {
+        background-color: rgba(114, 46, 209, 0.1);
+        color: #722ED1;
+    }
+
+    /* 优化页面标题 */
+    .page-title {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-title h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #FF6B8B, #722ED1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-title p {
+        color: #6B7280;
+        font-size: 1.1rem;
+    }
+
+    /* 优化标签页容器 */
+    .tab-container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* 优化收藏分类标题 */
+    .collection-section-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .collection-section-title i {
+        margin-right: 0.75rem;
+        color: #FF6B8B;
+        font-size: 1.25rem;
+    }
+
+    /* 优化空状态样式 */
+    .empty-state {
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(255, 107, 139, 0.05), rgba(114, 46, 209, 0.05));
+        border: 2px dashed rgba(255, 107, 139, 0.2);
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #FF6B8B, #722ED1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .empty-state-icon i {
+        font-size: 2rem;
+        color: white;
+    }
+
+    /* 优化按钮样式 */
+    .btn-primary {
+        background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(255, 107, 139, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(114, 46, 209, 0.4);
+        background: linear-gradient(135deg, #722ED1 0%, #FF6B8B 100%);
+    }
+
+    .btn-secondary {
+        background-color: white;
+        border: 1px solid #FF6B8B;
+        color: #FF6B8B;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(114, 46, 209, 0.05);
+        border-color: #722ED1;
+        color: #722ED1;
+        transform: translateY(-2px);
+    }
+
+    /* 优化响应式设计 */
+    @media (max-width: 768px) {
+        .page-title h1 {
+            font-size: 2rem;
+        }
+
+        .tab-container {
+            padding: 1rem;
+        }
+
+        .collection-card {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- 主内容区 -->
+<div class="flex-grow pt-24 pb-16 relative z-10 px-4">
+    <div class="container mx-auto px-4">
+        <!-- 标签页容器 -->
+        <div class="tab-container mb-8">
+            <!-- 标签页导航 -->
+            <div class="mb-6">
+                <div class="flex">
+                    <button class="tab-btn tab-active" data-tab="all">
+                        全部
+                    </button>
+                    <button class="tab-btn" data-tab="moments">
+                        收藏动态
+                    </button>
+                    <button class="tab-btn" data-tab="places">
+                        收藏地点
+                    </button>
+                </div>
+            </div>
+
+            <!-- 全部内容 -->
+            <div class="tab-content" id="all-tab">
+                <!-- 动态收藏 -->
+                <div class="mb-10">
+                    <div class="collection-section-title">
+                        <i class="fa-solid fa-newspaper text-[#FF6B8B]"></i>
+                        <h2 class="text-lg font-semibold text-neutral-800">收藏动态</h2>
+                    </div>
+                    <div class="space-y-6">
+                        {% if moments %}
+                        {% for moment in moments %}
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden collection-card hover:scale-[1.01] hover:shadow-xl transition-all duration-300"
+                            data-type="moment" data-id="{{ moment.id }}">
+                            <div class="p-6">
+                                <!-- 用户信息 -->
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <!-- 头像 -->
+                                        <a href="{% url 'user:profile' moment.user_id %}"
+                                            class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                            title="查看{{ moment.user_name }}的主页">
+                                            {% if moment.user_avatar %}
+                                            <img src="{{ moment.user_avatar }}" alt="{{ moment.user_name }}的头像"
+                                                class="w-full h-full object-cover">
+                                            {% else %}
+                                            <div
+                                                class="w-full h-full bg-neutral-200 flex items-center justify-center text-[#FF6B8B]">
+                                                <i class="fa-solid fa-user"></i>
+                                            </div>
+                                            {% endif %}
+                                        </a>
+                                        <!-- 昵称 -->
+                                        <div>
+                                            <a href="{% url 'user:profile' moment.user_id %}"
+                                                class="font-semibold text-neutral-900 hover:text-primary transition-all duration-300"
+                                                title="查看{{ moment.user_name }}的主页">
+                                                {{ moment.user_name }}
+                                            </a>
+                                            <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <!-- 取消收藏按钮 -->
+                                    <button class="uncollect-btn text-[#FF6B8B] hover:text-[#722ED1] transition-custom"
+                                        data-type="moment" data-id="{{ moment.id }}">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+
+                                <div class="mt-2">
+                                    <p class="text-neutral-800">{{ moment.content }}</p>
+                                </div>
+
+                                <!-- 动态图片 -->
+                                {% if moment.images %}
+                                <div class="mt-4 grid gap-2
+                                            sm:grid-cols-2
+                                            md:grid-cols-3
+                                            lg:grid-cols-4">
+                                    {% for image in moment.images %}
+                                    <img src="{{ image }}" alt="动态图片"
+                                        class="rounded-lg w-full h-40 object-cover hover-scale">
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <div class="mt-4 flex justify-between items-center">
+                                    <div class="flex space-x-6">
+                                        <div class="flex items-center space-x-1 text-neutral-500">
+                                            <i class="fa-regular fa-heart"></i>
+                                            <span>{{ moment.likes }}</span>
+                                        </div>
+                                        <div class="flex items-center space-x-1 text-neutral-500">
+                                            <i class="fa-regular fa-comment"></i>
+                                            <span>{{ moment.comments }}</span>
+                                        </div>
+                                    </div>
+                                    <!-- 收藏时间 -->
+                                    <span class="collect-time">
+                                        收藏于 {{ moment.collected_at|date:"Y-m-d" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fa-regular fa-bookmark"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏动态</h3>
+                            <p class="text-neutral-500 text-sm mb-4">去社区看看，收藏感兴趣的动态吧</p>
+                            <a href="/community/moments/"
+                                class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                                浏览动态
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 地点收藏 -->
+                <div class="mb-10">
+                    <div class="collection-section-title">
+                        <i class="fa-solid fa-map-marker-alt text-[#FF6B8B]"></i>
+                        <h2 class="text-lg font-semibold text-neutral-800">收藏地点</h2>
+                    </div>
+                    <div class="space-y-6">
+                        {% if places %}
+                        {% for place in places %}
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden collection-card place-card hover:scale-[1.01] hover:shadow-xl transition-all duration-300"
+                            data-type="place" data-id="{{ place.id }}">
+                            <div class="relative">
+                                <div
+                                    class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
+                                    <i class="fa fa-map-marker text-neutral-500 mr-1"></i> {{ place.place_type }}
+                                </div>
+                                <div
+                                    class="absolute top-3 right-3 bg-gradient-to-r from-neutral-500 to-neutral-700 rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
+                                    <i class="fa fa-star mr-1"></i> {{ place.rating }}分
+                                </div>
+                                {% if place.image_url %}
+                                <img src="{{ place.image_url }}" alt="{{ place.name }}"
+                                    class="w-full h-48 object-cover">
+                                {% else %}
+                                <div class="w-full h-48 bg-neutral-100 flex items-center justify-center">
+                                    <i class="fa-solid fa-map-marker-alt text-4xl text-neutral-500"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="p-6">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-lg text-neutral-800">{{ place.name }}</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <!-- 收藏时间 -->
+                                        <span class="collect-time">
+                                            收藏于 {{ place.collected_at|date:"Y-m-d" }}
+                                        </span>
+                                        <!-- 取消收藏按钮 -->
+                                        <button
+                                            class="uncollect-btn text-[#FF6B8B] hover:text-[#722ED1] transition-custom"
+                                            data-type="place" data-id="{{ place.id }}">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center mt-2">
+                                    <div class="flex items-center">
+                                        {% for i in "12345" %}
+                                        {% if forloop.counter <= place.rating|floatformat:0 %} <i
+                                            class="fa fa-star text-neutral-500">
+                                            </i>
+                                            {% elif forloop.counter == place.rating|add:1|floatformat:0 %}
+                                            <i class="fa fa-star-half-o text-neutral-500"></i>
+                                            {% else %}
+                                            <i class="fa fa-star-o text-neutral-500"></i>
+                                            {% endif %}
+                                            {% endfor %}
+                                            <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{
+                                                place.review_count }})</span>
+                                    </div>
+                                    <div class="ml-auto flex items-center text-neutral-500 text-sm">
+                                        <i class="fa fa-map-marker mr-1 text-neutral-500"></i>
+                                        <span>{{ place.distance }}</span>
+                                    </div>
+                                </div>
+
+                                <p class="text-neutral-600 text-sm mt-3">{{ place.description }}</p>
+
+                                <div class="flex flex-wrap gap-2 mt-3">
+                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
+                                        place.place_type }}</span>
+                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
+                                        place.price_range }}</span>
+                                    {% if place.rating >= 4.8 %}
+                                    <span
+                                        class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex items-center">
+                                        <span class="text-neutral-500 font-bold">{{ place.price_range }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fa-regular fa-bookmark"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏地点</h3>
+                            <p class="text-neutral-500 text-sm mb-4">去情侣地点看看，收藏喜欢的约会地点吧</p>
+                            <a href="/couple/places/"
+                                class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                                浏览地点
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 动态内容 -->
+            <div class="tab-content hidden" id="moments-tab">
+                <div class="space-y-6">
+                    {% if moments %}
+                    {% for moment in moments %}
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden collection-card hover:scale-[1.01] hover:shadow-xl transition-all duration-300"
+                        data-type="moment" data-id="{{ moment.id }}">
+                        <div class="p-6">
+                            <!-- 用户信息 -->
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <!-- 头像 -->
+                                    <a href="{% url 'user:profile' moment.user_id %}"
+                                        class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300"
+                                        title="查看{{ moment.user_name }}的主页">
+                                        {% if moment.user_avatar %}
+                                        <img src="{{ moment.user_avatar }}" alt="{{ moment.user_name }}的头像"
+                                            class="w-full h-full object-cover">
+                                        {% else %}
+                                        <div
+                                            class="w-full h-full bg-neutral-200 flex items-center justify-center text-[#FF6B8B]">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        {% endif %}
+                                    </a>
+                                    <!-- 昵称 -->
+                                    <div>
+                                        <a href="{% url 'user:profile' moment.user_id %}"
+                                            class="font-semibold text-neutral-900 hover:text-primary transition-all duration-300"
+                                            title="查看{{ moment.user_name }}的主页">
+                                            {{ moment.user_name }}
+                                        </a>
+                                        <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
+                                    </div>
+                                </div>
+                                <!-- 取消收藏按钮 -->
+                                <button class="uncollect-btn text-[#FF6B8B] hover:text-[#722ED1] transition-custom"
+                                    data-type="moment" data-id="{{ moment.id }}">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+
+                            <div class="mt-2">
+                                <p class="text-neutral-800">{{ moment.content }}</p>
+                            </div>
+
+                            <!-- 动态图片 -->
+                            {% if moment.images %}
+                            <div class="mt-4 grid gap-2
+                                        sm:grid-cols-2
+                                        md:grid-cols-3
+                                        lg:grid-cols-4">
+                                {% for image in moment.images %}
+                                <img src="{{ image }}" alt="动态图片"
+                                    class="rounded-lg w-full h-40 object-cover hover-scale">
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="flex space-x-6">
+                                    <div class="flex items-center space-x-1 text-neutral-500">
+                                        <i class="fa-regular fa-heart"></i>
+                                        <span>{{ moment.likes }}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-1 text-neutral-500">
+                                        <i class="fa-regular fa-comment"></i>
+                                        <span>{{ moment.comments }}</span>
+                                    </div>
+                                </div>
+                                <!-- 收藏时间 -->
+                                <span class="collect-time">
+                                    收藏于 {{ moment.collected_at|date:"Y-m-d" }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏动态</h3>
+                        <p class="text-neutral-500 text-sm mb-4">去社区看看，收藏感兴趣的动态吧</p>
+                        <a href="/community/moments/"
+                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            浏览动态
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 地点内容 -->
+            <div class="tab-content hidden" id="places-tab">
+                <div class="space-y-6">
+                    {% if places %}
+                    {% for place in places %}
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden collection-card place-card hover:scale-[1.01] hover:shadow-xl transition-all duration-300"
+                        data-type="place" data-id="{{ place.id }}">
+                        <div class="relative">
+                            <div
+                                class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
+                                <i class="fa fa-map-marker text-[#FF6B8B] mr-1"></i> {{ place.place_type }}
+                            </div>
+                            <div
+                                class="absolute top-3 right-3 bg-gradient-to-r from-[#FF6B8B] to-[#722ED1] rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
+                                <i class="fa fa-star mr-1"></i> {{ place.rating }}分
+                            </div>
+                            {% if place.image_url %}
+                            <img src="{{ place.image_url }}" alt="{{ place.name }}" class="w-full h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-48 bg-neutral-100 flex items-center justify-center">
+                                <i class="fa-solid fa-map-marker-alt text-4xl text-[#FF6B8B]"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="p-6">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-lg text-neutral-800">{{ place.name }}</h3>
+                                <div class="flex items-center space-x-2">
+                                    <!-- 收藏时间 -->
+                                    <span class="collect-time">
+                                        收藏于 {{ place.collected_at|date:"Y-m-d" }}
+                                    </span>
+                                    <!-- 取消收藏按钮 -->
+                                    <button class="uncollect-btn text-[#FF6B8B] hover:text-[#722ED1] transition-custom"
+                                        data-type="place" data-id="{{ place.id }}">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center mt-2">
+                                <div class="flex items-center">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= place.rating|floatformat:0 %} <i
+                                        class="fa fa-star text-neutral-500">
+                                        </i>
+                                        {% elif forloop.counter == place.rating|add:1|floatformat:0 %}
+                                        <i class="fa fa-star-half-o text-neutral-500"></i>
+                                        {% else %}
+                                        <i class="fa fa-star-o text-neutral-500"></i>
+                                        {% endif %}
+                                        {% endfor %}
+                                        <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{
+                                            place.review_count }})</span>
+                                </div>
+                                <div class="ml-auto flex items-center text-neutral-500 text-sm">
+                                    <i class="fa fa-map-marker mr-1 text-neutral-500"></i>
+                                    <span>{{ place.distance }}</span>
+                                </div>
+                            </div>
+
+                            <p class="text-neutral-600 text-sm mt-3">{{ place.description }}</p>
+
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
+                                    place.place_type }}</span>
+                                <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
+                                    place.price_range }}</span>
+                                {% if place.rating >= 4.8 %}
+                                <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="flex items-center justify-between mt-4">
+                                <div class="flex items-center">
+                                    <span class="text-neutral-500 font-bold">{{ place.price_range }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏地点</h3>
+                        <p class="text-neutral-500 text-sm mb-4">去情侣地点看看，收藏喜欢的约会地点吧</p>
+                        <a href="/couple/places/"
+                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            浏览地点
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function () {
+            // 标签页切换
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const tab = this.getAttribute('data-tab');
+
+                    // 移除所有标签页的激活状态
+                    tabBtns.forEach(b => {
+                        b.classList.remove('tab-active');
+                    });
+                    tabContents.forEach(c => c.classList.add('hidden'));
+
+                    // 激活当前标签页
+                    this.classList.add('tab-active');
+                    document.getElementById(`${tab}-tab`).classList.remove('hidden');
+                });
+            });
+
+            // 取消收藏功能
+            document.querySelectorAll('.uncollect-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const type = this.getAttribute('data-type');
+                    const id = this.getAttribute('data-id');
+                    const card = this.closest('.collection-card');
+
+                    // 显示确认对话框
+                    if (confirm('确定要取消收藏吗？')) {
+                        // 发送取消收藏请求
+                        fetch('/user/api/collection/remove/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: `content_type=${type}&object_id=${id}`
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // 显示成功提示
+                                    showNotification('取消收藏成功', 'success');
+
+                                    // 移除卡片
+                                    card.style.opacity = '0';
+                                    card.style.transform = 'translateY(20px)';
+                                    card.style.transition = 'all 0.3s ease';
+
+                                    setTimeout(() => {
+                                        card.remove();
+
+                                        // 检查是否需要显示空状态
+                                        checkEmptyState();
+                                    }, 300);
+                                } else {
+                                    // 显示错误提示
+                                    showNotification(data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('取消收藏失败:', error);
+                                showNotification('取消收藏失败，请重试', 'error');
+                            });
+                    }
+                });
+            });
+
+            // 检查是否需要显示空状态
+            function checkEmptyState() {
+                // 检查全部标签页
+                const allMoments = document.querySelectorAll('#all-tab [data-type="moment"]');
+                const allPlaces = document.querySelectorAll('#all-tab [data-type="place"]');
+
+                if (allMoments.length === 0 && allPlaces.length === 0) {
+                    // 显示空状态
+                    const allTab = document.getElementById('all-tab');
+                    allTab.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏内容</h3>
+                        <p class="text-neutral-500 text-sm mb-4">去社区或情侣地点看看，收藏感兴趣的内容吧</p>
+                        <div class="flex space-x-3">
+                            <a href="/community/moments/"
+                                class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                                浏览动态
+                            </a>
+                            <a href="/couple/places/"
+                                class="inline-flex items-center px-4 py-2 bg-white border border-primary text-primary rounded-lg hover:bg-primary/5 transition-custom btn-secondary">
+                                浏览地点
+                            </a>
+                        </div>
+                    </div>
+                `;
+                }
+
+                // 检查动态标签页
+                const momentsTab = document.getElementById('moments-tab');
+                const momentsCards = momentsTab.querySelectorAll('.collection-card');
+                if (momentsCards.length === 0) {
+                    momentsTab.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏动态</h3>
+                        <p class="text-neutral-500 text-sm mb-4">去社区看看，收藏感兴趣的动态吧</p>
+                        <a href="/community/moments/"
+                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            浏览动态
+                        </a>
+                    </div>
+                `;
+                }
+
+                // 检查地点标签页
+                const placesTab = document.getElementById('places-tab');
+                const placesCards = placesTab.querySelectorAll('.collection-card');
+                if (placesCards.length === 0) {
+                    placesTab.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏地点</h3>
+                        <p class="text-neutral-500 text-sm mb-4">去情侣地点看看，收藏喜欢的约会地点吧</p>
+                        <a href="/couple/places/"
+                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            浏览地点
+                        </a>
+                    </div>
+                `;
+                }
+            }
+
+            // 显示通知函数
+            function showNotification(message, type = 'info') {
+                // 创建通知元素
+                const notification = document.createElement('div');
+                notification.className = `fixed top-20 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-500 text-white' :
+                    type === 'error' ? 'bg-red-500 text-white' :
+                        'bg-primary text-white'
+                    }`;
+                notification.style.transform = 'translateX(100%)';
+                notification.textContent = message;
+
+                // 添加到页面
+                document.body.appendChild(notification);
+
+                // 显示通知
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                // 3秒后隐藏通知
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+
+            // 获取CSRF令牌
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+    {% endblock %}

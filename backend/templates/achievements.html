@@ -4,46 +4,7 @@
 
 {% block extra_css %}
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    header h1 {
-        color: #e74c3c;
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-    }
-
-    header p {
-        color: #777;
-        font-size: 1.1rem;
-    }
-
-    .achievements-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-
     .achievement-card {
-        background-color: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         position: relative;
         overflow: hidden;
@@ -203,38 +164,28 @@
 {% endblock %}
 
 {% block content %}
-<!-- 背景装饰元素 -->
-<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
-    </div>
-    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
-        style="animation-delay: -2s;"></div>
-    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
-        style="animation-delay: -4s;"></div>
-</div>
-
 <!-- 主内容区 -->
 <main class="flex-grow pt-32 pb-16 relative z-10">
-    <div class="container">
-        <header>
-            <h1>🏆 成就系统</h1>
-            <p>解锁属于你们的爱情成就，记录美好瞬间</p>
+    <div class="container mx-auto px-4">
+        <header class="text-center mb-10 animate-fade-in">
+            <h1 class="text-3xl font-bold text-neutral-900 mb-2">🏆 成就系统</h1>
+            <p class="text-neutral-600">解锁属于你们的爱情成就，记录美好瞬间</p>
         </header>
 
         <div class="stats-summary">
-            <div class="stat-card">
+            <div class="stat-card animate-slide-up" style="animation-delay: 0.1s">
                 <div class="stat-number" id="totalAchievements">0</div>
                 <div class="stat-label">总成就数</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card animate-slide-up" style="animation-delay: 0.2s">
                 <div class="stat-number" id="unlockedAchievements">0</div>
                 <div class="stat-label">已解锁</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card animate-slide-up" style="animation-delay: 0.3s">
                 <div class="stat-number" id="completionRate">0%</div>
                 <div class="stat-label">完成率</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card animate-slide-up" style="animation-delay: 0.4s">
                 <div class="stat-number" id="recentAchievements">0</div>
                 <div class="stat-label">最近解锁</div>
             </div>
@@ -246,7 +197,7 @@
             <div class="filter-tab" data-filter="locked">未解锁</div>
         </div>
 
-        <div class="achievements-grid" id="achievementsGrid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 achievements-grid" id="achievementsGrid">
             <!-- 成就卡片将通过JavaScript动态生成 -->
         </div>
     </div>
@@ -279,7 +230,7 @@
                 // 显示错误信息
                 const grid = document.getElementById('achievementsGrid');
                 grid.innerHTML = `
-                    <div class="text-center py-12 text-neutral-500">
+                    <div class="col-span-full text-center py-12 text-neutral-500">
                         <i class="fa-solid fa-exclamation-circle text-4xl mb-4 opacity-50"></i>
                         <p>加载成就数据失败，请刷新页面重试</p>
                     </div>
@@ -299,7 +250,7 @@
         }
 
         grid.innerHTML = filteredAchievements.map(achievement => `
-            <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}">
+            <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'} bg-white rounded-xl shadow-md p-6 animate-slide-up">
                 <div class="achievement-icon">${achievement.icon}</div>
                 <h3 class="achievement-title">${achievement.title}</h3>
                 <p class="achievement-description">${achievement.description}</p>

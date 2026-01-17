@@ -166,8 +166,57 @@ def game_list_view(request):
     # 从数据库获取所有激活状态的游戏
     games = Game.objects.filter(is_active=True)
     
+    # 获取游戏统计信息
+    total_games = games.count()
+    total_sessions = GameSession.objects.filter(user=request.user, is_completed=True).count()
+    total_score = sum(session.score for session in GameSession.objects.filter(user=request.user, is_completed=True))
+    
+    # 获取用户最近玩过的游戏
+    recent_sessions = GameSession.objects.filter(user=request.user, is_completed=True).order_by('-completed_at')[:5]
+    
+    # 获取用户游戏成就
+    user_achievements = UserAchievement.objects.filter(user=request.user, is_unlocked=True).order_by('-unlocked_at')[:5]
+    
+    # 获取热门游戏排行榜
+    popular_games = []
+    for game in games:
+        game_sessions = GameSession.objects.filter(game=game, is_completed=True).count()
+        if game_sessions > 0:
+            avg_score = sum(session.score for session in GameSession.objects.filter(game=game, is_completed=True)) / game_sessions
+            popular_games.append({
+                'game': game,
+                'sessions': game_sessions,
+                'avg_score': round(avg_score, 1)
+            })
+    popular_games.sort(key=lambda x: x['sessions'], reverse=True)
+    popular_games = popular_games[:5]
+    
+    # 获取推荐游戏（基于用户游戏历史）
+    recommended_games = []
+    if recent_sessions:
+        # 基于用户最近玩过的游戏类型推荐
+        recent_game_types = set(session.game.game_type for session in recent_sessions)
+        for game in games:
+            if game.game_type in recent_game_types and game not in [session.game for session in recent_sessions]:
+                recommended_games.append(game)
+        # 如果推荐游戏不足3个，添加其他游戏
+        if len(recommended_games) < 3:
+            for game in games:
+                if game not in recommended_games and game not in [session.game for session in recent_sessions]:
+                    recommended_games.append(game)
+                    if len(recommended_games) == 3:
+                        break
+    
     context = {
-        'games': games
+        'games': games,
+        'total_games': total_games,
+        'total_sessions': total_sessions,
+        'total_score': total_score,
+        'recent_sessions': recent_sessions,
+        'user_achievements': user_achievements,
+        'popular_games': popular_games,
+        'recommended_games': recommended_games,
+        'has_dynamic_content': True
     }
     return render(request, 'game_list.html', context)
 

@@ -212,6 +212,51 @@ class VIPPrivilegeViewSet(viewsets.ModelViewSet):
 # 首页视图
 class IndexView(TemplateView):
     template_name = 'index.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # 添加动态内容
+        try:
+            from moment.models import Moment, MomentImage
+            from core.models import User, Profile
+            
+            # 获取最新的动态（包含图片）
+            latest_moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[:6]
+            
+            # 构建动态数据列表
+            moments_data = []
+            for moment in latest_moments:
+                moment_dict = {
+                    'id': moment.id,
+                    'user': {
+                        'username': moment.user.username,
+                        'name': moment.user.name or moment.user.username,
+                        'avatar': getattr(moment.user.profile, 'userAvatar', None) if hasattr(moment.user, 'profile') else None
+                    },
+                    'content': moment.content,
+                    'likes': moment.likes,
+                    'comments': moment.comments,
+                    'favorites': moment.favorites,
+                    'created_at': moment.created_at,
+                    'images': [img.image.url for img in moment.moment_images.all()[:3]]
+                }
+                moments_data.append(moment_dict)
+            
+            # 获取热门标签
+            from moment.models import Tag
+            popular_tags = Tag.objects.annotate(moment_count=models.Count('moments')).order_by('-moment_count')[:10]
+            
+            # 添加到上下文
+            context['moments'] = moments_data
+            context['popular_tags'] = popular_tags
+            context['has_dynamic_content'] = True
+            
+        except Exception as e:
+            print(f"Error loading dynamic content: {e}")
+            context['has_dynamic_content'] = False
+        
+        return context
 
 
 # 登录视图
@@ -355,13 +400,162 @@ def logout_view(request):
 # 个人中心视图
 @login_required
 def personal_center_view(request):
-    return render(request, 'personal_center.html')
+    """个人中心视图"""
+    # 获取用户信息
+    user = request.user
+    profile = user.profile
+    
+    # 获取用户统计数据
+    from moment.models import Moment
+    from note.models import Note
+    from message.models import Message, PrivateChat
+    from game.models import GameSession
+    
+    moment_count = Moment.objects.filter(user=user).count()
+    note_count = Note.objects.filter(user=user).count()
+    message_count = Message.objects.filter(user=user).count()
+    private_chat_count = PrivateChat.objects.filter(sender=user) | PrivateChat.objects.filter(recipient=user)
+    private_chat_count = private_chat_count.count()
+    game_session_count = GameSession.objects.filter(user=user).count()
+    
+    # 获取关注/粉丝数量
+    from .models import Follow
+    following_count = Follow.objects.filter(follower=user).count()
+    followers_count = Follow.objects.filter(followed=user).count()
+    
+    # 获取用户成就
+    from .models import UserAchievement
+    user_achievements = UserAchievement.objects.filter(user=user, unlocked=True).order_by('-unlocked_at')[:5]
+    
+    # 获取用户VIP信息
+    vip_member = user.vip
+    
+    # 获取最近的动态
+    recent_moments = Moment.objects.filter(user=user).order_by('-created_at')[:3]
+    
+    # 获取爱情故事时间轴
+    from .models import LoveStoryTimeline
+    love_story_timeline = LoveStoryTimeline.objects.filter(user=user).order_by('-date')[:10]
+    
+    # 获取音乐播放器数据
+    from .models import MusicPlayer
+    music_player = MusicPlayer.objects.filter(user=user).order_by('-created_at')[:5]
+    
+
+    
+    # 获取个人动态列表
+    moments = Moment.objects.filter(user=user).order_by('-created_at')[:10]
+    
+    context = {
+        'user': user,
+        'profile': profile,
+        'stats': {
+            'moment_count': moment_count,
+            'note_count': note_count,
+            'message_count': message_count,
+            'private_chat_count': private_chat_count,
+            'game_session_count': game_session_count
+        },
+        'achievements': user_achievements,
+        'vip': vip_member,
+        'recent_moments': recent_moments,
+        'following_count': following_count,
+        'followers_count': followers_count,
+        'love_story_timeline': love_story_timeline,
+        'music_player': music_player,
+
+        'moments': moments
+    }
+    
+    return render(request, 'personal_center.html', context)
+
+
+def share_place_view(request, place_id):
+    """地点分享视图 - 无需登录即可访问"""
+    from .models import CouplePlace
+    
+    try:
+        # 查询地点数据
+        place = CouplePlace.objects.get(id=place_id)
+        
+        # 计算距离（这里使用模拟数据，实际项目中可能需要根据用户位置计算）
+        distance = f"{round(place.latitude % 5 + 1, 1)}km"
+        
+        # 构建分享页面的上下文数据
+        context = {
+            'place': place,
+            'distance': distance,
+            'share_url': f"{request.build_absolute_uri()}",
+            'meta_tags': {
+                'title': f"{place.name} - 情侣地点分享",
+                'description': f"{place.description[:100]}..." if place.description else f"{place.name} - 适合情侣的约会地点"
+            }
+        }
+        
+        # 渲染分享页面模板
+        return render(request, 'share_place.html', context)
+        
+    except CouplePlace.DoesNotExist:
+        # 地点不存在时的错误处理
+        from django.shortcuts import render
+        return render(request, '404.html', {
+            'message': '该地点不存在或已被删除'
+        }, status=404)
+    except Exception as e:
+        # 其他错误的处理
+        from django.shortcuts import render
+        return render(request, '500.html', {
+            'error': str(e)
+        }, status=500)
 
 
 # 消息视图
 @login_required
 def message_view(request):
-    return render(request, 'message.html')
+    """消息视图"""
+    # 获取用户消息
+    from message.models import Message, PrivateChat
+    
+    # 获取系统消息
+    system_messages = Message.objects.filter(user=request.user, type='system').order_by('-created_at')[:10]
+    
+    # 获取通知消息
+    notification_messages = Message.objects.filter(user=request.user, type='notification').order_by('-created_at')[:10]
+    
+    # 获取私信会话
+    private_chats = PrivateChat.objects.filter(sender=request.user) | PrivateChat.objects.filter(recipient=request.user)
+    private_chats = private_chats.distinct().order_by('-created_at')[:10]
+    
+    # 构建私信会话数据
+    chat_sessions = []
+    for chat in private_chats:
+        # 确定对方用户
+        other_user = chat.recipient if chat.sender == request.user else chat.sender
+        
+        # 获取最新的消息
+        latest_message = chat.messages.order_by('-created_at').first()
+        
+        chat_session = {
+            'id': chat.id,
+            'other_user': {
+                'id': other_user.id,
+                'username': other_user.username,
+                'name': other_user.name or other_user.username,
+                'avatar': getattr(other_user.profile, 'userAvatar', None) if hasattr(other_user, 'profile') else None
+            },
+            'latest_message': latest_message.content if latest_message else '暂无消息',
+            'created_at': chat.created_at,
+            'unread_count': chat.messages.filter(user=request.user, is_read=False).count()
+        }
+        chat_sessions.append(chat_session)
+    
+    context = {
+        'system_messages': system_messages,
+        'notification_messages': notification_messages,
+        'chat_sessions': chat_sessions
+    }
+    
+    return render(request, 'message.html', context)
 
 
 
@@ -541,7 +735,9 @@ def delete_account(request):
 @login_required
 def achievements_view(request):
     """成就页面"""
-    return render(request, 'achievements.html')
+    return render(request, 'achievements.html', {
+        'user': request.user
+    })
 
 
 # 成就数据API视图

@@ -299,6 +299,39 @@ class CoupleQuiz(models.Model):
         return f'{self.user.username} 的情侣问答: {self.question}'
 
 
+# 情侣地点模型
+class CouplePlace(models.Model):
+    """情侣地点模型"""
+    PLACE_TYPES = [
+        ('restaurant', '餐厅'),
+        ('cafe', '咖啡馆'),
+        ('park', '公园'),
+        ('movie', '电影院'),
+        ('museum', '博物馆'),
+        ('activity', '活动场所'),
+        ('other', '其他'),
+    ]
+    
+    name = models.CharField(max_length=100, verbose_name='地点名称')
+    description = models.TextField(verbose_name='地点描述')
+    address = models.CharField(max_length=200, verbose_name='地址')
+    latitude = models.FloatField(verbose_name='纬度')
+    longitude = models.FloatField(verbose_name='经度')
+    place_type = models.CharField(max_length=20, choices=PLACE_TYPES, verbose_name='地点类型')
+    rating = models.FloatField(default=0, verbose_name='评分')
+    review_count = models.IntegerField(default=0, verbose_name='评价数量')
+    price_range = models.CharField(max_length=50, verbose_name='价格范围')
+    image_url = models.URLField(blank=True, null=True, verbose_name='图片URL')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = '情侣地点'
+        verbose_name_plural = '情侣地点管理'
+        ordering = ['-rating', '-review_count']
+    
+    def __str__(self):
+        return f'{self.name} - {self.get_place_type_display()}'
 
 
 # VIP会员模型

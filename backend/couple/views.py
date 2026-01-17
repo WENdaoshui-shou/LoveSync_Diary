@@ -135,35 +135,105 @@ def invite_partner_view(request):
 @login_required
 def love_story_view(request):
     """爱情故事视图"""
-    return render(request, 'couple.html')
+    from core.models import LoveStoryTimeline
+    
+    # 检查用户是否绑定情侣
+    if not request.user.profile.couple:
+        messages.error(request, '请先绑定情侣关系，才能使用爱情故事功能！')
+        return redirect('couple_web:couple')
+    
+    # 获取当前用户的爱情故事时间轴
+    timeline_events = LoveStoryTimeline.objects.filter(user=request.user).order_by('-date')
+    
+    # 获取伴侣的爱情故事时间轴
+    partner_timeline_events = []
+    if request.user.profile.couple:
+        partner = request.user.profile.couple.user
+        partner_timeline_events = LoveStoryTimeline.objects.filter(user=partner).order_by('-date')
+    
+    # 合并并按日期排序
+    all_events = list(timeline_events) + list(partner_timeline_events)
+    all_events.sort(key=lambda x: x.date, reverse=True)
+    
+    context = {
+        'timeline_events': timeline_events,
+        'partner_timeline_events': partner_timeline_events,
+        'all_events': all_events
+    }
+    
+    return render(request, 'couple.html', context)
 
 
 # 情侣测试视图
 @login_required
 def couple_test_view(request):
     """情侣测试视图"""
-    from core.models import Profile
+    from core.models import Profile, CoupleQuiz
     
     # 检查用户是否绑定情侣
     if not request.user.profile.couple:
         messages.error(request, '请先绑定情侣关系，才能使用情侣测试功能！')
         return redirect('couple_web:couple')
     
-    return render(request, 'couple_test.html')
+    # 获取情侣测试问题
+    quizzes = CoupleQuiz.objects.filter(user=request.user)
+    
+    # 获取伴侣的测试问题
+    partner_quizzes = []
+    if request.user.profile.couple:
+        partner = request.user.profile.couple.user
+        partner_quizzes = CoupleQuiz.objects.filter(user=partner)
+    
+    context = {
+        'quizzes': quizzes,
+        'partner_quizzes': partner_quizzes
+    }
+    
+    return render(request, 'couple_test.html', context)
 
 
 # 情侣景点视图
 @login_required
 def couple_places_view(request):
     """情侣景点视图"""
-    from core.models import Profile
+    from core.models import Profile, CouplePlace
     
     # 检查用户是否绑定情侣
     if not request.user.profile.couple:
         messages.error(request, '请先绑定情侣关系，才能使用情侣景点功能！')
         return redirect('couple_web:couple')
     
-    return render(request, 'couple_places.html')
+    # 从数据库获取情侣地点数据
+    try:
+        # 获取所有情侣地点，按评分和评价数量排序
+        places = CouplePlace.objects.all().order_by('-rating', '-review_count')
+        
+        # 构建地点数据列表
+        places_data = []
+        for place in places:
+            place_dict = {
+                'id': place.id,
+                'name': place.name,
+                'description': place.description,
+                'address': place.address,
+                'place_type': place.get_place_type_display(),
+                'rating': place.rating,
+                'review_count': place.review_count,
+                'price_range': place.price_range,
+                'image_url': place.image_url,
+                'distance': f'{round((place.latitude + place.longitude) * 10 % 20, 1)}km'  # 模拟距离计算
+            }
+            places_data.append(place_dict)
+    except Exception as e:
+        print(f"Error fetching couple places: {e}")
+        places_data = []
+    
+    context = {
+        'places': places_data,
+        'has_dynamic_content': len(places_data) > 0
+    }
+    
+    return render(request, 'couple_places.html', context)
 
 
 # 情侣推荐视图
@@ -177,7 +247,52 @@ def couple_recommendation_view(request):
         messages.error(request, '请先绑定情侣关系，才能使用情侣推荐功能！')
         return redirect('couple_web:couple')
     
-    return render(request, 'couple_recommendation.html')
+    # 模拟获取情侣活动推荐
+    # 实际项目中，这里应该基于用户兴趣和历史行为推荐
+    recommendations = [
+        {
+            'id': 1,
+            'title': '情侣烹饪课程',
+            'description': '一起学习制作浪漫晚餐',
+            'category': '活动',
+            'price': '¥299/对',
+            'rating': 4.9,
+            'image': 'https://picsum.photos/seed/cooking/400/300'
+        },
+        {
+            'id': 2,
+            'title': '情侣瑜伽',
+            'description': '增进感情的同时锻炼身体',
+            'category': '健康',
+            'price': '¥199/对',
+            'rating': 4.7,
+            'image': 'https://picsum.photos/seed/yoga/400/300'
+        },
+        {
+            'id': 3,
+            'title': '情侣摄影套餐',
+            'description': '记录你们的美好时光',
+            'category': '摄影',
+            'price': '¥599/套',
+            'rating': 4.8,
+            'image': 'https://picsum.photos/seed/photo/400/300'
+        },
+        {
+            'id': 4,
+            'title': '情侣旅行攻略',
+            'description': '为你们的下一次旅行做准备',
+            'category': '旅行',
+            'price': '免费',
+            'rating': 4.6,
+            'image': 'https://picsum.photos/seed/travel/400/300'
+        }
+    ]
+    
+    context = {
+        'recommendations': recommendations
+    }
+    
+    return render(request, 'couple_recommendation.html', context)
 
 
 # 情侣历史视图

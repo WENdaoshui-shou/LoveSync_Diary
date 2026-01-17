@@ -4,8 +4,8 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
-from core.models import User
-from .models import Follow
+from core.models import User, CouplePlace as Place
+from .models import Follow, Collection
 from moment.models import Moment
 from photo.models import Photo
 
@@ -215,10 +215,242 @@ def load_more_moments(request, user_id):
             })
         
         return JsonResponse({
-            'success': True,
-            'moments': moments_data,
-            'has_next': moments_page.has_next(),
-            'next_page': moments_page.next_page_number() if moments_page.has_next() else None
-        })
+        'success': True,
+        'moments': moments_data,
+        'has_next': moments_page.has_next(),
+        'next_page': moments_page.next_page_number() if moments_page.has_next() else None
+    })
+
+    return JsonResponse({'success': False, 'message': '请求方式错误'})
+
+
+@login_required
+def add_collection(request):
+    """添加收藏"""
+    if request.method == 'POST':
+        try:
+            # 获取参数
+            content_type = request.POST.get('content_type')
+            object_id = request.POST.get('object_id')
+            
+            # 参数验证
+            if not content_type or not object_id:
+                return JsonResponse({'success': False, 'message': '参数错误'})
+            
+            # 验证收藏类型
+            if content_type not in ['moment', 'place']:
+                return JsonResponse({'success': False, 'message': '无效的收藏类型'})
+            
+            # 验证收藏对象是否存在
+            if content_type == 'moment':
+                # 检查动态是否存在
+                try:
+                    moment = Moment.objects.get(id=object_id)
+                except Moment.DoesNotExist:
+                    return JsonResponse({'success': False, 'message': '动态不存在'})
+            else:
+                # 检查地点是否存在
+                try:
+                    place = Place.objects.get(id=object_id)
+                except Place.DoesNotExist:
+                    return JsonResponse({'success': False, 'message': '地点不存在'})
+            
+            # 尝试创建收藏
+            collection, created = Collection.objects.get_or_create(
+                user=request.user,
+                content_type=content_type,
+                object_id=object_id
+            )
+            
+            if created:
+                return JsonResponse({'success': True, 'message': '收藏成功'})
+            else:
+                return JsonResponse({'success': False, 'message': '已收藏'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'收藏失败：{str(e)}'})
     
     return JsonResponse({'success': False, 'message': '请求方式错误'})
+
+
+@login_required
+def remove_collection(request):
+    """取消收藏"""
+    if request.method == 'POST':
+        try:
+            # 获取参数
+            content_type = request.POST.get('content_type')
+            object_id = request.POST.get('object_id')
+            
+            # 参数验证
+            if not content_type or not object_id:
+                return JsonResponse({'success': False, 'message': '参数错误'})
+            
+            # 验证收藏类型
+            if content_type not in ['moment', 'place']:
+                return JsonResponse({'success': False, 'message': '无效的收藏类型'})
+            
+            # 查找并删除收藏
+            collection = Collection.objects.filter(
+                user=request.user,
+                content_type=content_type,
+                object_id=object_id
+            ).first()
+            
+            if collection:
+                collection.delete()
+                return JsonResponse({'success': True, 'message': '取消收藏成功'})
+            else:
+                return JsonResponse({'success': False, 'message': '未收藏'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'取消收藏失败：{str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': '请求方式错误'})
+
+
+@login_required
+def get_collections(request):
+    """获取收藏列表"""
+    if request.method == 'GET':
+        try:
+            # 获取参数
+            content_type = request.GET.get('content_type')
+            
+            # 查询条件
+            query = Collection.objects.filter(user=request.user)
+            
+            # 如果指定了收藏类型
+            if content_type:
+                if content_type not in ['moment', 'place']:
+                    return JsonResponse({'success': False, 'message': '无效的收藏类型'})
+                query = query.filter(content_type=content_type)
+            
+            # 按收藏时间倒序排序
+            collections = query.order_by('-created_at')
+            
+            # 构建响应数据
+            moments = []
+            places = []
+            
+            for collection in collections:
+                if collection.content_type == 'moment':
+                    # 获取动态信息
+                    try:
+                        moment = Moment.objects.get(id=collection.object_id)
+                        moments.append({
+                            'id': moment.id,
+                            'user_id': moment.user.id,
+                            'user_name': moment.user.name,
+                            'user_avatar': moment.user.profile.userAvatar.url if moment.user.profile.userAvatar else None,
+                            'content': moment.content,
+                            'images': [img.image.url for img in moment.moment_images.all()],
+                            'created_at': moment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                            'likes': moment.likes,
+                            'comments': moment.comments,
+                            'collected_at': collection.created_at.strftime('%Y-%m-%d %H:%M:%S')
+                        })
+                    except Moment.DoesNotExist:
+                        pass  # 动态不存在，跳过
+                else:
+                    # 获取地点信息
+                    try:
+                        place = Place.objects.get(id=collection.object_id)
+                        places.append({
+                            'id': place.id,
+                            'name': place.name,
+                            'description': place.description,
+                            'image_url': place.image_url,
+                            'place_type': place.place_type,
+                            'rating': place.rating,
+                            'price_range': place.price_range,
+                            'distance': place.distance,
+                            'review_count': place.review_count,
+                            'collected_at': collection.created_at.strftime('%Y-%m-%d %H:%M:%S')
+                        })
+                    except Place.DoesNotExist:
+                        pass  # 地点不存在，跳过
+            
+            return JsonResponse({
+                'success': True,
+                'moments': moments,
+                'places': places
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'获取收藏列表失败：{str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': '请求方式错误'})
+
+
+@login_required
+def collections(request):
+    """收藏页面"""
+    try:
+        # 获取用户收藏的动态
+        moment_collections = Collection.objects.filter(
+            user=request.user,
+            content_type='moment'
+        ).order_by('-created_at')
+        
+        # 获取用户收藏的地点
+        place_collections = Collection.objects.filter(
+            user=request.user,
+            content_type='place'
+        ).order_by('-created_at')
+        
+        # 获取动态详情
+        moments = []
+        for collection in moment_collections:
+            try:
+                moment = Moment.objects.get(id=collection.object_id)
+                moments.append({
+                    'id': moment.id,
+                    'user_id': moment.user.id,
+                    'user_name': moment.user.name,
+                    'user_avatar': moment.user.profile.userAvatar.url if moment.user.profile.userAvatar else None,
+                    'content': moment.content,
+                    'images': [img.image.url for img in moment.moment_images.all()],
+                    'created_at': moment.created_at,
+                    'likes': moment.likes,
+                    'comments': moment.comments,
+                    'collected_at': collection.created_at
+                })
+            except Moment.DoesNotExist:
+                pass  # 动态不存在，跳过
+        
+        # 获取地点详情
+        places = []
+        for collection in place_collections:
+            try:
+                place = Place.objects.get(id=collection.object_id)
+                places.append({
+                    'id': place.id,
+                    'name': place.name,
+                    'description': place.description,
+                    'image_url': place.image_url,
+                    'place_type': place.place_type,
+                    'rating': place.rating,
+                    'price_range': place.price_range,
+                    'distance': place.distance,
+                    'review_count': place.review_count,
+                    'collected_at': collection.created_at
+                })
+            except Place.DoesNotExist:
+                pass  # 地点不存在，跳过
+        
+        context = {
+            'moments': moments,
+            'places': places,
+            'unread_count': 0  # 可根据实际情况添加未读消息数
+        }
+        
+        return render(request, 'user/collections.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'加载收藏页面失败：{str(e)}')
+        return render(request, 'user/collections.html', {
+            'moments': [],
+            'places': [],
+            'unread_count': 0
+        })

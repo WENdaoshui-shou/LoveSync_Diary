@@ -304,9 +304,29 @@ def community_view(request):
     # 获取所有分享的动态，按时间倒序排列
     moments = Moment.objects.filter(is_shared=True).order_by('-created_at')
     
+    # 获取未读消息计数
+    try:
+        from message.models import Message, PrivateChat
+        
+        # 计算系统消息未读数
+        unread_system_messages = Message.objects.filter(user=request.user, type='system', is_read=False).count()
+        
+        # 计算业务提醒未读数
+        unread_business_messages = Message.objects.filter(user=request.user, type='business', is_read=False).count()
+        
+        # 计算私信未读数
+        unread_private_chats = PrivateChat.objects.filter(recipient=request.user, message__is_read=False).count()
+        
+        # 总未读消息数
+        total_unread_messages = unread_system_messages + unread_business_messages + unread_private_chats
+    except Exception as e:
+        print(f"Error calculating unread messages: {e}")
+        total_unread_messages = 0
+    
     return render(request, 'community.html', {
         'moments': moments,
-        'user': request.user
+        'user': request.user,
+        'unread_message_count': total_unread_messages
     })
 
 
@@ -362,14 +382,32 @@ def moments_view(request):
 @login_required
 def hot_moments_view(request):
     """热门动态页面"""
-    return render(request, 'hot_moments.html')
+    # 计算热度分数：点赞数 * 1.0 + 评论数 * 0.5 + 收藏数 * 0.8
+    # 只显示最近7天的动态
+    one_week_ago = timezone.now() - timezone.timedelta(days=7)
+    
+    hot_moments = Moment.objects.filter(
+        created_at__gte=one_week_ago,
+        is_shared=True
+    ).annotate(
+        hot_score=F('likes') * 1.0 + F('comments') * 0.5 + F('favorites') * 0.8
+    ).order_by('-hot_score')[:20]  # 取前20条热门动态
+    
+    # 获取热门标签
+    trending_tags = Tag.objects.annotate(
+        usage_count=Count('moments')
+    ).order_by('-usage_count')[:10]
+    
+    context = {
+        'hot_moments': hot_moments,
+        'trending_tags': trending_tags
+    }
+    
+    return render(request, 'hot_moments.html', context)
 
 
 # 收藏动态视图（Web）
-@login_required
-def favorites_view(request):
-    """收藏动态页面"""
-    return render(request, 'favorites.html')
+
 
 
 # 分享动态视图
@@ -423,3 +461,38 @@ def unshare_moment(request, moment_id):
         return JsonResponse({'success': False, 'message': '动态不存在或无权操作'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
+
+# 动态分享页面视图（无需登录即可访问）
+def moment_share_view(request, moment_id):
+    """动态分享页面视图"""
+    from django.shortcuts import render
+    from .models import Moment
+    
+    try:
+        # 查询动态数据
+        moment = Moment.objects.get(id=moment_id)
+        
+        # 传递完整的动态信息到模板
+        context = {
+            'moment': moment,
+            'user': moment.user,
+            'meta_title': f"{moment.user.username}的动态分享",
+            'meta_description': f"{moment.content[:100]}..." if len(moment.content) > 100 else moment.content
+        }
+        
+        return render(request, 'moment_share.html', context)
+    except Moment.DoesNotExist:
+        # 动态不存在时返回友好提示
+        return render(request, 'moment_share.html', {
+            'error': '动态不存在',
+            'meta_title': '动态不存在',
+            'meta_description': '您访问的动态不存在或已被删除'
+        })
+    except Exception as e:
+        # 其他错误时返回友好提示
+        return render(request, 'moment_share.html', {
+            'error': '访问出错',
+            'meta_title': '访问出错',
+            'meta_description': '访问动态时出现错误'
+        })
