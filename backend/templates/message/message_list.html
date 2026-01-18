@@ -15,258 +15,226 @@
 <!-- 主内容区 -->
 <main class="flex-grow pt-24 pb-16 relative z-10">
     <div class="container mx-auto px-4">
-        <!-- 左侧消息列表 -->
+        <!-- 消息列表核心区域 -->
         <div class="w-full space-y-6">
-            <!-- 核心功能标签（消息列表 + 未读消息） -->
-            <div class="bg-white rounded-xl shadow-lg p-4 flex flex-wrap gap-3">
-                <button id="btn-message-list"
-                    class="px-4 py-2 rounded-full {% if not request.GET.filter or request.GET.filter != 'unread' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
-                    所有消息 <span class="ml-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">{{ total_message_count|default:0 }}</span>
-                </button>
-
-                <button id="btn-unread-messages"
-                    class="px-4 py-2 rounded-full {% if request.GET.filter == 'unread' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
-                    未读消息 <span class="ml-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">{{ unread_count|default:0 }}</span>
-                </button>
-            </div>
-
-            <!-- 标签内容区域 -->
-            <div class="space-y-4">
-                <!-- 所有消息列表（同一用户仅显示最新一条，按时间倒序） -->
-                <div id="tab-message-list"
-                    class="bg-white rounded-xl shadow-lg overflow-hidden {% if request.GET.filter == 'unread' %}hidden{% endif %}">
-                    <!-- 加载状态 -->
-                    <div class="loading-state p-12 text-center hidden">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                        <p class="mt-4 text-neutral-600">加载中...</p>
-                    </div>
-
-                    <!-- 错误状态 -->
-                    <div class="error-state p-12 text-center hidden">
-                        <i class="fa-solid fa-exclamation-circle text-5xl text-red-400 mb-4"></i>
-                        <h3 class="text-xl font-semibold text-neutral-900 mb-2">加载失败</h3>
-                        <p class="text-neutral-500 mb-4">无法加载消息列表，请稍后重试</p>
-                        <button class="retry-btn px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                            重新加载
+            <!-- 核心标签栏 -->
+            <div class="bg-white rounded-xl shadow-lg p-4">
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex flex-wrap gap-3">
+                        <!-- 所有消息标签 -->
+                        <button id="btn-all"
+                            class="px-4 py-2 rounded-full {% if not request.GET.filter or request.GET.filter != 'unread' and request.GET.filter != 'system' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                            所有消息 <span class="ml-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">{{ total_message_count|default:0 }}</span>
+                        </button>
+                        <!-- 未读消息标签 -->
+                        <button id="btn-unread"
+                            class="px-4 py-2 rounded-full {% if request.GET.filter == 'unread' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                            未读消息 <span class="ml-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">{{ unread_count|default:0 }}</span>
+                        </button>
+                        <!-- 系统通知标签 -->
+                        <button id="btn-system"
+                            class="px-4 py-2 rounded-full {% if request.GET.filter == 'system' %}bg-primary text-white{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %} text-sm font-medium transition-colors">
+                            系统通知 <span class="ml-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">{{ system_count|default:0 }}</span>
                         </button>
                     </div>
-
-                    <!-- 所有消息列表内容 -->
-                    <div class="message-list-content">
-                        {% if grouped_messages %}
-                            {% for group_key, latest_message in grouped_messages.items %}
-                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not latest_message.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"
-                                onclick="window.location.href='{% if latest_message.type == 'private' and latest_message.private_chat and latest_message.private_chat.sender %}{% url 'message:private_chat_detail' latest_message.private_chat.sender.id %}{% else %}{% url 'message:detail' latest_message.id %}{% endif %}'">
-                                <div class="flex">
-                                    <!-- 消息类型图标/私信发送者头像 -->
-                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
-                                        {% if latest_message.type == 'system' %}
-                                            <div class="w-full h-full bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                                                <i class="fa-solid fa-bell"></i>
-                                            </div>
-                                        {% elif latest_message.type == 'private' %}
-                                            <!-- 私信头像 -->
-                                            {% if latest_message.private_chat and latest_message.private_chat.sender %}
-                                                {% if latest_message.private_chat.sender.profile and latest_message.private_chat.sender.profile.userAvatar %}
-                                                    <img 
-                                                        src="{{ latest_message.private_chat.sender.profile.userAvatar.url }}"
-                                                        alt="{{ latest_message.private_chat.sender.name|default:latest_message.private_chat.sender.username|default:'未知用户' }}"
-                                                        class="w-full h-full object-cover rounded-full"
-                                                        onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500\'><i class=\'fa-solid fa-user\'></i></div>'"
-                                                    >
-                                                {% else %}
-                                                    <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
-                                                        <i class="fa-solid fa-user"></i>
-                                                    </div>
-                                                {% endif %}
-                                            {% else %}
-                                                <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
-                                                    <i class="fa-solid fa-user"></i>
-                                                </div>
-                                            {% endif %}
-                                        {% else %}
-                                            <!-- 其他消息类型图标 -->
-                                            <div class="w-full h-full bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
-                                                <i class="fa-solid fa-briefcase"></i>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-
-                                    <!-- 消息内容（仅显示最新一条） -->
-                                    <div class="flex-1">
-                                        <div class="flex justify-between items-start">
-                                            <h4 class="font-semibold text-neutral-900">
-                                                {% if latest_message.type == 'system' %}
-                                                    系统通知
-                                                {% elif latest_message.type == 'private' and latest_message.private_chat and latest_message.private_chat.sender %}
-                                                    {{ latest_message.private_chat.sender.name|default:latest_message.private_chat.sender.username }}
-                                                {% elif latest_message.type == 'private' %}
-                                                    用户私信
-                                                {% else %}
-                                                    业务提醒
-                                                {% endif %}
-                                            </h4>
-                                            <span class="text-neutral-400 text-xs">
-                                                {{ latest_message.create_time|date:"Y-m-d H:i"|default:"未知时间" }}
-                                            </span>
-                                        </div>
-                                        <p class="text-neutral-700 mt-1 line-clamp-2">
-                                            {{ latest_message.content|default:"无内容" }}
-                                        </p>
-                                        <div class="mt-2 flex items-center gap-2">
-                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
-                                                {{ latest_message.get_type_display|default:"未知类型" }}
-                                            </span>
-                                            {% if not latest_message.is_read %}
-                                                <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">
-                                                    未读
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-
-                            <!-- 所有消息分页导航（修复：保留筛选状态） -->
-                            <div class="p-4 text-center">
-                                <div class="flex justify-center items-center gap-2">
-                                    {% if page_obj.has_previous %}
-                                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
-                                            class="px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
-                                            上一页
-                                        </a>
-                                    {% endif %}
-
-                                    <span class="px-4 py-2 bg-primary text-white rounded-lg">
-                                        第 {{ page_obj.number|default:1 }} / {{ page_obj.paginator.num_pages|default:1 }} 页
-                                    </span>
-
-                                    {% if page_obj.has_next %}
-                                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
-                                            class="px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
-                                            下一页
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% else %}
-                            <!-- 所有消息空状态 -->
-                            <div class="p-12 text-center">
-                                <i class="fa-solid fa-envelope-open text-5xl text-neutral-300 mb-4"></i>
-                                <h3 class="text-xl font-semibold text-neutral-900 mb-2">暂无消息</h3>
-                                <p class="text-neutral-500">您还没有收到任何消息，稍后再来看看吧</p>
-                            </div>
-                        {% endif %}
-                    </div>
+                    <!-- 全部已读按钮 -->
+                    <button id="btn-mark-all-read"
+                        class="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 text-sm font-medium transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
+                        <i class="fa-solid fa-check-circle mr-1"></i> 全部已读
+                    </button>
                 </div>
+            </div>
 
-                <!-- 未读消息列表 -->
-                <div id="tab-unread-messages"
-                    class="bg-white rounded-xl shadow-lg overflow-hidden {% if not request.GET.filter == 'unread' %}hidden{% endif %}">
-                    <div class="message-list-content">
-                        {% if unread_messages %}
-                            {% for message in unread_messages %}
-                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 border-l-3 border-primary"
-                                onclick="window.location.href='{% if message.type == 'private' and message.private_chat and message.private_chat.sender %}{% url 'message:private_chat_detail' message.private_chat.sender.id %}{% else %}{% url 'message:detail' message.id %}{% endif %}'">
+            <!-- 消息内容区域 -->
+            <div class="space-y-4">
+                <!-- 所有消息面板 -->
+                <div id="panel-all" class="bg-white rounded-xl shadow-lg overflow-hidden {% if request.GET.filter == 'unread' or request.GET.filter == 'system' %}hidden{% endif %}">
+                    <div class="message-content" data-type="all">
+                        {% if grouped_messages %}
+                            {% for group_key, msg in grouped_messages.items %}
+                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not msg.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"
+                                onclick="window.location.href='{% if msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}{% url 'message:private_chat_detail' msg.private_chat.sender.id %}{% else %}{% url 'message:detail' msg.id %}{% endif %}'">
                                 <div class="flex">
-                                    <!-- 消息类型图标/私信发送者头像 -->
+                                    <!-- 消息图标/头像 -->
                                     <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
-                                        {% if message.type == 'system' %}
-                                            <div class="w-full h-full bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                                                <i class="fa-solid fa-bell"></i>
-                                            </div>
-                                        {% elif message.type == 'private' %}
-                                            <!-- 私信头像 -->
-                                            {% if message.private_chat and message.private_chat.sender %}
-                                                {% if message.private_chat.sender.profile and message.private_chat.sender.profile.userAvatar %}
-                                                    <img 
-                                                        src="{{ message.private_chat.sender.profile.userAvatar.url }}"
-                                                        alt="{{ message.private_chat.sender.name|default:message.private_chat.sender.username|default:'未知用户' }}"
-                                                        class="w-full h-full object-cover rounded-full"
-                                                        onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500\'><i class=\'fa-solid fa-user\'></i></div>'"
-                                                    >
-                                                {% else %}
-                                                    <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
-                                                        <i class="fa-solid fa-user"></i>
-                                                    </div>
-                                                {% endif %}
+                                        {% if msg.type == 'system' %}
+                                        <div class="w-full h-full bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                                            <i class="fa-solid fa-bell"></i>
+                                        </div>
+                                        {% elif msg.type == 'private' %}
+                                            {% if msg.private_chat and msg.private_chat.sender and msg.private_chat.sender.profile and msg.private_chat.sender.profile.userAvatar %}
+                                            <img src="{{ msg.private_chat.sender.profile.userAvatar.url }}" alt="{{ msg.private_chat.sender.name|default:'未知用户' }}"
+                                                class="w-full h-full object-cover rounded-full"
+                                                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500\'><i class=\'fa-solid fa-user\'></i></div>'">
                                             {% else %}
-                                                <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
-                                                    <i class="fa-solid fa-user"></i>
-                                                </div>
+                                            <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
+                                                <i class="fa-solid fa-user"></i>
+                                            </div>
                                             {% endif %}
                                         {% else %}
-                                            <!-- 其他消息类型图标 -->
-                                            <div class="w-full h-full bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
-                                                <i class="fa-solid fa-briefcase"></i>
-                                            </div>
+                                        <div class="w-full h-full bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
+                                            <i class="fa-solid fa-briefcase"></i>
+                                        </div>
                                         {% endif %}
                                     </div>
-
                                     <!-- 消息内容 -->
                                     <div class="flex-1">
                                         <div class="flex justify-between items-start">
                                             <h4 class="font-semibold text-neutral-900">
-                                                {% if message.type == 'system' %}
-                                                    系统通知
-                                                {% elif message.type == 'private' and message.private_chat and message.private_chat.sender %}
-                                                    {{ message.private_chat.sender.name|default:message.private_chat.sender.username }}
-                                                {% elif message.type == 'private' %}
-                                                    用户私信
-                                                {% else %}
-                                                    业务提醒
-                                                {% endif %}
+                                                {% if msg.type == 'system' %}系统通知{% elif msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}{{ msg.private_chat.sender.name|default:'未知用户' }}{% else %}业务提醒{% endif %}
                                             </h4>
-                                            <span class="text-neutral-400 text-xs">
-                                                {{ message.create_time|date:"Y-m-d H:i"|default:"未知时间" }}
-                                            </span>
+                                            <span class="text-neutral-400 text-xs">{{ msg.create_time|date:"Y-m-d H:i"|default:"未知时间" }}</span>
                                         </div>
-                                        <p class="text-neutral-700 mt-1 line-clamp-2">
-                                            {{ message.content|default:"无内容" }}
-                                        </p>
+                                        <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
                                         <div class="mt-2 flex items-center gap-2">
-                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
-                                                {{ message.get_type_display|default:"未知类型" }}
-                                            </span>
-                                            <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">
-                                                未读
-                                            </span>
+                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"未知类型" }}</span>
+                                            {% if not msg.is_read %}
+                                            <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             {% endfor %}
-
-                            <!-- 未读消息分页导航 -->
-                            <div class="p-4 text-center">
-                                <div class="flex justify-center items-center gap-2">
-                                    {% if unread_page_obj.has_previous %}
-                                        <a href="?filter=unread&page={{ unread_page_obj.previous_page_number }}"
-                                            class="px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
-                                            上一页
-                                        </a>
-                                    {% endif %}
-
-                                    <span class="px-4 py-2 bg-primary text-white rounded-lg">
-                                        第 {{ unread_page_obj.number|default:1 }} / {{ unread_page_obj.paginator.num_pages|default:1 }} 页
-                                    </span>
-
-                                    {% if unread_page_obj.has_next %}
-                                        <a href="?filter=unread&page={{ unread_page_obj.next_page_number }}"
-                                            class="px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
-                                            下一页
-                                        </a>
-                                    {% endif %}
-                                </div>
+                            <!-- 加载更多 -->
+                            <div id="loading-all" class="p-4 text-center hidden">
+                                <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+                                <p class="mt-2 text-neutral-500 text-sm">加载更多...</p>
+                            </div>
+                            <div id="no-more-all" class="p-4 text-center hidden">
+                                <p class="text-neutral-500 text-sm">已加载全部消息</p>
                             </div>
                         {% else %}
-                            <!-- 未读消息空状态 -->
-                            <div class="p-12 text-center">
-                                <i class="fa-solid fa-envelope-open text-5xl text-neutral-300 mb-4"></i>
-                                <h3 class="text-xl font-semibold text-neutral-900 mb-2">暂无未读消息</h3>
-                                <p class="text-neutral-500">你已经阅读了所有消息</p>
+                        <!-- 空状态 -->
+                        <div class="p-12 text-center">
+                            <i class="fa-solid fa-envelope-open text-5xl text-neutral-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-neutral-900 mb-2">暂无消息</h3>
+                            <p class="text-neutral-500">您还没有收到任何消息</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 未读消息面板 -->
+                <div id="panel-unread" class="bg-white rounded-xl shadow-lg overflow-hidden {% if request.GET.filter != 'unread' %}hidden{% endif %}">
+                    <div class="message-content" data-type="unread">
+                        {% if unread_messages %}
+                            {% for msg in unread_messages %}
+                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 border-l-3 border-primary"
+     onclick='window.location.href="{% if msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}{% url 'message:private_chat_detail' msg.private_chat.sender.id %}{% else %}{% url 'message:detail' msg.id %}{% endif %}"'>
+    <div class="flex">
+        <!-- 消息图标/头像 -->
+        <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
+            {% if msg.type == 'system' %}
+                <div class="w-full h-full bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+            {% elif msg.type == 'private' %}
+                {% if msg.private_chat and msg.private_chat.sender and msg.private_chat.sender.profile and msg.private_chat.sender.profile.userAvatar %}
+                    <img 
+                        src="{{ msg.private_chat.sender.profile.userAvatar.url }}" 
+                        alt="{{ msg.private_chat.sender.name|default:'未知用户' }}"
+                        class="w-full h-full object-cover rounded-full"
+                        onerror='this.onerror=null; this.parentElement.innerHTML="<div class=\"w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500\"><i class=\"fa-solid fa-user\"></i></div>"'>
+                {% else %}
+                    <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="w-full h-full bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
+            {% endif %}
+        </div>
+        <!-- 消息内容 -->
+        <div class="flex-1">
+            <div class="flex justify-between items-start">
+                <h4 class="font-semibold text-neutral-900">
+                    {% if msg.type == 'system' %}
+                        系统通知
+                    {% elif msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}
+                        {{ msg.private_chat.sender.name|default:'未知用户' }}
+                    {% else %}
+                        业务提醒
+                    {% endif %}
+                </h4>
+                <span class="text-neutral-400 text-xs">{{ msg.create_time|date:"Y-m-d H:i"|default:"未知时间" }}</span>
+            </div>
+            <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
+            <div class="mt-2 flex items-center gap-2">
+                <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"未知类型" }}</span>
+                <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
+            </div>
+        </div>
+    </div>
+</div>
+                            {% endfor %}
+                            <!-- 加载更多 -->
+                            <div id="loading-unread" class="p-4 text-center hidden">
+                                <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+                                <p class="mt-2 text-neutral-500 text-sm">加载更多...</p>
                             </div>
+                            <div id="no-more-unread" class="p-4 text-center hidden">
+                                <p class="text-neutral-500 text-sm">已加载全部未读消息</p>
+                            </div>
+                        {% else %}
+                        <!-- 空状态 -->
+                        <div class="p-12 text-center">
+                            <i class="fa-solid fa-envelope-open text-5xl text-neutral-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-neutral-900 mb-2">暂无未读消息</h3>
+                            <p class="text-neutral-500">您已阅读所有消息</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 系统通知面板 -->
+                <div id="panel-system" class="bg-white rounded-xl shadow-lg overflow-hidden {% if request.GET.filter != 'system' %}hidden{% endif %}">
+                    <div class="message-content" data-type="system">
+                        {% if system_messages %}
+                            {% for msg in system_messages %}
+                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not msg.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"
+                                onclick="window.location.href='{% url 'message:detail' msg.id %}'">
+                                <div class="flex">
+                                    <!-- 系统通知图标 -->
+                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
+                                        <div class="w-full h-full bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                                            <i class="fa-solid fa-bell"></i>
+                                        </div>
+                                    </div>
+                                    <!-- 消息内容 -->
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start">
+                                            <h4 class="font-semibold text-neutral-900">系统通知</h4>
+                                            <span class="text-neutral-400 text-xs">{{ msg.create_time|date:"Y-m-d H:i"|default:"未知时间" }}</span>
+                                        </div>
+                                        <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
+                                        <div class="mt-2 flex items-center gap-2">
+                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"系统通知" }}</span>
+                                            {% if not msg.is_read %}
+                                            <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <!-- 加载更多 -->
+                            <div id="loading-system" class="p-4 text-center hidden">
+                                <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+                                <p class="mt-2 text-neutral-500 text-sm">加载更多...</p>
+                            </div>
+                            <div id="no-more-system" class="p-4 text-center hidden">
+                                <p class="text-neutral-500 text-sm">已加载全部系统通知</p>
+                            </div>
+                        {% else %}
+                        <!-- 空状态 -->
+                        <div class="p-12 text-center">
+                            <i class="fa-solid fa-bell-slash text-5xl text-neutral-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-neutral-900 mb-2">暂无系统通知</h3>
+                            <p class="text-neutral-500">系统通知将显示在这里</p>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -276,150 +244,183 @@
 </main>
 {% endblock %}
 
-
 {% block extra_js %}
 <script>
-    // 消息列表操作
     document.addEventListener('DOMContentLoaded', function () {
-        // 标签切换功能
-        const btnMessageList = document.getElementById('btn-message-list');
-        const btnUnreadMessages = document.getElementById('btn-unread-messages');
-        const tabMessageList = document.getElementById('tab-message-list');
-        const tabUnreadMessages = document.getElementById('tab-unread-messages');
-        // 获取未读消息数量
-        const unreadCount = parseInt(document.querySelector('#btn-unread-messages span')?.textContent || 0);
+        // 核心元素获取
+        const btnAll = document.getElementById('btn-all');
+        const btnUnread = document.getElementById('btn-unread');
+        const btnSystem = document.getElementById('btn-system');
+        const panelAll = document.getElementById('panel-all');
+        const panelUnread = document.getElementById('panel-unread');
+        const panelSystem = document.getElementById('panel-system');
+        const btnMarkAllRead = document.getElementById('btn-mark-all-read');
+
+        // 滚动状态管理（仅保留三类）
+        const scrollStates = {
+            all: { isLoading: false, hasMore: true, page: 1 },
+            unread: { isLoading: false, hasMore: true, page: 1 },
+            system: { isLoading: false, hasMore: true, page: 1 }
+        };
+
+        // 获取当前激活的面板类型
+        function getActiveType() {
+            if (!panelUnread.classList.contains('hidden')) return 'unread';
+            if (!panelSystem.classList.contains('hidden')) return 'system';
+            return 'all';
+        }
+
+        // 标签切换通用方法
+        function switchTab(activeBtn, inactiveBtn1, inactiveBtn2, activePanel, inactivePanel1, inactivePanel2, filter) {
+            // 更新按钮样式
+            activeBtn.classList.remove('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200');
+            activeBtn.classList.add('bg-primary', 'text-white');
+            [inactiveBtn1, inactiveBtn2].forEach(btn => {
+                btn?.classList.remove('bg-primary', 'text-white');
+                btn?.classList.add('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200');
+            });
+            // 更新面板显示
+            activePanel.classList.remove('hidden');
+            [inactivePanel1, inactivePanel2].forEach(panel => panel.classList.add('hidden'));
+            // 更新URL参数
+            const url = new URL(window.location);
+            if (filter) url.searchParams.set('filter', filter);
+            else url.searchParams.delete('filter');
+            window.history.replaceState({}, document.title, url);
+            // 绑定消息项点击事件
+            bindMessageClick();
+        }
+
+        // 绑定消息项点击动效
+        function bindMessageClick() {
+            document.querySelectorAll('[onclick^="window.location.href"]').forEach(item => {
+                if (!item.hasAttribute('data-bound')) {
+                    item.setAttribute('data-bound', 'true');
+                    item.addEventListener('click', function () {
+                        this.classList.add('opacity-70');
+                        setTimeout(() => this.classList.remove('opacity-70'), 200);
+                    });
+                }
+            });
+        }
+
+        // 初始绑定
+        bindMessageClick();
 
         // 切换到所有消息
-        if (btnMessageList) {
-            btnMessageList.addEventListener('click', function () {
-                // 更新按钮状态
-                btnMessageList.classList.remove('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200');
-                btnMessageList.classList.add('bg-primary', 'text-white');
+        btnAll?.addEventListener('click', () => {
+            switchTab(btnAll, btnUnread, btnSystem, panelAll, panelUnread, panelSystem, '');
+        });
 
-                if (btnUnreadMessages) {
-                    btnUnreadMessages.classList.remove('bg-primary', 'text-white');
-                    btnUnreadMessages.classList.add('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200');
+        // 切换到未读消息
+        btnUnread?.addEventListener('click', () => {
+            switchTab(btnUnread, btnAll, btnSystem, panelUnread, panelAll, panelSystem, 'unread');
+        });
+
+        // 切换到系统通知
+        btnSystem?.addEventListener('click', () => {
+            switchTab(btnSystem, btnAll, btnUnread, panelSystem, panelAll, panelUnread, 'system');
+        });
+
+        // 标记全部已读
+        btnMarkAllRead?.addEventListener('click', function () {
+            // 禁用按钮
+            btnMarkAllRead.disabled = true;
+            btnMarkAllRead.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 处理中...';
+
+            fetch('/message/mark-all-read/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: ''
+            }).then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP错误：${res.status}`);
                 }
-
-                // 更新标签内容显示
-                if (tabMessageList) tabMessageList.classList.remove('hidden');
-                if (tabUnreadMessages) tabUnreadMessages.classList.add('hidden');
-
-                // 重置URL参数（保留页码）
-                const url = new URL(window.location);
-                url.searchParams.delete('filter');
-                window.history.replaceState({}, document.title, url);
-            });
-        }
-
-        // 切换到未读消息（新增数量提示）
-        if (btnUnreadMessages) {
-            btnUnreadMessages.addEventListener('click', function () {
-                // 更新按钮状态
-                btnUnreadMessages.classList.remove('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200');
-                btnUnreadMessages.classList.add('bg-primary', 'text-white');
-
-                if (btnMessageList) {
-                    btnMessageList.classList.remove('bg-primary', 'text-white');
-                    btnMessageList.classList.add('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200');
-                }
-
-                // 更新标签内容显示
-                if (tabUnreadMessages) tabUnreadMessages.classList.remove('hidden');
-                if (tabMessageList) tabMessageList.classList.add('hidden');
-
-                // 更新URL参数
-                const url = new URL(window.location);
-                url.searchParams.set('filter', 'unread');
-                window.history.replaceState({}, document.title, url);
-            });
-        }
-
-        // 加载状态和错误处理
-        const loadingState = document.querySelector('.loading-state');
-        const errorState = document.querySelector('.error-state');
-        const messageListContent = document.querySelector('.message-list-content');
-        const retryBtn = document.querySelector('.retry-btn');
-
-        // 重试按钮点击事件
-        if (retryBtn) {
-            retryBtn.addEventListener('click', function () {
-                // 显示加载状态
-                if (loadingState) loadingState.classList.remove('hidden');
-                if (errorState) errorState.classList.add('hidden');
-                if (messageListContent) messageListContent.classList.add('hidden');
-
-                // 模拟重新加载
-                setTimeout(function () {
-                    if (loadingState) loadingState.classList.add('hidden');
-                    if (messageListContent) messageListContent.classList.remove('hidden');
+                return res.json();
+            }).then(data => {
+                if (data.success) {
                     window.location.reload();
-                }, 1000);
-            });
-        }
-
-        // 为消息项添加点击效果
-        const messageItems = document.querySelectorAll('[onclick^="window.location.href"]');
-        messageItems.forEach(item => {
-            item.addEventListener('click', function () {
-                this.classList.add('opacity-70');
-                setTimeout(() => {
-                    this.classList.remove('opacity-70');
-                }, 200);
+                }
+            }).catch(err => {
+                console.error('标记已读失败:', err);
+                btnMarkAllRead.disabled = false;
+                btnMarkAllRead.innerHTML = '<i class="fa-solid fa-check-circle mr-1"></i> 全部已读';
             });
         });
 
-        // 提示框函数
-        function showToast(message, type = 'info') {
-            // 移除已存在的提示
-            const existingToast = document.querySelector('.message-toast');
-            if (existingToast) existingToast.remove();
+        // 加载更多消息
+        function loadMore(type) {
+            const state = scrollStates[type];
+            const loadingEl = document.getElementById(`loading-${type}`);
+            const noMoreEl = document.getElementById(`no-more-${type}`);
+            const contentEl = document.querySelector(`.message-content[data-type="${type}"]`);
 
-            // 创建提示元素
-            const toast = document.createElement('div');
-            const bgColor = {
-                info: 'bg-primary text-white',
-                success: 'bg-green-500 text-white',
-                error: 'bg-red-500 text-white'
-            };
-            const icon = {
-                info: 'bell',
-                success: 'check-circle',
-                error: 'exclamation-circle'
-            };
+            if (!contentEl || !loadingEl || !noMoreEl || state.isLoading || !state.hasMore) return;
 
-            toast.className = `message-toast fixed top-20 right-4 px-4 py-3 rounded-lg shadow-lg z-50 ${bgColor[type] || bgColor.info} transition-all duration-300 transform translate-y-0 opacity-100`;
-            toast.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-${icon[type]}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
+            state.isLoading = true;
+            loadingEl.classList.remove('hidden');
 
-            // 添加到页面
-            document.body.appendChild(toast);
+            const filter = type === 'all' ? '' : `&filter=${type}`;
+            const url = `/message/list/?page=${state.page + 1}${filter}`;
 
-            // 3秒后隐藏
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-[-10px]');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error('加载失败');
+                    return res.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newItems = doc.querySelector(`.message-content[data-type="${type}"]`)?.querySelectorAll('[onclick^="window.location.href"]');
+                    
+                    if (newItems && newItems.length > 0) {
+                        newItems.forEach(item => contentEl.insertBefore(item, loadingEl));
+                        bindMessageClick();
+                        state.page++;
+                    } else {
+                        state.hasMore = false;
+                        loadingEl.classList.add('hidden');
+                        noMoreEl.classList.remove('hidden');
+                    }
+                })
+                .catch(err => {
+                    console.error(`加载${type}消息失败:`, err);
+                })
+                .finally(() => {
+                    state.isLoading = false;
+                    loadingEl.classList.add('hidden');
+                });
         }
 
-        // 新增提示动画样式
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInOut {
-                0% { opacity: 0; transform: translateY(-10px); }
-                10% { opacity: 1; transform: translateY(0); }
-                90% { opacity: 1; transform: translateY(0); }
-                100% { opacity: 0; transform: translateY(-10px); }
+        // 滚动加载（防抖）
+        window.addEventListener('scroll', function () {
+            if (this.scrollTimer) clearTimeout(this.scrollTimer);
+            this.scrollTimer = setTimeout(() => {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+                const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+                
+                if (scrollTop + clientHeight >= scrollHeight - 100) {
+                    loadMore(getActiveType());
+                }
+            }, 100);
+        });
+
+        // 工具函数 - 获取CSRF Token
+        function getCookie(name) {
+            let value = null;
+            if (document.cookie) {
+                document.cookie.split(';').forEach(cookie => {
+                    const [k, v] = cookie.trim().split('=');
+                    if (k === name) value = decodeURIComponent(v);
+                });
             }
-            .message-toast {
-                animation: fadeInOut 3s ease forwards;
-            }
-        `;
-        document.head.appendChild(style);
+            return value;
+        }
     });
 </script>
 {% endblock %}

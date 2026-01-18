@@ -128,18 +128,14 @@ class LoginViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['post'])
     def login(self, request):
         """用户登录，获取JWT令牌"""
-        print(f"API Login attempt: data={request.data}")
-        
         serializer = self.get_serializer(data=request.data)
         
         # 尝试验证，捕获异常并打印详细信息
         try:
             serializer.is_valid(raise_exception=True)
         except Exception as e:
-            print(f"Serializer validation error: {str(e)}")
             # 打印所有用户，用于调试
             all_users = User.objects.all()
-            print(f"All users: {[user.username for user in all_users]}")
             raise
         
         # 获取令牌对
@@ -148,8 +144,6 @@ class LoginViewSet(viewsets.GenericViewSet):
         # 获取用户信息
         user = serializer.user
         user_data = UserSerializer(user).data
-        
-        print(f"Login successful for user: {user.username}")
         
         return Response({
             'message': '登录成功',
@@ -267,9 +261,6 @@ def login_view(request):
         remember_me = request.POST.get('remember-me')  
         verify_code_input = request.POST.get('verify_code')
         
-        # 调试信息：打印所有POST数据
-        print(f"Login attempt: username={username}, password={password[:3]}..., verify_code={verify_code_input}")
-        
         # 验证码验证
         session_code = request.session.get('verify_code')
         if session_code:
@@ -287,15 +278,12 @@ def login_view(request):
         try:
             # 先检查用户是否存在
             all_users = User.objects.all()
-            print(f"All users: {[user.username for user in all_users]}")
             
             # 获取用户对象
             user_obj = User.objects.get(username=username)
-            print(f"User found: {user_obj.username}, password_hash={user_obj.password[:20]}...")
             
             # 检查密码是否匹配
             if user_obj.check_password(password):
-                print("Password matches!")
                 # 直接登录用户
                 login(request, user_obj)
                 # 根据remember_me设置session过期时间
@@ -304,7 +292,6 @@ def login_view(request):
                 messages.success(request, '登录成功')
                 return redirect('community')
             else:
-                print("Password does NOT match!")
                 # 手动使用Django的密码编码器检查
                 from django.contrib.auth.hashers import check_password as django_check_password
                 if django_check_password(password, user_obj.password):
@@ -315,11 +302,9 @@ def login_view(request):
                     messages.error(request, '密码错误')
                     return redirect('login')
         except User.DoesNotExist:
-            print(f"User not found: {username}")
             messages.error(request, f'未注册')
             return redirect('login')
         except Exception as e:
-            print(f"Login error: {e}")
             messages.error(request, f'登录失败: {str(e)}')
             return redirect('login')
     
@@ -443,10 +428,10 @@ def personal_center_view(request):
     
 
     
-    # 获取个人动态列表
-    moments = Moment.objects.filter(user=user).order_by('-created_at')[:10]
+
     
     context = {
+        'target_user': user,
         'user': user,
         'profile': profile,
         'stats': {
@@ -460,14 +445,13 @@ def personal_center_view(request):
         'vip': vip_member,
         'recent_moments': recent_moments,
         'following_count': following_count,
-        'followers_count': followers_count,
+        'follower_count': followers_count,
         'love_story_timeline': love_story_timeline,
         'music_player': music_player,
-
-        'moments': moments
+        'is_following': False
     }
     
-    return render(request, 'personal_center.html', context)
+    return render(request, 'community/user_profile.html', context)
 
 
 def share_place_view(request, place_id):
@@ -782,3 +766,93 @@ def get_achievements_data(request):
     
     import json
     return HttpResponse(json.dumps(response_data), content_type='application/json')
+
+
+# 关注模块视图函数
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Follow
+
+@login_required
+def follow_toggle(request):
+    """关注/取消关注接口，支持 AJAX"""
+    if request.method == 'POST':
+        followed_id = request.POST.get('followed_id')
+        if not followed_id:
+            return JsonResponse({'success': False, 'message': '缺少被关注用户ID'}, status=400)
+        
+        try:
+            followed = User.objects.get(id=followed_id)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '被关注用户不存在'}, status=404)
+        
+        # 禁止用户关注自己
+        if followed == request.user:
+            return JsonResponse({'success': False, 'message': '不能关注自己'}, status=400)
+        
+        # 使用 get_or_create 判断关注状态
+        follow, created = Follow.objects.get_or_create(follower=request.user, followed=followed)
+        
+        if created:
+            # 关注成功
+            return JsonResponse({'success': True, 'status': 'followed', 'message': '关注成功'})
+        else:
+            # 取消关注
+            follow.delete()
+            return JsonResponse({'success': True, 'status': 'unfollowed', 'message': '取消关注成功'})
+    else:
+        return JsonResponse({'success': False, 'message': '仅支持POST请求'}, status=405)
+
+@login_required
+def following_list(request):
+    """我的关注列表页面"""
+    # 查询当前用户关注的所有用户
+    follows = Follow.objects.filter(follower=request.user).select_related('followed').order_by('-created_at')
+    user_list = [follow.followed for follow in follows]
+    
+    context = {
+        'page_title': '我的关注',
+        'user_list': user_list,
+        'list_type': 'following',
+        'follows': follows
+    }
+    
+    return render(request, 'community/follow_list.html', context)
+
+@login_required
+def follower_list(request):
+    """我的粉丝列表页面"""
+    # 查询当前用户的所有粉丝
+    follows = Follow.objects.filter(followed=request.user).select_related('follower').order_by('-created_at')
+    user_list = [follow.follower for follow in follows]
+    
+    context = {
+        'page_title': '我的粉丝',
+        'user_list': user_list,
+        'list_type': 'follower',
+        'follows': follows
+    }
+    
+    return render(request, 'community/follow_list.html', context)
+
+@login_required
+def user_profile(request, username):
+    """用户主页，显示关注按钮"""
+    # 获取目标用户对象
+    target_user = get_object_or_404(User, username=username)
+    
+    # 判断当前用户是否关注目标用户
+    is_following = Follow.objects.filter(follower=request.user, followed=target_user).exists()
+    
+    # 统计目标用户的关注数、粉丝数
+    following_count = Follow.objects.filter(follower=target_user).count()
+    follower_count = Follow.objects.filter(followed=target_user).count()
+    
+    context = {
+        'target_user': target_user,
+        'is_following': is_following,
+        'following_count': following_count,
+        'follower_count': follower_count
+    }
+    
+    return render(request, 'community/user_profile.html', context)

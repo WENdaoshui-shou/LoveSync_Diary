@@ -316,6 +316,8 @@ def get_collections(request):
         try:
             # 获取参数
             content_type = request.GET.get('content_type')
+            page = request.GET.get('page', 1)
+            page_size = 10
             
             # 查询条件
             query = Collection.objects.filter(user=request.user)
@@ -329,11 +331,20 @@ def get_collections(request):
             # 按收藏时间倒序排序
             collections = query.order_by('-created_at')
             
+            # 分页处理
+            paginator = Paginator(collections, page_size)
+            try:
+                page_obj = paginator.page(page)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except EmptyPage:
+                page_obj = paginator.page(paginator.num_pages)
+            
             # 构建响应数据
             moments = []
             places = []
             
-            for collection in collections:
+            for collection in page_obj:
                 if collection.content_type == 'moment':
                     # 获取动态信息
                     try:
@@ -374,7 +385,11 @@ def get_collections(request):
             return JsonResponse({
                 'success': True,
                 'moments': moments,
-                'places': places
+                'places': places,
+                'has_next': page_obj.has_next(),
+                'has_previous': page_obj.has_previous(),
+                'current_page': page_obj.number,
+                'total_pages': paginator.num_pages
             })
             
         except Exception as e:
@@ -439,10 +454,21 @@ def collections(request):
             except Place.DoesNotExist:
                 pass  # 地点不存在，跳过
         
+        # 获取未读消息数
+        try:
+            from message.models import Message
+            unread_count = Message.objects.filter(
+                user=request.user,
+                is_read=False,
+                is_deleted=False
+            ).count()
+        except ImportError:
+            unread_count = 0
+        
         context = {
             'moments': moments,
             'places': places,
-            'unread_count': 0  # 可根据实际情况添加未读消息数
+            'unread_count': unread_count
         }
         
         return render(request, 'user/collections.html', context)

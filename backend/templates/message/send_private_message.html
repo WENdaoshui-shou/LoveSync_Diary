@@ -83,6 +83,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('sendPrivateMessageForm');
+        
+        // 兼容表单不存在的情况，避免报错
+        if (!form) return;
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -106,7 +109,7 @@
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
             // 发送AJAX请求
-            fetch('{% url 'message:send_private_message' %}', {
+            fetch("{% url 'message:send_private_message' %}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -118,29 +121,29 @@
                     'content': content
                 })
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showMessage('私信发送成功', 'success');
-                        // 清空表单
-                        form.querySelector('textarea[name="content"]').value = '';
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    form.querySelector('textarea[name="content"]').value = '';
 
-                        // 如果是预填的接收者，可以选择跳转到对话页
-                        if ({{ recipient.id |default: 0 }
-                    }) {
-                setTimeout(() => {
-                    window.location.href = '{% url 'message:private_chat_detail' recipient.id %}';
-                }, 1500);
-            } else {
-                showMessage(data.message, 'error');
-            }
-        })
+                    // 如果是预填的接收者，跳转到对话页（修复模板标签语法）
+                    {% if recipient.id|default:0 %}
+                        setTimeout(() => {
+                            window.location.href = '{% url 'message:private_chat_detail' recipient.id %}';
+                        }, 1500);
+                    {% endif %}
+                    
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
             .catch(error => {
                 console.error('发送失败:', error);
                 showMessage('发送失败，请重试', 'error');
             });
+        });
 
-        // 显示消息提示
+        // 显示消息提示（修复函数定义位置，避免作用域问题）
         function showMessage(message, type) {
             // 创建消息元素
             const messageDiv = document.createElement('div');

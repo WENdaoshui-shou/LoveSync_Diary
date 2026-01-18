@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- 页面标题 -->
+    <h1 class="text-2xl font-bold text-center mb-8 text-neutral-800">{{ page_title }}</h1>
+
+    <!-- 时间范围筛选栏 -->
+    <div class="flex justify-center mb-8 space-x-4">
+        <a href="?time_range=7days"
+            class="px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 {% if current_time_range == '7days' %}bg-primary text-white shadow-md{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %}">
+            近7天
+        </a>
+        <a href="?time_range=30days"
+            class="px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 {% if current_time_range == '30days' %}bg-primary text-white shadow-md{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %}">
+            近30天
+        </a>
+        <a href="?time_range=all"
+            class="px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 {% if current_time_range == 'all' %}bg-primary text-white shadow-md{% else %}bg-neutral-100 text-neutral-700 hover:bg-neutral-200{% endif %}">
+            全部
+        </a>
+    </div>
+
+    <!-- 排行榜列表 -->
+    <div class="max-w-4xl mx-auto">
+        {% if hot_posts_with_rank %}
+        <div class="space-y-4">
+            {% for item in hot_posts_with_rank %}
+            {% with post=item.post rank=item.rank %}
+            <div class="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 rounded-lg transition-shadow hover:shadow-md {% if rank == 1 %}bg-yellow-50 border border-yellow-200 animate-fade-in{% elif rank == 2 %}bg-gray-50 border border-gray-200 animate-fade-in{% elif rank == 3 %}bg-amber-50 border border-amber-200 animate-fade-in{% else %}bg-white border border-neutral-200{% endif %}"style="animation-delay: {% if rank <= 3 %}{{ item.rank_times_100 }}ms{% endif %}">
+                <!-- 排名序号 -->
+                <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4">
+                    {% if rank <= 3 %} <div
+                        class="w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center font-bold text-white rounded-full {% if rank == 1 %}bg-yellow-500{% elif rank == 2 %}bg-gray-400{% else %}bg-amber-600{% endif %}">
+                        {{ rank }}
+                        {% if rank == 1 %}
+                        <i class="fa-solid fa-crown ml-1 text-xs"></i>
+                        {% elif rank == 2 %}
+                        <i class="fa-solid fa-medal ml-1 text-xs"></i>
+                        {% else %}
+                        <i class="fa-solid fa-award ml-1 text-xs"></i>
+                        {% endif %}
+                </div>
+                {% else %}
+                <div
+                    class="w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center font-bold text-neutral-600 bg-neutral-100 rounded-full">
+                    {{ rank }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 动态内容 -->
+            <div class="flex-1 min-w-0">
+                <!-- 标题 -->
+                <h3 class="font-semibold text-neutral-800 mb-2">
+                    <a href="{% url 'moment_web:moment_share' post.id %}"
+                        class="hover:text-primary hover:underline transition-colors">{{ post.content }}</a>
+                </h3>
+
+                <!-- 作者信息 -->
+                <div class="flex items-center text-sm text-neutral-500 mb-2">
+                    <a href="{% url 'core:user_profile' post.user.username %}"
+                        class="flex items-center hover:text-primary">
+                        {% if post.user.profile and post.user.profile.userAvatar %}
+                        <img src="{{ post.user.profile.userAvatar.url }}" alt="{{ post.user.username }}"
+                            class="w-5 h-5 rounded-full mr-2"
+                            onerror="this.onerror=null; this.src='/static/images/default-avatar.png';">
+                        {% else %}
+                        <i class="fa-solid fa-user-circle w-5 h-5 mr-2"></i>
+                        {% endif %}
+                        {{ post.user.name }}
+                    </a>
+                    <span class="mx-2">·</span>
+                    <span class="time-ago" data-time="{{ post.created_at|date:'Y-m-d H:i:s' }}">{{
+                        post.created_at|date:"Y-m-d H:i"|default:"未知时间" }}</span>
+                </div>
+
+                <!-- 热度值 -->
+                <div class="flex flex-wrap items-center text-sm">
+                    <div class="flex items-center text-red-500 mr-3 mb-1" title="热度: 点赞×2 + 评论×3 + 浏览×1">
+                        <i class="fa-solid fa-fire mr-1"></i>
+                        <span>{{ post.get_hot_score }}</span>
+                    </div>
+                    <div class="flex items-center text-rose-500 mr-3 mb-1" title="点赞数">
+                        <i class="fa-solid fa-heart mr-1"></i>
+                        <span>{{ post.likes }}</span>
+                    </div>
+                    <div class="flex items-center text-blue-500 mr-3 mb-1" title="评论数">
+                        <i class="fa-solid fa-comment mr-1"></i>
+                        <span>{{ post.comments }}</span>
+                    </div>
+                    <div class="flex items-center text-slate-500 mb-1" title="浏览数">
+                        <i class="fa-solid fa-eye mr-1"></i>
+                        <span>{{ post.view_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- 空状态 -->
+    <div class="text-center py-16 bg-neutral-50 rounded-lg border border-dashed border-neutral-200">
+        <i class="fa-solid fa-fire-slash text-4xl text-neutral-300 mb-4"></i>
+        <h3 class="text-lg font-medium text-neutral-600 mb-2">暂无热门动态</h3>
+        <p class="text-neutral-400">快来发布第一条动态吧！</p>
+    </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 时间格式化函数
+    function formatTimeAgo(timestamp) {
+        const now = new Date();
+        const past = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - past) / 1000);
+
+        if (diffInSeconds < 60) {
+            return '刚刚';
+        } else if (diffInSeconds < 3600) {
+            const minutes = Math.floor(diffInSeconds / 60);
+            return `${minutes}分钟前`;
+        } else if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            return `${hours}小时前`;
+        } else if (diffInSeconds < 604800) {
+            const days = Math.floor(diffInSeconds / 86400);
+            return `${days}天前`;
+        } else {
+            return past.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+    }
+
+    // 页面加载完成后处理时间显示
+    document.addEventListener('DOMContentLoaded', function () {
+        const timeElements = document.querySelectorAll('.time-ago');
+        timeElements.forEach(element => {
+            const timestamp = element.getAttribute('data-time');
+            if (timestamp) {
+                element.textContent = formatTimeAgo(timestamp);
+            }
+        });
+    });
+</script>
+{% endblock %}

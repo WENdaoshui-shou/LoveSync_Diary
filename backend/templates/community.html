@@ -191,35 +191,36 @@
                 <i class="fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>双人日记</span>
             </a>
-            <a href="{% url 'personal_center' %}"
+            <a href="{% url 'core:personal_center' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                <i class="fa-solid fa-blog w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <i class="fa-solid fa-id-card w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>主页</span>
             </a>
             <a href="{% url 'message:list' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1 relative">
-                <i class="fa-solid fa-download w-5 text-center group-hover:scale-110 transition-transform"></i>
-                <span>消息</span>
-                {% if unread_message_count > 0 %}
+                <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>消息</span>{% if unread_message_count > 0 %}
                 <span
-                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{
-                    unread_message_count }}</span>
+                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{ unread_message_count }}</span>
                 {% endif %}
             </a>
-            <a href="#"
+            <a href="{% url 'moment_web:hot_ranking' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                <i class="fa-solid fa-list-ol w-5 text-center group-hover:scale-110 transition-transform"></i>
-                <span>排行榜</span>
+                <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>排行</span>
             </a>
             <a href="#"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>订阅</span>
             </a>
-            <a href="#"
-                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                <i class="fa-solid fa-user-plus w-5 text-center group-hover:scale-110 transition-transform"></i>
-                <span>关注</span>
+            <a href="{% url 'core:following_list' %}"
+                class="flex items-center justify-between text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-user-plus w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span>关注</span>
+                </div>
+
             </a>
             <a href="{% url 'user:collections' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
@@ -364,8 +365,9 @@
                             </div>
                         </div>
 
-                        <div class="mt-4">
-                            <p class="text-neutral-800">{{ moment.content }}</p>
+                        <div class="mt-4 cursor-pointer"
+                            onclick="saveScrollPositionAndRedirect('/moment/community/moment/{{ moment.id }}/')">
+                            <p class="text-neutral-800 hover:text-primary transition-colors">{{ moment.content }}</p>
                         </div>
 
                         <!-- 动态图片 -->
@@ -374,8 +376,11 @@
                                     md:grid-cols-3
                                     lg:grid-cols-4">
                             {% for image in moment.moment_images.all %}
-                            <img src="{{ image.image.url }}" alt="动态图片"
-                                class="rounded-lg w-full h-40 object-cover hover-scale">
+                            <div class="cursor-pointer"
+                                onclick="saveScrollPositionAndRedirect('/moment/community/moment/{{ moment.id }}/')">
+                                <img src="{{ image.image.url }}" alt="动态图片"
+                                    class="rounded-lg w-full h-40 object-cover hover-scale">
+                            </div>
                             {% endfor %}
                         </div>
 
@@ -427,11 +432,14 @@
                 </div>
                 {% endfor %}
 
-                <!-- 加载更多 -->
-                <button
-                    class="w-full py-3 bg-white rounded-xl shadow-lg text-primary font-medium hover:bg-neutral-50 transition-custom">
-                    加载更多
-                </button>
+                <!-- 加载更多指示器 -->
+                <div id="loading-indicator" class="w-full py-6 flex justify-center items-center hidden">
+                    <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <span class="ml-2 text-primary font-medium">加载中...</span>
+                </div>
+                <div id="no-more-data" class="w-full py-6 text-center text-neutral-500 hidden">
+                    已经到底啦~
+                </div>
             </div>
 
             <!-- 右侧内容区 -->
@@ -811,6 +819,17 @@
         });
 
         // 初始化聊天会话
+        const chatWidget = document.querySelector('.chat-widget');
+        const isFirstVisit = !localStorage.getItem('hasVisitedCommunity');
+
+        if (!isFirstVisit) {
+            // 不是第一次访问，默认折叠聊天窗口
+            chatWidget.classList.add('chat-collapsed');
+        } else {
+            // 第一次访问后，标记为已访问
+            localStorage.setItem('hasVisitedCommunity', 'true');
+        }
+
         initChatSession();
 
         // 初始化点赞和评论功能
@@ -1877,8 +1896,364 @@
             });
     }
 
+    // 自动加载更多功能
+    let page = 1;
+    let loading = false;
+    let noMoreData = false;
+
+    function loadMoreData() {
+        if (loading || noMoreData) return;
+
+        loading = true;
+        document.getElementById('loading-indicator').classList.remove('hidden');
+
+        // 实际API请求
+        fetch(`/moment/load-more/?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.moments.length > 0) {
+                        // 渲染新的动态
+                        data.moments.forEach(moment => {
+                            renderMoment(moment);
+                        });
+
+                        page++;
+
+                        // 检查是否还有更多数据
+                        if (!data.has_more) {
+                            noMoreData = true;
+                            document.getElementById('no-more-data').classList.remove('hidden');
+                        }
+                    } else {
+                        noMoreData = true;
+                        document.getElementById('no-more-data').classList.remove('hidden');
+                    }
+                }
+
+                loading = false;
+                document.getElementById('loading-indicator').classList.add('hidden');
+            })
+            .catch(error => {
+                console.error('加载更多动态失败:', error);
+                loading = false;
+                document.getElementById('loading-indicator').classList.add('hidden');
+            });
+    }
+
+    // 渲染动态
+    function renderMoment(moment) {
+        const momentsContainer = document.querySelector('.space-y-6');
+        if (!momentsContainer) return;
+
+        const momentElement = document.createElement('div');
+        momentElement.className = 'bg-white rounded-xl shadow-lg overflow-hidden post-card w-full';
+        momentElement.setAttribute('data-moment-id', moment.id);
+
+        // 构建图片HTML
+        let imagesHtml = '';
+        if (moment.images && moment.images.length > 0) {
+            imagesHtml = `
+                <div class="mt-4 grid gap-2
+                            sm:grid-cols-2
+                            md:grid-cols-3
+                            lg:grid-cols-4">
+                    ${moment.images.map(image => `
+                        <img src="${image}" alt="动态图片"
+                            class="rounded-lg w-full h-40 object-cover hover-scale">
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        momentElement.innerHTML = `
+            <div class="p-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <!-- 头像 -->
+                        <a href="/core/user/${moment.user.username}/"
+                            class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300"
+                            title="查看${moment.user.name}的主页">
+                            <img src="${moment.user.avatar}" alt="发布者头像"
+                                class="w-full h-full object-cover">
+                        </a>
+                        <!-- 昵称 -->
+                        <div>
+                            <a href="/core/user/${moment.user.username}/"
+                                class="font-semibold text-neutral-900 hover:text-primary transition-all duration-300"
+                                title="查看${moment.user.name}的主页">
+                                ${moment.user.name}
+                            </a>
+                            <p class="text-neutral-500 text-xs">${moment.created_at}</p>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button
+                            class="text-neutral-400 hover:text-neutral-700 transition-custom dropdown-toggle"
+                            data-moment-id="${moment.id}">
+                            <i class="fa-solid fa-ellipsis-h"></i>
+                        </button>
+                        <!-- 下拉菜单 -->
+                        <div
+                            class="dropdown-menu hidden absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg w-40 z-50 border border-neutral-200">
+                            <button
+                                class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition-custom collection-btn"
+                                data-moment-id="${moment.id}">
+                                <i class="fa-regular fa-bookmark mr-2"></i> 收藏
+                            </button>
+                            <button
+                                class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition-custom">
+                                <i class="fa-solid fa-flag mr-2"></i> 举报
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 cursor-pointer" onclick="saveScrollPositionAndRedirect('/moment/community/moment/${moment.id}/')">
+                    <p class="text-neutral-800 hover:text-primary transition-colors">${moment.content}</p>
+                </div>
+
+                <!-- 动态图片 -->
+                <div class="mt-4 grid gap-2
+                            sm:grid-cols-2
+                            md:grid-cols-3
+                            lg:grid-cols-4">
+                    ${moment.images.map(image => `
+                        <div class="cursor-pointer" onclick="saveScrollPositionAndRedirect('/moment/community/moment/${moment.id}/')">
+                            <img src="${image}" alt="动态图片"
+                                class="rounded-lg w-full h-40 object-cover hover-scale">
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="mt-4 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <button
+                            class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                            <i class="fa-regular fa-heart"></i>
+                            <span>${moment.likes}</span>
+                        </button>
+                        <button
+                            class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                            <i class="fa-regular fa-comment"></i>
+                            <span>${moment.comments}</span>
+                        </button>
+                    </div>
+                    <button
+                        class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom share-btn"
+                        data-moment-id="${moment.id}">
+                        <i class="fa-regular fa-share-from-square"></i>
+                        <span>分享</span>
+                    </button>
+                </div>
+            </div>
+            <!-- 评论区域 -->
+            <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
+                <div class="space-y-4">
+                    <!-- 评论列表 -->
+                    <div class="comments-list space-y-3">
+                        <!-- 评论将通过JavaScript动态加载 -->
+                    </div>
+                    <!-- 发表评论 -->
+                    <div class="flex space-x-3 mt-2">
+                        <div class="w-8 h-8 rounded-full overflow-hidden">
+                            <img src="{{ user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=1' }}"
+                                alt="用户头像" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 relative">
+                            <input type="text" placeholder="写下你的评论..."
+                                class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
+                            <button
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 插入到加载指示器之前
+        const loadingIndicator = document.getElementById('loading-indicator');
+        loadingIndicator.parentNode.insertBefore(momentElement, loadingIndicator);
+
+        // 初始化新动态的事件
+        initPostEvents(momentElement);
+    }
+
+    // 初始化动态卡片的事件
+    function initPostEvents(postCard) {
+        // 初始化点赞按钮
+        const likeBtn = postCard.querySelector('.like-btn');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', function () {
+                const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                const icon = this.querySelector('i');
+                const countSpan = this.querySelector('span');
+
+                fetch(`/api/moment/moments/${momentId}/like/`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.is_liked) {
+                            icon.classList.remove('fa-regular');
+                            icon.classList.add('fa-solid', 'text-primary', 'like-animation');
+                        } else {
+                            icon.classList.remove('fa-solid', 'text-primary');
+                            icon.classList.add('fa-regular');
+                        }
+                        countSpan.textContent = data.likes;
+                    })
+                    .catch(error => {
+                        console.error('点赞失败:', error);
+                    });
+            });
+        }
+
+        // 初始化评论按钮
+        const commentBtn = postCard.querySelector('.comment-btn');
+        if (commentBtn) {
+            commentBtn.addEventListener('click', function () {
+                const commentSection = this.closest('.post-card').querySelector('.comment-section');
+                commentSection.classList.toggle('hidden');
+
+                if (!commentSection.classList.contains('hidden')) {
+                    const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                    loadComments(momentId, this.closest('.post-card'));
+                }
+            });
+        }
+
+        // 初始化分享按钮
+        const shareBtn = postCard.querySelector('.share-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', function () {
+                const momentId = this.getAttribute('data-moment-id');
+                openShareModal(momentId);
+            });
+        }
+
+        // 初始化下拉菜单
+        const dropdownToggle = postCard.querySelector('.dropdown-toggle');
+        if (dropdownToggle) {
+            dropdownToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+
+                // 关闭其他下拉菜单
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+
+                // 切换当前下拉菜单
+                const menu = this.nextElementSibling;
+                if (menu && menu.classList.contains('dropdown-menu')) {
+                    menu.classList.toggle('hidden');
+                }
+            });
+        }
+
+        // 初始化收藏按钮
+        const collectionBtn = postCard.querySelector('.collection-btn');
+        if (collectionBtn) {
+            collectionBtn.addEventListener('click', function () {
+                const momentId = this.getAttribute('data-moment-id');
+                const icon = this.querySelector('i');
+
+                // 检查当前状态
+                const isCollected = icon.classList.contains('fa-solid');
+
+                if (isCollected) {
+                    // 取消收藏
+                    fetch('/user/api/collection/remove/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: `content_type=moment&object_id=${momentId}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                icon.classList.remove('fa-solid', 'text-primary');
+                                icon.classList.add('fa-regular');
+                                this.innerHTML = '<i class="fa-regular fa-bookmark mr-2"></i> 收藏';
+                                showNotification('取消收藏成功', 'success');
+                            }
+                        });
+                } else {
+                    // 添加收藏
+                    fetch('/user/api/collection/add/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: `content_type=moment&object_id=${momentId}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                icon.classList.remove('fa-regular');
+                                icon.classList.add('fa-solid', 'text-primary');
+                                this.innerHTML = '<i class="fa-solid fa-bookmark mr-2 text-primary"></i> 已收藏';
+                                showNotification('收藏成功', 'success');
+                            }
+                        });
+                }
+
+                // 关闭下拉菜单
+                const menu = this.closest('.dropdown-menu');
+                if (menu) {
+                    menu.classList.add('hidden');
+                }
+            });
+        }
+    }
+
+    // 监听滚动事件
+    window.addEventListener('scroll', function () {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+
+        // 当滚动到距离底部200px时加载更多
+        if (scrollTop + clientHeight >= scrollHeight - 200) {
+            loadMoreData();
+        }
+    });
+
+    // 保存滚动位置并跳转
+    function saveScrollPositionAndRedirect(url) {
+        // 保存当前滚动位置到localStorage
+        localStorage.setItem('community_scroll_position', window.scrollY);
+        // 跳转到指定URL
+        window.location.href = url;
+    }
+
     // 页面加载完成后初始化所有功能
     document.addEventListener('DOMContentLoaded', function () {
+        // 重置分页状态
+        page = 2;  // 因为初始页面已经加载了第1页
+        loading = false;
+        noMoreData = false;
+        document.getElementById('loading-indicator').classList.add('hidden');
+        document.getElementById('no-more-data').classList.add('hidden');
+
+        // 恢复滚动位置
+        const savedPosition = localStorage.getItem('community_scroll_position');
+        if (savedPosition) {
+            window.scrollTo(0, parseInt(savedPosition));
+            // 恢复后清除保存的位置
+            localStorage.removeItem('community_scroll_position');
+        }
+
         // 初始化分享功能
         initShareFunctionality();
     });

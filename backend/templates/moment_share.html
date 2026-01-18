@@ -35,6 +35,15 @@
                 </a>
             </div>
             {% else %}
+            <!-- 返回按钮 -->
+            <div class="mb-6">
+                <button id="back-button"
+                    class="flex items-center space-x-2 bg-white border border-neutral-200 rounded-lg px-4 py-2 hover:bg-neutral-50 transition-colors text-neutral-700">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>返回社区</span>
+                </button>
+            </div>
+
             <!-- 动态分享页面 -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card w-full">
                 <div class="p-8">
@@ -46,7 +55,8 @@
                             <img src="{{ moment.user.profile.userAvatar.url }}" alt="{{ moment.user.username }}"
                                 class="w-10 h-10 rounded-full object-cover">
                             {% else %}
-                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
                                 {{ moment.user.username|first }}
                             </div>
                             {% endif %}
@@ -56,7 +66,8 @@
                                 <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
                             </div>
                             {% else %}
-                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
                                 用
                             </div>
                             <div>
@@ -90,11 +101,13 @@
 
                     <div class="mt-4 flex justify-between items-center">
                         <div class="flex space-x-4">
-                            <div class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                            <div
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
                                 <i class="fa-regular fa-heart"></i>
                                 <span>{{ moment.likes }}</span>
                             </div>
-                            <div class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
+                            <div
+                                class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom">
                                 <i class="fa-regular fa-comment"></i>
                                 <span>{{ moment.comments }}</span>
                             </div>
@@ -105,7 +118,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- 评论区域 -->
                 <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
                     <div class="space-y-4">
@@ -117,16 +130,17 @@
                         <div class="flex space-x-3 mt-2">
                             <div class="w-8 h-8 rounded-full overflow-hidden">
                                 {% if user and user.profile and user.profile.userAvatar %}
-                                <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+                                <img src="{{ user.profile.userAvatar.url }}" alt="用户头像"
+                                    class="w-full h-full object-cover">
                                 {% else %}
-                                <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
+                                <img src="https://picsum.photos/200/200?random=1" alt="用户头像"
+                                    class="w-full h-full object-cover">
                                 {% endif %}
                             </div>
                             <div class="flex-1 relative">
                                 <input type="text" placeholder="写下你的评论..."
                                     class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
-                                <button
-                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
+                                <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
                                     <i class="fa-solid fa-paper-plane"></i>
                                 </button>
                             </div>
@@ -134,10 +148,10 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- 查看更多动态按钮 -->
             <div class="mt-6">
-                <a href="{% url 'community' %}"
+                <a href="javascript:void(0);" onclick="goBackToCommunity()"
                     class="block w-full py-3 bg-white rounded-xl text-center text-primary font-medium hover:bg-neutral-50 transition-custom border border-neutral-200 shadow-sm">
                     查看更多动态
                 </a>
@@ -146,4 +160,20 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 返回社区页面顶部
+    function goBackToCommunity() {
+        // 清除保存的滚动位置，确保返回社区页面顶部
+        localStorage.removeItem('community_scroll_position');
+        window.location.href = '/community/';
+    }
+
+    // 返回按钮功能（保持原有行为，返回之前位置）
+    document.getElementById('back-button').addEventListener('click', function () {
+        window.location.href = '/community/';
+    });
+</script>
 {% endblock %}

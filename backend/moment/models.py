@@ -17,9 +17,19 @@ class Moment(models.Model):
     likes = models.IntegerField(default=0, verbose_name='点赞数')
     comments = models.IntegerField(default=0, verbose_name='评论数')
     favorites = models.IntegerField(default=0, verbose_name='收藏数')
+    view_count = models.IntegerField(default=0, verbose_name='浏览数')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     is_shared = models.BooleanField(default=False)  
     tags = models.ManyToManyField(Tag, blank=True, related_name='moments')  
+
+    def get_hot_score(self):
+        """计算热度值"""
+        # 热度计算公式：点赞权重2，评论权重3，浏览权重1
+        return self.likes * 2 + self.comments * 3 + self.view_count * 1
+
+    class Meta:
+        verbose_name = '社区动态'
+        verbose_name_plural = '社区动态'
 
     def __str__(self):
         return f'{self.user.username} 的动态 - {self.created_at}'

@@ -2,7 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     CustomTokenObtainPairView, RegisterViewSet, ProfileViewSet, LoginViewSet, VIPMemberViewSet, VIPPrivilegeViewSet,
-    personal_center_view, settings_view, message_view, achievements_view, get_achievements_data
+    personal_center_view, settings_view, message_view, achievements_view, get_achievements_data,
+    follow_toggle, following_list, follower_list, user_profile
 )
 
 app_name = 'core'
@@ -23,6 +24,11 @@ web_urlpatterns = [
     path('message/', message_view, name='message'),
     path('achievements/', achievements_view, name='achievements'),
     path('achievements/data/', get_achievements_data, name='get_achievements_data'),
+    # 关注模块路由
+    path('follow/toggle/', follow_toggle, name='follow_toggle'),
+    path('following/', following_list, name='following_list'),
+    path('followers/', follower_list, name='follower_list'),
+    path('user/<str:username>/', user_profile, name='user_profile'),
 ]
 # Web视图路由
 urlpatterns = [

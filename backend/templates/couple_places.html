@@ -104,52 +104,6 @@
 
 <main class="flex-grow pt-32 pb-16 relative z-10">
     <div class="container mx-auto px-4">
-
-        <!-- 情侣信息卡片 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-fade-in">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="relative mb-4 md:mb-0">
-                    <div class="relative w-28 h-28 rounded-full overflow-hidden border-4 border-primary/20">
-                        {% if user.profile.userAvatar %}
-                        <img src="{{ user.profile.userAvatar.url }}" alt="情侣合照" class="w-full h-full object-cover"
-                            onload="this.classList.remove('img-loading')" loading="lazy">
-                        {% else %}
-                        <img src="https://picsum.photos/seed/couple2/200/200" alt="情侣合照"
-                            class="w-full h-full object-cover" onload="this.classList.remove('img-loading')"
-                            loading="lazy">
-                        {% endif %}
-                        <div class="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="md:ml-6 text-center md:text-left">
-                    <div class="flex items-center justify-center md:justify-start flex-wrap">
-                        {% if user.profile.couple %}
-                        <h2 class="text-2xl font-bold">{{ user.name }} & {{ user.profile.couple.user.name }}</h2>
-                        {% else %}
-                        <h2 class="text-2xl font-bold">{{ user.name }}</h2>
-                        {% endif %}
-                        {% if user.profile.couple and user.profile.couple_joined_at %}
-                        {% with days_since_joined=user.profile.couple_joined_at|timesince|cut:",.*" %}
-                        <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full mt-1 md:mt-0">
-                            相恋<span>{{ days_since_joined }}</span>
-                        </span>
-                        {% endwith %}
-                        {% endif %}
-                    </div>
-
-                    <div class="mt-4 flex items-center justify-center md:justify-start">
-                        <div
-                            class="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-full text-sm">
-                            <i class="fa fa-heart mr-1"></i>情侣等级: 热恋期
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- 地点分类标签 -->
         <div class="mb-8 animate-slide-up" style="animation-delay: 0.1s">
             <div class="flex overflow-x-auto pb-2 space-x-3 hide-scrollbar scrollbar-hide">

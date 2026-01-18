@@ -300,6 +300,7 @@ def couple_recommendation_view(request):
 def couple_history_view(request):
     """情侣历史视图"""
     from core.models import CoupleRelationHistory
+    from django.utils import timezone
     
     # 获取当前用户的所有情侣关系历史记录
     # 包括作为user1和user2的记录
@@ -310,6 +311,40 @@ def couple_history_view(request):
     
     # 准备历史记录数据，添加伴侣信息和关系时长
     history_data = []
+    
+    # 首先检查当前是否有正在进行的情侣关系
+    profile = request.user.profile
+    if profile.couple and profile.couple_joined_at:
+        # 当前有情侣关系，添加到历史记录中
+        partner = profile.couple.user
+        started_at = profile.couple_joined_at
+        ended_at = timezone.now()
+        
+        # 计算关系时长
+        duration = ended_at - started_at
+        duration_days = duration.days
+        duration_months = duration_days // 30
+        duration_years = duration_days // 365
+        
+        # 格式化关系时长
+        if duration_years > 0:
+            duration_str = f"{duration_years}年{duration_months % 12}个月"
+        elif duration_months > 0:
+            duration_str = f"{duration_months}个月{duration_days % 30}天"
+        else:
+            duration_str = f"{duration_days}天"
+        
+        history_data.append({
+            'partner': partner,
+            'started_at': started_at.strftime('%Y-%m-%d'),
+            'ended_at': '至今',
+            'duration': duration_str,
+            'duration_days': duration_days,
+            'record_id': None,
+            'is_current': True
+        })
+    
+    # 然后添加历史记录
     for record in relation_history:
         # 确定伴侣是谁
         if record.user1 == user:
@@ -337,7 +372,8 @@ def couple_history_view(request):
             'ended_at': record.ended_at.strftime('%Y-%m-%d'),
             'duration': duration_str,
             'duration_days': duration_days,
-            'record_id': record.id
+            'record_id': record.id,
+            'is_current': False
         })
     
     context = {

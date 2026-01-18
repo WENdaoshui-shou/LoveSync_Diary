@@ -34,17 +34,6 @@ def message_list(request):
     # 转换为列表并按时间倒序排序（确保最新消息在最前）
     sorted_messages = sorted(grouped_messages.values(), key=lambda x: x.create_time, reverse=True)
     
-    # 分页处理
-    paginator = Paginator(sorted_messages, 10)  # 每页10条
-    page = request.GET.get('page', 1)
-    
-    try:
-        page_obj = paginator.page(page)
-    except PageNotAnInteger:
-        page_obj = paginator.page(1)
-    except EmptyPage:
-        page_obj = paginator.page(paginator.num_pages)
-    
     # 计算未读消息数
     unread_count = Message.objects.filter(user=request.user, is_read=False, is_deleted=False).count()
     
@@ -73,6 +62,19 @@ def message_list(request):
     
     # 转换为列表并按时间倒序排序
     unread_messages = sorted(unread_messages_grouped.values(), key=lambda x: x.create_time, reverse=True)
+    
+    # 获取系统通知列表（用于系统通知标签页）
+    system_messages_query = Message.objects.filter(
+        user=request.user,
+        type='system',
+        is_deleted=False
+    ).order_by('-create_time')
+    
+    # 转换为列表
+    system_messages = list(system_messages_query)
+    
+    # 计算系统通知数量
+    system_count = len(system_messages)
     
     # 获取私信会话列表数据
     from core.models import User
@@ -121,9 +123,10 @@ def message_list(request):
     
     context = {
         'grouped_messages': grouped_messages,
-        'page_obj': page_obj,
         'unread_count': unread_count,
         'unread_messages': unread_messages,
+        'system_messages': system_messages,
+        'system_count': system_count,
         'total_message_count': total_message_count,
         'conversations': conversations,
     }
@@ -178,27 +181,25 @@ def get_unread_count(request):
 def mark_all_read(request):
     """将所有消息标记为已读"""
     if request.method == 'POST':
-        # 将所有未读消息标记为已读
         Message.objects.filter(
             user=request.user,
             is_read=False,
             is_deleted=False
-        ).update(is_read=True, is_deleted=False)
+        ).update(is_read=True)
         
-        messages.success(request, '所有消息已标记为已读')
+        unread_count = Message.objects.filter(
+            user=request.user,
+            is_read=False,
+            is_deleted=False
+        ).count()
         
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'message': '所有消息已标记为已读',
-                'unread_count': 0
-            })
-        
-        return redirect('message:list')
+        return JsonResponse({
+            'success': True,
+            'message': '所有消息已标记为已读',
+            'unread_count': unread_count
+        })
     
-    return JsonResponse({'success': False, 'message': '请求方式错误'})
-
-
+    return JsonResponse({'success': False, 'message': '仅支持POST请求'}, status=405)
 
 @login_required
 def private_chat_detail(request, user_id):

@@ -178,18 +178,18 @@
 
             <div class="md:ml-6 text-center md:text-left">
                 <div class="flex items-center justify-center md:justify-start flex-wrap">
-                    <h2 class="text-2xl font-bold">
-                        {{user.name}} &
-                        {% if user.profile.couple and user.profile.couple.user %}
-                        {{user.profile.couple.user.name}}
-                        {% else %}
-                        未绑定
-                        {% endif %}
-                    </h2>
-                    <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full mt-1 md:mt-0"
-                        id="days-together">
-                        相恋<span>{{user.profile.couple_joined_at}}</span>天
+                    {% if user.profile.couple %}
+                    <h2 class="text-2xl font-bold">{{ user.name }} & {{ user.profile.couple.user.name }}</h2>
+                    {% else %}
+                    <h2 class="text-2xl font-bold">{{ user.name }}</h2>
+                    {% endif %}
+                    {% if user.profile.couple and user.profile.couple_joined_at %}
+                    {% with days_since_joined=user.profile.couple_joined_at|timesince|cut:",.*" %}
+                    <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full mt-1 md:mt-0">
+                        相恋<span>{{ days_since_joined }}</span>
                     </span>
+                    {% endwith %}
+                    {% endif %}
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mt-4">
@@ -524,7 +524,7 @@
                     class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
                     <div class="flex items-center">
                         <div class="w-12 h-12 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center mr-4">
-                            <i class="fa fa-twitter text-[#1DA1F2] text-xl"></i>
+                            <i class="fa-brands fa-twitter text-[#1DA1F2] text-xl"></i>
                         </div>
                         <div>
                             <h3 class="font-medium">Twitter</h3>
@@ -540,7 +540,7 @@
                     class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
                     <div class="flex items-center">
                         <div class="w-12 h-12 rounded-full bg-[#E4405F]/10 flex items-center justify-center mr-4">
-                            <i class="fa fa-instagram text-[#E4405F] text-xl"></i>
+                            <i class="fa-brands fa-instagram text-[#E4405F] text-xl"></i>
                         </div>
                         <div>
                             <h3 class="font-medium">Instagram</h3>
@@ -556,7 +556,7 @@
                     class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
                     <div class="flex items-center">
                         <div class="w-12 h-12 rounded-full bg-[#25D366]/10 flex items-center justify-center mr-4">
-                            <i class="fa fa-whatsapp text-[#25D366] text-xl"></i>
+                            <i class="fa-brands fa-whatsapp text-[#25D366] text-xl"></i>
                         </div>
                         <div>
                             <h3 class="font-medium">WhatsApp</h3>
@@ -660,10 +660,7 @@
 <script>
     // 取消情侣请求
     function cancelRequest() {
-        if (confirm('确定要取消这个情侣请求吗？')) {
-            // 这里可以添加AJAX请求来取消请求
-            window.location.href = '{% url 'couple_web:cancel_request' %}';
-        }
+        window.location.href = "{% url 'couple_web:cancel_request' %}";
     }
 
     // 复制邀请码

@@ -301,8 +301,8 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 @login_required
 def community_view(request):
     """社区页面"""
-    # 获取所有分享的动态，按时间倒序排列
-    moments = Moment.objects.filter(is_shared=True).order_by('-created_at')
+    # 获取所有分享的动态，按时间倒序排列，限制初始加载数量为10条
+    moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[:10]
     
     # 获取未读消息计数
     try:
@@ -463,15 +463,68 @@ def unshare_moment(request, moment_id):
         return JsonResponse({'success': False, 'message': str(e)})
 
 
+# 热门动态排行榜视图
+@login_required
+def hot_ranking(request):
+    """热门动态排行榜页面"""
+    from django.utils import timezone
+    
+    # 获取时间范围参数
+    current_time_range = request.GET.get('time_range', '7days')
+    time_ranges = ['7days', '30days', 'all']
+    
+    # 构建查询
+    moments = Moment.objects.filter(is_shared=True)
+    
+    # 时间筛选
+    if current_time_range == '7days':
+        start_date = timezone.now() - timezone.timedelta(days=7)
+        moments = moments.filter(created_at__gte=start_date)
+    elif current_time_range == '30days':
+        start_date = timezone.now() - timezone.timedelta(days=30)
+        moments = moments.filter(created_at__gte=start_date)
+    
+    # 按热度值排序
+    # 先获取所有动态，然后计算热度值并排序
+    moments_list = list(moments)
+    moments_list.sort(key=lambda x: x.get_hot_score(), reverse=True)
+    
+    # 限制前50条
+    hot_posts_with_rank = []
+    for idx, post in enumerate(moments_list[:50]):
+        rank = idx + 1  # 排名从1开始
+        rank_times_100 = rank * 100  # 提前计算rank*100
+        hot_posts_with_rank.append({
+            'post': post,
+            'rank': rank,
+            'rank_times_100': rank_times_100,  # 把计算结果传给模板
+        })
+    
+    context = {
+        'page_title': '热门动态排行榜',
+        'hot_posts_with_rank': hot_posts_with_rank,
+        'current_time_range': current_time_range,
+        'time_ranges': time_ranges
+    }
+    
+    return render(request, 'community/hot_ranking.html', context)
+
+
 # 动态分享页面视图（无需登录即可访问）
 def moment_share_view(request, moment_id):
     """动态分享页面视图"""
     from django.shortcuts import render
     from .models import Moment
+    from django.db.models import F
     
     try:
         # 查询动态数据
         moment = Moment.objects.get(id=moment_id)
+        
+        # 浏览数+1（使用F表达式避免并发问题）
+        moment.view_count = F('view_count') + 1
+        moment.save()
+        moment.refresh_from_db()  # 刷新数据
         
         # 传递完整的动态信息到模板
         context = {
@@ -496,3 +549,54 @@ def moment_share_view(request, moment_id):
             'meta_title': '访问出错',
             'meta_description': '访问动态时出现错误'
         })
+
+
+# 社区动态分页加载API
+from django.http import JsonResponse
+def load_more_moments(request):
+    """加载更多社区动态的API"""
+    page = int(request.GET.get('page', 1))
+    page_size = 10
+    
+    # 计算偏移量
+    offset = (page - 1) * page_size
+    
+    # 查询分享的动态，按时间倒序排列，支持分页
+    moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[offset:offset + page_size]
+    
+    # 序列化数据
+    moments_data = []
+    for moment in moments:
+        # 获取用户头像
+        avatar_url = moment.user.profile.userAvatar.url if moment.user.profile.userAvatar else ''
+        
+        # 获取动态图片
+        image_urls = []
+        for image in moment.moment_images.all():
+            image_urls.append(image.image.url)
+        
+        moments_data.append({
+            'id': moment.id,
+            'user': {
+                'id': moment.user.id,
+                'username': moment.user.username,
+                'name': moment.user.name,
+                'avatar': avatar_url
+            },
+            'content': moment.content,
+            'images': image_urls,
+            'created_at': moment.created_at.strftime('%Y-%m-%d %H:%M'),
+            'likes': moment.likes,
+            'comments': moment.comments
+        })
+    
+    # 检查是否还有更多数据
+    has_more = Moment.objects.filter(is_shared=True).count() > offset + page_size
+    
+    return JsonResponse({
+        'success': True,
+        'moments': moments_data,
+        'has_more': has_more,
+        'page': page,
+        'page_size': page_size
+    })

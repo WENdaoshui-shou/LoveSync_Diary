@@ -24,20 +24,22 @@
                             <img src="{{ history.partner.profile.userAvatar.url }}" alt="{{ history.partner.username }}"
                                 class="w-full h-full object-cover img-loading"
                                 onload="this.classList.remove('img-loading')" loading="lazy">
-                            <div class="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full">
+                            <div class="absolute inset-0 to-transparent rounded-full">
                             </div>
                         </div>
                         <div class="ml-4">
                             <h3 class="font-bold text-lg">{{ history.partner.name }}</h3>
-                            <p class="text-sm text-neutral-500">@{{ history.partner.username }}</p>
+                            <p class="text-sm text-neutral-500">{{ history.partner.username }}</p>
                         </div>
                     </div>
 
                     <!-- 删除按钮 -->
+                    {% if not history.is_current %}
                     <button onclick="deleteHistoryRecord('{{ history.record_id }}')"
                         class="text-red-500 hover:text-red-600 transition-custom text-sm mb-4 md:mb-0">
                         <i class="fa fa-trash mr-1"></i>删除记录
                     </button>
+                    {% endif %}
                 </div>
 
                 <!-- 关系时间信息 -->
@@ -56,18 +58,7 @@
                     </div>
                 </div>
 
-                <!-- 关系进度条 -->
-                <div class="mt-4">
-                    <div class="flex justify-between text-sm text-neutral-500 mb-1">
-                        <span>{{ history.started_at }}</span>
-                        <span>{{ history.ended_at }}</span>
-                    </div>
-                    <div class="h-2 bg-neutral-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
-                            style="width: {{ history.duration_days}}%">
-                        </div>
-                    </div>
-                </div>
+
             </div>
             {% endfor %}
         </div>
@@ -114,7 +105,8 @@
     });
 
     // 删除历史记录函数
-    function deleteHistoryRecord(recordId) {{
+    function deleteHistoryRecord(recordId) {
+        {
             // 发送AJAX请求删除记录
             fetch(`/couple/history/delete/${recordId}/`, {
                 method: 'POST',

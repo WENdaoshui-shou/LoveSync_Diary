@@ -24,7 +24,10 @@ class Follow(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name = '关注关系'
+        verbose_name_plural = '关注关系'
         unique_together = ('follower', 'followed')
+        ordering = ['-created_at']
 
     def __str__(self):
         return f'{self.follower.username} 关注了 {self.followed.username}'
