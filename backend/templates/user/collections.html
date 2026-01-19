@@ -259,7 +259,7 @@
                 <div class="mb-10">
                     <div class="collection-section-title">
                         <i class="fa-solid fa-newspaper text-[#FF6B8B]"></i>
-                        <h2 class="text-lg font-semibold text-neutral-800">收藏动态</h2>
+                        <h2 class="text-lg font-semibold text-[#FF6B8B]">收藏动态</h2>
                     </div>
                     <div class="space-y-6">
                         {% if moments %}
@@ -339,14 +339,16 @@
                         </div>
                         {% endfor %}
                         {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
+                        <div class="empty-state"
+                            style="background: linear-gradient(135deg, rgba(255, 107, 139, 0.05), rgba(255, 107, 139, 0.02)); border: 2px dashed rgba(255, 107, 139, 0.2);">
+                            <div class="empty-state-icon"
+                                style="background: linear-gradient(135deg, #FF6B8B, #FF8FA3);">
                                 <i class="fa-regular fa-bookmark"></i>
                             </div>
                             <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏动态</h3>
                             <p class="text-neutral-500 text-sm mb-4">去社区看看，收藏感兴趣的动态吧</p>
-                            <a href="/community/moments/"
-                                class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            <a href="{% url 'community' %}"
+                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#FF6B8B] to-[#FF8FA3] text-white rounded-lg hover:bg-primary/90 transition-custom">
                                 浏览动态
                             </a>
                         </div>
@@ -357,8 +359,8 @@
                 <!-- 地点收藏 -->
                 <div class="mb-10">
                     <div class="collection-section-title">
-                        <i class="fa-solid fa-map-marker-alt text-[#FF6B8B]"></i>
-                        <h2 class="text-lg font-semibold text-neutral-800">收藏地点</h2>
+                        <i class="fa-solid fa-map-marker-alt text-[#722ED1]"></i>
+                        <h2 class="text-lg font-semibold text-[#722ED1]">收藏地点</h2>
                     </div>
                     <div class="space-y-6">
                         {% if places %}
@@ -404,31 +406,27 @@
                                 <div class="flex items-center mt-2">
                                     <div class="flex items-center">
                                         {% for i in "12345" %}
-                                        {% if forloop.counter <= place.rating|floatformat:0 %} <i
-                                            class="fa fa-star text-neutral-500">
-                                            </i>
-                                            {% elif forloop.counter == place.rating|add:1|floatformat:0 %}
-                                            <i class="fa fa-star-half-o text-neutral-500"></i>
-                                            {% else %}
-                                            <i class="fa fa-star-o text-neutral-500"></i>
-                                            {% endif %}
-                                            {% endfor %}
-                                            <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{
-                                                place.review_count }})</span>
+                                        {% if forloop.counter == place.rating%} <i class="fa fa-star text-neutral-500">
+                                        </i>
+                                        {% elif forloop.counter == place.rating|add:1|floatformat:0 %}
+                                        <i class="fa fa-star-half-o text-neutral-500"></i>
+                                        {% else %}
+                                        <i class="fa fa-star-o text-neutral-500"></i>
+                                        {% endif %}
+                                        {% endfor %}
+                                        <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{ place.review_count }})</span>
                                     </div>
                                     <div class="ml-auto flex items-center text-neutral-500 text-sm">
                                         <i class="fa fa-map-marker mr-1 text-neutral-500"></i>
-                                        <span>{{ place.distance }}</span>
+                                        <span>{{ place.address|default:"未知地址" }}</span>
                                     </div>
                                 </div>
 
                                 <p class="text-neutral-600 text-sm mt-3">{{ place.description }}</p>
 
                                 <div class="flex flex-wrap gap-2 mt-3">
-                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
-                                        place.place_type }}</span>
-                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
-                                        place.price_range }}</span>
+                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.place_type }}</span>
+                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.price_range }}</span>
                                     {% if place.rating >= 4.8 %}
                                     <span
                                         class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
@@ -444,14 +442,16 @@
                         </div>
                         {% endfor %}
                         {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
+                        <div class="empty-state"
+                            style="background: linear-gradient(135deg, rgba(114, 46, 209, 0.05), rgba(114, 46, 209, 0.02)); border: 2px dashed rgba(114, 46, 209, 0.2);">
+                            <div class="empty-state-icon"
+                                style="background: linear-gradient(135deg, #722ED1, #9333EA);">
                                 <i class="fa-regular fa-bookmark"></i>
                             </div>
                             <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏地点</h3>
                             <p class="text-neutral-500 text-sm mb-4">去情侣地点看看，收藏喜欢的约会地点吧</p>
                             <a href="/couple/places/"
-                                class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#722ED1] to-[#9333EA] text-white rounded-lg hover:bg-primary/90 transition-custom">
                                 浏览地点
                             </a>
                         </div>
@@ -539,14 +539,15 @@
                     </div>
                     {% endfor %}
                     {% else %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
+                    <div class="empty-state"
+                        style="background: linear-gradient(135deg, rgba(255, 107, 139, 0.05), rgba(255, 107, 139, 0.02)); border: 2px dashed rgba(255, 107, 139, 0.2);">
+                        <div class="empty-state-icon" style="background: linear-gradient(135deg, #FF6B8B, #FF8FA3);">
                             <i class="fa-regular fa-bookmark"></i>
                         </div>
                         <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏动态</h3>
                         <p class="text-neutral-500 text-sm mb-4">去社区看看，收藏感兴趣的动态吧</p>
-                        <a href="/community/moments/"
-                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                        <a href="{% url 'moments' %}"
+                            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#FF6B8B] to-[#FF8FA3] text-white rounded-lg hover:bg-primary/90 transition-custom">
                             浏览动态
                         </a>
                     </div>
@@ -612,7 +613,7 @@
                                 </div>
                                 <div class="ml-auto flex items-center text-neutral-500 text-sm">
                                     <i class="fa fa-map-marker mr-1 text-neutral-500"></i>
-                                    <span>{{ place.distance }}</span>
+                                    <span>{{ place.address|default:"未知地址" }}</span>
                                 </div>
                             </div>
 
@@ -637,14 +638,15 @@
                     </div>
                     {% endfor %}
                     {% else %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
+                    <div class="empty-state"
+                        style="background: linear-gradient(135deg, rgba(114, 46, 209, 0.05), rgba(114, 46, 209, 0.02)); border: 2px dashed rgba(114, 46, 209, 0.2);">
+                        <div class="empty-state-icon" style="background: linear-gradient(135deg, #722ED1, #9333EA);">
                             <i class="fa-regular fa-bookmark"></i>
                         </div>
                         <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏地点</h3>
                         <p class="text-neutral-500 text-sm mb-4">去情侣地点看看，收藏喜欢的约会地点吧</p>
                         <a href="/couple/places/"
-                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#722ED1] to-[#9333EA] text-white rounded-lg hover:bg-primary/90 transition-custom">
                             浏览地点
                         </a>
                     </div>
@@ -684,44 +686,40 @@
                     const id = this.getAttribute('data-id');
                     const card = this.closest('.collection-card');
 
-                    // 显示确认对话框
-                    if (confirm('确定要取消收藏吗？')) {
-                        // 发送取消收藏请求
-                        fetch('/user/api/collection/remove/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-CSRFToken': getCookie('csrftoken')
-                            },
-                            body: `content_type=${type}&object_id=${id}`
+                    // 发送取消收藏请求
+                    fetch('/user/api/collection/remove/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: `content_type=${type}&object_id=${id}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+
+
+                                // 移除卡片
+                                card.style.opacity = '0';
+                                card.style.transform = 'translateY(20px)';
+                                card.style.transition = 'all 0.3s ease';
+
+                                setTimeout(() => {
+                                    card.remove();
+
+                                    // 检查是否需要显示空状态
+                                    checkEmptyState();
+                                }, 300);
+                            } else {
+                                // 显示错误提示
+                                showNotification(data.message, 'error');
+                            }
                         })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // 显示成功提示
-                                    showNotification('取消收藏成功', 'success');
-
-                                    // 移除卡片
-                                    card.style.opacity = '0';
-                                    card.style.transform = 'translateY(20px)';
-                                    card.style.transition = 'all 0.3s ease';
-
-                                    setTimeout(() => {
-                                        card.remove();
-
-                                        // 检查是否需要显示空状态
-                                        checkEmptyState();
-                                    }, 300);
-                                } else {
-                                    // 显示错误提示
-                                    showNotification(data.message, 'error');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('取消收藏失败:', error);
-                                showNotification('取消收藏失败，请重试', 'error');
-                            });
-                    }
+                        .catch(error => {
+                            console.error('取消收藏失败:', error);
+                            showNotification('取消收藏失败，请重试', 'error');
+                        });
                 });
             });
 
@@ -760,16 +758,16 @@
                 const momentsCards = momentsTab.querySelectorAll('.collection-card');
                 if (momentsCards.length === 0) {
                     momentsTab.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
+                    <div class="empty-state" style="background: linear-gradient(135deg, rgba(255, 107, 139, 0.05), rgba(255, 107, 139, 0.02)); border: 2px dashed rgba(255, 107, 139, 0.2);">
+                        <div class="empty-state-icon" style="background: linear-gradient(135deg, #FF6B8B, #FF8FA3);">
                             <i class="fa-regular fa-bookmark"></i>
                         </div>
                         <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏动态</h3>
                         <p class="text-neutral-500 text-sm mb-4">去社区看看，收藏感兴趣的动态吧</p>
-                        <a href="/community/moments/"
-                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
-                            浏览动态
-                        </a>
+                        <a href="{% url 'moments' %}"
+                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#FF6B8B] to-[#FF8FA3] text-white rounded-lg hover:bg-primary/90 transition-custom">
+                                浏览动态
+                            </a>
                     </div>
                 `;
                 }
@@ -779,14 +777,14 @@
                 const placesCards = placesTab.querySelectorAll('.collection-card');
                 if (placesCards.length === 0) {
                     placesTab.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
+                    <div class="empty-state" style="background: linear-gradient(135deg, rgba(114, 46, 209, 0.05), rgba(114, 46, 209, 0.02)); border: 2px dashed rgba(114, 46, 209, 0.2);">
+                        <div class="empty-state-icon" style="background: linear-gradient(135deg, #722ED1, #9333EA);">
                             <i class="fa-regular fa-bookmark"></i>
                         </div>
                         <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏地点</h3>
                         <p class="text-neutral-500 text-sm mb-4">去情侣地点看看，收藏喜欢的约会地点吧</p>
                         <a href="/couple/places/"
-                            class="inline-flex items-center px-4 py-2 bg-gradient-love text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#722ED1] to-[#9333EA] text-white rounded-lg hover:bg-primary/90 transition-custom">
                             浏览地点
                         </a>
                     </div>

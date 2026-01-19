@@ -125,13 +125,9 @@
             .then(data => {
                 if (data.success) {
                     form.querySelector('textarea[name="content"]').value = '';
-
-                    // 如果是预填的接收者，跳转到对话页（修复模板标签语法）
-                    {% if recipient.id|default:0 %}
                         setTimeout(() => {
-                            window.location.href = '{% url 'message:private_chat_detail' recipient.id %}';
+                            window.location.href = "{% url 'message:private_chat_detail' recipient.id %}";
                         }, 1500);
-                    {% endif %}
                     
                 } else {
                     showMessage(data.message, 'error');

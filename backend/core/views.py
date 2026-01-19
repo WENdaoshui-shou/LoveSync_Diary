@@ -404,9 +404,9 @@ def personal_center_view(request):
     game_session_count = GameSession.objects.filter(user=user).count()
     
     # 获取关注/粉丝数量
-    from .models import Follow
-    following_count = Follow.objects.filter(follower=user).count()
-    followers_count = Follow.objects.filter(followed=user).count()
+    from user.models import Follow
+    following_count = Follow.objects.filter(follower=user, is_deleted=False).count()
+    followers_count = Follow.objects.filter(following=user, is_deleted=False).count()
     
     # 获取用户成就
     from .models import UserAchievement
@@ -771,7 +771,7 @@ def get_achievements_data(request):
 # 关注模块视图函数
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from .models import Follow
+from user.models import Follow
 
 @login_required
 def follow_toggle(request):
@@ -790,16 +790,43 @@ def follow_toggle(request):
         if followed == request.user:
             return JsonResponse({'success': False, 'message': '不能关注自己'}, status=400)
         
-        # 使用 get_or_create 判断关注状态
-        follow, created = Follow.objects.get_or_create(follower=request.user, followed=followed)
+        # 使用 get_or_create 判断关注状态，考虑软删除
+        follow_obj, created = Follow.objects.get_or_create(
+            follower=request.user,
+            following=followed,
+            defaults={'is_deleted': False}
+        )
         
-        if created:
+        if created or follow_obj.is_deleted:
             # 关注成功
-            return JsonResponse({'success': True, 'status': 'followed', 'message': '关注成功'})
+            follow_obj.is_deleted = False
+            follow_obj.save()
+            
+            # 获取更新后的粉丝数
+            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
+            
+            return JsonResponse({
+                'success': True, 
+                'status': 'followed', 
+                'message': '关注成功',
+                'followers_count': followers_count,
+                'is_following': True
+            })
         else:
             # 取消关注
-            follow.delete()
-            return JsonResponse({'success': True, 'status': 'unfollowed', 'message': '取消关注成功'})
+            follow_obj.is_deleted = True
+            follow_obj.save()
+            
+            # 获取更新后的粉丝数
+            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
+            
+            return JsonResponse({
+                'success': True, 
+                'status': 'unfollowed', 
+                'message': '取消关注成功',
+                'followers_count': followers_count,
+                'is_following': False
+            })
     else:
         return JsonResponse({'success': False, 'message': '仅支持POST请求'}, status=405)
 
@@ -807,33 +834,62 @@ def follow_toggle(request):
 def following_list(request):
     """我的关注列表页面"""
     # 查询当前用户关注的所有用户
-    follows = Follow.objects.filter(follower=request.user).select_related('followed').order_by('-created_at')
-    user_list = [follow.followed for follow in follows]
+    follows = Follow.objects.filter(follower=request.user, is_deleted=False).select_related('following').order_by('-created_at')
+    
+    # 构建包含用户信息和关注时间的数据结构
+    user_with_follow_status = []
+    for follow in follows:
+        user_with_follow_status.append({
+            'user': follow.following,
+            'follow_time': follow.created_at,
+            'is_following': True  # 关注列表中的用户肯定是已关注的
+        })
+    
+    # 统计关注数和粉丝数
+    following_count = follows.count()
+    follower_count = Follow.objects.filter(following=request.user, is_deleted=False).count()
     
     context = {
-        'page_title': '我的关注',
-        'user_list': user_list,
+        'page_title': '我的关注',   
+        'user_list': user_with_follow_status,
         'list_type': 'following',
-        'follows': follows
+        'follows': follows,
+        'following_count': following_count,
+        'follower_count': follower_count
     }
     
-    return render(request, 'community/follow_list.html', context)
+    return render(request, 'community/follow_list_fixed.html', context)
 
 @login_required
 def follower_list(request):
     """我的粉丝列表页面"""
-    # 查询当前用户的所有粉丝
-    follows = Follow.objects.filter(followed=request.user).select_related('follower').order_by('-created_at')
-    user_list = [follow.follower for follow in follows]
+    # 查询关注当前用户的所有用户
+    follows = Follow.objects.filter(following=request.user, is_deleted=False).select_related('follower').order_by('-created_at')
+    
+    # 统计关注数和粉丝数
+    following_count = Follow.objects.filter(follower=request.user, is_deleted=False).count()
+    follower_count = follows.count()
+    
+    # 为每个粉丝计算是否已被当前用户关注
+    user_with_follow_status = []
+    for follow in follows:
+        is_following = Follow.objects.filter(follower=request.user, following=follow.follower, is_deleted=False).exists()
+        user_with_follow_status.append({
+            'user': follow.follower,
+            'follow_time': follow.created_at,
+            'is_following': is_following
+        })
     
     context = {
         'page_title': '我的粉丝',
-        'user_list': user_list,
+        'user_list': user_with_follow_status,
         'list_type': 'follower',
-        'follows': follows
+        'follows': follows,
+        'following_count': following_count,
+        'follower_count': follower_count
     }
     
-    return render(request, 'community/follow_list.html', context)
+    return render(request, 'community/follow_list_fixed.html', context)
 
 @login_required
 def user_profile(request, username):
@@ -842,17 +898,24 @@ def user_profile(request, username):
     target_user = get_object_or_404(User, username=username)
     
     # 判断当前用户是否关注目标用户
-    is_following = Follow.objects.filter(follower=request.user, followed=target_user).exists()
+    is_following = Follow.objects.filter(follower=request.user, following=target_user, is_deleted=False).exists()
     
     # 统计目标用户的关注数、粉丝数
-    following_count = Follow.objects.filter(follower=target_user).count()
-    follower_count = Follow.objects.filter(followed=target_user).count()
+    following_count = Follow.objects.filter(follower=target_user, is_deleted=False).count()
+    follower_count = Follow.objects.filter(following=target_user, is_deleted=False).count()
+    
+    # 获取目标用户的动态数量
+    from moment.models import Moment
+    moment_count = Moment.objects.filter(user=target_user).count()
     
     context = {
         'target_user': target_user,
         'is_following': is_following,
         'following_count': following_count,
-        'follower_count': follower_count
+        'follower_count': follower_count,
+        'stats': {
+            'moment_count': moment_count
+        }
     }
     
     return render(request, 'community/user_profile.html', context)

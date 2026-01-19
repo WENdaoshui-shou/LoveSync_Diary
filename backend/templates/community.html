@@ -201,7 +201,8 @@
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>消息</span>{% if unread_message_count > 0 %}
                 <span
-                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{ unread_message_count }}</span>
+                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{
+                    unread_message_count }}</span>
                 {% endif %}
             </a>
             <a href="{% url 'moment_web:hot_ranking' %}"
@@ -432,13 +433,17 @@
                 </div>
                 {% endfor %}
 
-                <!-- 加载更多指示器 -->
-                <div id="loading-indicator" class="w-full py-6 flex justify-center items-center hidden">
-                    <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                    <span class="ml-2 text-primary font-medium">加载中...</span>
+                <!-- 加载中指示器 -->
+                <div id="loading-indicator" class="mt-8 text-center hidden">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary">
+                    </div>
+                    <p class="mt-2 text-neutral-500 text-sm">加载更多动态...</p>
                 </div>
-                <div id="no-more-data" class="w-full py-6 text-center text-neutral-500 hidden">
-                    已经到底啦~
+
+                <!-- 没有更多内容提示 -->
+                <div id="no-more-content" class="mt-8 text-center hidden">
+                    <i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i>
+                    <p class="text-neutral-500 text-sm">已经到底啦，没有更多动态了</p>
                 </div>
             </div>
 
@@ -1923,11 +1928,11 @@
                         // 检查是否还有更多数据
                         if (!data.has_more) {
                             noMoreData = true;
-                            document.getElementById('no-more-data').classList.remove('hidden');
+                            document.getElementById('no-more-content').classList.remove('hidden');
                         }
                     } else {
                         noMoreData = true;
-                        document.getElementById('no-more-data').classList.remove('hidden');
+                        document.getElementById('no-more-content').classList.remove('hidden');
                     }
                 }
 
@@ -2244,7 +2249,7 @@
         loading = false;
         noMoreData = false;
         document.getElementById('loading-indicator').classList.add('hidden');
-        document.getElementById('no-more-data').classList.add('hidden');
+        document.getElementById('no-more-content').classList.add('hidden');
 
         // 恢复滚动位置
         const savedPosition = localStorage.getItem('community_scroll_position');

@@ -65,23 +65,24 @@
                         <img src="{{ profile_user.profile.userAvatar.url }}" alt="{{ profile_user.name }}"
                             class="w-full h-full object-cover">
                     </div>
-                    <!-- 个人信息：修复变量渲染+交互+兜底 -->
+                    <!-- 个人信息 -->
                     <div class="flex-1 min-w-0">
-                        <h1 class="text-2xl font-bold text-neutral-900 truncate">{{ profile_user.name|default:profile_user.username }}</h1>
-                        <p class="text-neutral-600 mt-1 truncate">{{ profile_user.profile.userBio|default:"暂无简介" }}</p>
-                        
-                        <!-- 粉丝/关注数：核心修复 -->
+                        <h1 class="text-2xl font-bold text-neutral-900 truncate">{{ profile_user.name }}</h1>
+                        <p class="text-neutral-600 mt-1 truncate">{{ profile_user.profile.userBio}}</p>
+
+                        <!-- 粉丝/关注数 -->
                         <div class="flex items-center space-x-6 mt-3">
-                            <!-- 粉丝数：修复变量空格+添加默认值+函数传参 -->
+                            <!-- 粉丝数 -->
                             <div class="flex items-center space-x-1">
-                                <span class="font-semibold text-neutral-900" id="followersCount">{{ followers_count|default:"0" }}</span>
+                                <span class="font-semibold text-neutral-900" id="followersCount">{{ followers_count }}</span>
                                 <span class="text-neutral-500 cursor-pointer hover:text-primary transition-colors"
                                     onclick="showFollowList('followers')">粉丝</span>
                             </div>
-                            
-                            <!-- 关注数：同上 -->
+
+                            <!-- 关注数 -->
                             <div class="flex items-center space-x-1">
-                                <span class="font-semibold text-neutral-900" id="followingCount">{{ following_count|default:"0" }}</span>
+                                <span class="font-semibold text-neutral-900" id="followingCount">{{ following_count
+                                    }}</span>
                                 <span class="text-neutral-500 cursor-pointer hover:text-primary transition-colors"
                                     onclick="showFollowList('following')">关注</span>
                             </div>
@@ -171,16 +172,16 @@
                 </div>
                 {% endfor %}
             </div>
-            <!-- 加载更多指示器 -->
-            <div class="text-center mt-6" id="loadMoreIndicator">
-                <div class="hidden" id="loadingSpinner">
-                    <i class="fa-solid fa-spinner fa-spin text-neutral-400"></i>
-                    <span class="text-neutral-400 ml-2">加载中...</span>
-                </div>
-                <div class="hidden" id="noMoreMoments">
-                    <i class="fa-solid fa-infinity text-neutral-300 mr-2"></i>
-                    <span class="text-neutral-300">没有更多动态了</span>
-                </div>
+            <!-- 加载中指示器 -->
+            <div id="loading-indicator" class="mt-8 text-center hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                <p class="mt-2 text-neutral-500 text-sm">加载更多动态...</p>
+            </div>
+
+            <!-- 没有更多内容提示 -->
+            <div id="no-more-content" class="mt-8 text-center hidden">
+                <i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i>
+                <p class="text-neutral-500 text-sm">已经到底啦，没有更多动态了</p>
             </div>
             {% else %}
             <!-- 空状态 -->
@@ -224,9 +225,9 @@
 {% block extra_js %}
 <script>
     // 初始化变量（提取核心参数，简化逻辑）
-    const profileUserId = {{ profile_user.id }} ;
+    const profileUserId = "{{ profile_user.id }}";
     let currentTab = 'moments';
-    let isFollowing = {{ is_following| lower }}  === 'true';
+    let isFollowing = "{{ is_following|lower }}" === 'true';
     let currentPage = 2;
     let hasMore = true;
     let isLoading = false;
@@ -284,6 +285,9 @@
         const followBtn = document.getElementById('followBtn');
         if (!followBtn || followBtn.disabled) return;
 
+        // 保存原始状态
+        const originalHTML = followBtn.innerHTML;
+
         // 禁用按钮，防止重复点击（抖音风格加载状态）
         followBtn.disabled = true;
         followBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span class="hidden md:inline ml-1">${isFollowing ? '取消中...' : '关注中...'}</span>`;
@@ -305,21 +309,25 @@
         })
 
             .then(response => {
-                if (!response.ok) throw new Error('请求失败');
+                if (!response.ok) throw new Error('网络请求失败');
                 return response.json();
             })
             .then(data => {
                 if (data.success) {
                     isFollowing = !isFollowing;
                     // 更新UI（抖音风格按钮样式切换）
-                    updateFollowUI(data.followers_count, !isFollowing);
+                    updateFollowUI(data.followers_count, isFollowing);
                     showMessage(data.message, 'success');
                 } else {
+                    // 操作失败，恢复原始状态
+                    followBtn.innerHTML = originalHTML;
                     showMessage(data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error(`${isFollowing ? '取消关注' : '关注'}失败:`, error);
+                // 网络错误，恢复原始状态
+                followBtn.innerHTML = originalHTML;
                 showMessage(`${isFollowing ? '取消关注' : '关注'}失败，请重试`, 'error');
             })
             .finally(() => {
@@ -336,11 +344,11 @@
 
         if (followBtn) {
             if (following) {
-                followBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span class="hidden md:inline ml-1">关注</span>';
-                followBtn.className = styleConfig.btnFollowClass;
-            } else {
                 followBtn.innerHTML = '<i class="fa-solid fa-user-check"></i><span class="hidden md:inline ml-1">已关注</span>';
                 followBtn.className = styleConfig.btnFollowedClass;
+            } else {
+                followBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span class="hidden md:inline ml-1">关注</span>';
+                followBtn.className = styleConfig.btnFollowClass;
             }
         }
     }
@@ -419,22 +427,22 @@
         modalContent.innerHTML = listHtml;
     }
 
-    // 关闭弹窗（抖音风格点击外部关闭）
+    // 关闭弹窗 
     function closeFollowModal() {
         const modal = document.getElementById('followModal');
         if (modal) modal.classList.add('hidden');
     }
 
-    // 加载更多动态（无限滚动，优化加载状态）
+    // 加载更多动态
     function loadMoreMoments() {
         if (isLoading || !hasMore) return;
 
         isLoading = true;
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const noMoreMoments = document.getElementById('noMoreMoments');
-        
-        if (loadingSpinner) {
-            loadingSpinner.classList.remove('hidden');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const noMoreContent = document.getElementById('no-more-content');
+
+        if (loadingIndicator) {
+            loadingIndicator.classList.remove('hidden');
         }
 
         fetch(`/user/load-more-moments/${profileUserId}/?page=${currentPage}`, {
@@ -492,24 +500,24 @@
                         currentPage++;
                     } else {
                         // 显示"没有更多动态了"
-                        if (loadingSpinner) loadingSpinner.classList.add('hidden');
-                        if (noMoreMoments) noMoreMoments.classList.remove('hidden');
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                        if (noMoreContent) noMoreContent.classList.remove('hidden');
                     }
                 } else {
                     // 检查是否是"没有更多动态了"的情况
                     if (data.message === '没有更多动态了') {
-                        if (loadingSpinner) loadingSpinner.classList.add('hidden');
-                        if (noMoreMoments) noMoreMoments.classList.remove('hidden');
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                        if (noMoreContent) noMoreContent.classList.remove('hidden');
                         hasMore = false;
                     }
                 }
                 isLoading = false;
-                if (loadingSpinner) loadingSpinner.classList.add('hidden');
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
             })
             .catch(error => {
                 console.error('加载更多动态失败:', error);
                 isLoading = false;
-                if (loadingSpinner) loadingSpinner.classList.add('hidden');
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
             });
     }
 
@@ -548,7 +556,7 @@
         }
 
         // 无限滚动实现
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
                 loadMoreMoments();
             }

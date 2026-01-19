@@ -52,8 +52,7 @@
                     <div class="message-content" data-type="all">
                         {% if grouped_messages %}
                             {% for group_key, msg in grouped_messages.items %}
-                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not msg.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"
-                                onclick="window.location.href='{% if msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}{% url 'message:private_chat_detail' msg.private_chat.sender.id %}{% else %}{% url 'message:detail' msg.id %}{% endif %}'">
+                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not msg.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"onclick="window.location.href='{% if msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}{% url 'message:private_chat_detail' msg.private_chat.sender.id %}{% else %}{% url 'message:detail' msg.id %}{% endif %}'">
                                 <div class="flex">
                                     <!-- 消息图标/头像 -->
                                     <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
@@ -120,55 +119,54 @@
                     <div class="message-content" data-type="unread">
                         {% if unread_messages %}
                             {% for msg in unread_messages %}
-                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 border-l-3 border-primary"
-     onclick='window.location.href="{% if msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}{% url 'message:private_chat_detail' msg.private_chat.sender.id %}{% else %}{% url 'message:detail' msg.id %}{% endif %}"'>
-    <div class="flex">
-        <!-- 消息图标/头像 -->
-        <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
-            {% if msg.type == 'system' %}
-                <div class="w-full h-full bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                    <i class="fa-solid fa-bell"></i>
-                </div>
-            {% elif msg.type == 'private' %}
-                {% if msg.private_chat and msg.private_chat.sender and msg.private_chat.sender.profile and msg.private_chat.sender.profile.userAvatar %}
-                    <img 
-                        src="{{ msg.private_chat.sender.profile.userAvatar.url }}" 
-                        alt="{{ msg.private_chat.sender.name|default:'未知用户' }}"
-                        class="w-full h-full object-cover rounded-full"
-                        onerror='this.onerror=null; this.parentElement.innerHTML="<div class=\"w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500\"><i class=\"fa-solid fa-user\"></i></div>"'>
-                {% else %}
-                    <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                {% endif %}
-            {% else %}
-                <div class="w-full h-full bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
-                    <i class="fa-solid fa-briefcase"></i>
-                </div>
-            {% endif %}
-        </div>
-        <!-- 消息内容 -->
-        <div class="flex-1">
-            <div class="flex justify-between items-start">
-                <h4 class="font-semibold text-neutral-900">
-                    {% if msg.type == 'system' %}
-                        系统通知
-                    {% elif msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}
-                        {{ msg.private_chat.sender.name|default:'未知用户' }}
-                    {% else %}
-                        业务提醒
-                    {% endif %}
-                </h4>
-                <span class="text-neutral-400 text-xs">{{ msg.create_time|date:"Y-m-d H:i"|default:"未知时间" }}</span>
-            </div>
-            <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
-            <div class="mt-2 flex items-center gap-2">
-                <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"未知类型" }}</span>
-                <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
-            </div>
-        </div>
-    </div>
-</div>
+                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 border-l-3 border-primary"onclick='window.location.href="{% if msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}{% url 'message:private_chat_detail' msg.private_chat.sender.id %}{% else %}{% url 'message:detail' msg.id %}{% endif %}"'>
+                                <div class="flex">
+                                    <!-- 消息图标/头像 -->
+                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
+                                        {% if msg.type == 'system' %}
+                                            <div class="w-full h-full bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                                                <i class="fa-solid fa-bell"></i>
+                                            </div>
+                                        {% elif msg.type == 'private' %}
+                                            {% if msg.private_chat and msg.private_chat.sender and msg.private_chat.sender.profile and msg.private_chat.sender.profile.userAvatar %}
+                                                <img 
+                                                    src="{{ msg.private_chat.sender.profile.userAvatar.url }}" 
+                                                    alt="{{ msg.private_chat.sender.name|default:'未知用户' }}"
+                                                    class="w-full h-full object-cover rounded-full"
+                                                    onerror='this.onerror=null; this.parentElement.innerHTML="<div class=\"w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500\"><i class=\"fa-solid fa-user\"></i></div>"'>
+                                            {% else %}
+                                                <div class="w-full h-full bg-neutral-100 rounded-full flex items-center justify-center text-neutral-500">
+                                                    <i class="fa-solid fa-user"></i>
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="w-full h-full bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
+                                                <i class="fa-solid fa-briefcase"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <!-- 消息内容 -->
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start">
+                                            <h4 class="font-semibold text-neutral-900">
+                                                {% if msg.type == 'system' %}
+                                                    系统通知
+                                                {% elif msg.type == 'private' and msg.private_chat and msg.private_chat.sender %}
+                                                    {{ msg.private_chat.sender.name|default:'未知用户' }}
+                                                {% else %}
+                                                    业务提醒
+                                                {% endif %}
+                                            </h4>
+                                            <span class="text-neutral-400 text-xs">{{ msg.create_time|date:"Y-m-d H:i"|default:"未知时间" }}</span>
+                                        </div>
+                                        <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
+                                        <div class="mt-2 flex items-center gap-2">
+                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"未知类型" }}</span>
+                                            <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             {% endfor %}
                             <!-- 加载更多 -->
                             <div id="loading-unread" class="p-4 text-center hidden">
@@ -194,8 +192,7 @@
                     <div class="message-content" data-type="system">
                         {% if system_messages %}
                             {% for msg in system_messages %}
-                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not msg.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"
-                                onclick="window.location.href='{% url 'message:detail' msg.id %}'">
+                            <div class="p-4 border-b border-neutral-100 cursor-pointer transition-all duration-200 hover:bg-neutral-50 hover:translate-x-1 {% if not msg.is_read %}border-l-3 border-primary{% else %}border-l-3 border-transparent{% endif %}"onclick="window.location.href='{% url 'message:detail' msg.id %}'">
                                 <div class="flex">
                                     <!-- 系统通知图标 -->
                                     <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">

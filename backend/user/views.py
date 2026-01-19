@@ -170,7 +170,7 @@ def get_following(request, user_id):
     following = Follow.objects.filter(
         follower=profile_user,
         is_deleted=False
-    ).select_related('following').order_by('-created_at')[:10]  # 只返回前10个
+    ).select_related('following').order_by('-created_at')
     
     following_data = []
     for follow_obj in following:
@@ -375,7 +375,7 @@ def get_collections(request):
                             'place_type': place.place_type,
                             'rating': place.rating,
                             'price_range': place.price_range,
-                            'distance': place.distance,
+                            'address': place.address,
                             'review_count': place.review_count,
                             'collected_at': collection.created_at.strftime('%Y-%m-%d %H:%M:%S')
                         })
@@ -447,7 +447,7 @@ def collections(request):
                     'place_type': place.place_type,
                     'rating': place.rating,
                     'price_range': place.price_range,
-                    'distance': place.distance,
+                    'address': place.address,
                     'review_count': place.review_count,
                     'collected_at': collection.created_at
                 })

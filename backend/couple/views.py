@@ -213,15 +213,14 @@ def couple_places_view(request):
         for place in places:
             place_dict = {
                 'id': place.id,
-                'name': place.name,
-                'description': place.description,
-                'address': place.address,
-                'place_type': place.get_place_type_display(),
-                'rating': place.rating,
-                'review_count': place.review_count,
-                'price_range': place.price_range,
-                'image_url': place.image_url,
-                'distance': f'{round((place.latitude + place.longitude) * 10 % 20, 1)}km'  # 模拟距离计算
+                                    'name': place.name,
+                                    'description': place.description,
+                                    'address': place.address,
+                                    'place_type': place.get_place_type_display(),
+                                    'rating': place.rating,
+                                    'review_count': place.review_count,
+                                    'price_range': place.price_range,
+                                'image_url': place.image_url,
             }
             places_data.append(place_dict)
     except Exception as e:
@@ -234,6 +233,58 @@ def couple_places_view(request):
     }
     
     return render(request, 'couple_places.html', context)
+
+
+# 情侣地点分页API
+@login_required
+def couple_places_api(request):
+    """情侣地点分页API"""
+    from core.models import CouplePlace
+    from django.http import JsonResponse
+    
+    try:
+        # 获取分页参数
+        page = int(request.GET.get('page', 1))
+        page_size = 10  # 每页10条数据
+        
+        # 计算偏移量
+        offset = (page - 1) * page_size
+        
+        # 获取情侣地点，按评分和评价数量排序
+        places = CouplePlace.objects.all().order_by('-rating', '-review_count')[offset:offset + page_size]
+        
+        # 构建地点数据列表
+        places_data = []
+        for place in places:
+            place_dict = {
+                'id': place.id,
+                'name': place.name,
+                'description': place.description,
+                'address': place.address,
+                'place_type': place.get_place_type_display(),
+                'rating': place.rating,
+                'review_count': place.review_count,
+                'price_range': place.price_range,
+                'image_url': place.image_url
+            }
+            places_data.append(place_dict)
+        
+        # 检查是否还有更多数据
+        has_more = CouplePlace.objects.all().count() > offset + page_size
+        
+        return JsonResponse({
+            'success': True,
+            'places': places_data,
+            'has_more': has_more,
+            'page': page
+        })
+    
+    except Exception as e:
+        print(f"Error in couple_places_api: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': f'获取地点失败: {str(e)}'
+        }, status=500)
 
 
 # 情侣推荐视图

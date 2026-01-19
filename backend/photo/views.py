@@ -86,6 +86,63 @@ def photo_album(request):
             })
 
 
+# 相册API - 支持无限加载
+@login_required
+def photo_album_api(request):
+    """相册API，支持分页加载"""
+    from django.core.paginator import Paginator, EmptyPage
+    
+    page = int(request.GET.get('page', 1))
+    page_size = 12  # 每页12张照片
+    
+    # 获取当前用户的照片，按上传时间倒序
+    photos = Photo.objects.filter(user=request.user).order_by('-uploaded_at')
+    
+    # 创建分页器
+    paginator = Paginator(photos, page_size)
+    
+    try:
+        # 获取指定页的数据
+        page_obj = paginator.page(page)
+        photo_list = page_obj.object_list
+        
+        # 构建响应数据
+        photo_data = []
+        for photo in photo_list:
+            photo_data.append({
+                'id': photo.id,
+                'image_url': photo.image.url,
+                'title': photo.description or '无描述',
+                'created_at': photo.uploaded_at.strftime('%Y年%m月%d日'),
+                'is_shared': False  # 根据实际情况设置
+            })
+        
+        # 检查是否还有更多数据
+        has_more = page < paginator.num_pages
+        
+        return JsonResponse({
+            'success': True,
+            'photos': photo_data,
+            'has_more': has_more,
+            'total': paginator.count,
+            'page': page,
+            'page_size': page_size
+        })
+        
+    except EmptyPage:
+        # 页码超出范围，返回空数据
+        return JsonResponse({
+            'success': True,
+            'photos': [],
+            'has_more': False
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
 # 删除照片
 @login_required
 @require_http_methods(['DELETE', 'POST'])

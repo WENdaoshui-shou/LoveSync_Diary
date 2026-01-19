@@ -189,22 +189,16 @@
                                 <i class="fa fa-star-o"></i>
                                 {% endif %}
                                 {% endfor %}
-                                <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{ place.review_count
-                                    }})</span>
+                                <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{ place.review_count }})</span>
                         </div>
-                        <div class="ml-auto flex items-center text-neutral-500 text-sm">
-                            <i class="fa fa-map-marker mr-1"></i>
-                            <span>{{ place.distance }}</span>
-                        </div>
+
                     </div>
 
                     <p class="text-neutral-600 text-sm mt-3">{{ place.description }}</p>
 
                     <div class="flex flex-wrap gap-2 mt-3">
-                        <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.place_type
-                            }}</span>
-                        <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
-                            place.price_range }}</span>
+                        <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.place_type }}</span>
+                        <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.price_range }}</span>
                         {% if place.rating >= 4.8 %}
                         <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
                         {% endif %}
@@ -216,9 +210,9 @@
                         </div>
                         <div class="flex space-x-2">
                             <button
-                                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom flex items-center"
+                                class="px-4 py-2 bg-neutral-100 text-neutral-500 rounded-lg hover:bg-neutral-200 transition-custom flex items-center"
                                 data-place-id="{{ place.id }}">
-                                <i class="fa fa-heart mr-1"></i> 收藏
+                                <i class="fa fa-heart-o mr-1"></i> 收藏
                             </button>
                         </div>
                     </div>
@@ -234,14 +228,19 @@
             {% endif %}
         </div>
 
-        <!-- 更多推荐按钮 -->
-        <div class="mt-10 text-center animate-slide-up" style="animation-delay: 0.8s">
-            <button
-                class="px-6 py-3 bg-white border border-primary text-primary rounded-lg hover:bg-primary/5 transition-custom inline-flex items-center">
-                <span>查看更多推荐</span>
-                <i class="fa fa-chevron-down ml-2"></i>
-            </button>
+        <!-- 加载中指示器 -->
+        <div id="loading-indicator" class="mt-8 text-center hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            <p class="mt-2 text-neutral-500 text-sm">加载更多地点...</p>
         </div>
+
+        <!-- 没有更多内容提示 -->
+        <div id="no-more-content" class="mt-8 text-center hidden">
+            <i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i>
+            <p class="text-neutral-500 text-sm">已经到底啦，没有更多地点了</p>
+        </div>
+
+
 
     </div>
 </main>
@@ -301,14 +300,12 @@
                                 this.classList.add('text-neutral-500');
                                 this.classList.remove('text-white');
                                 this.innerHTML = '<i class="fa fa-heart-o mr-1"></i> 收藏';
-                                showNotification('取消收藏成功', 'success');
                             } else {
-                                showNotification(data.message, 'error');
+                                console.error('取消收藏失败:', data.message);
                             }
                         })
                         .catch(error => {
                             console.error('取消收藏失败:', error);
-                            showNotification('取消收藏失败，请重试', 'error');
                         });
                 } else {
                     // 添加收藏
@@ -320,7 +317,12 @@
                         },
                         body: `content_type=place&object_id=${placeId}`
                     })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             if (data.success) {
                                 icon.classList.remove('fa-heart-o');
@@ -330,14 +332,12 @@
                                 this.classList.remove('text-neutral-500');
                                 this.classList.add('text-white');
                                 this.innerHTML = '<i class="fa fa-heart mr-1"></i> 已收藏';
-                                showNotification('收藏成功', 'success');
                             } else {
-                                showNotification(data.message, 'error');
+                                console.error('收藏失败:', data.message);
                             }
                         })
                         .catch(error => {
                             console.error('收藏失败:', error);
-                            showNotification('收藏失败，请重试', 'error');
                         });
                 }
             });
@@ -371,7 +371,6 @@
 
                     // 模拟筛选结果
                     const filterText = this.textContent.trim();
-                    console.log('筛选:', filterText);
                 }, 500);
             });
         });
@@ -384,20 +383,215 @@
             });
         }
 
-        // 更多推荐按钮交互
-        const loadMoreButton = document.querySelector('.mt-10 button');
-        if (loadMoreButton) {
-            loadMoreButton.addEventListener('click', function () {
-                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 加载中...';
-                this.disabled = true;
+        // 无限滚动加载
+        let isLoading = false;
+        let page = 1;
+        let hasMoreContent = true;
 
-                // 模拟加载更多推荐
-                setTimeout(() => {
-                    this.innerHTML = '<span>查看更多推荐</span><i class="fa fa-chevron-down ml-2"></i>';
-                    this.disabled = false;
-                }, 1500);
+        function loadMorePlaces() {
+            if (isLoading || !hasMoreContent) return;
+
+            isLoading = true;
+            document.getElementById('loading-indicator').classList.remove('hidden');
+
+            fetch(`/couple/places/api/?page=${page}`, {
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    page++;
+                    isLoading = false;
+                    document.getElementById('loading-indicator').classList.add('hidden');
+
+                    if (data.success) {
+                        if (data.places.length === 0) {
+                            hasMoreContent = false;
+                            document.getElementById('no-more-content').classList.remove('hidden');
+                        } else {
+                            addPlacesToPage(data.places);
+
+                            // 检查是否还有更多数据
+                            if (!data.has_more) {
+                                hasMoreContent = false;
+                                document.getElementById('no-more-content').classList.remove('hidden');
+                            }
+                        }
+                    } else {
+                        console.error('API请求失败:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载失败:', error);
+                    isLoading = false;
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                });
+        }
+
+        function addPlacesToPage(places) {
+            const placesContainer = document.querySelector('.space-y-5');
+
+            places.forEach(place => {
+                // 创建地点卡片
+                const placeCard = document.createElement('div');
+                placeCard.className = 'bg-white rounded-xl shadow-custom overflow-hidden place-card animate-slide-up';
+                placeCard.innerHTML = `
+                    <div class="relative">
+                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-1"></i> ${place.place_type}
+                        </div>
+                        <div class="absolute top-3 right-3 bg-gradient-love rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
+                            <i class="fa fa-star mr-1"></i> ${place.rating}分
+                        </div>
+                        ${place.image_url ? `
+                        <img src="${place.image_url}" alt="${place.name}" class="w-full h-48 object-cover">
+                        ` : `
+                        <img src="https://picsum.photos/600/300?random=${place.id}" alt="${place.name}" class="w-full h-48 object-cover">
+                        `}
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg">${place.name}</h3>
+                        <div class="flex items-center mt-2">
+                            <div class="flex items-center text-amber-400">
+                                ${generateRatingStars(place.rating)}
+                                <span class="ml-1 text-neutral-600 text-sm">${place.rating} (${place.review_count})</span>
+                            </div>
+
+                        </div>
+                        <p class="text-neutral-600 text-sm mt-3">${place.description}</p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">${place.place_type}</span>
+                            <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">${place.price_range}</span>
+                            ${place.rating >= 4.8 ? `
+                            <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
+                            ` : ''}
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center">
+                                <span class="text-primary font-bold">${place.price_range}</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-4 py-2 bg-neutral-100 text-neutral-500 rounded-lg hover:bg-neutral-200 transition-custom flex items-center" data-place-id="${place.id}">
+                                    <i class="fa fa-heart-o mr-1"></i> 收藏
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // 添加到页面
+                placesContainer.appendChild(placeCard);
+
+                // 为新添加的卡片添加事件监听
+                const cardButton = placeCard.querySelector('button');
+                if (cardButton) {
+                    cardButton.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const placeId = this.getAttribute('data-place-id');
+                        const icon = this.querySelector('i');
+
+                        // 检查当前状态
+                        const isCollected = icon.classList.contains('fa-heart');
+
+                        if (isCollected) {
+                            // 取消收藏
+                            fetch('/user/api/collection/remove/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: `content_type=place&object_id=${placeId}`
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        icon.classList.remove('fa-heart');
+                                        icon.classList.add('fa-heart-o');
+                                        this.classList.remove('bg-primary');
+                                        this.classList.add('bg-neutral-100');
+                                        this.classList.add('text-neutral-500');
+                                        this.classList.remove('text-white');
+                                        this.innerHTML = '<i class="fa fa-heart-o mr-1"></i> 收藏';
+                                    } else {
+                                        console.error('取消收藏失败:', data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('取消收藏失败:', error);
+                                });
+                        } else {
+                            // 添加收藏
+                            fetch('/user/api/collection/add/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: `content_type=place&object_id=${placeId}`
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        icon.classList.remove('fa-heart-o');
+                                        icon.classList.add('fa-heart');
+                                        this.classList.add('bg-primary');
+                                        this.classList.remove('bg-neutral-100');
+                                        this.classList.remove('text-neutral-500');
+                                        this.classList.add('text-white');
+                                        this.innerHTML = '<i class="fa fa-heart mr-1"></i> 已收藏';
+                                    } else {
+                                        console.error('收藏失败:', data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('收藏失败:', error);
+                                });
+                        }
+                    });
+                }
             });
         }
+
+        function generateRatingStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) {
+                    stars += '<i class="fa fa-star"></i>';
+                } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+                    stars += '<i class="fa fa-star-half-o"></i>';
+                } else {
+                    stars += '<i class="fa fa-star-o"></i>';
+                }
+            }
+            return stars;
+        }
+
+        // 监听滚动事件
+        window.addEventListener('scroll', () => {
+            if (!hasMoreContent) return;
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+
+            // 当滚动到页面底部附近时加载更多
+            if (scrollTop + clientHeight >= scrollHeight - 500) {
+                loadMorePlaces();
+            }
+        });
 
         // 平滑滚动
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -428,6 +622,8 @@
             }
             return cookieValue;
         }
+
+
 
         // 响应式适配
         function handleResponsive() {

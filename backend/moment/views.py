@@ -384,7 +384,7 @@ def hot_moments_view(request):
     """热门动态页面"""
     # 计算热度分数：点赞数 * 1.0 + 评论数 * 0.5 + 收藏数 * 0.8
     # 只显示最近7天的动态
-    one_week_ago = timezone.now() - timezone.timedelta(days=7)
+    one_week_ago = timezone.now() - timezone.timedelta(days=30)
     
     hot_moments = Moment.objects.filter(
         created_at__gte=one_week_ago,

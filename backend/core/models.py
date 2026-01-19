@@ -17,21 +17,6 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
 
-# 关注关系模型
-class Follow(models.Model):
-    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
-    followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = '关注关系'
-        verbose_name_plural = '关注关系'
-        unique_together = ('follower', 'followed')
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f'{self.follower.username} 关注了 {self.followed.username}'
-
 
 GENDER_CHOICES = [
     ('female', '女'),

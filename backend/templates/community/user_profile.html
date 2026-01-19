@@ -182,8 +182,7 @@
                     <!-- 关注按钮 -->
                     {% if target_user != request.user %}
                     <button id="followButton"
-                        class="inline-flex items-center px-6 py-2 rounded-lg transition-all duration-300"
-                        onclick="toggleFollow({{ target_user.id }}, this)">
+                        class="inline-flex items-center px-6 py-2 rounded-lg transition-all duration-300"onclick="toggleFollow({{ target_user.id }}, this)">
                         {% if is_following %}
                         <i class="fa-solid fa-check mr-2"></i> 已关注
                         {% else %}

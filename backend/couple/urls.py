@@ -5,7 +5,8 @@ from .views import (
     couple_view, invite_partner_view, 
     love_story_view, couple_test_view, couple_places_view, 
     couple_recommendation_view, couple_history_view, delete_couple_history,
-    accept_request, reject_request, cancel_request, breakup, couple_settings
+    accept_request, reject_request, cancel_request, breakup, couple_settings,
+    couple_places_api
 )
 
 app_name = 'couple'
@@ -28,6 +29,7 @@ web_urlpatterns = [
     path('love-story/', love_story_view, name='love_story'),
     path('test/', couple_test_view, name='couple_test'),
     path('places/', couple_places_view, name='couple_places'),
+    path('places/api/', couple_places_api, name='couple_places_api'),
     path('recommendation/', couple_recommendation_view, name='couple_recommendation'),
     path('history/', couple_history_view, name='couple_history'),
     path('history/delete/<int:history_id>/', delete_couple_history, name='delete_couple_history'),

@@ -597,11 +597,16 @@
                 {% endif %}
             </div>
 
-            <!-- 加载更多按钮 -->
-            <div class="mt-12 text-center">
-                <button class="px-8 py-3 bg-white border border-primary text-primary rounded-full load-more-btn">
-                    加载更多照片 <i class="fa-solid fa-chevron-down ml-2"></i>
-                </button>
+            <!-- 加载中指示器 -->
+            <div id="loading-indicator" class="mt-8 text-center hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                <p class="mt-2 text-neutral-500 text-sm">加载更多照片...</p>
+            </div>
+
+            <!-- 没有更多内容提示 -->
+            <div id="no-more-content" class="mt-8 text-center hidden">
+                <i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i>
+                <p class="text-neutral-500 text-sm">已经到底啦，没有更多照片了</p>
             </div>
         </div>
     </div>
@@ -1048,6 +1053,130 @@
                 this.querySelector('.delete-btn').classList.remove('scale-100');
                 this.querySelector('.delete-btn').classList.add('scale-0');
             });
+        });
+
+        // 加载更多照片功能
+        let isLoading = false;
+        let page = 2;
+        let hasMorePhotos = true;
+
+        function loadMorePhotos() {
+            if (isLoading || !hasMorePhotos) return;
+
+            isLoading = true;
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.classList.remove('hidden');
+            }
+
+            fetch(`/photo/album/api/?page=${page}`, {
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    page++;
+                    isLoading = false;
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+
+                    if (data.success) {
+                        if (data.photos.length === 0) {
+                            hasMorePhotos = false;
+                            const noMoreContent = document.getElementById('no-more-content');
+                            if (noMoreContent) {
+                                noMoreContent.classList.remove('hidden');
+                            }
+                        } else {
+                            addPhotosToPage(data.photos);
+
+                            // 检查是否还有更多数据
+                            if (!data.has_more) {
+                                hasMorePhotos = false;
+                                const noMoreContent = document.getElementById('no-more-content');
+                                if (noMoreContent) {
+                                    noMoreContent.classList.remove('hidden');
+                                }
+                            }
+                        }
+                    } else {
+                        console.error('API请求失败:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载失败:', error);
+                    isLoading = false;
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
+        }
+        function addPhotosToPage(photos) {
+            const photosContainer = document.querySelector('.photo-grid');
+            if (!photosContainer) {
+                console.error('照片网格容器不存在');
+                return;
+            }
+
+            photos.forEach(photo => {
+                // 创建照片项
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item group relative overflow-hidden rounded-xl shadow-md';
+                photoItem.innerHTML = `
+                    <img src="${photo.image_url}" alt="${photo.title}" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="photo-overlay">
+                        <h4 class="text-white font-medium">${photo.title}</h4>
+                        <p class="text-white/80 text-sm">${photo.created_at}</p>
+                    </div>
+                    <button class="delete-btn absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center transform scale-0 transition-transform duration-300" data-photo-id="${photo.id}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+
+                // 添加到页面
+                photosContainer.appendChild(photoItem);
+
+                // 为新添加的照片项添加事件监听
+                photoItem.addEventListener('click', function (e) {
+                    if (e.target.closest('button')) return;
+
+                    // 这里可以添加查看照片的逻辑
+                });
+
+                // 为删除按钮添加事件监听
+                const deleteBtn = photoItem.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', function () {
+                    currentPhotoId = this.getAttribute('data-photo-id');
+                    currentPhotoItem = this.closest('.photo-item');
+
+                    // 显示确认弹窗
+                    deleteModal.classList.remove('opacity-0', 'pointer-events-none');
+                    deleteModal.querySelector('.bg-white').classList.remove('scale-95');
+                    deleteModal.querySelector('.bg-white').classList.add('scale-100');
+                });
+            });
+        }
+
+        // 无限滚动加载
+        window.addEventListener('scroll', () => {
+            if (!hasMorePhotos) return;
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+
+            // 当滚动到页面底部附近时加载更多
+            if (scrollTop + clientHeight >= scrollHeight - 500) {
+                loadMorePhotos();
+            }
         });
 
         // 上传表单提交
