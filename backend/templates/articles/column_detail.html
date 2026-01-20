@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 pt-24 pb-16">
+    <!-- 顶部头图 -->
+    {% if column.cover_image %}
+    <img src="{{ column.cover_image.url }}" alt="{{ column.name }}" class="w-full h-48 object-cover rounded-xl mb-5">
+    {% else %}
+    <div class="w-full h-48 bg-neutral-100 rounded-xl mb-5 flex items-center justify-center">
+        <i class="fa-solid fa-newspaper text-5xl text-neutral-400"></i>
+    </div>
+    {% endif %}
+
+    <!-- 专栏信息栏 -->
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+        <h1 class="text-xl font-bold text-neutral-800">{{ column.name }}</h1>
+
+        <!-- 订阅/取消订阅按钮 -->
+        <button id="subscribe-btn"
+            class="px-3 py-1 rounded-full text-sm {% if column.is_subscribed %}bg-neutral-100 text-neutral-600 hover:bg-neutral-200{% else %}bg-primary text-white hover:bg-primary/90{% endif %} transition-colors"
+            data-column-id="{{ column.id }}">
+            {% if column.is_subscribed %}取消订阅{% else %}订阅{% endif %}
+        </button>
+
+        <!-- 内容总数 -->
+        <span class="text-neutral-500 text-sm">共{{ articles.count }}篇内容</span>
+
+        <!-- 订阅人数 -->
+        <span class="text-neutral-500 text-sm" id="subscriber-count">{{ column.subscriber_count }}人订阅</span>
+    </div>
+
+    <!-- 专栏简介 -->
+    {% if column.description %}
+    <p class="text-neutral-600 mb-6">{{ column.description }}</p>
+    {% endif %}
+
+    <!-- 文章列表容器 -->
+    <div class="space-y-4 mt-6" id="article-list">
+        {% for article in articles %}
+        <div class="bg-white rounded-xl border border-neutral-200 p-4 hover:shadow-sm transition-shadow cursor-pointer"onclick="window.location.href='{% url 'article_detail' article.id %}'">
+            <!-- 文章标题 -->
+            <h3 class="font-semibold text-neutral-800 hover:text-primary transition-colors mb-1">{{ article.title }}
+            </h3>
+
+            <!-- 文章摘要 -->
+            <p class="text-sm text-neutral-500 line-clamp-2 mb-3">{{ article.content|striptags|truncatechars:100 }}</p>
+
+            <!-- 底部信息栏 -->
+            <div class="flex items-center justify-between text-xs text-neutral-400">
+                <span>{{ article.published_at|date:"Y-m-d H:i" }}</span>
+                <div class="flex items-center gap-3">
+                    <span><i class="fa-solid fa-eye mr-1"></i>{{ article.view_count }}</span>
+                    <span><i class="fa-solid fa-thumbs-up mr-1"></i>{{ article.like_count }}</span>
+                    <span><i class="fa-solid fa-comment mr-1"></i>{{ article.comment_count }}</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- 空状态 -->
+        <div class="text-center text-neutral-500 py-8">
+            该专栏暂无内容，敬请期待～
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 无限加载提示 -->
+    <div id="load-more" class="text-center text-neutral-500 py-4 hidden">
+        加载中...
+    </div>
+</div>
+
+<script>
+    // 订阅/取消订阅
+    document.getElementById('subscribe-btn').addEventListener('click', async function () {
+        const columnId = this.getAttribute('data-column-id');
+        const button = this;
+        const subscriberCountElement = document.getElementById('subscriber-count');
+
+        try {
+            const response = await fetch(`/api/articles/columns/${columnId}/subscribe/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // 更新按钮状态
+                if (data.is_subscribed) {
+                    button.textContent = '取消订阅';
+                    button.className = 'px-3 py-1 rounded-full text-sm bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors';
+                } else {
+                    button.textContent = '订阅';
+                    button.className = 'px-3 py-1 rounded-full text-sm bg-primary text-white hover:bg-primary/90 transition-colors';
+                }
+                // 更新订阅人数
+                subscriberCountElement.textContent = `${data.subscriber_count}人订阅`;
+            }
+        } catch (error) {
+            console.error('订阅失败:', error);
+        }
+    });
+
+    // 获取CSRF令牌
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // 无限滚动加载
+    let page = 1;
+    let isLoading = false;
+
+    window.addEventListener('scroll', () => {
+        if (isLoading) return;
+
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+            loadMoreArticles();
+        }
+    });
+
+    async function loadMoreArticles() {
+        isLoading = true;
+        document.getElementById('load-more').classList.remove('hidden');
+
+        try {
+            const response = await fetch(`/api/articles/articles/by_column/?column_id={{ column.id }}&page=${page + 1}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.length > 0) {
+                    page++;
+                    const articleList = document.getElementById('article-list');
+                    // 渲染新文章
+                    // ...
+                } else {
+                    // 无更多数据
+                    document.getElementById('load-more').textContent = '已加载全部内容';
+                }
+            }
+        } catch (error) {
+            console.error('加载失败:', error);
+            document.getElementById('load-more').textContent = '加载失败，点击重试';
+            document.getElementById('load-more').addEventListener('click', loadMoreArticles);
+        } finally {
+            isLoading = false;
+        }
+    }
+</script>
+{% endblock %}

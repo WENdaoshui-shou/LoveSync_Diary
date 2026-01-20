@@ -1252,6 +1252,32 @@
             });
         });
 
+        // 评论输入框回车事件
+        document.querySelectorAll('textarea[data-note-id]').forEach(textarea => {
+            textarea.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const noteId = this.getAttribute('data-note-id');
+                    const submitBtn = this.closest('.comment-section').querySelector('.comment-submit');
+                    if (submitBtn) {
+                        submitBtn.click();
+                    }
+                }
+            });
+        });
+
+        // 回复输入框回车事件
+        document.querySelectorAll('textarea[data-comment-id]').forEach(textarea => {
+            textarea.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const submitBtn = this.closest('.reply-input').querySelector('.reply-submit');
+                    if (submitBtn) {
+                        submitBtn.click();
+                    }
+                }
+            });
+        });
 
     });
 </script>

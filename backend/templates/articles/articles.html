@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 pt-24 pb-16">
+    <!-- 顶部专栏模块展示 -->
+    <div class="bg-white rounded-xl border border-neutral-200 p-6 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {% for column in columns %}
+            <a href="{% url 'column_detail' column.slug %}"
+                class="block bg-neutral-50 rounded-lg p-3 hover:bg-neutral-100 transition-colors border border-neutral-200">
+                <div class="flex flex-col items-center text-center">
+                    {% if column.cover_image %}
+                    <img src="{{ column.cover_image.url }}" alt="{{ column.name }}"
+                        class="w-16 h-16 object-cover rounded-md mb-2">
+                    {% else %}
+                    <div class="w-16 h-16 bg-primary/10 rounded-md mb-2 flex items-center justify-center">
+                        <i class="fa-solid fa-book text-primary text-xl"></i>
+                    </div>
+                    {% endif %}
+                    <h3 class="font-medium text-sm text-neutral-800 mb-1">{{ column.name }}</h3>
+                    <span class="text-xs text-neutral-500">{{ column.articles.count }}篇文章</span>
+                </div>
+            </a>
+            {% empty %}
+            <div class="col-span-full text-center text-neutral-500 py-4">
+                暂无专栏模块
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 所有文章列表 -->
+    <div class="bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="space-y-6" id="article-list">
+            {% for article in articles %}
+            <div class="border border-neutral-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                <!-- 文章标题和分类 -->
+                <div class="mb-3">
+                    <!-- 文章标题 -->
+                    <h3 class="font-semibold text-lg text-neutral-800 mb-2">
+                        <a href="{% url 'article_detail' article.id %}" class="hover:text-primary transition-colors">
+                            {{ article.title }}
+                        </a>
+                    </h3>
+                </div>
+
+                <!-- 文章内容预览 -->
+                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                    <!-- 左侧内容 -->
+                    <div class="flex-1">
+                        <a href="{% url 'article_detail' article.id %}"
+                            class="block hover:text-primary transition-colors">
+                            <p class="text-neutral-600 line-clamp-3 mb-4">
+                                {{ article.content|striptags }}
+                            </p>
+                        </a>
+
+                        <!-- 专栏信息 -->
+                        <div class="flex items-center text-sm text-neutral-500 mb-3 space-x-2">
+                            <a href="{% url 'column_detail' article.column.slug %}"
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs"style="background-color: {% if article.column.category == 'love_growth' %}#4F46E5{% elif article.column.category == 'diary_inspiration' %}#10B981{% elif article.column.category == 'festival_special' %}#F59E0B{% elif article.column.category == 'platform_activity' %}#EF4444{% else %}#6B7280{% endif %}; color: white; transition: all 0.2s ease;">
+                                {{ article.column.name }}
+                            </a>
+                            <span class="flex items-center text-neutral-500">
+                                <i class="fa-solid fa-calendar-alt text-xs mr-1"></i>
+                                {{ article.published_at|date:"Y-m-d" }}
+                            </span>
+                        </div>
+
+
+                        <!-- 底部信息栏 -->
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-neutral-500 flex items-center">
+                                    <i class="fa-solid fa-eye mr-1"></i> {{ article.view_count }}
+                                </span>
+                                <button class="text-neutral-500 hover:text-primary transition-colors like-btn"
+                                    data-article-id="{{ article.id }}">
+                                    <i class="fa-regular fa-heart mr-1"></i> {{ article.like_count }}
+                                </button>
+                                <span class="text-neutral-500 flex items-center">
+                                    <i class="fa-regular fa-comment mr-1"></i> {{ article.comment_count }}
+                                </span>
+                            </div>
+                            <a href="{% url 'article_detail' article.id %}"
+                                class="text-primary hover:underline flex items-center">
+                                阅读更多 <i class="fa-solid fa-angle-right ml-1"></i>
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <!-- 右侧图片 -->
+                    <div class="w-full md:w-1/4">
+                        <a href="{% url 'article_detail' article.id %}" class="block">
+                            {% if article.cover_image %}
+                            <img src="{{ article.cover_image.url }}" alt="{{ article.title }}"
+                                class="w-full h-32 object-cover rounded-lg hover:opacity-90 transition-opacity">
+                            {% else %}
+                            <div
+                                class="w-full h-32 bg-neutral-100 rounded-lg flex items-center justify-center hover:bg-neutral-200 transition-colors">
+                                <i class="fa-solid fa-file-text text-2xl text-neutral-400"></i>
+                            </div>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- 空状态 -->
+            <div class="text-center text-neutral-500 py-8">
+                暂无该分类下的文章
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 无限加载提示 -->
+        <div id="load-more" class="mt-8 text-center hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary">
+            </div>
+            <p class="mt-2 text-neutral-500 text-sm">加载更多文章...</p>
+        </div>
+
+        <!-- 没有更多内容提示 -->
+        <div id="no-more-content" class="mt-8 text-center hidden">
+            <i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i>
+            <p class="text-neutral-500 text-sm">已经到底啦，没有更多文章了</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 无限滚动加载
+    let page = 1;
+    let isLoading = false;
+    let noMoreData = false;
+
+    window.addEventListener('scroll', () => {
+        if (isLoading || noMoreData) return;
+
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+            loadMoreArticles();
+        }
+    });
+
+    async function loadMoreArticles() {
+        isLoading = true;
+        document.getElementById('load-more').classList.remove('hidden');
+        document.getElementById('no-more-content').classList.add('hidden');
+
+        try {
+            const response = await fetch(`/api/articles/articles/infinite_load/?page=${page + 1}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.articles.length > 0) {
+                    page++;
+                    const articleList = document.getElementById('article-list');
+                    // 渲染新文章
+                    data.articles.forEach(article => {
+                        const articleElement = document.createElement('div');
+                        articleElement.className = 'border border-neutral-200 rounded-lg p-5 hover:shadow-md transition-shadow';
+
+                        let categoryColor = '#6B7280';
+                        if (article.column.category === 'love_growth') categoryColor = '#4F46E5';
+                        else if (article.column.category === 'diary_inspiration') categoryColor = '#10B981';
+                        else if (article.column.category === 'festival_special') categoryColor = '#F59E0B';
+                        else if (article.column.category === 'platform_activity') categoryColor = '#EF4444';
+
+                        articleElement.innerHTML = `
+                            <!-- 文章标题和分类 -->
+                            <div class="mb-3">
+                                <!-- 文章标题 -->
+                                <h3 class="font-semibold text-lg text-neutral-800 mb-2">
+                                    <a href="/articles/official/article/${article.id}/" class="hover:text-primary transition-colors">
+                                        ${article.title}
+                                    </a>
+                                </h3>
+                            </div>
+
+                            <!-- 文章内容预览 -->
+                            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                                <!-- 左侧内容 -->
+                                <div class="flex-1">
+                                    <a href="/articles/official/article/${article.id}/"
+                                        class="block hover:text-primary transition-colors">
+                                        <p class="text-neutral-600 line-clamp-3 mb-4">
+                                            ${article.content.replace(/<[^>]*>/g, '')}
+                                        </p>
+                                    </a>
+
+                                    <!-- 专栏信息 -->
+                                    <div class="flex items-center text-sm text-neutral-500 mb-3 space-x-2">
+                                        <a href="/articles/official/${article.column.slug}/"
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs"
+                                            style="background-color: ${categoryColor}; color: white; transition: all 0.2s ease;">
+                                            ${article.column.name}
+                                        </a>
+                                        <span class="flex items-center text-neutral-500">
+                                            <i class="fa-solid fa-calendar-alt text-xs mr-1"></i>
+                                            ${new Date(article.published_at).toISOString().split('T')[0]}
+                                        </span>
+                                    </div>
+
+                                    <!-- 底部信息栏 -->
+                                    <div class="flex items-center justify-between text-sm">
+                                        <div class="flex items-center space-x-4">
+                                            <span class="text-neutral-500 flex items-center">
+                                                <i class="fa-solid fa-eye mr-1"></i> ${article.view_count}
+                                            </span>
+                                            <button class="text-neutral-500 hover:text-primary transition-colors like-btn" data-article-id="${article.id}">
+                                                <i class="fa-regular fa-heart mr-1"></i> ${article.like_count}
+                                            </button>
+                                            <span class="text-neutral-500 flex items-center">
+                                                <i class="fa-regular fa-comment mr-1"></i> ${article.comment_count}
+                                            </span>
+                                        </div>
+                                        <a href="/articles/official/article/${article.id}/"
+                                            class="text-primary hover:underline flex items-center">
+                                            阅读更多 <i class="fa-solid fa-angle-right ml-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- 右侧图片 -->
+                                <div class="w-full md:w-1/4">
+                                    <a href="/articles/official/article/${article.id}/" class="block">
+                                        ${article.cover_image ? `
+                                            <img src="${article.cover_image}" alt="${article.title}"
+                                                class="w-full h-32 object-cover rounded-lg hover:opacity-90 transition-opacity">
+                                        ` : `
+                                            <div
+                                                class="w-full h-32 bg-neutral-100 rounded-lg flex items-center justify-center hover:bg-neutral-200 transition-colors">
+                                                <i class="fa-solid fa-file-text text-2xl text-neutral-400"></i>
+                                            </div>
+                                        `}
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+
+                        articleList.appendChild(articleElement);
+                    });
+
+                    // Re-initialize like buttons for newly added articles
+                    initLikeButtons();
+
+                    // 检查是否还有更多数据
+                    if (!data.has_more) {
+                        noMoreData = true;
+                        document.getElementById('load-more').classList.add('hidden');
+                        document.getElementById('no-more-content').classList.remove('hidden');
+                    } else {
+                        document.getElementById('load-more').classList.add('hidden');
+                    }
+                } else {
+                    noMoreData = true;
+                    document.getElementById('load-more').classList.add('hidden');
+                    document.getElementById('no-more-content').classList.remove('hidden');
+                }
+            } else {
+                console.error('加载失败:', response.status);
+                document.getElementById('load-more').innerHTML = '<p class="text-neutral-500">加载失败，点击重试</p>';
+                document.getElementById('load-more').addEventListener('click', loadMoreArticles);
+            }
+        } catch (error) {
+            console.error('加载失败:', error);
+            document.getElementById('load-more').innerHTML = '<p class="text-neutral-500">加载失败，点击重试</p>';
+            document.getElementById('load-more').addEventListener('click', loadMoreArticles);
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    // Like button functionality
+    function initLikeButtons() {
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const button = this;
+                const articleId = button.getAttribute('data-article-id');
+                const icon = button.querySelector('i');
+                const countText = button.textContent.trim();
+                const currentCount = parseInt(countText.split(' ')[1]) || 0;
+
+                try {
+                    const response = await fetch('/api/articles/likes/toggle_like/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            article_id: articleId
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const newCount = parseInt(data.like_count) || 0;
+
+                        // Update the like count
+                        button.innerHTML = '';
+                        const newIcon = document.createElement('i');
+                        const newSpan = document.createElement('span');
+
+                        if (data.is_liked) {
+                            newIcon.className = 'fa-solid fa-heart text-primary like-animation mr-1';
+                        } else {
+                            newIcon.className = 'fa-regular fa-heart mr-1';
+                        }
+
+                        newSpan.textContent = newCount;
+                        button.appendChild(newIcon);
+                        button.appendChild(newSpan);
+                    }
+                } catch (error) {
+                    console.error('Like failed:', error);
+                }
+            });
+        });
+    }
+
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Initialize like buttons when page loads
+    document.addEventListener('DOMContentLoaded', initLikeButtons);
+</script>
+{% endblock %}

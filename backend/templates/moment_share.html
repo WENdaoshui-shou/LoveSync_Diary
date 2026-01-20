@@ -175,5 +175,18 @@
     document.getElementById('back-button').addEventListener('click', function () {
         window.location.href = '/community/';
     });
+
+    // 评论输入框回车发布功能
+    document.querySelectorAll('.comment-input').forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const submitBtn = this.closest('.flex').querySelector('.comment-submit');
+                if (submitBtn) {
+                    submitBtn.click();
+                }
+            }
+        });
+    });
 </script>
 {% endblock %}

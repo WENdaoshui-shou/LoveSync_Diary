@@ -130,6 +130,9 @@
         // 初始滚动到底部
         scrollToBottom();
 
+        // 表单提交处理
+        const replyForm = document.getElementById('replyForm');
+
         // 监听输入框变化，自动调整高度
         const messageInput = document.getElementById('messageInput');
         if (messageInput) {
@@ -143,10 +146,18 @@
                 const newHeight = Math.min(this.scrollHeight, 120);
                 this.style.height = `${newHeight}px`;
             });
+
+            // 回车发送消息
+            messageInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (replyForm) {
+                        replyForm.dispatchEvent(new Event('submit'));
+                    }
+                }
+            });
         }
 
-        // 表单提交处理
-        const replyForm = document.getElementById('replyForm');
         if (replyForm) {
             replyForm.addEventListener('submit', function (e) {
                 e.preventDefault();

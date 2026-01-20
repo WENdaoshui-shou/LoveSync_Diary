@@ -1,17 +1,15 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# 加载环境变量
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-4-d)(2%**9snt1r8m&z3)ds955jsptqd+##9=95us9-xb8ur##'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '*'
@@ -43,8 +41,9 @@ INSTALLED_APPS = [
     'collab',
     'game',
     'vip',
-    'message',  # 消息功能模块
-    'user',  # 用户功能模块
+    'message',
+    'user',
+    'articles',
     # 其他应用
     'channels',
     'AI',
@@ -154,7 +153,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'vip.middleware.VIPStatusCheckMiddleware',  # VIP状态检查中间件
+    'vip.middleware.VIPStatusCheckMiddleware', 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -202,7 +201,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/0",  # Redis地址和数据库编号
+        "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -289,13 +288,8 @@ VERIFY_CODE_EXPIRE = 60
 # 大模型API配置
 
 
-# 安全密钥
-SECRET_AI_KEY = os.getenv('SECRET_AI_KEY', 'django-insecure-default-key-for-development-only')
 
 
-DASHSCOPE_API_KEY = os.getenv('DASHSCOPE_API_KEY', 'sk-5971dcbc1e464ee1b5b3f41bc80be961')  # 阿里云百炼API密钥
-DASHSCOPE_BASE_URL = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
-DASHSCOPE_MODEL = os.getenv('DASHSCOPE_MODEL', 'qwen-plus')  # 使用的模型名称
 
 # 会话配置
 # 使用Redis存储session
@@ -303,3 +297,16 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 3600 * 24  # 会话有效期24小时
 SESSION_COOKIE_SAMESITE = 'Lax'  # 确保消息在重定向过程中不会丢失
+
+# 阿里云 OSS 存储配置
+if not DEBUG:  # 仅在生产环境使用 OSS
+    DEFAULT_FILE_STORAGE = 'core.storage.AliyunOSSStorage'
+    STATICFILES_STORAGE = 'core.storage.AliyunOSSStorage'
+    
+    # OSS URL 配置
+    ALIYUN_OSS_BUCKET_NAME = os.environ.get('ALIYUN_OSS_BUCKET_NAME', 'wendaoshuishou')
+    ALIYUN_OSS_ENDPOINT = os.environ.get('ALIYUN_OSS_ENDPOINT', 'oss-cn-chengdu.aliyuncs.com')
+    
+    # 使用 OSS 域名作为媒体文件和静态文件的基础 URL
+    MEDIA_URL = f'https://{ALIYUN_OSS_BUCKET_NAME}.{ALIYUN_OSS_ENDPOINT}/'
+    STATIC_URL = f'https://{ALIYUN_OSS_BUCKET_NAME}.{ALIYUN_OSS_ENDPOINT}/'

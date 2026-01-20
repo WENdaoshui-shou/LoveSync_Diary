@@ -6,18 +6,22 @@ from django.http import JsonResponse
 from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from django.utils import timezone  # 导入Django时间工具
+from django.utils import timezone
 from openai import OpenAI, APIError, AuthenticationError, RateLimitError
 import time
 from .PROMPT import *
-
-# 引入模型
 from .models import ChatSession, ChatMessage
+import configparser
 
-# 阿里云百炼API配置（修正模型定义）
-DASHSCOPE_API_KEY = "sk-5971dcbc1e464ee1b5b3f41bc80be961"
-DASHSCOPE_BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1'
-DASHSCOPE_MODEL = 'qwen-plus'  # 修正：移除错误的元组格式
+config = configparser.ConfigParser()
+config_path = os.path.join(os.path.dirname(__file__), '..', 'config.ini')
+config.read(config_path, encoding="utf-8")
+
+
+# 阿里云百炼API配置
+DASHSCOPE_API_KEY = config.get("AI", "DASHSCOPE_API_KEY")
+DASHSCOPE_BASE_URL = config.get("AI", "DASHSCOPE_BASE_URL")
+DASHSCOPE_MODEL = config.get("AI", "DASHSCOPE_MODEL")  
 
 # 会话配置
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'

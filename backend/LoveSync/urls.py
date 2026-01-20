@@ -83,6 +83,7 @@ api_urlpatterns = [
     path('api/photo/', include('photo.urls', namespace='photo_api')),
     path('api/note/', include('note.urls', namespace='note_api')),
     path('api/game/', include('game.urls', namespace='game_api')),
+    path('api/articles/', include('articles.urls')),
 ]
 
 # Web视图路由 - 单独定义，使用不同的命名空间
@@ -96,6 +97,7 @@ web_urlpatterns = [
     path('game/', include('game.urls', namespace='game_web')),
     path('vip/', include('vip.urls', namespace='vip_web')),
     path('user/', include('user.urls', namespace='user')),
+    path('articles/', include('articles.urls')),
 ]
 
 # 将API路由和Web视图路由添加到主URL列表中

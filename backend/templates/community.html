@@ -210,11 +210,6 @@
                 <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>排行</span>
             </a>
-            <a href="#"
-                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-                <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i>
-                <span>订阅</span>
-            </a>
             <a href="{% url 'core:following_list' %}"
                 class="flex items-center justify-between text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <div class="flex items-center space-x-3">
@@ -232,6 +227,11 @@
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>历史</span>
+            </a>
+            <a href="{% url 'articles' %}"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+                <i class="fa-solid fa-book-open w-5 text-center group-hover:scale-110 transition-transform"></i>
+                <span>官方专栏</span>
             </a>
             <a href="{% url 'vip_web:index' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
@@ -397,6 +397,10 @@
                                     <i class="fa-regular fa-comment"></i>
                                     <span>{{ moment.comments }}</span>
                                 </button>
+                                <div class="flex items-center space-x-1 text-neutral-500">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>{{ moment.view_count }}</span>
+                                </div>
                             </div>
                             <button
                                 class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom share-btn"
@@ -1762,6 +1766,28 @@
             });
         }
 
+        // 添加回复输入框回车事件监听
+        const replyTextarea = div.querySelector('.reply-textarea');
+        if (replyTextarea) {
+            replyTextarea.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const content = this.value.trim();
+                    if (!content) return;
+
+                    const postCard = div.closest('.post-card');
+                    const momentId = postCard.getAttribute('data-moment-id');
+                    const parentId = comment.id;
+
+                    submitReply(momentId, parentId, content, postCard);
+
+                    // 清空并隐藏回复输入框
+                    this.value = '';
+                    div.querySelector('.reply-input-container').classList.add('hidden');
+                }
+            });
+        }
+
         // 添加回复点赞事件监听
         const replyLikeBtns = div.querySelectorAll('.reply-like-btn');
         replyLikeBtns.forEach(btn => {
@@ -1912,7 +1938,7 @@
         loading = true;
         document.getElementById('loading-indicator').classList.remove('hidden');
 
-        // 实际API请求
+        // 实加载更多
         fetch(`/moment/load-more/?page=${page}`)
             .then(response => response.json())
             .then(data => {

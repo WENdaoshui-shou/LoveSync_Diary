@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 pt-24 pb-16">
+    <!-- 文章标题 -->
+    <h1 class="text-2xl font-bold text-neutral-800 mb-3">{{ article.title }}</h1>
+
+    <!-- 发布信息栏 -->
+    <div class="flex flex-wrap items-center gap-3 text-sm text-neutral-500 mb-5">
+        <!-- 分类标签 -->
+        <span class="inline-block px-2 py-0.5 rounded text-xs"
+            style="background-color: {% if article.column.category == 'love_growth' %}#4F46E5{% elif article.column.category == 'diary_inspiration' %}#10B981{% elif article.column.category == 'festival_special' %}#F59E0B{% elif article.column.category == 'platform_activity' %}#EF4444{% else %}#6B7280{% endif %}; color: white;">
+            {{ article.column.get_category_display }}
+        </span>
+
+        <!-- 发布时间 -->
+        <span>{{ article.published_at|date:"Y-m-d H:i" }}</span>
+
+        <!-- 浏览量 -->
+        <span><i class="fa-solid fa-eye mr-1"></i>{{ article.view_count }}</span>
+
+        <!-- 点赞按钮 -->
+        <button class="flex items-center gap-1 cursor-pointer text-neutral-500 hover:text-primary transition-colors"
+            id="like-btn" data-content-type-id="{{ content_type_id }}" data-object-id="{{ article.id }}">
+            <i
+                class="fa-{% if article.is_liked %}solid{% else %}regular{% endif %} fa-heart {% if article.is_liked %}text-primary{% else %}text-neutral-400{% endif %}"></i>
+            <span id="like-count">{{ article.like_count }}</span>
+        </button>
+
+        <!-- 评论入口 -->
+        <button class="flex items-center gap-1 cursor-pointer text-neutral-500 hover:text-primary transition-colors"
+            id="comment-btn">
+            <i class="fa-regular fa-comment"></i>
+            <span id="comment-count">{{ article.comment_count }}</span>
+        </button>
+    </div>
+
+    <!-- 文章封面图 -->
+    {% if article.cover_image %}
+    <img src="{{ article.cover_image.url }}" alt="{{ article.title }}" class="w-full h-64 object-cover rounded-lg mb-6">
+    {% endif %}
+
+    <!-- 文章正文 -->
+    <div class="prose max-w-none text-neutral-700 mb-8">
+        {{ article.content|safe }}
+    </div>
+
+
+
+    <!-- 评论区 -->
+    <div id="comment-section" class="mt-8 border-t border-neutral-200 pt-6">
+        <h3 class="text-lg font-bold text-neutral-800 mb-4">评论</h3>
+
+        <!-- 评论输入框 -->
+        <textarea class="w-full border border-neutral-200 rounded-lg p-3 mb-4 resize-none" id="comment-content"
+            placeholder="分享你的想法..."></textarea>
+
+        <!-- 发布按钮 -->
+        <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+            id="submit-comment">发布评论</button>
+
+        <!-- 评论列表容器 -->
+        <div class="space-y-4 mt-6" id="comment-list">
+            <!-- 评论将通过JavaScript加载 -->
+        </div>
+    </div>
+
+    <!-- 相关推荐 -->
+    {% if related_articles %}
+    <div class="mt-10 border-t border-neutral-200 pt-6">
+        <h3 class="text-lg font-bold text-neutral-800 mb-4">相关推荐</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for related_article in related_articles %}
+            <div class="bg-white rounded-xl border border-neutral-200 p-3 hover:shadow-sm transition-shadow cursor-pointer"onclick="window.location.href='{% url 'article_detail' related_article.id %}'">
+                {% if related_article.cover_image %}
+                <img src="{{ related_article.cover_image.url }}" alt="{{ related_article.title }}"
+                    class="w-full h-24 object-cover rounded-lg mb-2">
+                {% else %}
+                <div class="w-full h-24 bg-neutral-100 rounded-lg mb-2 flex items-center justify-center">
+                    <i class="fa-solid fa-file-text text-2xl text-neutral-400"></i>
+                </div>
+                {% endif %}
+                <h4 class="text-sm font-medium line-clamp-2">{{ related_article.title }}</h4>
+                <p class="text-xs text-neutral-400 mt-1">{{ related_article.published_at|date:"Y-m-d" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+<script>
+    // 获取内容类型ID（文章）
+    const contentTypeId = "{{ content_type_id }}";
+
+    // 全局变量
+    const articleId = "{{ article.id }}";
+
+    // 点赞功能
+    document.getElementById('like-btn')?.addEventListener('click', async function () {
+        const button = this;
+        const likeCountElement = document.getElementById('like-count');
+
+        if (!likeCountElement) {
+            console.error('点赞数元素不存在');
+            return;
+        }
+        try {
+            const response = await fetch('/api/articles/likes/toggle_like/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    article: "{{ article.id }}"
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                likeCountElement.textContent = parseInt(data.like_count) || 0;
+                const icon = button.querySelector('i');
+                if (data.is_liked) {
+                    icon.className = 'fa-solid fa-heart text-primary like-animation';
+                } else {
+                    icon.className = 'fa-regular fa-heart text-neutral-400'; 
+                }
+            } else {
+                const error = await response.json();
+                console.error('点赞接口返回错误:', error);
+                alert('点赞失败：' + (error.message || '服务器异常'));
+            }
+        } catch (error) {
+            console.error('点赞失败:', error);
+            alert('点赞失败，请稍后重试');
+        }
+    });
+
+    // 评论按钮点击事件
+    document.getElementById('comment-btn')?.addEventListener('click', function () {
+        const commentSection = document.getElementById('comment-section');
+        if (commentSection) {
+            commentSection.scrollIntoView({ behavior: 'smooth' });
+            // 自动聚焦到评论输入框
+            const commentInput = document.getElementById('comment-content');
+            if (commentInput) {
+                commentInput.focus();
+            }
+        }
+    });
+
+    // 发布评论
+    document.getElementById('submit-comment')?.addEventListener('click', async function () {
+        const contentInput = document.getElementById('comment-content');
+        const content = contentInput?.value.trim() || '';
+        if (!contentInput) {
+            console.error('评论输入框不存在');
+            return;
+        }
+        try {
+
+            const response = await fetch('/api/articles/comments/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    "article": articleId,
+                    "content": content
+                })
+            });
+            if (response.ok) {
+                // 清空输入框
+                contentInput.value = '';
+                // 刷新评论列表
+                loadComments();
+                // 更新评论数
+                const commentCountElement = document.getElementById('comment-count');
+                if (commentCountElement) {
+                    commentCountElement.textContent = parseInt(commentCountElement.textContent || 0) + 1;
+                }
+
+            } else {
+                const error = await response.json();
+                console.error('发布评论接口返回错误:', error);
+                alert('发布评论失败：' + (error.message || '服务器异常'));
+            }
+        } catch (error) {
+            console.error('发布评论失败:', error);
+            alert('发布评论失败，请稍后重试');
+        }
+    });
+
+    // 加载评论
+    function loadComments() {
+        const commentList = document.getElementById('comment-list');
+        if (!commentList) {
+            console.error('评论列表容器不存在');
+            return;
+        }
+
+        commentList.innerHTML = '<div class="text-center text-neutral-500 py-4">加载中...</div>';
+
+        fetch(`/api/articles/comments/infinite_load/?article_id={{ article.id }}&page=1`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`接口返回错误：${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.comments || data.comments.length === 0) {
+                    commentList.innerHTML = '<div class="text-center text-neutral-500 py-4">暂无评论，快来抢沙发～</div>';
+                    return;
+                }
+
+                // 渲染评论列表
+                commentList.innerHTML = '';
+                data.comments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'flex gap-3 pb-4 border-b border-neutral-100';
+                    // 转义HTML，防止XSS攻击
+                    const escapeHtml = (str) => {
+                        return str.replace(/[&<>"']/g, char => ({
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#39;'
+                        }[char]));
+                    };
+
+                    // 格式化时间
+                    const formatTime = (timeString) => {
+                        const date = new Date(timeString);
+                        return date.toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    };
+
+                    commentElement.innerHTML = `
+                        <img src="${escapeHtml(comment.user_avatar || '/static/images/default-avatar.png')}" 
+                             alt="${escapeHtml(comment.user_name || '用户')}" 
+                             class="w-10 h-10 rounded-full object-cover">
+
+                        <div class="flex-1">
+                            <div class="font-medium text-neutral-800 text-sm">${escapeHtml(comment.user_name || '匿名用户')}</div>
+                            <div class="text-neutral-600 text-sm mt-1">${escapeHtml(comment.content)}</div>
+                            <div class="flex items-center gap-3 text-xs text-neutral-400 mt-2">
+                                <span>${formatTime(comment.created_at || '')}</span>
+                                <button class="flex items-center gap-1 comment-like-btn"
+                                                data-content-type-id="1"
+                                                data-object-id="${comment.id}">
+                                            <i class="fa-${comment.is_liked ? 'solid' : 'regular'} fa-heart ${comment.is_liked ? 'text-primary' : 'text-neutral-400'}"></i>
+                                            <span>${parseInt(comment.like_count) || 0}</span>
+                                        </button>
+                            </div>
+                        </div>
+
+                    `;
+
+                    commentList.appendChild(commentElement);
+                });
+
+                // 绑定评论点赞事件
+                bindCommentLikeEvents();
+            })
+            .catch(error => {
+                console.error('加载评论失败:', error);
+                commentList.innerHTML = '<div class="text-center text-neutral-500 py-4">加载评论失败，请刷新页面重试</div>';
+            });
+    }
+
+
+    function bindCommentLikeEvents() {
+        document.querySelectorAll('.comment-like-btn').forEach(btn => {
+            // 防止重复绑定
+            if (btn.dataset.binded) return;
+
+            btn.addEventListener('click', async function () {
+                const button = this;
+                const likeCountElement = button.querySelector('span');
+                const icon = button.querySelector('i');
+
+                try {
+                    const response = await fetch('/api/articles/likes/toggle_like/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            article_id: "{{ article.id }}"
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        likeCountElement.textContent = parseInt(data.like_count) || 0;
+                        if (data.is_liked) {
+                            icon.className = 'fa-solid fa-heart text-primary like-animation';
+                        } else {
+                            icon.className = 'fa-regular fa-heart text-neutral-400';
+                        }
+                    } else {
+                        const error = await response.json();
+                        console.error('评论点赞失败:', error);
+                        alert('点赞失败：' + (error.message || '服务器异常'));
+                    }
+                } catch (error) {
+                    console.error('评论点赞失败:', error);
+                    alert('点赞失败，请稍后重试');
+                }
+            });
+
+            btn.dataset.binded = 'true';
+        });
+    }
+
+
+    // 初始加载评论
+    loadComments();
+
+    // 获取CSRF令牌（优化版）
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.getElementById('comment-content')?.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { // 回车发布，Shift+回车换行
+            e.preventDefault();
+            document.getElementById('submit-comment')?.click();
+        }
+    });
+
+    // 点赞动效
+    document.addEventListener('DOMContentLoaded', function () {
+        const likeButtons = document.querySelectorAll('#like-btn, .comment-like-btn');
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-regular')) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid', 'text-primary', 'like-animation');
+                } else {
+                    icon.classList.remove('fa-solid', 'text-primary');
+                    icon.classList.add('fa-regular');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
