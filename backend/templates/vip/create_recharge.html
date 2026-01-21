@@ -1,7 +1,6 @@
 {% extends 'vip/vip_base.html' %}
 
 {% block vip_content %}
-<h2 class="text-2xl font-bold text-neutral-800 mb-6">开通/续费会员</h2>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- 当前会员信息卡片 -->
@@ -15,19 +14,11 @@
                     <div class="text-3xl mr-3">
                         {% if user.vip.level == 'normal' %}
                         <i class="fa-solid fa-circle text-neutral-400"></i>
-                        {% elif user.vip.level == 'bronze' %}
-                        <i class="fa-solid fa-circle text-amber-600"></i>
-                        {% elif user.vip.level == 'silver' %}
-                        <i class="fa-solid fa-circle text-gray-400"></i>
-                        {% elif user.vip.level == 'gold' %}
-                        <i class="fa-solid fa-circle text-yellow-500"></i>
-                        {% elif user.vip.level == 'platinum' %}
-                        <i class="fa-solid fa-circle text-blue-400"></i>
-                        {% elif user.vip.level == 'diamond' %}
-                        <i class="fa-solid fa-circle text-purple-500"></i>
+                        {% else %}
+                        <div class="inline-flex items-center justify-center w-8 h-8 rounded-full"style="background: {{ user.vip.get_level_color }};">
+                        </div>
                         {% endif %}
                     </div>
-                    <div class="text-xl font-bold text-primary">{{ user.vip.get_level_display }}</div>
                 </div>
             </div>
 
@@ -66,9 +57,9 @@
                     class="block p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md 
                             {% if forloop.first %}border-primary bg-primary/5{% else %}border-neutral-200 hover:border-primary hover:bg-primary/5{% endif %}">
                     <input type="radio" name="amount" value="{{ option.amount }}"
-                        class="mr-3 text-primary focus:ring-primary" {% if forloop.first %}checked{% endif %}>
+                        class="mr-3 text-primary focus:ring-primary peer" {% if forloop.first %}checked{% endif %}>
                     <div class="inline-block">
-                        <div class="font-medium text-neutral-800">
+                        <div class="font-medium text-neutral-800 peer-checked:text-primary">
                             ¥{{ option.amount }} - {{ option.duration }}
                         </div>
                         <div class="text-sm text-neutral-600">{{ option.description }}</div>
@@ -103,9 +94,49 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const rechargeForm = document.getElementById('rechargeForm');
+        const vipIndexUrl = "{% url 'vip:index' %}";
+        const radioButtons = document.querySelectorAll('input[name="amount"]');
+        const labels = document.querySelectorAll('label');
+
+        // 初始化第一个选项为选中状态
+        if (radioButtons.length > 0 && radioButtons[0].checked) {
+            updateSelectedState(radioButtons[0]);
+        }
+
+        // 添加单选按钮点击事件
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.checked) {
+                    updateSelectedState(this);
+                }
+            });
+        });
+
+        // 更新选中状态的函数
+        function updateSelectedState(selectedRadio) {
+            // 重置所有标签样式
+            labels.forEach(label => {
+                label.classList.remove('border-primary', 'bg-primary/5');
+                label.classList.add('border-neutral-200');
+            });
+
+            // 设置选中标签的样式
+            const selectedLabel = selectedRadio.closest('label');
+            if (selectedLabel) {
+                selectedLabel.classList.remove('border-neutral-200');
+                selectedLabel.classList.add('border-primary', 'bg-primary/5');
+            }
+        }
 
         rechargeForm.addEventListener('submit', function (e) {
             e.preventDefault();
+
+            // 验证是否选择了充值金额
+            const selectedAmount = document.querySelector('input[name="amount"]:checked');
+            if (!selectedAmount) {
+                showMessage('请选择充值金额', 'error');
+                return;
+            }
 
             // 获取表单数据
             const formData = new FormData(rechargeForm);
@@ -118,16 +149,19 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应错误');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     // 处理响应
                     if (data.success) {
-                        // 显示成功消息
-                        showMessage('充值成功！' + data.message, 'success');
-                        // 2秒后刷新页面
+                        // 2秒后跳转到会员中心
                         setTimeout(() => {
-                            window.location.href = '{% url "vip:index" %}';
-                        }, 2000);
+                            window.location.href = vipIndexUrl;
+                        }, 1000);
                     } else {
                         // 显示错误消息
                         showMessage('充值失败：' + data.message, 'error');
@@ -162,7 +196,10 @@
             closeBtn.className = 'ml-auto text-neutral-400 hover:text-neutral-600';
             closeBtn.innerHTML = '<i class="fa-solid fa-times"></i>';
             closeBtn.addEventListener('click', () => {
-                messageDiv.remove();
+                messageDiv.style.animation = 'fadeOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 300);
             });
             messageDiv.appendChild(closeBtn);
 
@@ -171,7 +208,7 @@
 
             // 3秒后自动移除
             setTimeout(() => {
-                messageDiv.classList.add('animate-fade-out');
+                messageDiv.style.animation = 'fadeOut 0.3s ease-out forwards';
                 setTimeout(() => {
                     messageDiv.remove();
                 }, 300);

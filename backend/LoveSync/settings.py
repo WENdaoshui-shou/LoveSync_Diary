@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'message',
     'user',
     'articles',
+    'history',  # 添加历史应用
     # 其他应用
     'channels',
     'AI',

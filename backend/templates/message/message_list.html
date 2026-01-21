@@ -85,8 +85,7 @@
                                             <span class="text-neutral-400 text-xs">{{ msg.create_time|date:"Y-m-d H:i"|default:"未知时间" }}</span>
                                         </div>
                                         <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
-                                        <div class="mt-2 flex items-center gap-2">
-                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"未知类型" }}</span>
+                                        <div class="mt-2 flex xitems-center gap-2">
                                             {% if not msg.is_read %}
                                             <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
                                             {% endif %}
@@ -161,7 +160,6 @@
                                         </div>
                                         <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
                                         <div class="mt-2 flex items-center gap-2">
-                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"未知类型" }}</span>
                                             <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
                                         </div>
                                     </div>
@@ -208,7 +206,6 @@
                                         </div>
                                         <p class="text-neutral-700 mt-1 line-clamp-2">{{ msg.content|default:"无内容" }}</p>
                                         <div class="mt-2 flex items-center gap-2">
-                                            <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{{ msg.get_type_display|default:"系统通知" }}</span>
                                             {% if not msg.is_read %}
                                             <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">未读</span>
                                             {% endif %}

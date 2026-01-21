@@ -1,33 +1,26 @@
 {% extends 'vip/vip_base.html' %}
 
 {% block vip_content %}
-<h2 class="text-2xl font-bold text-neutral-800 mb-6">会员权益</h2>
 
 <div class="space-y-6">
     <!-- 会员等级说明 -->
     <div class="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl shadow-sm border border-primary/20">
         <h3 class="text-lg font-semibold text-neutral-800 mb-3">会员等级说明</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {% for level in user.vip.VIP_LEVELS %}
-            <div
-                class="flex flex-col items-center text-center p-4 rounded-lg transition-all hover:shadow-md {% if level.0 == user_vip_level %}bg-primary/10 border border-primary/30{% else %}bg-white border border-neutral-200{% endif %}">
-                <div class="text-3xl mb-2">
-                    {% if level.0 == 'normal' %}
+        <div class="flex gap-1">
+            {% for level in vip_levels %}
+            <div class="flex flex-col items-center text-center p-3 rounded-lg transition-all hover:shadow-md {% if level.value == user_vip_level %}bg-primary/10 border border-primary/30{% else %}bg-white border border-neutral-200{% endif %}"
+                style="flex: 1;">
+                <div class="text-2xl mb-1">
+                    {% if level.value == 'normal' %}
                     <i class="fa-solid fa-circle text-neutral-400"></i>
-                    {% elif level.0 == 'bronze' %}
-                    <i class="fa-solid fa-circle text-amber-600"></i>
-                    {% elif level.0 == 'silver' %}
-                    <i class="fa-solid fa-circle text-gray-400"></i>
-                    {% elif level.0 == 'gold' %}
-                    <i class="fa-solid fa-circle text-yellow-500"></i>
-                    {% elif level.0 == 'platinum' %}
-                    <i class="fa-solid fa-circle text-blue-400"></i>
-                    {% elif level.0 == 'diamond' %}
-                    <i class="fa-solid fa-circle text-purple-500"></i>
+                    {% else %}
+                    <!-- 使用圆形背景显示等级颜色 -->
+                    <div class="inline-block w-5 h-5 rounded-full"style="background: {{ level.color }};">
+                    </div>
                     {% endif %}
                 </div>
-                <div class="font-medium text-neutral-800">{{ level.1 }}</div>
-                {% if level.0 == user_vip_level %}
+                <div class="font-medium text-neutral-800">{{ level.display }}</div>
+                {% if level.value == user_vip_level %}
                 <div class="text-xs text-primary mt-1">当前等级</div>
                 {% endif %}
             </div>
@@ -37,7 +30,6 @@
 
     <!-- 权益列表 -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-neutral-200">
-        <h3 class="text-lg font-semibold text-neutral-800 mb-4">权益详情</h3>
         <div class="space-y-4">
             {% for privilege in privileges %}
             <div
@@ -48,8 +40,7 @@
                 <div class="flex-1">
                     <div class="flex items-center justify-between mb-1">
                         <h4 class="font-medium text-neutral-800">{{ privilege.name }}</h4>
-                        <span
-                            class="text-sm px-2 py-0.5 rounded-full {% if privilege.required_level == 'bronze' %}bg-amber-100 text-amber-800{% elif privilege.required_level == 'silver' %}bg-gray-100 text-gray-800{% elif privilege.required_level == 'gold' %}bg-yellow-100 text-yellow-800{% elif privilege.required_level == 'platinum' %}bg-blue-100 text-blue-800{% elif privilege.required_level == 'diamond' %}bg-purple-100 text-purple-800{% else %}bg-neutral-100 text-neutral-800{% endif %}">
+                        <span class="text-sm px-2 py-0.5 rounded-full"style="background: {% if privilege.level_color %}{{ privilege.level_color }}{% else %}#9CA3AF{% endif %}; color: {% if privilege.level_text_color %}{{ privilege.level_text_color }}{% else %}#6B7280{% endif %};">
                             {{ privilege.get_required_level_display }}专享
                         </span>
                     </div>
@@ -73,7 +64,6 @@
 
     <!-- 升级提示 -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-neutral-200">
-        <h3 class="text-lg font-semibold text-neutral-800 mb-4">立即升级</h3>
         <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
             <p class="text-neutral-600">想要解锁更多特权？立即升级您的会员等级！</p>
             <a href="{% url 'vip:create_recharge' %}"

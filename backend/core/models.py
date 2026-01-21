@@ -326,12 +326,12 @@ class CouplePlace(models.Model):
 class VIPMember(models.Model):
     """VIP会员模型"""
     VIP_LEVELS = [
-        ('normal', '普通会员'),
-        ('bronze', '青铜VIP'),
-        ('silver', '白银VIP'),
-        ('gold', '黄金VIP'),
-        ('platinum', '铂金VIP'),
-        ('diamond', '钻石VIP'),
+        ('normal', 'Ⅰ'),
+        ('bronze', 'Ⅱ'),
+        ('silver', 'Ⅲ'),
+        ('diamond', 'Ⅳ'),
+        ('king', 'Ⅴ'),
+        ('god', 'Ⅵ'),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='vip')
@@ -351,6 +351,29 @@ class VIPMember(models.Model):
     
     def __str__(self):
         return f'{self.user.username} - {self.get_level_display()}'
+    
+    def get_level_color(self):
+        """获取VIP等级对应的颜色"""
+        color_map = {
+                'normal': 'linear-gradient(135deg, #F3F4F6, #E5E7EB)', 
+                'bronze': 'linear-gradient(135deg, #8B4513, #FFD700)',  
+                'silver': 'linear-gradient(135deg, #C0C0C0, #333333)', 
+                'diamond': 'linear-gradient(135deg, #00BFFF, #006400)',
+                'king': 'linear-gradient(135deg, #FF6347, #FFB6C1)',
+                'god': 'linear-gradient(135deg, #722ED1, #FF6B8B)'
+                }
+        return color_map.get(self.level, 'linear-gradient(135deg, #F3F4F6, #E5E7EB)')
+    
+    def get_level_text_color(self):
+        """获取VIP等级对应的文字颜色"""
+        text_color_map = {
+            'bronze': '#fff',
+            'silver': '#fff',
+            'diamond': '#fff',
+            'king': '#fff',
+            'god': '#fff',
+        }
+        return text_color_map.get(self.level, '#666')
     
     def activate_vip(self, duration_days=30):
         """激活VIP会员"""
@@ -396,11 +419,11 @@ class VIPMember(models.Model):
         
         # 根据累计充值金额确定VIP等级
         if total >= 1000:
-            new_level = 'diamond'  # 钻石VIP：累计充值1000元以上
+            new_level = 'god'  # 神VIP：累计充值1000元以上
         elif total >= 500:
-            new_level = 'platinum'  # 铂金VIP：累计充值500-999元
+            new_level = 'king'  # 国王VIP：累计充值500-999元
         elif total >= 200:
-            new_level = 'gold'  # 黄金VIP：累计充值200-499元
+            new_level = 'diamond'  # 钻石VIP：累计充值200-499元
         elif total >= 100:
             new_level = 'silver'  # 白银VIP：累计充值100-199元
         elif total >= 50:

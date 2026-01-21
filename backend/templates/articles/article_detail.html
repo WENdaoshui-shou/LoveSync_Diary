@@ -8,8 +8,7 @@
     <!-- 发布信息栏 -->
     <div class="flex flex-wrap items-center gap-3 text-sm text-neutral-500 mb-5">
         <!-- 分类标签 -->
-        <span class="inline-block px-2 py-0.5 rounded text-xs"
-            style="background-color: {% if article.column.category == 'love_growth' %}#4F46E5{% elif article.column.category == 'diary_inspiration' %}#10B981{% elif article.column.category == 'festival_special' %}#F59E0B{% elif article.column.category == 'platform_activity' %}#EF4444{% else %}#6B7280{% endif %}; color: white;">
+        <span class="inline-block px-2 py-0.5 rounded text-xs"style="background-color: {% if article.column.category == 'love_growth' %}#4F46E5{% elif article.column.category == 'diary_inspiration' %}#10B981{% elif article.column.category == 'festival_special' %}#F59E0B{% elif article.column.category == 'platform_activity' %}#EF4444{% else %}#6B7280{% endif %}; color: white;">
             {{ article.column.get_category_display }}
         </span>
 
@@ -17,7 +16,7 @@
         <span>{{ article.published_at|date:"Y-m-d H:i" }}</span>
 
         <!-- 浏览量 -->
-        <span><i class="fa-solid fa-eye mr-1"></i>{{ article.view_count }}</span>
+        <span><i class="fa-regular fa-eye mr-1"></i>{{ article.view_count }}</span>
 
         <!-- 点赞按钮 -->
         <button class="flex items-center gap-1 cursor-pointer text-neutral-500 hover:text-primary transition-colors"
@@ -115,8 +114,8 @@
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({
-                    article: "{{ article.id }}"
-                })
+                article_id: "{{ article.id }}"
+            })
             });
             if (response.ok) {
                 const data = await response.json();

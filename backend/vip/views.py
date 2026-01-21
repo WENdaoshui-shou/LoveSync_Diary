@@ -23,18 +23,24 @@ def vip_index(request):
 @login_required
 def vip_benefits(request):
     """会员权益列表"""
-    # 获取所有VIP特权
-    privileges = VIPPrivilege.objects.all().order_by('required_level')
+    if not hasattr(request.user, 'vip'):
+        VIPMember.objects.create(user=request.user)
     
-    # 定义VIP等级顺序，用于比较等级高低
+    # 获取所有VIP特权并按照等级从低到高排序
+    privileges = VIPPrivilege.objects.all()
+    
+    # 定义VIP等级顺序，用于排序
     level_order = {
-        'normal': 0,
-        'bronze': 1,
-        'silver': 2,
-        'gold': 3,
-        'platinum': 4,
-        'diamond': 5
+        'normal': 1,
+        'bronze': 2,
+        'silver': 3,
+        'diamond': 4,
+        'king': 5,
+        'god': 6
     }
+    
+    # 按照等级顺序排序
+    privileges = sorted(privileges, key=lambda p: level_order.get(p.required_level, 0))
     
     # 获取当前用户的VIP等级
     user_vip_level = request.user.vip.level if hasattr(request.user, 'vip') else 'normal'
@@ -42,11 +48,30 @@ def vip_benefits(request):
     # 为每个特权添加是否已解锁的属性
     for privilege in privileges:
         privilege.is_unlocked = level_order[privilege.required_level] <= level_order[user_vip_level]
+        # 添加等级颜色信息
+        vip_member = VIPMember()
+        vip_member.level = privilege.required_level
+        privilege.level_color = vip_member.get_level_color()
+        privilege.level_text_color = vip_member.get_level_text_color()
+    
+    # 为每个等级添加颜色信息
+    vip_levels_with_colors = []
+    for level in VIPMember.VIP_LEVELS:
+        vip_member = VIPMember()
+        vip_member.level = level[0]
+        vip_levels_with_colors.append({
+            'value': level[0],
+            'display': level[1],
+            'color': vip_member.get_level_color(),
+            'text_color': vip_member.get_level_text_color()
+        })
     
     context = {
         'privileges': privileges,
         'user_vip_level': user_vip_level,
         'level_order': level_order,
+        'user': request.user,
+        'vip_levels': vip_levels_with_colors,
     }
     return render(request, 'vip/vip_benefits.html', context)
 
@@ -86,9 +111,12 @@ def create_recharge(request):
         amount = int(amount)
         # 根据充值金额计算时长（天）
         duration_map = {
-            10: 30,   # 10元 = 1个月
-            30: 90,   # 30元 = 3个月
-            90: 365,  # 90元 = 12个月
+            10: 7,
+            50: 30,    
+            100: 90,  
+            200: 180,  
+            500: 365, 
+            1000: 730,
         }
         
         if amount not in duration_map:
@@ -140,9 +168,12 @@ def create_recharge(request):
     
     context = {
         'recharge_options': [
-            {'amount': 10, 'duration': '1个月', 'description': '白银VIP体验'},
-            {'amount': 30, 'duration': '3个月', 'description': '黄金VIP专享'},
-            {'amount': 90, 'duration': '12个月', 'description': '钻石VIP特权'},
+            {'amount': 10, 'duration': '7天', 'description': '普通会员'},
+            {'amount': 50, 'duration': '1个月', 'description': '青铜VIP体验'},
+            {'amount': 100, 'duration': '3个月', 'description': '白银VIP专享'},
+            {'amount': 200, 'duration': '6个月', 'description': '钻石VIP特权'},
+            {'amount': 500, 'duration': '12个月', 'description': '国王VIP尊享'},
+            {'amount': 1000, 'duration': '24个月', 'description': '神VIP终极特权'},
         ]
     }
     return render(request, 'vip/create_recharge.html', context)

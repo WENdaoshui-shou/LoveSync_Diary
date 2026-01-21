@@ -1,7 +1,6 @@
 {% extends 'vip/vip_base.html' %}
 
 {% block vip_content %}
-<h2 class="text-2xl font-bold text-neutral-800 mb-6">会员信息</h2>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- 当前会员状态卡片 -->
@@ -11,20 +10,12 @@
             <div class="text-3xl">
                 {% if user.vip.level == 'normal' %}
                 <i class="fa-solid fa-circle text-neutral-400"></i>
-                {% elif user.vip.level == 'bronze' %}
-                <i class="fa-solid fa-circle text-amber-600"></i>
-                {% elif user.vip.level == 'silver' %}
-                <i class="fa-solid fa-circle text-gray-400"></i>
-                {% elif user.vip.level == 'gold' %}
-                <i class="fa-solid fa-circle text-yellow-500"></i>
-                {% elif user.vip.level == 'platinum' %}
-                <i class="fa-solid fa-circle text-blue-400"></i>
-                {% elif user.vip.level == 'diamond' %}
-                <i class="fa-solid fa-circle text-purple-500"></i>
+                {% else %}
+                <i class="fa-solid fa-circle"style="background: {{ user.vip.get_level_color }}; -webkit-background-clip: text; -webkit-text-fill-color: {{ user.vip.get_level_text_color }}; background-clip: text;"></i>
                 {% endif %}
             </div>
         </div>
-        <div class="text-3xl font-bold text-primary mb-2">
+        <div class="text-3xl font-bold mb-2"style="background: {{ user.vip.get_level_color }}; color: {{ user.vip.get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
             {{ user.vip.get_level_display }}
         </div>
         <div class="text-neutral-600 mb-4">

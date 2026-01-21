@@ -575,13 +575,23 @@ def load_more_moments(request):
         for image in moment.moment_images.all():
             image_urls.append(image.image.url)
         
+        # 获取VIP信息
+        vip_info = {}
+        if hasattr(moment.user, 'vip'):
+            vip_info['is_active'] = moment.user.vip.is_active
+            vip_info['level'] = moment.user.vip.level
+            vip_info['level_display'] = moment.user.vip.get_level_display()
+            vip_info['level_color'] = moment.user.vip.get_level_color()
+            vip_info['level_text_color'] = moment.user.vip.get_level_text_color()
+        
         moments_data.append({
             'id': moment.id,
             'user': {
                 'id': moment.user.id,
                 'username': moment.user.username,
                 'name': moment.user.name,
-                'avatar': avatar_url
+                'avatar': avatar_url,
+                'vip': vip_info
             },
             'content': moment.content,
             'images': image_urls,

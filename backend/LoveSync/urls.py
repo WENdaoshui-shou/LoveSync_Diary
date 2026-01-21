@@ -98,6 +98,7 @@ web_urlpatterns = [
     path('vip/', include('vip.urls', namespace='vip_web')),
     path('user/', include('user.urls', namespace='user')),
     path('articles/', include('articles.urls')),
+    path('history/', include('history.urls', namespace='history')),  # 添加历史应用路由
 ]
 
 # 将API路由和Web视图路由添加到主URL列表中

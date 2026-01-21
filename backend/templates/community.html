@@ -201,8 +201,7 @@
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>消息</span>{% if unread_message_count > 0 %}
                 <span
-                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{
-                    unread_message_count }}</span>
+                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{ unread_message_count }}</span>
                 {% endif %}
             </a>
             <a href="{% url 'moment_web:hot_ranking' %}"
@@ -223,7 +222,7 @@
                 <i class="fa-solid fa-bookmark w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>收藏</span>
             </a>
-            <a href="#"
+            <a href="{% url 'history:index' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>历史</span>
@@ -303,7 +302,7 @@
                                 <img id="dynamicImage" src="" alt="动态图片" class="w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-black opacity-30"></div>
                                 <div class="absolute inset-0 flex items-center justify-center">
-                                    <h3 class="text-2xl font-bold text-white text-shadow">情侣专属活动</h3>
+                                    <h3 class="text-2xl font-bold text-white text-shadow"></h3>
                                 </div>
                             </div>
                         </div>
@@ -327,21 +326,47 @@
                     <div class="p-8">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <!-- 头像 -->
-                                <a href="{% url 'user:profile' moment.user.id %}"
-                                    class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                    title="查看{{ moment.user.name }}的主页">
-                                    <img src="{{ moment.user.profile.userAvatar.url }}" alt="发布者头像"
-                                        class="w-full h-full object-cover">
-                                </a>
+
+                                <div class="flex -space-x-2">
+                                    <!-- 主要用户头像 -->
+                                    <a href="{% url 'user:profile' moment.user.id %}"
+                                        class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300 border-2 border-white"
+                                        title="查看{{ moment.user.name }}的主页"
+                                        onclick="addHistoryRecord('user', '{{ moment.user.id }}')">
+                                        <img src="{{ moment.user.profile.userAvatar.url }}" alt="发布者头像"
+                                            class="w-full h-full object-cover">
+                                    </a>
+                                    <!-- 情侣头像（如果有） -->
+                                    {% if moment.user.profile.couple %}
+                                    <a href="{% url 'user:profile' moment.user.profile.couple.user.id %}"
+                                        class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300 border-2 border-white"
+                                        title="查看{{ moment.user.profile.couple.user.name }}的主页"
+                                        onclick="addHistoryRecord('user', '{{ moment.user.profile.couple.user.id }}')">
+                                        <img src="{{ moment.user.profile.couple.userAvatar.url }}" alt="情侣头像"
+                                            class="w-full h-full object-cover">
+                                    </a>
+                                    {% endif %}
+                                </div>
+
                                 <!-- 昵称 -->
                                 <div>
                                     <a href="{% url 'user:profile' moment.user.id %}"
                                         class="font-semibold text-neutral-900 hover:text-primary transition-all duration-300"
-                                        title="查看{{ moment.user.name }}的主页">
+                                        title="查看{{ moment.user.name }}的主页"
+                                        onclick="addHistoryRecord('user', '{{ moment.user.id }}')">
                                         {{ moment.user.name }}
+                                        <!-- VIP等级徽章 -->
+                                        {% if moment.user.vip and moment.user.vip.is_active %}
+                                        <!-- 使用后端提供的VIP等级对应颜色 -->
+                                        <a href="{% url 'vip_web:index' %}"
+                                            class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium"style="background: {{ moment.user.vip.get_level_color }}; color: {{ moment.user.vip.get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                            <i class="fa-solid fa-crown text-xs mr-0.5"></i>
+                                            {{ moment.user.vip.get_level_display }}
+                                        </a>
+                                        {% endif %}
                                     </a>
                                     <p class="text-neutral-500 text-xs">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
+
                                 </div>
                             </div>
                             <div class="relative">
@@ -367,7 +392,7 @@
                         </div>
 
                         <div class="mt-4 cursor-pointer"
-                            onclick="saveScrollPositionAndRedirect('/moment/community/moment/{{ moment.id }}/')">
+                            onclick="addHistoryRecord('moment', '{{ moment.id }}'); saveScrollPositionAndRedirect('/moment/community/moment/{{ moment.id }}/')">
                             <p class="text-neutral-800 hover:text-primary transition-colors">{{ moment.content }}</p>
                         </div>
 
@@ -378,7 +403,7 @@
                                     lg:grid-cols-4">
                             {% for image in moment.moment_images.all %}
                             <div class="cursor-pointer"
-                                onclick="saveScrollPositionAndRedirect('/moment/community/moment/{{ moment.id }}/')">
+                                onclick="addHistoryRecord('moment', '{{ moment.id }}'); saveScrollPositionAndRedirect('/moment/community/moment/{{ moment.id }}/')">
                                 <img src="{{ image.image.url }}" alt="动态图片"
                                     class="rounded-lg w-full h-40 object-cover hover-scale">
                             </div>
@@ -398,7 +423,7 @@
                                     <span>{{ moment.comments }}</span>
                                 </button>
                                 <div class="flex items-center space-x-1 text-neutral-500">
-                                    <i class="fa-solid fa-eye"></i>
+                                    <i class="fa-regular fa-eye"></i>
                                     <span>{{ moment.view_count }}</span>
                                 </div>
                             </div>
@@ -780,6 +805,51 @@
 </div>
 
 <script>
+    // 保存滚动位置并重定向
+    function saveScrollPositionAndRedirect(url) {
+        sessionStorage.setItem('scrollPosition', window.scrollY);
+        window.location.href = url;
+    }
+
+    // 添加历史记录
+    function addHistoryRecord(historyType, targetId) {
+        fetch('/history/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                history_type: historyType,
+                target_id: targetId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('添加历史记录失败:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('添加历史记录失败:', error);
+        });
+    }
+
+    // 获取CSRF令牌
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
     // 轮播
     document.addEventListener('DOMContentLoaded', function () {

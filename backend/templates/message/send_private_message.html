@@ -87,6 +87,17 @@
         // 兼容表单不存在的情况，避免报错
         if (!form) return;
 
+        // 回车发送消息
+        const contentTextarea = form.querySelector('textarea[name="content"]');
+        if (contentTextarea) {
+            contentTextarea.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    form.dispatchEvent(new Event('submit'));
+                }
+            });
+        }
+
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
