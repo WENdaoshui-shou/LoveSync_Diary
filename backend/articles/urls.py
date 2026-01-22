@@ -29,6 +29,7 @@ urlpatterns = []
 # Add API routes - these will be accessible at /api/articles/...
 urlpatterns.extend([
     path('columns/', OfficialColumnViewSet.as_view({'get': 'list'}), name='api_columns'),
+    path('columns/<int:pk>/subscribe/', OfficialColumnViewSet.as_view({'post': 'subscribe'}), name='api_columns_subscribe'),
     path('articles/', ColumnArticleViewSet.as_view({'get': 'list'}), name='api_articles'),
     path('articles/infinite_load/', ColumnArticleViewSet.as_view({'get': 'infinite_load'}), name='api_articles_infinite_load'),
     path('comments/', ColumnCommentViewSet.as_view({'get': 'list', 'post': 'create'}), name='api_comments'),

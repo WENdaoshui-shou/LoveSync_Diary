@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.signals import user_logged_in
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import uuid
@@ -38,7 +39,7 @@ class Profile(models.Model):
         upload_to='userAvatar/',
         blank=True,
         null=True,
-        default='userAvatar/OIP-C.jpg'
+        default='userAvatar/defult_user.png'
     )
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='other', verbose_name='性别')
     birth_date = models.DateField(null=True, blank=True, verbose_name='出生日期')
@@ -205,21 +206,6 @@ class Profile(models.Model):
         return True
 
 
-# 情侣关系历史记录
-class CoupleRelationHistory(models.Model):
-    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='relation_history_as_user1')
-    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='relation_history_as_user2')
-    started_at = models.DateTimeField(verbose_name='开始时间')
-    ended_at = models.DateTimeField(verbose_name='结束时间')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='记录创建时间')
-
-    class Meta:
-        verbose_name = '情侣关系历史'
-        verbose_name_plural = '情侣关系历史记录'
-        ordering = ['-ended_at']
-
-    def __str__(self):
-        return f"{self.user1.username} 与 {self.user2.username} 的关系历史"
 
 
 # 验证码模型
@@ -243,83 +229,6 @@ class VerificationCode(models.Model):
     
     def __str__(self):
         return f"{self.type} 验证码: {self.target} - {self.code}"
-
-
-# 爱情故事时间轴模型
-class LoveStoryTimeline(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='love_story_timeline')
-    title = models.CharField(max_length=100, verbose_name='事件标题')
-    description = models.TextField(verbose_name='事件描述')
-    date = models.DateField(verbose_name='事件日期')
-    image = models.ImageField(upload_to='love_story_images/', null=True, blank=True, verbose_name='事件图片')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-date']
-
-    def __str__(self):
-        return f'{self.user.username} 的爱情故事: {self.title}'
-
-
-# 音乐播放器模型
-class MusicPlayer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='music_player')
-    title = models.CharField(max_length=100, verbose_name='歌曲标题')
-    artist = models.CharField(max_length=100, verbose_name='歌手')
-    album_cover = models.ImageField(upload_to='music_covers/', null=True, blank=True, verbose_name='专辑封面')
-    audio_file = models.FileField(upload_to='music_files/', null=True, blank=True, verbose_name='音频文件')
-    is_currently_playing = models.BooleanField(default=False, verbose_name='是否正在播放')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.user.username} 的音乐: {self.title} - {self.artist}'
-
-
-# 情侣问答模型
-class CoupleQuiz(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='couple_quizzes')
-    question = models.TextField(verbose_name='问题')
-    correct_answer = models.CharField(max_length=100, verbose_name='正确答案')
-    options = models.JSONField(verbose_name='选项列表')  # 使用JSONField存储选项
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.user.username} 的情侣问答: {self.question}'
-
-
-# 情侣地点模型
-class CouplePlace(models.Model):
-    """情侣地点模型"""
-    PLACE_TYPES = [
-        ('restaurant', '餐厅'),
-        ('cafe', '咖啡馆'),
-        ('park', '公园'),
-        ('movie', '电影院'),
-        ('museum', '博物馆'),
-        ('activity', '活动场所'),
-        ('other', '其他'),
-    ]
-    
-    name = models.CharField(max_length=100, verbose_name='地点名称')
-    description = models.TextField(verbose_name='地点描述')
-    address = models.CharField(max_length=200, verbose_name='地址')
-    latitude = models.FloatField(verbose_name='纬度')
-    longitude = models.FloatField(verbose_name='经度')
-    place_type = models.CharField(max_length=20, choices=PLACE_TYPES, verbose_name='地点类型')
-    rating = models.FloatField(default=0, verbose_name='评分')
-    review_count = models.IntegerField(default=0, verbose_name='评价数量')
-    price_range = models.CharField(max_length=50, verbose_name='价格范围')
-    image_url = models.URLField(blank=True, null=True, verbose_name='图片URL')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name = '情侣地点'
-        verbose_name_plural = '情侣地点管理'
-        ordering = ['-rating', '-review_count']
-    
-    def __str__(self):
-        return f'{self.name} - {self.get_place_type_display()}'
 
 
 # VIP会员模型
@@ -482,7 +391,6 @@ class VIPOrder(models.Model):
         return f'订单 {self.order_number} - {self.get_status_display()}'
 
 # 成就系统模型
-
 # 成就定义模型
 class Achievement(models.Model):
     """成就定义模型"""
@@ -631,12 +539,136 @@ except ImportError:
 def unlock_first_meeting_achievement(sender, instance, created, **kwargs):
     """当用户绑定情侣关系时，解锁"初次相遇"成就"""
     if not created and instance.couple:
-        # 检查用户是否刚刚绑定情侣关系
-        # 通过检查couple_joined_at是否刚刚设置
         if instance.couple_joined_at:
-            # 查找"初次相遇"成就
             try:
                 achievement = Achievement.objects.get(title='初次相遇')
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=instance.user,
+                    achievement=achievement
+                )
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass
+
+# 监听情侣测试事件，解锁"甜蜜开始"成就
+def unlock_sweet_beginning_achievement(sender, instance, created, **kwargs):
+    """当用户完成情侣测试时，解锁"甜蜜开始"成就"""
+    if created:
+        user = instance.user
+        # 检查用户是否是第一次完成情侣测试
+        quiz_count = sender.objects.filter(user=user).count()
+        if quiz_count == 1:
+            # 查找"甜蜜开始"成就
+            try:
+                achievement = Achievement.objects.get(title='甜蜜开始')
+                # 获取用户成就记录
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=user,
+                    achievement=achievement
+                )
+                # 解锁成就
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass
+
+# 监听情侣地点事件，解锁"爱的足迹"成就
+def unlock_love_journey_achievement(sender, instance, created, **kwargs):
+    """当用户添加情侣地点时，解锁"爱的足迹"成就"""
+    if created:
+        user = instance.user
+        # 检查用户是否是第一次添加情侣地点
+        place_count = sender.objects.filter(user=user).count()
+        if place_count == 1:
+            # 查找"爱的足迹"成就
+            try:
+                achievement = Achievement.objects.get(title='爱的足迹')
+                # 获取用户成就记录
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=user,
+                    achievement=achievement
+                )
+                # 解锁成就
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass
+
+# 监听游戏分数事件，解锁"游戏达人"成就
+def unlock_game_master_achievement(sender, instance, created, **kwargs):
+    """当用户获得游戏分数时，解锁"游戏达人"成就"""
+    if created:
+        user = instance.user
+        # 检查用户是否是第一次获得游戏分数
+        score_count = sender.objects.filter(user=user).count()
+        if score_count == 1:
+            # 查找"游戏达人"成就
+            try:
+                achievement = Achievement.objects.get(title='游戏达人')
+                # 获取用户成就记录
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=user,
+                    achievement=achievement
+                )
+                # 解锁成就
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass
+
+# 监听纪念日事件，解锁"纪念时刻"成就
+def unlock_anniversary_moment_achievement(sender, instance, created, **kwargs):
+    """当用户添加纪念日时，解锁"纪念时刻"成就"""
+    if created:
+        user = instance.user
+        # 检查用户是否是第一次添加纪念日
+        anniversary_count = sender.objects.filter(user=user).count()
+        if anniversary_count == 1:
+            # 查找"纪念时刻"成就
+            try:
+                achievement = Achievement.objects.get(title='纪念时刻')
+                # 获取用户成就记录
+                user_achievement, created = UserAchievement.objects.get_or_create(
+                    user=user,
+                    achievement=achievement
+                )
+                # 解锁成就
+                user_achievement.unlock()
+            except Achievement.DoesNotExist:
+                pass
+
+# 监听用户登录事件，解锁"每日打卡"成就
+@receiver(user_logged_in)
+def unlock_daily_checkin_achievement(sender, request, user, **kwargs):
+    """当用户登录时，更新"每日打卡"成就"""
+    try:
+        achievement = Achievement.objects.get(title='每日打卡')
+        # 获取用户成就记录
+        user_achievement, created = UserAchievement.objects.get_or_create(
+            user=user,
+            achievement=achievement
+        )
+        
+        # 简单的打卡逻辑：每次登录增加10%进度，达到100%解锁
+        new_progress = min(user_achievement.progress + 10, 100)
+        user_achievement.update_progress(new_progress)
+        
+        if new_progress >= 100:
+            user_achievement.unlock()
+    except Achievement.DoesNotExist:
+        pass
+
+# 监听情侣关系周年事件，解锁"一周年纪念"成就
+@receiver(post_save, sender=Profile)
+def unlock_anniversary_achievement(sender, instance, created, **kwargs):
+    """当情侣关系满一周年时，解锁"一周年纪念"成就"""
+    if not created and instance.couple and instance.couple_joined_at:
+        # 计算情侣关系持续时间
+        joined_at = instance.couple_joined_at
+        now = timezone.now()
+        years = now.year - joined_at.year
+        
+        # 检查是否满一周年
+        if years >= 1:
+            try:
+                achievement = Achievement.objects.get(title='一周年纪念')
                 # 获取用户成就记录
                 user_achievement, created = UserAchievement.objects.get_or_create(
                     user=instance.user,
@@ -646,3 +678,79 @@ def unlock_first_meeting_achievement(sender, instance, created, **kwargs):
                 user_achievement.unlock()
             except Achievement.DoesNotExist:
                 pass
+
+# 监听动态和评论事件，解锁"社交达人"成就
+def unlock_social_master_achievement(sender, instance, created, **kwargs):
+    """当用户发布动态或评论时，更新"社交达人"成就"""
+    if created:
+        user = instance.user
+        try:
+            achievement = Achievement.objects.get(title='社交达人')
+            # 获取用户成就记录
+            user_achievement, created = UserAchievement.objects.get_or_create(
+                user=user,
+                achievement=achievement
+            )
+            
+            # 计算用户的社交活动数量
+            social_count = 0
+            
+            # 计算动态数量
+            try:
+                from moment.models import Moment
+                social_count += Moment.objects.filter(user=user).count()
+            except ImportError:
+                pass
+            
+            # 计算评论数量（假设存在评论模型）
+            try:
+                from moment.models import Comment
+                social_count += Comment.objects.filter(user=user).count()
+            except ImportError:
+                pass
+            
+            # 更新进度
+            progress = min(social_count * 5, 100)  # 每20个社交活动解锁
+            user_achievement.update_progress(progress)
+            
+            if progress >= 100:
+                user_achievement.unlock()
+        except Achievement.DoesNotExist:
+            pass
+
+# 注册其他成就信号
+try:
+    from couple.models import CoupleQuiz
+    post_save.connect(unlock_sweet_beginning_achievement, sender=CoupleQuiz)
+except ImportError:
+    pass
+
+try:
+    from couple.models import CouplePlace
+    post_save.connect(unlock_love_journey_achievement, sender=CouplePlace)
+except ImportError:
+    pass
+
+try:
+    from game.models import GameScore
+    post_save.connect(unlock_game_master_achievement, sender=GameScore)
+except ImportError:
+    pass
+
+try:
+    from couple.models import Anniversary
+    post_save.connect(unlock_anniversary_moment_achievement, sender=Anniversary)
+except ImportError:
+    pass
+
+try:
+    from moment.models import Moment
+    post_save.connect(unlock_social_master_achievement, sender=Moment)
+except ImportError:
+    pass
+
+try:
+    from moment.models import Comment
+    post_save.connect(unlock_social_master_achievement, sender=Comment)
+except ImportError:
+    pass

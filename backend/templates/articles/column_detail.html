@@ -17,7 +17,7 @@
 
         <!-- 订阅/取消订阅按钮 -->
         <button id="subscribe-btn"
-            class="px-3 py-1 rounded-full text-sm {% if column.is_subscribed %}bg-neutral-100 text-neutral-600 hover:bg-neutral-200{% else %}bg-primary text-white hover:bg-primary/90{% endif %} transition-colors"
+            class="px-3 py-1 rounded-full text-sm {% if column.is_subscribed %}bg-secondary text-white hover:bg-secondary/90 transition-colors{% else %}bg-secondary text-white hover:bg-secondary/90 transition-colors{% endif %}"
             data-column-id="{{ column.id }}">
             {% if column.is_subscribed %}取消订阅{% else %}订阅{% endif %}
         </button>
@@ -91,7 +91,7 @@
                 // 更新按钮状态
                 if (data.is_subscribed) {
                     button.textContent = '取消订阅';
-                    button.className = 'px-3 py-1 rounded-full text-sm bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors';
+                    button.className = 'px-3 py-1 rounded-full text-sm bg-secondary text-white hover:bg-secondary/90 transition-colors';
                 } else {
                     button.textContent = '订阅';
                     button.className = 'px-3 py-1 rounded-full text-sm bg-primary text-white hover:bg-primary/90 transition-colors';

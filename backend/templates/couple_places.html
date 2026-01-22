@@ -178,13 +178,13 @@
                         <div class="flex items-center text-amber-400">
                             {% for i in "12345" %}
                             {% if forloop.counter <= place.rating|floatformat:0 %} <i class="fa fa-star"></i>
-                                {% elif forloop.counter == place.rating|add:1|floatformat:0 %}
+                                {% elif forloop.counter == place.rating %}
                                 <i class="fa fa-star-half-o"></i>
                                 {% else %}
                                 <i class="fa fa-star-o"></i>
                                 {% endif %}
                                 {% endfor %}
-                                <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{ place.review_count }})</span>
+                                <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{ place.review_count}})</span>
                         </div>
 
                     </div>
@@ -404,16 +404,14 @@
                                 window.hasMoreContent = false;
 
                                 // 显示无数据提示
-                                if (!noPlaces) {
-                                    const noDataHTML = `
-                                    <div class="col-span-full text-center py-12">
-                                        <i class="fa-solid fa-map-marker text-6xl text-neutral-300 mb-4"></i>
-                                        <p class="text-neutral-500">暂无${placeType}类型的情侣地点</p>
-                                        <p class="text-neutral-400 text-sm mt-2">系统将在后续更新中添加更多情侣地点</p>
-                                    </div>
-                                `;
-                                    placesContainer.innerHTML = noDataHTML;
-                                }
+                                const noDataHTML = `
+                                <div class="col-span-full text-center py-12">
+                                    <i class="fa-solid fa-map-marker text-6xl text-neutral-300 mb-4"></i>
+                                    <p class="text-neutral-500">暂无${placeType}类型的情侣地点</p>
+                                    <p class="text-neutral-400 text-sm mt-2">系统将在后续更新中添加更多情侣地点</p>
+                                </div>
+                            `;
+                                placesContainer.innerHTML = noDataHTML;
                             } else {
                                 // 添加新的地点卡片
                                 addPlacesToPage(data.places);
@@ -428,15 +426,13 @@
                             console.error('API请求失败:', data.message);
 
                             // 显示错误提示
-                            if (!noPlaces) {
-                                const errorHTML = `
+                            const errorHTML = `
                                 <div class="col-span-full text-center py-12">
                                     <i class="fa-solid fa-exclamation-circle text-6xl text-neutral-300 mb-4"></i>
                                     <p class="text-neutral-500">加载失败，请稍后重试</p>
                                     <p class="text-neutral-400 text-sm mt-2">${data.message || '未知错误'}</p>
                                 `;
-                                placesContainer.innerHTML = errorHTML;
-                            }
+                            placesContainer.innerHTML = errorHTML;
                         }
                     })
                     .catch(error => {
@@ -445,16 +441,14 @@
                         document.getElementById('loading-indicator').classList.add('hidden');
 
                         // 显示错误提示
-                        if (!noPlaces) {
-                            const errorHTML = `
-                            <div class="col-span-full text-center py-12">
-                                <i class="fa-solid fa-exclamation-circle text-6xl text-neutral-300 mb-4"></i>
-                                <p class="text-neutral-500">加载失败，请稍后重试</p>
-                                <p class="text-neutral-400 text-sm mt-2">网络错误</p>
-                            </div>
-                        `;
-                            placesContainer.innerHTML = errorHTML;
-                        }
+                        const errorHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <i class="fa-solid fa-exclamation-circle text-6xl text-neutral-300 mb-4"></i>
+                            <p class="text-neutral-500">加载失败，请稍后重试</p>
+                            <p class="text-neutral-400 text-sm mt-2">网络错误</p>
+                        </div>
+                    `;
+                        placesContainer.innerHTML = errorHTML;
                     });
             });
         });
@@ -539,11 +533,7 @@
                         <div class="absolute top-3 right-3 bg-gradient-love rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
                             <i class="fa fa-star mr-1"></i> ${place.rating}分
                         </div>
-                        ${place.image_url ? `
-                        <img src="${place.image_url}" alt="${place.name}" class="w-full h-48 object-cover">
-                        ` : `
-                        <img src="https://picsum.photos/600/300?random=${place.id}" alt="${place.name}" class="w-full h-48 object-cover">
-                        `}
+                        ${ place.image_url }
                     </div>
                     <div class="p-5">
                         <h3 class="font-bold text-lg">${place.name}</h3>

@@ -5,7 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.generic import TemplateView
 from django.db import models
-from .models import Anniversary, CoupleTask, TaskCompletion
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+import json
+from .models import Anniversary, CoupleTask, TaskCompletion, QuizQuestion, UserQuizAnswer
 from .serializers import AnniversarySerializer, CoupleTaskSerializer, TaskCompletionSerializer
 
 
@@ -130,12 +133,175 @@ def invite_partner_view(request):
     
     return redirect('couple_web:couple')
 
+# 情侣测试API
+@login_required
+def couple_test_api(request):
+    """
+    获取情侣测试问题的API
+    """
+    try:
+        # 获取分类参数
+        category_id = request.GET.get('category_id')
+        
+        # 获取用户已回答的问题ID
+        answered_question_ids = UserQuizAnswer.objects.filter(
+            user=request.user
+        ).values_list('question_id', flat=True)
+        
+        # 构建查询
+        queryset = QuizQuestion.objects.exclude(
+            id__in=answered_question_ids
+        )
+        
+        # 如果指定了分类，按分类筛选
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        
+        # 随机获取20个未回答的问题
+        questions = queryset.order_by('?')[:20]
+        
+        # 如果未回答的问题不足20个，获取所有问题
+        if len(questions) < 20:
+            queryset = QuizQuestion.objects
+            if category_id:
+                queryset = queryset.filter(category_id=category_id)
+            questions = queryset.order_by('?')[:20]
+        
+        # 构建问题数据
+        questions_data = []
+        for question in questions:
+            questions_data.append({
+                'id': question.id,
+                'question': question.question,
+                'options': question.options,
+                'category_id': question.category.id,
+                'category_name': question.category.name
+            })
+        
+        # 获取所有分类
+        from .models import QuizCategory
+        categories = QuizCategory.objects.all()
+        categories_data = []
+        for category in categories:
+            categories_data.append({
+                'id': category.id,
+                'name': category.name,
+                'description': category.description
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'questions': questions_data,
+            'categories': categories_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+@login_required
+@require_http_methods(['POST'])
+def submit_test_result(request):
+    """
+    提交情侣测试结果的API
+    """
+    try:
+        # 解析请求数据
+        answers = json.loads(request.POST.get('answers', '[]'))
+        
+        # 保存用户答案
+        for answer in answers:
+            question_id = answer.get('question_id')
+            selected_option = answer.get('answer')
+            
+            if question_id and selected_option:
+                # 获取问题
+                question = QuizQuestion.objects.get(id=question_id)
+                
+                # 创建或更新用户答案
+                user_answer, created = UserQuizAnswer.objects.get_or_create(
+                    user=request.user,
+                    question=question,
+                    defaults={'selected_option': selected_option}
+                )
+                
+                if not created:
+                    user_answer.selected_option = selected_option
+                    user_answer.save()
+        
+        # 生成测试分析（这里是模拟的分析结果）
+        analysis = generate_test_analysis(answers)
+        
+        return JsonResponse({
+            'success': True,
+            'analysis': analysis
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+def generate_test_analysis(answers):
+    """
+    生成测试分析结果（模拟）
+    """
+    # 简单的模拟逻辑，实际项目中应该根据用户答案进行更复杂的分析
+    import random
+    
+    # 随机生成匹配等级
+    match_levels = ['非常匹配', '比较匹配', '一般匹配', '需要努力']
+    match_level = random.choice(match_levels)
+    
+    # 根据匹配等级生成描述
+    descriptions = {
+        '非常匹配': '你们的关系充满了理解和支持，彼此尊重对方的意见和感受。在面对问题时，你们能够共同努力找到解决方案，展现出了很强的默契和团队精神。',
+        '比较匹配': '你们的关系整体良好，虽然有时会有一些分歧，但能够通过沟通解决。继续加强彼此的理解和支持，你们的关系会更加稳固。',
+        '一般匹配': '你们的关系存在一些需要注意的问题，在沟通和理解方面还有提升空间。建议多花时间了解对方的想法和感受，共同面对挑战。',
+        '需要努力': '你们的关系面临一些挑战，在沟通方式和相互理解方面存在较大差异。建议双方坦诚交流，共同寻找改善关系的方法。'
+    }
+    
+    # 生成建议
+    advice = []
+    if match_level == '非常匹配':
+        advice = [
+            '继续保持开放和诚实的沟通，这是维持健康关系的关键',
+            '定期安排一些专属的约会时间，保持浪漫和激情',
+            '学会接受和欣赏对方的不同之处，这会让你们的关系更加丰富'
+        ]
+    elif match_level == '比较匹配':
+        advice = [
+            '加强彼此之间的沟通，特别是在意见不合时',
+            '多表达对对方的欣赏和感激之情',
+            '共同参与一些新的活动，增进彼此的了解'
+        ]
+    elif match_level == '一般匹配':
+        advice = [
+            '学习更好的沟通技巧，避免争吵和冷战',
+            '尝试从对方的角度看问题，增强同理心',
+            '设定共同的目标，增强彼此的联系'
+        ]
+    else:  # 需要努力
+        advice = [
+            '考虑寻求专业的关系咨询帮助',
+            '建立健康的沟通规则，避免指责和批评',
+            '重新发现彼此的共同点，重建连接'
+        ]
+    
+    return {
+        'level': match_level,
+        'description': descriptions[match_level],
+        'advice': advice
+    }
+
 
 # 爱情故事视图
 @login_required
 def love_story_view(request):
     """爱情故事视图"""
-    from core.models import LoveStoryTimeline
+    from .models import LoveStoryTimeline
     
     # 检查用户是否绑定情侣
     if not request.user.profile.couple:
@@ -168,7 +334,8 @@ def love_story_view(request):
 @login_required
 def couple_test_view(request):
     """情侣测试视图"""
-    from core.models import Profile, CoupleQuiz
+    from core.models import Profile
+    from .models import CoupleQuiz
     
     # 检查用户是否绑定情侣
     if not request.user.profile.couple:
@@ -196,7 +363,8 @@ def couple_test_view(request):
 @login_required
 def couple_places_view(request):
     """情侣景点视图"""
-    from core.models import Profile, CouplePlace
+    from core.models import Profile
+    from .models import CouplePlace
     
     # 检查用户是否绑定情侣
     if not request.user.profile.couple:
@@ -239,7 +407,7 @@ def couple_places_view(request):
 @login_required
 def couple_places_api(request):
     """情侣地点分页API"""
-    from core.models import CouplePlace
+    from .models import CouplePlace
     from django.http import JsonResponse
     
     try:
@@ -247,11 +415,35 @@ def couple_places_api(request):
         page = int(request.GET.get('page', 1))
         page_size = 10  # 每页10条数据
         
+        # 获取地点类型参数
+        place_type = request.GET.get('place_type', '')
+        
         # 计算偏移量
         offset = (page - 1) * page_size
         
-        # 获取情侣地点，按评分和评价数量排序
-        places = CouplePlace.objects.all().order_by('-rating', '-review_count')[offset:offset + page_size]
+        # 构建查询
+        queryset = CouplePlace.objects.all()
+        
+        # 根据地点类型筛选
+        if place_type and place_type != '全部地点':
+            # 映射前端显示的类型到数据库存储的类型
+            type_mapping = {
+                '浪漫约会': 'romantic',
+                '户外探险': 'outdoor',
+                '文化体验': 'cultural',
+                '美食餐厅': 'dining',
+                '休闲娱乐': 'entertainment',
+                '免费景点': 'free',
+                '其他': 'other'
+            }
+            
+            # 获取对应的数据库类型
+            db_type = type_mapping.get(place_type)
+            if db_type:
+                queryset = queryset.filter(place_type=db_type)
+        
+        # 按评分和评价数量排序
+        places = queryset.order_by('-rating', '-review_count')[offset:offset + page_size]
         
         # 构建地点数据列表
         places_data = []
@@ -270,7 +462,7 @@ def couple_places_api(request):
             places_data.append(place_dict)
         
         # 检查是否还有更多数据
-        has_more = CouplePlace.objects.all().count() > offset + page_size
+        has_more = queryset.count() > offset + page_size
         
         return JsonResponse({
             'success': True,
@@ -350,7 +542,7 @@ def couple_recommendation_view(request):
 @login_required
 def couple_history_view(request):
     """情侣历史视图"""
-    from core.models import CoupleRelationHistory
+    from .models import CoupleRelationHistory
     from django.utils import timezone
     
     # 获取当前用户的所有情侣关系历史记录
@@ -438,7 +630,7 @@ def couple_history_view(request):
 @login_required
 def delete_couple_history(request, history_id):
     """删除情侣关系历史记录"""
-    from core.models import CoupleRelationHistory
+    from .models import CoupleRelationHistory
     from django.http import JsonResponse
     
     try:

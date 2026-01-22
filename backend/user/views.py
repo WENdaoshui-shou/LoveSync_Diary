@@ -4,7 +4,8 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
-from core.models import User, CouplePlace as Place
+from core.models import User
+from couple.models import CouplePlace as Place
 from .models import Follow, Collection
 from moment.models import Moment
 from photo.models import Photo

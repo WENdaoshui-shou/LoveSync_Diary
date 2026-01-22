@@ -319,11 +319,27 @@ def register_view(request):
         name = request.POST.get('name')
         password1 = request.POST.get('password')
         password2 = request.POST.get('confirm-password')
-        phone_code = request.POST.get('phone_code')
+        verify_code = request.POST.get('verify_code')
         
         # 简单的表单验证
         if password1 != password2:
             messages.error(request, '两次密码不一致')
+            return redirect('register')
+        
+        # 验证码验证
+        session_code = request.session.get('verify_code')
+        if session_code:
+            if not verify_code:
+                messages.error(request, '请输入验证码')
+                return redirect('register')
+            elif verify_code != session_code:
+                messages.error(request, '验证码错误')
+                return redirect('register')
+            
+            # 清除session中的验证码
+            del request.session['verify_code']
+        else:
+            messages.error(request, '验证码已过期，请刷新验证码')
             return redirect('register')
         
         # 实现用户创建逻辑
@@ -331,19 +347,6 @@ def register_view(request):
             # 首先检查用户名是否已存在
             if User.objects.filter(username=username).exists():
                 messages.error(request, '用户名已存在')
-                return redirect('register')
-            
-            # 然后验证验证码
-            try:
-                verification_code = VerificationCode.objects.get(
-                    type='phone',
-                    target=username,
-                    code=phone_code,
-                    expires_at__gt=timezone.now(),
-                    is_used=False
-                )
-            except VerificationCode.DoesNotExist:
-                messages.error(request, '手机号验证码无效或已过期')
                 return redirect('register')
             
             # 创建用户 - 直接使用create方法并手动加密密码
@@ -355,10 +358,6 @@ def register_view(request):
                 password=make_password(password1),
                 phone_verified=True
             )
-            
-            # 标记验证码为已使用
-            verification_code.is_used = True
-            verification_code.save()
             
             messages.success(request, '注册成功，请登录')
             return redirect('login')
@@ -374,12 +373,6 @@ def logout_view(request):
     logout(request)
     messages.success(request, '已成功登出')
     return redirect('login')
-
-
-
-
-
-
 
 
 # 个人中心视图
@@ -419,17 +412,13 @@ def personal_center_view(request):
     recent_moments = Moment.objects.filter(user=user).order_by('-created_at')[:3]
     
     # 获取爱情故事时间轴
-    from .models import LoveStoryTimeline
+    from couple.models import LoveStoryTimeline
     love_story_timeline = LoveStoryTimeline.objects.filter(user=user).order_by('-date')[:10]
     
     # 获取音乐播放器数据
-    from .models import MusicPlayer
+    from couple.models import MusicPlayer
     music_player = MusicPlayer.objects.filter(user=user).order_by('-created_at')[:5]
-    
-
-    
-
-    
+  
     context = {
         'target_user': user,
         'user': user,
@@ -456,7 +445,7 @@ def personal_center_view(request):
 
 def share_place_view(request, place_id):
     """地点分享视图 - 无需登录即可访问"""
-    from .models import CouplePlace
+    from couple.models import CouplePlace
     
     try:
         # 查询地点数据
@@ -540,12 +529,6 @@ def message_view(request):
     }
     
     return render(request, 'message.html', context)
-
-
-
-
-
-
 
 
 # 设置视图

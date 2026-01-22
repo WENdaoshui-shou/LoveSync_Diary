@@ -5,9 +5,9 @@ from django.utils import timezone
 
 # 游戏类型选择
 GAME_TYPE_CHOICES = [
-    ('quiz', '情侣问答'),
-    ('compatibility', '默契度挑战'),
-    ('mini_game', '情侣小游戏'),
+    ('task', '任务'),
+    ('challenge', '挑战'),
+    ('adventure', '冒险'),
 ]
 
 # 游戏难度选择
