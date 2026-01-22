@@ -233,6 +233,12 @@
                 </div>
             </div>
             {% endfor %}
+
+            <!-- 加载中指示器 -->
+            <div id="loading-indicator" class="mt-8 text-center hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                <p class="mt-2 text-neutral-500 text-sm">加载更多动态...</p>
+            </div>
         </div>
     </div>
 </div>
@@ -683,6 +689,129 @@
                     console.error('获取点赞状态失败:', error);
                 });
         });
+
+        // 无限加载功能
+        let page = 1;
+        let isLoading = false;
+        let hasMore = true;
+
+        window.addEventListener('scroll', () => {
+            if (isLoading || !hasMore) return;
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                loadMoreMoments();
+            }
+        });
+
+        function loadMoreMoments() {
+            if (isLoading || !hasMore) return;
+
+            isLoading = true;
+            const loadingIndicator = document.getElementById('loading-indicator');
+            loadingIndicator.classList.remove('hidden');
+
+            fetch(`/api/moment/moments/?page=${page + 1}`, {
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.moments && data.moments.length > 0) {
+                        page++;
+                        const momentsContainer = document.querySelector('.space-y-6');
+
+                        data.moments.forEach(moment => {
+                            const momentElement = document.createElement('div');
+                            momentElement.className = 'bg-white rounded-xl shadow-lg overflow-hidden post-card animate-fade-in';
+                            momentElement.setAttribute('data-moment-id', moment.id);
+                            momentElement.innerHTML = `
+                                <div class="p-6">
+                                    <!-- 用户信息 -->
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden">
+                                                <img src="${moment.user.profile.userAvatar.url}" alt="用户头像" class="w-full h-full object-cover">
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-neutral-900">${moment.user.name}</h4>
+                                                <p class="text-neutral-500 text-xs">${moment.created_at | timesince}前</p>
+                                                <div class="flex flex-wrap gap-2 mt-3">
+                                                    ${moment.tags.map(tag => `<span class="px-2 py-1 text-xs font-medium text-primary bg-primary/20 rounded-full">${tag.name}</span>`).join('')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-3">
+                                            </div>
+                                            <div class="relative">
+                                                <button class="text-neutral-400 hover:text-neutral-700 transition-custom" id="moreBtn-${moment.id}">
+                                                    <i class="fa-solid fa-ellipsis-h"></i>
+                                                </button>
+                                                <div class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50 hidden" id="menu-${moment.id}">
+                                                    ${moment.is_shared ? `
+                                                    <a href="#" class="block px-4 py-2 text-yellow-500 hover:bg-yellow-50 transition-custom unshare-btn" data-moment-id="${moment.id}">
+                                                        <i class="fa-solid fa-undo mr-2"></i> 取消分享
+                                                    </a>
+                                                    ` : `
+                                                    <a href="#" class="block px-4 py-2 text-blue-500 hover:bg-blue-50 transition-custom share-btn" data-moment-id="${moment.id}" data-is-shared="false">
+                                                        <i class="fa-solid fa-share-alt mr-2"></i> 分享到社区
+                                                    </a>
+                                                    `}
+                                                    <a href="#" class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom delete-btn" data-moment-id="${moment.id}">
+                                                        <i class="fa-solid fa-trash-can mr-2"></i> 删除动态
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 动态内容 -->
+                                    <div class="mt-4">
+                                        <p class="text-neutral-800">${moment.content}</p>
+                                    </div>
+                                    <!-- 动态图片 -->
+                                    <div class="mt-4 grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                        ${moment.moment_images.map(image => `<img src="${image.image.url}" alt="动态图片" class="rounded-lg w-full h-40 object-cover hover-scale">`).join('')}
+                                    </div>
+                                    <!-- 点赞评论数 -->
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <div class="flex space-x-4">
+                                            <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                                                <i class="fa-regular fa-heart"></i>
+                                                <span>${moment.likes}</span>
+                                            </button>
+                                            <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                                                <i class="fa-regular fa-comment"></i>
+                                                <span>${moment.comments}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            momentsContainer.insertBefore(momentElement, loadingIndicator);
+                        });
+                    } else {
+                        hasMore = false;
+                        const loadingIndicator = document.getElementById('loading-indicator');
+                        loadingIndicator.innerHTML = '<i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i><p class="mt-2 text-neutral-500 text-sm">已经到底啦，没有更多动态了</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载动态失败:', error);
+                })
+                .finally(() => {
+                    isLoading = false;
+                    const loadingIndicator = document.getElementById('loading-indicator');
+                    if (hasMore) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
+        }
 
         // 点赞功能
         document.querySelectorAll('.like-btn').forEach(btn => {

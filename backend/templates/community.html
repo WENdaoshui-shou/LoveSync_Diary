@@ -201,7 +201,8 @@
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>消息</span>{% if unread_message_count > 0 %}
                 <span
-                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{ unread_message_count }}</span>
+                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{
+                    unread_message_count }}</span>
                 {% endif %}
             </a>
             <a href="{% url 'moment_web:hot_ranking' %}"
@@ -824,15 +825,15 @@
                 target_id: targetId
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                console.error('添加历史记录失败:', data.message);
-            }
-        })
-        .catch(error => {
-            console.error('添加历史记录失败:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('添加历史记录失败:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('添加历史记录失败:', error);
+            });
     }
 
     // 获取CSRF令牌
@@ -854,16 +855,17 @@
     // 轮播
     document.addEventListener('DOMContentLoaded', function () {
         const imageElement = document.getElementById('dynamicImage');
-        let a = 1; // 初始化变量 a
-        const maxImageNumber = 16; // 假设图片编号从 1 到 5，可根据实际情况修改
+        let a = 1;
+        const maxImageNumber = 16;
+        const baseUrl = "{% static 'static/images/' %}";
 
         // 定义函数用于更新图片地址
         function updateImage() {
             a++;
             if (a > maxImageNumber) {
-                a = 1; // 如果 a 超过最大图片编号，则重置为 1
+                a = 1;
             }
-            imageElement.src = `../static/images/${a}.jpg`;
+            imageElement.src = baseUrl + a + ".jpg";
         }
 
         // 初始调用一次更新图片地址

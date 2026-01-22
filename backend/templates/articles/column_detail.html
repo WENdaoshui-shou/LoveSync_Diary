@@ -123,9 +123,10 @@
     // 无限滚动加载
     let page = 1;
     let isLoading = false;
+    let hasMore = true;
 
     window.addEventListener('scroll', () => {
-        if (isLoading) return;
+        if (isLoading || !hasMore) return;
 
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
             loadMoreArticles();
@@ -133,6 +134,8 @@
     });
 
     async function loadMoreArticles() {
+        if (isLoading || !hasMore) return;
+
         isLoading = true;
         document.getElementById('load-more').classList.remove('hidden');
 
@@ -144,11 +147,33 @@
                     page++;
                     const articleList = document.getElementById('article-list');
                     // 渲染新文章
-                    // ...
+                    data.forEach(article => {
+                        const articleElement = document.createElement('div');
+                        articleElement.className = 'bg-white rounded-xl border border-neutral-200 p-4 hover:shadow-sm transition-shadow cursor-pointer';
+                        articleElement.onclick = () => window.location.href = `{% url 'article_detail' 0 %}`.replace('0', article.id);
+                        articleElement.innerHTML = `
+                            <h3 class="font-semibold text-neutral-800 hover:text-primary transition-colors mb-1">${article.title}</h3>
+                            <p class="text-sm text-neutral-500 line-clamp-2 mb-3">${article.content.replace(/<[^>]*>/g, '').substring(0, 100)}${article.content.replace(/<[^>]*>/g, '').length > 100 ? '...' : ''}</p>
+                            <div class="flex items-center justify-between text-xs text-neutral-400">
+                                <span>${article.published_at}</span>
+                                <div class="flex items-center gap-3">
+                                    <span><i class="fa-regular fa-eye mr-1"></i>${article.view_count}</span>
+                                    <span><i class="fa-regular fa-heart mr-1"></i>${article.like_count}</span>
+                                    <span><i class="fa-regular fa-comment mr-1"></i>${article.comment_count}</span>
+                                </div>
+                            </div>
+                        `;
+                        articleList.appendChild(articleElement);
+                    });
                 } else {
                     // 无更多数据
+                    hasMore = false;
                     document.getElementById('load-more').textContent = '已加载全部内容';
                 }
+            } else {
+                // API返回错误
+                document.getElementById('load-more').textContent = '加载失败，点击重试';
+                document.getElementById('load-more').addEventListener('click', loadMoreArticles);
             }
         } catch (error) {
             console.error('加载失败:', error);

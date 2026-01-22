@@ -99,7 +99,6 @@
 <!-- 主内容区 -->
 <div class="flex-grow pt-24 pb-16 relative z-10 pl-0 md:pl-64">
     <div class="container mx-auto px-4">
-        <!-- 小屏幕下换行显示 -->
         <div class="flex flex-col md:flex-row flex-wrap">
             <!-- 中间内容区 -->
             <div class="w-full md:w-3/4 md:px-6 space-y-6">
@@ -118,20 +117,17 @@
                 <div class="space-y-6" id="history-list">
                     {% if histories %}
                     {% for history in histories %}
-                    <!-- 历史记录项 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden history-card">
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center space-x-3">
                                     {% if history.history_type == 'moment' %}
-                                    <!-- 动态历史 -->
                                     <div
                                         class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary history-icon">
                                         <i class="fa-solid fa-newspaper"></i>
                                     </div>
                                     <span class="text-neutral-700 font-medium">浏览了动态</span>
                                     {% elif history.history_type == 'user' %}
-                                    <!-- 用户主页历史 -->
                                     <div
                                         class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary history-icon">
                                         <i class="fa-solid fa-user"></i>
@@ -143,23 +139,27 @@
                                     {{ history.viewed_at|date:"Y-m-d H:i" }}
                                 </span>
                             </div>
-
-                            <!-- 历史详情 -->
                             <div class="ml-13">
                                 {% if history.history_type == 'moment' %}
-                                <!-- 动态详情 -->
                                 <div class="p-4 bg-neutral-50 rounded-lg">
-                                    <p class="text-neutral-800 mb-2">
-                                        {{ history.title|default:"动态内容..." }}
-                                    </p>
-                                    <div class="flex justify-end space-x-4 text-neutral-500 text-sm">
-                                        <span><i class="fa-regular fa-eye mr-1"></i> 浏览</span>
-                                        <span><i class="fa-regular fa-heart mr-1"></i> {{ history.likes }}</span>
-                                        <span><i class="fa-regular fa-comment mr-1"></i> {{ history.comments }}</span>
+                                    <div class="flex items-start space-x-3">
+                                        {% if history.image_url %}
+                                        <div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden">
+                                            <img src="{{ history.image_url }}" alt="动态图片"
+                                                class="w-full h-full object-cover">
+                                        </div>
+                                        {% endif %}
+                                        <div class="flex-1">
+                                            <p class="text-neutral-800 mb-2">{{ history.title }}</p>
+                                            <div class="flex justify-end space-x-4 text-neutral-500 text-sm">
+                                                <span><i class="fa-regular fa-eye mr-1"></i> {{ history.views }}</span>
+                                                <span><i class="fa-regular fa-heart mr-1"></i> {{ history.likes }}</span>
+                                                <span><i class="fa-regular fa-comment mr-1"></i> {{ history.comments }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 {% elif history.history_type == 'user' %}
-                                <!-- 用户主页详情 -->
                                 <div class="p-4 bg-neutral-50 rounded-lg">
                                     <div class="flex items-center space-x-3 mb-2">
                                         <div class="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden">
@@ -178,16 +178,13 @@
                     </div>
                     {% endfor %}
                     {% else %}
-                    <!-- 无历史记录 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden p-12 text-center">
                         <div
                             class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4">
                             <i class="fa-solid fa-history text-3xl"></i>
                         </div>
                         <h3 class="text-lg font-semibold text-neutral-800 mb-2">暂无浏览历史</h3>
-                        <p class="text-neutral-500 mb-6">
-                            浏览动态或用户主页后，这里会显示你的历史记录
-                        </p>
+                        <p class="text-neutral-500 mb-6">浏览动态或用户主页后，这里会显示你的历史记录</p>
                         <a href="{% url 'community' %}"
                             class="inline-flex items-center space-x-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary/90 transition-all duration-200">
                             <i class="fa-solid fa-arrow-right"></i>
@@ -197,14 +194,14 @@
                     {% endif %}
                 </div>
 
-                <!-- 加载中指示器 -->
+                <!-- 加载提示 -->
                 <div id="loading-indicator" class="mt-8 text-center hidden">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary">
                     </div>
                     <p class="mt-2 text-neutral-500 text-sm">加载更多历史记录...</p>
                 </div>
 
-                <!-- 没有更多内容提示 -->
+                <!-- 无更多提示 -->
                 <div id="no-more-content" class="mt-8 text-center hidden">
                     <i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i>
                     <p class="text-neutral-500 text-sm">已经到底啦，没有更多历史记录了</p>
@@ -261,9 +258,7 @@
                         </div>
                         {% endfor %}
                         {% else %}
-                        <p class="text-neutral-500 text-sm text-center py-4">
-                            暂无浏览记录
-                        </p>
+                        <p class="text-neutral-500 text-sm text-center py-4">暂无浏览记录</p>
                         {% endif %}
                     </div>
                 </div>
@@ -278,16 +273,12 @@
                         <a href="{% url 'community' %}"
                             class="block p-4 border border-neutral-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all recommendation-card">
                             <h4 class="font-medium text-neutral-800 mb-1">浏览社区热门动态</h4>
-                            <p class="text-neutral-500 text-sm">
-                                发现更多有趣的内容
-                            </p>
+                            <p class="text-neutral-500 text-sm">发现更多有趣的内容</p>
                         </a>
                         <a href="{% url 'moment_web:hot_ranking' %}"
                             class="block p-4 border border-neutral-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all recommendation-card">
                             <h4 class="font-medium text-neutral-800 mb-1">查看热门排行榜</h4>
-                            <p class="text-neutral-500 text-sm">
-                                了解社区最受欢迎的内容
-                            </p>
+                            <p class="text-neutral-500 text-sm">了解社区最受欢迎的内容</p>
                         </a>
                     </div>
                 </div>
@@ -297,13 +288,10 @@
 </div>
 
 <script>
-    // 页面加载完成后执行
     document.addEventListener('DOMContentLoaded', function () {
-        // 初始化无限滚动
         initInfiniteScroll();
     });
 
-    // 防抖函数
     function debounce(func, wait) {
         let timeout;
         return function () {
@@ -314,7 +302,6 @@
         };
     }
 
-    // 初始化无限滚动
     function initInfiniteScroll() {
         const historyList = document.getElementById('history-list');
         const loadingIndicator = document.getElementById('loading-indicator');
@@ -323,98 +310,101 @@
 
         let page = 2;
         let isLoading = false;
-        let hasMore = "{{ has_next|lower }}" === "true";
+        let hasMore = true;
 
-        // 如果没有历史记录，不初始化滚动事件
-        if (hasHistories === 'false') {
-            return;
-        }
-
-        // 监听滚动事件（使用防抖）
+        // 监听滚动事件
         window.addEventListener('scroll', debounce(function () {
             if (isLoading || !hasMore) return;
 
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight;
             const clientHeight = document.documentElement.clientHeight;
+            const distanceToBottom = scrollHeight - scrollTop - clientHeight;
 
-            // 当滚动到距离底部100px时加载更多
-            if (scrollTop + clientHeight >= scrollHeight - 100) {
+            if (distanceToBottom <= 100) {
                 loadMoreHistory();
             }
         }, 200));
 
-        // 加载更多历史记录
         function loadMoreHistory() {
             if (isLoading || !hasMore) return;
 
             isLoading = true;
             loadingIndicator.classList.remove('hidden');
+            noMoreContent.classList.add('hidden'); // 加载时隐藏无更多提示
 
-            // 发送AJAX请求
             fetch(`/history/load-more/?page=${page}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
-                }
+                },
+                signal: AbortSignal.timeout(10000)
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+                    return response.json();
+                })
                 .then(data => {
                     isLoading = false;
                     loadingIndicator.classList.add('hidden');
 
                     if (data.success) {
-                        if (data.histories.length > 0) {
-                            // 添加新的历史记录
+                        // 关键判断：只要返回的历史记录为空，就判定为无更多
+                        if (data.histories && data.histories.length > 0) {
                             data.histories.forEach(history => {
                                 const historyItem = createHistoryItem(history);
                                 historyList.insertAdjacentHTML('beforeend', historyItem);
                             });
-
                             page++;
-                            hasMore = data.has_next;
+                            // 可选：如果后端返回has_next，优先用后端值；否则用数据长度判断
+                            hasMore = data.has_next === true && data.histories.length > 0;
                         } else {
-                            // 没有更多内容
+                            // 数据为空 → 强制设置无更多并显示提示
                             hasMore = false;
                             noMoreContent.classList.remove('hidden');
                         }
-                    } else {
-                        console.error('加载历史记录失败:', data.message);
                     }
                 })
                 .catch(error => {
                     isLoading = false;
                     loadingIndicator.classList.add('hidden');
-                    console.error('加载历史记录失败:', error);
                 });
         }
 
-        // 创建历史记录项HTML
         function createHistoryItem(history) {
-            let historyTypeIcon, historyTypeText, historyContent;
+            if (!history) return '';
+            let historyTypeIcon = 'question', historyTypeText = '未知类型', historyContent = '';
 
             if (history.history_type === 'moment') {
                 historyTypeIcon = 'newspaper';
                 historyTypeText = '浏览了动态';
                 historyContent = `
                     <div class="p-4 bg-neutral-50 rounded-lg">
-                        <p class="text-neutral-800 mb-2">${history.title}</p>
-                        <div class="flex justify-end space-x-4 text-neutral-500 text-sm">
-                            <span><i class="fa-regular fa-eye mr-1"></i> 浏览</span>
-                            <span><i class="fa-regular fa-heart mr-1"></i> ${history.likes}</span>
-                            <span><i class="fa-regular fa-comment mr-1"></i> ${history.comments}</span>
+                        <div class="flex items-start space-x-3">
+                            ${history.image_url ? `<div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden">
+                                <img src="${history.image_url}" alt="动态图片" class="w-full h-full object-cover">
+                            </div>` : ''}
+                            <div class="flex-1">
+                                <p class="text-neutral-800 mb-2">${history.title || '动态内容...'}</p>
+                                <div class="flex justify-end space-x-4 text-neutral-500 text-sm">
+                                    <span><i class="fa-regular fa-eye mr-1"></i> 浏览</span>
+                                    <span><i class="fa-regular fa-heart mr-1"></i> ${history.likes || 0}</span>
+                                    <span><i class="fa-regular fa-comment mr-1"></i> ${history.comments || 0}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
             } else if (history.history_type === 'user') {
                 historyTypeIcon = 'user';
                 historyTypeText = '浏览了用户主页';
+                const defaultAvatar = "{% static 'images/default_avatar.png' %}";
                 historyContent = `
                     <div class="p-4 bg-neutral-50 rounded-lg">
                         <div class="flex items-center space-x-3 mb-2">
                             <div class="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden">
-                                <img src="${history.user_avatar || '{% static "images/default_avatar.png" %}'}" alt="用户头像" class="w-full h-full object-cover">
+                                <img src="${history.user_avatar}" alt="用户头像" class="w-full h-full object-cover">
                             </div>
                             <div>
                                 <h4 class="text-neutral-800 font-medium">${history.username}</h4>
@@ -435,19 +425,14 @@
                                 </div>
                                 <span class="text-neutral-700 font-medium">${historyTypeText}</span>
                             </div>
-                            <span class="text-neutral-500 text-sm">
-                                ${history.viewed_at}
-                            </span>
+                            <span class="text-neutral-500 text-sm">${history.viewed_at}</span>
                         </div>
-                        <div class="ml-13">
-                            ${historyContent}
-                        </div>
+                        <div class="ml-13">${historyContent}</div>
                     </div>
                 </div>
             `;
         }
 
-        // 获取CSRF令牌
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -464,28 +449,23 @@
         }
     }
 
-    // 添加浏览历史记录的函数（供其他页面调用）
     function addHistoryRecord(historyType, targetId) {
-        fetch('/history/add/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                history_type: historyType,
-                target_id: targetId
+        if (addHistoryRecord.timer) clearTimeout(addHistoryRecord.timer);
+        addHistoryRecord.timer = setTimeout(() => {
+            fetch('/history/add/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ history_type: historyType, target_id: targetId })
             })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    console.error('添加历史记录失败:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('添加历史记录失败:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) console.error('添加历史记录失败:', data.message);
+                })
+                .catch(error => console.error('添加历史记录失败:', error));
+        }, 500);
     }
 </script>
 {% endblock %}

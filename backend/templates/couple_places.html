@@ -168,12 +168,7 @@
                         class="absolute top-3 right-3 bg-gradient-love rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
                         <i class="fa fa-star mr-1"></i> {{ place.rating }}分
                     </div>
-                    {% if place.image_url %}
                     <img src="{{ place.image_url }}" alt="{{ place.name }}" class="w-full h-48 object-cover">
-                    {% else %}
-                    <img src="https://picsum.photos/600/300?random={{ place.id }}" alt="{{ place.name }}"
-                        class="w-full h-48 object-cover">
-                    {% endif %}
                 </div>
 
                 <div class="p-5">
@@ -239,8 +234,6 @@
             <i class="fa-solid fa-check-circle text-[#FF6B8B] text-2xl mb-2"></i>
             <p class="text-neutral-500 text-sm">已经到底啦，没有更多地点了</p>
         </div>
-
-
 
     </div>
 </main>
@@ -364,85 +357,181 @@
                 this.classList.remove('border-neutral-200');
                 this.classList.remove('text-neutral-700');
 
-                // 模拟筛选加载效果
+                // 筛选加载效果
                 this.classList.add('animate-pulse');
-                setTimeout(() => {
-                    this.classList.remove('animate-pulse');
 
-                    // 模拟筛选结果
-                    const filterText = this.textContent.trim();
-                }, 500);
-            });
-        });
+                // 获取筛选类型
+                const placeType = this.textContent.trim();
 
-        // 地图交互
-        const viewMapButton = document.querySelector('.map-container button');
-        if (viewMapButton) {
-            viewMapButton.addEventListener('click', function () {
-                // 这里可以添加打开完整地图的逻辑
-            });
-        }
+                // 重置分页参数
+                window.page = 1;
+                window.hasMoreContent = true;
 
-        // 无限滚动加载
-        let isLoading = false;
-        let page = 1;
-        let hasMoreContent = true;
+                // 清空地点列表
+                const placesContainer = document.querySelector('.space-y-5');
 
-        function loadMorePlaces() {
-            if (isLoading || !hasMoreContent) return;
+                // 清空所有内容（包括地点卡片和无数据提示）
+                placesContainer.innerHTML = '';
 
-            isLoading = true;
-            document.getElementById('loading-indicator').classList.remove('hidden');
+                // 隐藏"没有更多内容"提示
+                document.getElementById('no-more-content').classList.add('hidden');
 
-            fetch(`/couple/places/api/?page=${page}`, {
-                credentials: 'same-origin',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                // 显示加载指示器
+                document.getElementById('loading-indicator').classList.remove('hidden');
+
+                // 发送请求获取筛选后的数据
+                fetch(`/couple/places/api/?page=${window.page}&place_type=${encodeURIComponent(placeType)}`, {
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
                     }
-                    return response.json();
                 })
-                .then(data => {
-                    page++;
-                    isLoading = false;
-                    document.getElementById('loading-indicator').classList.add('hidden');
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 移除加载效果
+                        this.classList.remove('animate-pulse');
+                        document.getElementById('loading-indicator').classList.add('hidden');
 
-                    if (data.success) {
-                        if (data.places.length === 0) {
-                            hasMoreContent = false;
-                            document.getElementById('no-more-content').classList.remove('hidden');
+                        if (data.success) {
+                            window.page++;
+
+                            if (data.places.length === 0) {
+                                window.hasMoreContent = false;
+
+                                // 显示无数据提示
+                                if (!noPlaces) {
+                                    const noDataHTML = `
+                                    <div class="col-span-full text-center py-12">
+                                        <i class="fa-solid fa-map-marker text-6xl text-neutral-300 mb-4"></i>
+                                        <p class="text-neutral-500">暂无${placeType}类型的情侣地点</p>
+                                        <p class="text-neutral-400 text-sm mt-2">系统将在后续更新中添加更多情侣地点</p>
+                                    </div>
+                                `;
+                                    placesContainer.innerHTML = noDataHTML;
+                                }
+                            } else {
+                                // 添加新的地点卡片
+                                addPlacesToPage(data.places);
+
+                                // 检查是否还有更多数据
+                                if (!data.has_more) {
+                                    window.hasMoreContent = false;
+                                    document.getElementById('no-more-content').classList.remove('hidden');
+                                }
+                            }
                         } else {
-                            addPlacesToPage(data.places);
+                            console.error('API请求失败:', data.message);
 
-                            // 检查是否还有更多数据
-                            if (!data.has_more) {
-                                hasMoreContent = false;
-                                document.getElementById('no-more-content').classList.remove('hidden');
+                            // 显示错误提示
+                            if (!noPlaces) {
+                                const errorHTML = `
+                                <div class="col-span-full text-center py-12">
+                                    <i class="fa-solid fa-exclamation-circle text-6xl text-neutral-300 mb-4"></i>
+                                    <p class="text-neutral-500">加载失败，请稍后重试</p>
+                                    <p class="text-neutral-400 text-sm mt-2">${data.message || '未知错误'}</p>
+                                `;
+                                placesContainer.innerHTML = errorHTML;
                             }
                         }
+                    })
+                    .catch(error => {
+                        console.error('加载失败:', error);
+                        this.classList.remove('animate-pulse');
+                        document.getElementById('loading-indicator').classList.add('hidden');
+
+                        // 显示错误提示
+                        if (!noPlaces) {
+                            const errorHTML = `
+                            <div class="col-span-full text-center py-12">
+                                <i class="fa-solid fa-exclamation-circle text-6xl text-neutral-300 mb-4"></i>
+                                <p class="text-neutral-500">加载失败，请稍后重试</p>
+                                <p class="text-neutral-400 text-sm mt-2">网络错误</p>
+                            </div>
+                        `;
+                            placesContainer.innerHTML = errorHTML;
+                        }
+                    });
+            });
+        });
+    });
+
+    // 地图交互
+    const viewMapButton = document.querySelector('.map-container button');
+    if (viewMapButton) {
+        viewMapButton.addEventListener('click', function () {
+            // 这里可以添加打开完整地图的逻辑
+        });
+    }
+
+    // 无限滚动加载
+    let isLoading = false;
+    window.page = 1;
+    window.hasMoreContent = true;
+
+    function loadMorePlaces() {
+        if (isLoading || !window.hasMoreContent) return;
+
+        isLoading = true;
+        document.getElementById('loading-indicator').classList.remove('hidden');
+
+        // 获取当前选中的分类
+        const selectedCategory = document.querySelector('.scrollbar-hide button.bg-gradient-love');
+        const placeType = selectedCategory ? selectedCategory.textContent.trim() : '全部地点';
+
+        fetch(`/couple/places/api/?page=${window.page}&place_type=${encodeURIComponent(placeType)}`, {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                window.page++;
+                isLoading = false;
+                document.getElementById('loading-indicator').classList.add('hidden');
+
+                if (data.success) {
+                    if (data.places.length === 0) {
+                        window.hasMoreContent = false;
+                        document.getElementById('no-more-content').classList.remove('hidden');
                     } else {
-                        console.error('API请求失败:', data.message);
+                        addPlacesToPage(data.places);
+
+                        // 检查是否还有更多数据
+                        if (!data.has_more) {
+                            window.hasMoreContent = false;
+                            document.getElementById('no-more-content').classList.remove('hidden');
+                        }
                     }
-                })
-                .catch(error => {
-                    console.error('加载失败:', error);
-                    isLoading = false;
-                    document.getElementById('loading-indicator').classList.add('hidden');
-                });
-        }
+                } else {
+                    console.error('API请求失败:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('加载失败:', error);
+                isLoading = false;
+                document.getElementById('loading-indicator').classList.add('hidden');
+            });
+    }
 
-        function addPlacesToPage(places) {
-            const placesContainer = document.querySelector('.space-y-5');
+    function addPlacesToPage(places) {
+        const placesContainer = document.querySelector('.space-y-5');
 
-            places.forEach(place => {
-                // 创建地点卡片
-                const placeCard = document.createElement('div');
-                placeCard.className = 'bg-white rounded-xl shadow-custom overflow-hidden place-card animate-slide-up';
-                placeCard.innerHTML = `
+        places.forEach(place => {
+            // 创建地点卡片
+            const placeCard = document.createElement('div');
+            placeCard.className = 'bg-white rounded-xl shadow-custom overflow-hidden place-card animate-slide-up';
+            placeCard.innerHTML = `
                     <div class="relative">
                         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
                             <i class="fa fa-map-marker text-primary mr-1"></i> ${place.place_type}
@@ -486,203 +575,202 @@
                     </div>
                 `;
 
-                // 添加到页面
-                placesContainer.appendChild(placeCard);
+            // 添加到页面
+            placesContainer.appendChild(placeCard);
 
-                // 为新添加的卡片添加事件监听
-                const cardButton = placeCard.querySelector('button');
-                if (cardButton) {
-                    cardButton.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const placeId = this.getAttribute('data-place-id');
-                        const icon = this.querySelector('i');
+            // 为新添加的卡片添加事件监听
+            const cardButton = placeCard.querySelector('button');
+            if (cardButton) {
+                cardButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const placeId = this.getAttribute('data-place-id');
+                    const icon = this.querySelector('i');
 
-                        // 检查当前状态
-                        const isCollected = icon.classList.contains('fa-heart');
+                    // 检查当前状态
+                    const isCollected = icon.classList.contains('fa-heart');
 
-                        if (isCollected) {
-                            // 取消收藏
-                            fetch('/user/api/collection/remove/', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                    'X-CSRFToken': getCookie('csrftoken')
-                                },
-                                body: `content_type=place&object_id=${placeId}`
+                    if (isCollected) {
+                        // 取消收藏
+                        fetch('/user/api/collection/remove/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: `content_type=place&object_id=${placeId}`
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    icon.classList.remove('fa-heart');
+                                    icon.classList.add('fa-heart-o');
+                                    this.classList.remove('bg-primary');
+                                    this.classList.add('bg-neutral-100');
+                                    this.classList.add('text-neutral-500');
+                                    this.classList.remove('text-white');
+                                    this.innerHTML = '<i class="fa fa-heart-o mr-1"></i> 收藏';
+                                } else {
+                                    console.error('取消收藏失败:', data.message);
+                                }
                             })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        icon.classList.remove('fa-heart');
-                                        icon.classList.add('fa-heart-o');
-                                        this.classList.remove('bg-primary');
-                                        this.classList.add('bg-neutral-100');
-                                        this.classList.add('text-neutral-500');
-                                        this.classList.remove('text-white');
-                                        this.innerHTML = '<i class="fa fa-heart-o mr-1"></i> 收藏';
-                                    } else {
-                                        console.error('取消收藏失败:', data.message);
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('取消收藏失败:', error);
-                                });
-                        } else {
-                            // 添加收藏
-                            fetch('/user/api/collection/add/', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                    'X-CSRFToken': getCookie('csrftoken')
-                                },
-                                body: `content_type=place&object_id=${placeId}`
+                            .catch(error => {
+                                console.error('取消收藏失败:', error);
+                            });
+                    } else {
+                        // 添加收藏
+                        fetch('/user/api/collection/add/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: `content_type=place&object_id=${placeId}`
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
                             })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error('Network response was not ok');
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        icon.classList.remove('fa-heart-o');
-                                        icon.classList.add('fa-heart');
-                                        this.classList.add('bg-primary');
-                                        this.classList.remove('bg-neutral-100');
-                                        this.classList.remove('text-neutral-500');
-                                        this.classList.add('text-white');
-                                        this.innerHTML = '<i class="fa fa-heart mr-1"></i> 已收藏';
-                                    } else {
-                                        console.error('收藏失败:', data.message);
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('收藏失败:', error);
-                                });
+                            .then(data => {
+                                if (data.success) {
+                                    icon.classList.remove('fa-heart-o');
+                                    icon.classList.add('fa-heart');
+                                    this.classList.add('bg-primary');
+                                    this.classList.remove('bg-neutral-100');
+                                    this.classList.remove('text-neutral-500');
+                                    this.classList.add('text-white');
+                                    this.innerHTML = '<i class="fa fa-heart mr-1"></i> 已收藏';
+                                } else {
+                                    console.error('收藏失败:', data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('收藏失败:', error);
+                            });
+                    }
+                });
+            }
+        });
+    }
+
+    function generateRatingStars(rating) {
+        let stars = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= Math.floor(rating)) {
+                stars += '<i class="fa fa-star"></i>';
+            } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+                stars += '<i class="fa fa-star-half-o"></i>';
+            } else {
+                stars += '<i class="fa fa-star-o"></i>';
+            }
+        }
+        return stars;
+    }
+
+    // 监听滚动事件
+    window.addEventListener('scroll', () => {
+        if (!window.hasMoreContent) return;
+
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+
+        // 当滚动到页面底部附近时加载更多
+        if (scrollTop + clientHeight >= scrollHeight - 500) {
+            loadMorePlaces();
+        }
+    });
+
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // 获取CSRF令牌
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+
+    // 响应式适配
+    function handleResponsive() {
+        const isMobile = window.innerWidth < 768;
+
+        // 移动端适配逻辑
+        if (isMobile) {
+            console.log('Mobile view detected');
+        } else {
+            console.log('Desktop view detected');
+        }
+    }
+
+    // 初始调用
+    handleResponsive();
+
+    // 初始化收藏状态
+    function initCollectionStatus() {
+        // 获取用户收藏的地点
+        fetch('/user/api/collection/list/?content_type=place', {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const collectedPlaceIds = data.places.map(place => place.id);
+
+                    // 更新收藏按钮状态
+                    document.querySelectorAll('.place-card button').forEach(button => {
+                        const placeId = button.getAttribute('data-place-id');
+                        const icon = button.querySelector('i');
+
+                        if (collectedPlaceIds.includes(parseInt(placeId))) {
+                            // 已收藏状态
+                            icon.classList.remove('fa-heart-o');
+                            icon.classList.add('fa-heart');
+                            button.classList.add('bg-primary');
+                            button.classList.remove('bg-neutral-100');
+                            button.classList.remove('text-neutral-500');
+                            button.classList.add('text-white');
+                            button.innerHTML = '<i class="fa fa-heart mr-1"></i> 已收藏';
                         }
                     });
                 }
-            });
-        }
-
-        function generateRatingStars(rating) {
-            let stars = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= Math.floor(rating)) {
-                    stars += '<i class="fa fa-star"></i>';
-                } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
-                    stars += '<i class="fa fa-star-half-o"></i>';
-                } else {
-                    stars += '<i class="fa fa-star-o"></i>';
-                }
-            }
-            return stars;
-        }
-
-        // 监听滚动事件
-        window.addEventListener('scroll', () => {
-            if (!hasMoreContent) return;
-
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight;
-            const clientHeight = document.documentElement.clientHeight;
-
-            // 当滚动到页面底部附近时加载更多
-            if (scrollTop + clientHeight >= scrollHeight - 500) {
-                loadMorePlaces();
-            }
-        });
-
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // 获取CSRF令牌
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-
-
-        // 响应式适配
-        function handleResponsive() {
-            const isMobile = window.innerWidth < 768;
-
-            // 移动端适配逻辑
-            if (isMobile) {
-                console.log('Mobile view detected');
-            } else {
-                console.log('Desktop view detected');
-            }
-        }
-
-        // 初始调用
-        handleResponsive();
-
-        // 初始化收藏状态
-        function initCollectionStatus() {
-            // 获取用户收藏的地点
-            fetch('/user/api/collection/list/?content_type=place', {
-                credentials: 'same-origin',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const collectedPlaceIds = data.places.map(place => place.id);
+            .catch(error => {
+                console.error('获取收藏状态失败:', error);
+            });
+    }
 
-                        // 更新收藏按钮状态
-                        document.querySelectorAll('.place-card button').forEach(button => {
-                            const placeId = button.getAttribute('data-place-id');
-                            const icon = button.querySelector('i');
+    // 调用初始化收藏状态
+    initCollectionStatus();
 
-                            if (collectedPlaceIds.includes(parseInt(placeId))) {
-                                // 已收藏状态
-                                icon.classList.remove('fa-heart-o');
-                                icon.classList.add('fa-heart');
-                                button.classList.add('bg-primary');
-                                button.classList.remove('bg-neutral-100');
-                                button.classList.remove('text-neutral-500');
-                                button.classList.add('text-white');
-                                button.innerHTML = '<i class="fa fa-heart mr-1"></i> 已收藏';
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('获取收藏状态失败:', error);
-                });
-        }
-
-        // 调用初始化收藏状态
-        initCollectionStatus();
-
-        // 窗口大小变化时调用
-        window.addEventListener('resize', handleResponsive);
-    });
+    // 窗口大小变化时调用
+    window.addEventListener('resize', handleResponsive);
 
 </script>
 {% endblock %}
