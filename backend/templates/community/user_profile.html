@@ -214,9 +214,7 @@
             <div class="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -mr-10 -mt-10"></div>
             <div class="absolute bottom-0 left-0 w-16 h-16 bg-secondary/10 rounded-full -ml-8 -mb-8"></div>
             <h3 class="text-lg font-semibold text-neutral-900 mb-4">爱情誓言</h3>
-            <p class="text-neutral-700 italic relative z-10">{% if target_user.profile.bio %}"{{ target_user.profile.bio
-                }}"{% else
-                %}"愿我们的爱情如星辰般永恒，如大海般深邃。"{% endif %}</p>
+            <p class="text-neutral-700 italic relative z-10">{% if target_user.profile.bio %}"{{ target_user.profile.bio }}"{% else%}"愿我们的爱情如星辰般永恒，如大海般深邃。"{% endif %}</p>
             <div class="flex justify-between mt-4">
                 <span class="text-sm text-neutral-500">{{ target_user.name }}</span>
                 {% if target_user.profile.couple and target_user.profile.couple.user %}
@@ -406,7 +404,7 @@
         button.disabled = true;
 
         // 发送AJAX请求
-        fetch('{% url "core:follow_toggle" %}', {
+        fetch('{% url "user:follow_toggle" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

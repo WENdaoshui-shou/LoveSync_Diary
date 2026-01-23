@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Profile, VIPMember, VIPPrivilege
+from .models import User, Profile
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
@@ -101,17 +101,4 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class VIPMemberSerializer(serializers.ModelSerializer):
-    """VIP会员序列化器"""
-    class Meta:
-        model = VIPMember
-        fields = ['id', 'user', 'level', 'start_date', 'end_date', 'is_active', 'renewal_count', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']
 
-
-class VIPPrivilegeSerializer(serializers.ModelSerializer):
-    """VIP特权序列化器"""
-    class Meta:
-        model = VIPPrivilege
-        fields = ['id', 'name', 'description', 'required_level', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']

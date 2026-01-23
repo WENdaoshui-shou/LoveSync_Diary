@@ -16,8 +16,8 @@ import random
 import string
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from .models import User, Profile, VerificationCode, VIPMember, VIPPrivilege
-from .serializers import UserSerializer, ProfileSerializer, CustomTokenObtainPairSerializer, RegisterSerializer, VIPMemberSerializer, VIPPrivilegeSerializer
+from .models import User, Profile, VerificationCode
+from .serializers import UserSerializer, ProfileSerializer, CustomTokenObtainPairSerializer, RegisterSerializer
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -174,35 +174,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
 
 
-class VIPMemberViewSet(viewsets.ModelViewSet):
-    """VIP会员视图集"""
-    queryset = VIPMember.objects.all()
-    serializer_class = VIPMemberSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        """获取当前用户的VIP信息"""
-        return self.queryset.filter(user=self.request.user)
-    
-    def perform_create(self, serializer):
-        """创建VIP会员时自动关联当前用户"""
-        serializer.save(user=self.request.user)
-
-
-class VIPPrivilegeViewSet(viewsets.ModelViewSet):
-    """VIP特权视图集"""
-    queryset = VIPPrivilege.objects.all()
-    serializer_class = VIPPrivilegeSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        """获取当前用户可用的VIP特权"""
-        # 获取当前用户的VIP等级
-        user_vip = self.request.user.vip
-        # 获取所有当前等级及以下的特权
-        return self.queryset.filter(required_level__lte=user_vip.level)
-
-
 # 首页视图
 class IndexView(TemplateView):
     template_name = 'index.html'
@@ -286,21 +257,20 @@ def login_view(request):
             if user_obj.check_password(password):
                 # 直接登录用户
                 login(request, user_obj)
-                # 根据remember_me设置session过期时间
-                if not remember_me:
-                    request.session.set_expiry(0)  # 关闭浏览器后失效
+                
+                # 处理"记住我"功能
+                if remember_me:
+                    # 设置session过期时间为7天
+                    request.session.set_expiry(7 * 24 * 60 * 60)
+                else:
+                    # 关闭浏览器后失效
+                    request.session.set_expiry(0)
+                
                 messages.success(request, '登录成功')
                 return redirect('community')
             else:
-                # 手动使用Django的密码编码器检查
-                from django.contrib.auth.hashers import check_password as django_check_password
-                if django_check_password(password, user_obj.password):
-                    login(request, user_obj)
-                    messages.success(request, '登录成功')
-                    return redirect('community')
-                else:
-                    messages.error(request, '密码错误')
-                    return redirect('login')
+                messages.error(request, '密码错误')
+                return redirect('login')
         except User.DoesNotExist:
             messages.error(request, f'未注册')
             return redirect('login')
@@ -402,11 +372,13 @@ def personal_center_view(request):
     followers_count = Follow.objects.filter(following=user, is_deleted=False).count()
     
     # 获取用户成就
-    from .models import UserAchievement
+    from user.models import UserAchievement
     user_achievements = UserAchievement.objects.filter(user=user, unlocked=True).order_by('-unlocked_at')[:5]
     
     # 获取用户VIP信息
-    vip_member = user.vip
+    vip_member = None
+    if hasattr(user, 'vip'):
+        vip_member = user.vip
     
     # 获取最近的动态
     recent_moments = Moment.objects.filter(user=user).order_by('-created_at')[:3]
@@ -670,235 +642,3 @@ def verify_code(request):
     
     # 返回图片响应
     return HttpResponse(buffer.getvalue(), content_type='image/png')
-
-
-# 删除账号视图
-@login_required
-def delete_account(request):
-    """删除账号"""
-    if request.method == 'POST':
-        try:
-            # 获取当前用户
-            user = request.user
-            
-            # 删除用户相关的所有数据
-            # 这里会自动级联删除相关模型（如Profile、VIPMember等）
-            user.delete()
-            
-            # 登出用户
-            logout(request)
-            
-            messages.success(request, '账号已成功删除')
-            return redirect('login')
-        except Exception as e:
-            messages.error(request, f'删除账号失败: {str(e)}')
-            return redirect('couple')
-    
-    # 如果不是POST请求，重定向到情侣页面
-    return redirect('couple')
-
-
-# 成就页面视图
-@login_required
-def achievements_view(request):
-    """成就页面"""
-    return render(request, 'achievements.html', {
-        'user': request.user
-    })
-
-
-# 成就数据API视图
-@login_required
-def get_achievements_data(request):
-    """获取用户成就数据"""
-    from .models import Achievement, UserAchievement
-    
-    # 获取用户的所有成就
-    user_achievements = UserAchievement.objects.filter(user=request.user).select_related('achievement')
-    
-    # 构建成就数据
-    achievements_data = []
-    for ua in user_achievements:
-        achievement = ua.achievement
-        achievements_data.append({
-            'id': achievement.id,
-            'title': achievement.title,
-            'description': achievement.description,
-            'icon': achievement.icon,
-            'unlocked': ua.unlocked,
-            'date': ua.unlocked_at.strftime('%Y-%m-%d') if ua.unlocked_at else None,
-            'progress': ua.progress
-        })
-    
-    # 计算统计数据
-    total = Achievement.objects.count()
-    unlocked = len([a for a in achievements_data if a['unlocked']])
-    completion_rate = round((unlocked / total) * 100) if total > 0 else 0
-    recent_unlocked = len([a for a in achievements_data if a['unlocked']])
-    
-    # 构建响应数据
-    response_data = {
-        'achievements': achievements_data,
-        'stats': {
-            'totalAchievements': total,
-            'unlockedAchievements': unlocked,
-            'completionRate': completion_rate,
-            'recentAchievements': recent_unlocked
-        }
-    }
-    
-    import json
-    return HttpResponse(json.dumps(response_data), content_type='application/json')
-
-
-# 关注模块视图函数
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from user.models import Follow
-
-@login_required
-def follow_toggle(request):
-    """关注/取消关注接口，支持 AJAX"""
-    if request.method == 'POST':
-        followed_id = request.POST.get('followed_id')
-        if not followed_id:
-            return JsonResponse({'success': False, 'message': '缺少被关注用户ID'}, status=400)
-        
-        try:
-            followed = User.objects.get(id=followed_id)
-        except User.DoesNotExist:
-            return JsonResponse({'success': False, 'message': '被关注用户不存在'}, status=404)
-        
-        # 禁止用户关注自己
-        if followed == request.user:
-            return JsonResponse({'success': False, 'message': '不能关注自己'}, status=400)
-        
-        # 使用 get_or_create 判断关注状态，考虑软删除
-        follow_obj, created = Follow.objects.get_or_create(
-            follower=request.user,
-            following=followed,
-            defaults={'is_deleted': False}
-        )
-        
-        if created or follow_obj.is_deleted:
-            # 关注成功
-            follow_obj.is_deleted = False
-            follow_obj.save()
-            
-            # 获取更新后的粉丝数
-            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
-            
-            return JsonResponse({
-                'success': True, 
-                'status': 'followed', 
-                'message': '关注成功',
-                'followers_count': followers_count,
-                'is_following': True
-            })
-        else:
-            # 取消关注
-            follow_obj.is_deleted = True
-            follow_obj.save()
-            
-            # 获取更新后的粉丝数
-            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
-            
-            return JsonResponse({
-                'success': True, 
-                'status': 'unfollowed', 
-                'message': '取消关注成功',
-                'followers_count': followers_count,
-                'is_following': False
-            })
-    else:
-        return JsonResponse({'success': False, 'message': '仅支持POST请求'}, status=405)
-
-@login_required
-def following_list(request):
-    """我的关注列表页面"""
-    # 查询当前用户关注的所有用户
-    follows = Follow.objects.filter(follower=request.user, is_deleted=False).select_related('following').order_by('-created_at')
-    
-    # 构建包含用户信息和关注时间的数据结构
-    user_with_follow_status = []
-    for follow in follows:
-        user_with_follow_status.append({
-            'user': follow.following,
-            'follow_time': follow.created_at,
-            'is_following': True  # 关注列表中的用户肯定是已关注的
-        })
-    
-    # 统计关注数和粉丝数
-    following_count = follows.count()
-    follower_count = Follow.objects.filter(following=request.user, is_deleted=False).count()
-    
-    context = {
-        'page_title': '我的关注',   
-        'user_list': user_with_follow_status,
-        'list_type': 'following',
-        'follows': follows,
-        'following_count': following_count,
-        'follower_count': follower_count
-    }
-    
-    return render(request, 'community/follow_list_fixed.html', context)
-
-@login_required
-def follower_list(request):
-    """我的粉丝列表页面"""
-    # 查询关注当前用户的所有用户
-    follows = Follow.objects.filter(following=request.user, is_deleted=False).select_related('follower').order_by('-created_at')
-    
-    # 统计关注数和粉丝数
-    following_count = Follow.objects.filter(follower=request.user, is_deleted=False).count()
-    follower_count = follows.count()
-    
-    # 为每个粉丝计算是否已被当前用户关注
-    user_with_follow_status = []
-    for follow in follows:
-        is_following = Follow.objects.filter(follower=request.user, following=follow.follower, is_deleted=False).exists()
-        user_with_follow_status.append({
-            'user': follow.follower,
-            'follow_time': follow.created_at,
-            'is_following': is_following
-        })
-    
-    context = {
-        'page_title': '我的粉丝',
-        'user_list': user_with_follow_status,
-        'list_type': 'follower',
-        'follows': follows,
-        'following_count': following_count,
-        'follower_count': follower_count
-    }
-    
-    return render(request, 'community/follow_list_fixed.html', context)
-
-@login_required
-def user_profile(request, username):
-    """用户主页，显示关注按钮"""
-    # 获取目标用户对象
-    target_user = get_object_or_404(User, username=username)
-    
-    # 判断当前用户是否关注目标用户
-    is_following = Follow.objects.filter(follower=request.user, following=target_user, is_deleted=False).exists()
-    
-    # 统计目标用户的关注数、粉丝数
-    following_count = Follow.objects.filter(follower=target_user, is_deleted=False).count()
-    follower_count = Follow.objects.filter(following=target_user, is_deleted=False).count()
-    
-    # 获取目标用户的动态数量
-    from moment.models import Moment
-    moment_count = Moment.objects.filter(user=target_user).count()
-    
-    context = {
-        'target_user': target_user,
-        'is_following': is_following,
-        'following_count': following_count,
-        'follower_count': follower_count,
-        'stats': {
-            'moment_count': moment_count
-        }
-    }
-    
-    return render(request, 'community/user_profile.html', context)

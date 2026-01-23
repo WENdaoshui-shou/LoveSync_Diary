@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.utils import timezone
-from core.models import VIPMember, VIPPrivilege
+from .models import VIPMember, VIPPrivilege, VIPOrder
 
 # 会员中心首页
 @login_required
@@ -148,7 +148,6 @@ def create_recharge(request):
         vip.update_vip_level()
         
         # 创建充值订单记录
-        from core.models import VIPOrder
         from datetime import datetime
         order_number = f"VIP{datetime.now().strftime('%Y%m%d%H%M%S')}{request.user.id:06d}"
         VIPOrder.objects.create(
@@ -177,3 +176,47 @@ def create_recharge(request):
         ]
     }
     return render(request, 'vip/create_recharge.html', context)
+
+
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .serializers import VIPMemberSerializer, VIPPrivilegeSerializer, VIPOrderSerializer
+
+class VIPMemberViewSet(viewsets.ModelViewSet):
+    """VIP会员视图集"""
+    queryset = VIPMember.objects.all()
+    serializer_class = VIPMemberSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """获取当前用户的VIP信息"""
+        return self.queryset.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """创建VIP会员时自动关联当前用户"""
+        serializer.save(user=self.request.user)
+
+
+class VIPPrivilegeViewSet(viewsets.ModelViewSet):
+    """VIP特权视图集"""
+    queryset = VIPPrivilege.objects.all()
+    serializer_class = VIPPrivilegeSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """获取当前用户可用的VIP特权"""
+        # 获取当前用户的VIP等级
+        user_vip = self.request.user.vip
+        # 获取所有当前等级及以下的特权
+        return self.queryset.filter(required_level__lte=user_vip.level)
+
+
+class VIPOrderViewSet(viewsets.ModelViewSet):
+    """VIP订单视图集"""
+    queryset = VIPOrder.objects.all()
+    serializer_class = VIPOrderSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """获取当前用户的订单"""
+        return self.queryset.filter(user=self.request.user)

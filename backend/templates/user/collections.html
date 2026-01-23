@@ -370,18 +370,18 @@
                             <div class="relative">
                                 <div
                                     class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
-                                    <i class="fa fa-map-marker text-neutral-500 mr-1"></i> {{ place.place_type }}
+                                    <i class="fa fa-map-marker text-primary mr-1"></i> {{ place.place_type }}
                                 </div>
                                 <div
-                                    class="absolute top-3 right-3 bg-gradient-to-r from-neutral-500 to-neutral-700 rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
-                                    <i class="fa fa-star mr-1"></i> {{ place.rating }}分
+                                    class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
+                                    <i class="fa fa-eye text-primary mr-1"></i> {{ place.review_count }}浏览
                                 </div>
-                                {% if place.image_url %}
-                                <img src="{{ place.image_url }}" alt="{{ place.name }}"
+                                {% if place.image_url or place.image %}
+                                <img src="{{ place.image_url|default:place.image }}" alt="{{ place.name }}"
                                     class="w-full h-48 object-cover">
                                 {% else %}
                                 <div class="w-full h-48 bg-neutral-100 flex items-center justify-center">
-                                    <i class="fa-solid fa-map-marker-alt text-4xl text-neutral-500"></i>
+                                    <i class="fa-solid fa-map-marker-alt text-4xl text-primary"></i>
                                 </div>
                                 {% endif %}
                             </div>
@@ -404,40 +404,24 @@
                                 </div>
 
                                 <div class="flex items-center mt-2">
-                                    <div class="flex items-center">
+                                    <div class="flex items-center text-amber-400">
                                         {% for i in "12345" %}
-                                        {% if forloop.counter == place.rating%} <i class="fa fa-star text-neutral-500">
-                                        </i>
-                                        {% elif forloop.counter == place.rating|add:1|floatformat:0 %}
-                                        <i class="fa fa-star-half-o text-neutral-500"></i>
-                                        {% else %}
-                                        <i class="fa fa-star-o text-neutral-500"></i>
-                                        {% endif %}
-                                        {% endfor %}
-                                        <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{ place.review_count }})</span>
+                                        {% if forloop.counter <= place.rating %} <i class="fa fa-star"></i>
+                                            {% elif forloop.counter == place.rating %}
+                                            <i class="fa fa-star-half-o"></i>
+                                            {% else %}
+                                            <i class="fa fa-star-o"></i>
+                                            {% endif %}
+                                            {% endfor %}
+                                            <span class="ml-1 text-amber-600 font-medium">{{ place.rating }}分</span>
                                     </div>
                                     <div class="ml-auto flex items-center text-neutral-500 text-sm">
                                         <i class="fa fa-map-marker mr-1 text-neutral-500"></i>
-                                        <span>{{ place.address|default:"未知地址" }}</span>
+                                        <span>{{ place.address }}</span>
                                     </div>
                                 </div>
 
                                 <p class="text-neutral-600 text-sm mt-3">{{ place.description }}</p>
-
-                                <div class="flex flex-wrap gap-2 mt-3">
-                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.place_type }}</span>
-                                    <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.price_range }}</span>
-                                    {% if place.rating >= 4.8 %}
-                                    <span
-                                        class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
-                                    {% endif %}
-                                </div>
-
-                                <div class="flex items-center justify-between mt-4">
-                                    <div class="flex items-center">
-                                        <span class="text-neutral-500 font-bold">{{ place.price_range }}</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         {% endfor %}
@@ -557,73 +541,48 @@
 
             <!-- 地点内容 -->
             <div class="tab-content hidden" id="places-tab">
-                <div class="space-y-6">
+                <div class="space-y-5 mb-10">
                     {% if places %}
                     {% for place in places %}
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden collection-card place-card hover:scale-[1.01] hover:shadow-xl transition-all duration-300"
+                    <div class="bg-white rounded-xl shadow-custom overflow-hidden place-card animate-slide-up"
                         data-type="place" data-id="{{ place.id }}">
                         <div class="relative">
                             <div
                                 class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
-                                <i class="fa fa-map-marker text-[#FF6B8B] mr-1"></i> {{ place.place_type }}
+                                <i class="fa fa-map-marker text-primary mr-1"></i> {{ place.place_type }}
                             </div>
                             <div
-                                class="absolute top-3 right-3 bg-gradient-to-r from-[#FF6B8B] to-[#722ED1] rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
-                                <i class="fa fa-star mr-1"></i> {{ place.rating }}分
+                                class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
+                                <i class="fa fa-eye text-primary mr-1"></i> {{ place.review_count }}浏览
                             </div>
                             {% if place.image_url %}
-                            <img src="{{ place.image_url }}" alt="{{ place.name }}" class="w-full h-48 object-cover">
+                            <img src="{{ place.image_url }}" alt="{{ place.name }}"
+                                class="w-full h-48 object-cover img-loading" loading="lazy"
+                                onload="this.classList.remove('img-loading')">
                             {% else %}
                             <div class="w-full h-48 bg-neutral-100 flex items-center justify-center">
-                                <i class="fa-solid fa-map-marker-alt text-4xl text-[#FF6B8B]"></i>
+                                <i class="fa-solid fa-map-marker-alt text-4xl text-primary"></i>
                             </div>
                             {% endif %}
                         </div>
 
-                        <div class="p-6">
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-lg text-neutral-800">{{ place.name }}</h3>
-                                <div class="flex items-center space-x-2">
-                                    <!-- 收藏时间 -->
-                                    <span class="collect-time">
-                                        收藏于 {{ place.collected_at|date:"Y-m-d" }}
-                                    </span>
-                                    <!-- 取消收藏按钮 -->
-                                    <button class="uncollect-btn text-[#FF6B8B] hover:text-[#722ED1] transition-custom"
-                                        data-type="place" data-id="{{ place.id }}">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            </div>
-
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg">{{ place.name }}</h3>
                             <div class="flex items-center mt-2">
-                                <div class="flex items-center">
+                                <div class="flex items-center text-amber-400">
                                     {% for i in "12345" %}
-                                    {% if forloop.counter <= place.rating|floatformat:0 %} <i
-                                        class="fa fa-star text-neutral-500">
-                                        </i>
+                                    {% if forloop.counter <= place.rating|floatformat:0 %} <i class="fa fa-star"></i>
                                         {% elif forloop.counter == place.rating|add:1|floatformat:0 %}
-                                        <i class="fa fa-star-half-o text-neutral-500"></i>
+                                        <i class="fa fa-star-half-o"></i>
                                         {% else %}
-                                        <i class="fa fa-star-o text-neutral-500"></i>
+                                        <i class="fa fa-star-o"></i>
                                         {% endif %}
                                         {% endfor %}
-                                        <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{
-                                            place.review_count }})</span>
-                                </div>
-                                <div class="ml-auto flex items-center text-neutral-500 text-sm">
-                                    <i class="fa fa-map-marker mr-1 text-neutral-500"></i>
-                                    <span>{{ place.address|default:"未知地址" }}</span>
+                                        <span class="ml-1 text-amber-600 font-medium">{{ place.rating }}分</span>
                                 </div>
                             </div>
-
                             <p class="text-neutral-600 text-sm mt-3">{{ place.description }}</p>
-
                             <div class="flex flex-wrap gap-2 mt-3">
-                                <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
-                                    place.place_type }}</span>
-                                <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{
-                                    place.price_range }}</span>
                                 {% if place.rating >= 4.8 %}
                                 <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
                                 {% endif %}
@@ -631,22 +590,26 @@
 
                             <div class="flex items-center justify-between mt-4">
                                 <div class="flex items-center">
-                                    <span class="text-neutral-500 font-bold">{{ place.price_range }}</span>
+                                    <span class="text-primary font-bold">{{ place.price_range }}</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="uncollect-btn px-4 py-2 bg-neutral-100 text-neutral-500 rounded-lg hover:bg-neutral-200 transition-custom flex items-center"
+                                        data-type="place" data-id="{{ place.id }}">
+                                        <i class="fa fa-trash-o mr-1"></i> 取消收藏
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                     {% else %}
-                    <div class="empty-state"
-                        style="background: linear-gradient(135deg, rgba(114, 46, 209, 0.05), rgba(114, 46, 209, 0.02)); border: 2px dashed rgba(114, 46, 209, 0.2);">
-                        <div class="empty-state-icon" style="background: linear-gradient(135deg, #722ED1, #9333EA);">
-                            <i class="fa-regular fa-bookmark"></i>
-                        </div>
-                        <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无收藏地点</h3>
-                        <p class="text-neutral-500 text-sm mb-4">去情侣地点看看，收藏喜欢的约会地点吧</p>
+                    <div class="col-span-full text-center py-12">
+                        <i class="fa-solid fa-map-marker text-6xl text-neutral-300 mb-4"></i>
+                        <p class="text-neutral-500">暂无收藏地点</p>
+                        <p class="text-neutral-400 text-sm mt-2">去情侣地点看看，收藏喜欢的约会地点吧</p>
                         <a href="/couple/places/"
-                            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#722ED1] to-[#9333EA] text-white rounded-lg hover:bg-primary/90 transition-custom">
+                            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#722ED1] to-[#9333EA] text-white rounded-lg hover:bg-primary/90 transition-custom mt-4">
                             浏览地点
                         </a>
                     </div>

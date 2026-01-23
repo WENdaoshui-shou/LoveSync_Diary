@@ -210,7 +210,7 @@
                 <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>排行</span>
             </a>
-            <a href="{% url 'core:following_list' %}"
+            <a href="{% url 'user:following_list' %}"
                 class="flex items-center justify-between text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-user-plus w-5 text-center group-hover:scale-110 transition-transform"></i>
@@ -527,7 +527,7 @@
                         <i class="fa-solid fa-trophy text-primary mr-2"></i>
                         成就系统
                     </h3>
-                    <a href="{% url 'game_web:achievements' %}"
+                    <a href="{% url 'user:achievements' %}"
                         class="block w-full py-3 bg-primary/10 text-primary font-medium hover:bg-primary/20 transition-custom rounded-lg flex items-center justify-center">
                         <i class="fa-solid fa-rocket mr-2"></i>查看我的成就
                     </a>

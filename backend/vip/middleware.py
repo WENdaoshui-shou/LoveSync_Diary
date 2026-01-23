@@ -1,5 +1,5 @@
 from django.utils.deprecation import MiddlewareMixin
-from core.models import VIPMember
+from .models import VIPMember
 
 class VIPStatusCheckMiddleware(MiddlewareMixin):
     """VIP状态检查中间件，在每个请求中检查用户的VIP状态"""

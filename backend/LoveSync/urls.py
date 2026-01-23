@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from core.views import (
     IndexView, login_view, register_view, logout_view,
     personal_center_view, settings_view, verify_code,
-    message_view, delete_account, share_place_view
+    share_place_view
 )
 from moment.views import community_view, moments_view, hot_moments_view, share_moment, delete_moment, unshare_moment
 from photo.views import photo_album, delete_photo, download_photo
@@ -50,9 +50,6 @@ urlpatterns = [
     
     # Note应用视图
     path('lovesync/', lovesync, name='lovesync'),
-    
-    # Delete account view remains here as it's not part of the couple app
-    path('delete_account/', delete_account, name='delete_account'),
     
     # Mall应用视图
     path('mall/', mall, name='mall'),

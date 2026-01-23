@@ -62,6 +62,7 @@ class TaskCompletionViewSet(viewsets.ModelViewSet):
 def couple_view(request):
     """情侣首页视图"""
     from core.models import Profile
+    from couple.models import CoupleRelation
     import logging
     
     # 设置日志记录器
@@ -92,11 +93,24 @@ def couple_view(request):
     # 检查是否已有情侣
     has_couple = profile.couple is not None
     
+    # 获取CoupleRelation数据
+    couple_relation = None
+    if has_couple:
+        try:
+            couple_relation = CoupleRelation.objects.filter(
+                (models.Q(user1=request.user) & models.Q(user2=profile.couple.user)) |
+                (models.Q(user1=profile.couple.user) & models.Q(user2=request.user))
+            ).first()
+        except:
+            couple_relation = None
+    
     context = {
+        'user': request.user,
         'profile': profile,
         'sent_request': sent_request,  # 当前用户发送的请求
         'received_request': received_request,  # 当前用户收到的请求
-        'has_couple': has_couple
+        'has_couple': has_couple,
+        'couple_relation': couple_relation
     }
     
     return render(request, 'couple.html', context)
@@ -373,22 +387,22 @@ def couple_places_view(request):
     
     # 从数据库获取情侣地点数据
     try:
-        # 获取所有情侣地点，按评分和评价数量排序
-        places = CouplePlace.objects.all().order_by('-rating', '-review_count')
+        # 获取所有情侣地点，按创建时间倒序排序，限制前10个
+        places = CouplePlace.objects.all().order_by('-created_at')[:10]
         
         # 构建地点数据列表
         places_data = []
         for place in places:
             place_dict = {
                 'id': place.id,
-                                    'name': place.name,
-                                    'description': place.description,
-                                    'address': place.address,
-                                    'place_type': place.get_place_type_display(),
-                                    'rating': place.rating,
-                                    'review_count': place.review_count,
-                                    'price_range': place.price_range,
-                                'image_url': place.image_url,
+                'name': place.name,
+                'description': place.description,
+                'address': place.address,
+                'place_type': place.get_place_type_display(),
+                'rating': place.rating,
+                'review_count': place.review_count,
+                'price_range': place.price_range,
+                'image': place.image.url if place.image else None,
             }
             places_data.append(place_dict)
     except Exception as e:
@@ -422,7 +436,7 @@ def couple_places_api(request):
         offset = (page - 1) * page_size
         
         # 构建查询
-        queryset = CouplePlace.objects.all()
+        queryset = CouplePlace.objects.all().distinct()
         
         # 根据地点类型筛选
         if place_type and place_type != '全部地点':
@@ -442,8 +456,8 @@ def couple_places_api(request):
             if db_type:
                 queryset = queryset.filter(place_type=db_type)
         
-        # 按评分和评价数量排序
-        places = queryset.order_by('-rating', '-review_count')[offset:offset + page_size]
+        # 按创建时间倒序排序
+        places = queryset.order_by('-created_at')[offset:offset + page_size]
         
         # 构建地点数据列表
         places_data = []
@@ -457,7 +471,7 @@ def couple_places_api(request):
                 'rating': place.rating,
                 'review_count': place.review_count,
                 'price_range': place.price_range,
-                'image_url': place.image_url
+                'image': place.image.url if place.image else None,
             }
             places_data.append(place_dict)
         
@@ -477,65 +491,6 @@ def couple_places_api(request):
             'success': False,
             'message': f'获取地点失败: {str(e)}'
         }, status=500)
-
-
-# 情侣推荐视图
-@login_required
-def couple_recommendation_view(request):
-    """情侣推荐视图"""
-    from core.models import Profile
-    
-    # 检查用户是否绑定情侣
-    if not request.user.profile.couple:
-        messages.error(request, '请先绑定情侣关系，才能使用情侣推荐功能！')
-        return redirect('couple_web:couple')
-    
-    # 模拟获取情侣活动推荐
-    # 实际项目中，这里应该基于用户兴趣和历史行为推荐
-    recommendations = [
-        {
-            'id': 1,
-            'title': '情侣烹饪课程',
-            'description': '一起学习制作浪漫晚餐',
-            'category': '活动',
-            'price': '¥299/对',
-            'rating': 4.9,
-            'image': 'https://picsum.photos/seed/cooking/400/300'
-        },
-        {
-            'id': 2,
-            'title': '情侣瑜伽',
-            'description': '增进感情的同时锻炼身体',
-            'category': '健康',
-            'price': '¥199/对',
-            'rating': 4.7,
-            'image': 'https://picsum.photos/seed/yoga/400/300'
-        },
-        {
-            'id': 3,
-            'title': '情侣摄影套餐',
-            'description': '记录你们的美好时光',
-            'category': '摄影',
-            'price': '¥599/套',
-            'rating': 4.8,
-            'image': 'https://picsum.photos/seed/photo/400/300'
-        },
-        {
-            'id': 4,
-            'title': '情侣旅行攻略',
-            'description': '为你们的下一次旅行做准备',
-            'category': '旅行',
-            'price': '免费',
-            'rating': 4.6,
-            'image': 'https://picsum.photos/seed/travel/400/300'
-        }
-    ]
-    
-    context = {
-        'recommendations': recommendations
-    }
-    
-    return render(request, 'couple_recommendation.html', context)
 
 
 # 情侣历史视图
@@ -740,11 +695,136 @@ def breakup(request):
     return redirect('couple_web:couple')
 
 
+# 纪念日管理API
+@login_required
+@require_http_methods(['POST'])
+def add_anniversary(request):
+    """添加纪念日"""
+    from .models import Anniversary
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        
+        anniversary = Anniversary.objects.create(
+            user=request.user,
+            title=data.get('title'),
+            anniversary_date=data.get('anniversary_date'),
+            anniversary_type=data.get('anniversary_type', 'custom'),
+            description=data.get('description', ''),
+            is_reminder_enabled=data.get('is_reminder_enabled', True),
+            reminder_days=data.get('reminder_days', 1)
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': '纪念日添加成功',
+            'anniversary': {
+                'id': anniversary.id,
+                'title': anniversary.title,
+                'anniversary_date': anniversary.anniversary_date.strftime('%Y-%m-%d'),
+                'anniversary_type': anniversary.anniversary_type,
+                'description': anniversary.description,
+                'is_reminder_enabled': anniversary.is_reminder_enabled,
+                'reminder_days': anniversary.reminder_days,
+                'created_at': anniversary.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'添加失败: {str(e)}'}, status=500)
+
+
+@login_required
+@require_http_methods(['PUT'])
+def update_anniversary(request, anniversary_id):
+    """更新纪念日"""
+    from .models import Anniversary
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        anniversary = Anniversary.objects.get(id=anniversary_id, user=request.user)
+        
+        anniversary.title = data.get('title', anniversary.title)
+        anniversary.anniversary_date = data.get('anniversary_date', anniversary.anniversary_date)
+        anniversary.anniversary_type = data.get('anniversary_type', anniversary.anniversary_type)
+        anniversary.description = data.get('description', anniversary.description)
+        anniversary.is_reminder_enabled = data.get('is_reminder_enabled', anniversary.is_reminder_enabled)
+        anniversary.reminder_days = data.get('reminder_days', anniversary.reminder_days)
+        
+        anniversary.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': '纪念日更新成功',
+            'anniversary': {
+                'id': anniversary.id,
+                'title': anniversary.title,
+                'anniversary_date': anniversary.anniversary_date.strftime('%Y-%m-%d'),
+                'anniversary_type': anniversary.anniversary_type,
+                'description': anniversary.description,
+                'is_reminder_enabled': anniversary.is_reminder_enabled,
+                'reminder_days': anniversary.reminder_days,
+                'created_at': anniversary.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        })
+    except Anniversary.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '纪念日不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'更新失败: {str(e)}'}, status=500)
+
+
+@login_required
+@require_http_methods(['DELETE'])
+def delete_anniversary(request, anniversary_id):
+    """删除纪念日"""
+    from .models import Anniversary
+    
+    try:
+        anniversary = Anniversary.objects.get(id=anniversary_id, user=request.user)
+        anniversary.delete()
+        return JsonResponse({'success': True, 'message': '纪念日删除成功'})
+    except Anniversary.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '纪念日不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'删除失败: {str(e)}'}, status=500)
+
+
+@login_required
+def get_anniversaries(request):
+    """获取用户的纪念日列表"""
+    from .models import Anniversary
+    
+    try:
+        anniversaries = Anniversary.objects.filter(user=request.user).order_by('anniversary_date')
+        
+        anniversaries_data = []
+        for anniversary in anniversaries:
+            anniversaries_data.append({
+                'id': anniversary.id,
+                'title': anniversary.title,
+                'anniversary_date': anniversary.anniversary_date.strftime('%Y-%m-%d'),
+                'anniversary_type': anniversary.anniversary_type,
+                'description': anniversary.description,
+                'is_reminder_enabled': anniversary.is_reminder_enabled,
+                'reminder_days': anniversary.reminder_days,
+                'created_at': anniversary.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'anniversaries': anniversaries_data
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'获取失败: {str(e)}'}, status=500)
+
+
 # 情侣设置视图
 @login_required
 def couple_settings(request):
     """保存情侣设置"""
     from core.models import Profile
+    from couple.models import CoupleRelation
     
     if request.method == 'POST':
         try:
@@ -766,11 +846,73 @@ def couple_settings(request):
                 # 转换为datetime对象
                 anniversary_datetime = datetime.combine(anniversary_date, datetime.min.time())
                 profile.couple_joined_at = timezone.make_aware(anniversary_datetime)
+                profile.save()
             
-            # 保存其他设置
-            # 这里可以根据需要添加更多设置的保存逻辑
+            # 保存CoupleRelation数据
+            if profile.couple:
+                # 获取或创建CoupleRelation记录
+                try:
+                    relation = CoupleRelation.objects.filter(
+                        (models.Q(user1=request.user) & models.Q(user2=profile.couple.user)) |
+                        (models.Q(user1=profile.couple.user) & models.Q(user2=request.user))
+                    ).first()
+                    
+                    if relation:
+                        # 更新基本信息
+                        relation.couple_name = request.POST.get('couple_name')
+                        relation.love_story = request.POST.get('love_story')
+                        
+                        # 更新主题设置
+                        relation.theme = request.POST.get('theme', 'light_love')
+                        relation.primary_color = request.POST.get('primary_color', '#FF6B8B')
+                        relation.secondary_color = request.POST.get('secondary_color', '#722ED1')
+                        
+                        # 更新隐私设置
+                        relation.visibility = request.POST.get('visibility', 'only_me')
+                        relation.show_couple_dynamics = request.POST.get('show_couple_dynamics') == 'on'
+                        relation.show_anniversary = request.POST.get('show_anniversary') == 'on'
+                        relation.show_gifts = request.POST.get('show_gifts') == 'on'
+                        
+                        # 更新消息提醒设置
+                        relation.notify_partner_messages = request.POST.get('notify_partner_messages') == 'on'
+                        relation.notify_dynamics = request.POST.get('notify_dynamics') == 'on'
+                        relation.notify_anniversary = request.POST.get('notify_anniversary') == 'on'
+                        
+                        # 更新恋爱纪念日
+                        if anniversary:
+                            relation.relationship_start_date = anniversary_date
+                        
+                        relation.save()
+                    else:
+                        try:
+                            # 确保有恋爱纪念日
+                            if not anniversary:
+                                # 如果没有提供恋爱纪念日，使用当前日期
+                                from django.utils import timezone
+                                anniversary_date = timezone.now().date()
+                            
+                            relation = CoupleRelation.objects.create(
+                                user1=request.user,
+                                user2=profile.couple.user,
+                                couple_name=request.POST.get('couple_name'),
+                                love_story=request.POST.get('love_story'),
+                                theme=request.POST.get('theme', 'light_love'),
+                                primary_color=request.POST.get('primary_color', '#FF6B8B'),
+                                secondary_color=request.POST.get('secondary_color', '#722ED1'),
+                                visibility=request.POST.get('visibility', 'only_me'),
+                                show_couple_dynamics=request.POST.get('show_couple_dynamics') == 'on',
+                                show_anniversary=request.POST.get('show_anniversary') == 'on',
+                                show_gifts=request.POST.get('show_gifts') == 'on',
+                                notify_partner_messages=request.POST.get('notify_partner_messages') == 'on',
+                                notify_dynamics=request.POST.get('notify_dynamics') == 'on',
+                                notify_anniversary=request.POST.get('notify_anniversary') == 'on',
+                                relationship_start_date=anniversary_date
+                            )
+                        except Exception as e:
+                            print(f"Error creating CoupleRelation: {e}")
+                except Exception as e:
+                    print(f"Error updating CoupleRelation: {e}")
             
-            profile.save()
             messages.success(request, '设置已保存')
         except Exception as e:
             messages.error(request, f'保存设置失败: {str(e)}')

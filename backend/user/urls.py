@@ -18,4 +18,12 @@ urlpatterns = [
     
     # 收藏页面路由
     path('collections/', views.collections, name='collections'),  # 收藏页面
+    
+    # 从core应用移动过来的路由
+    path('achievements/', views.achievements_view, name='achievements'),  # 成就页面
+    path('achievements/data/', views.get_achievements_data, name='get_achievements_data'),  # 成就数据API
+    path('follow/toggle/', views.follow_toggle, name='follow_toggle'),  # 关注/取消关注接口
+    path('following/', views.following_list, name='following_list'),  # 关注列表页面
+    path('followers/', views.follower_list, name='follower_list'),  # 粉丝列表页面
+    path('user/<str:username>/', views.user_profile, name='user_profile'),  # 用户主页
 ]

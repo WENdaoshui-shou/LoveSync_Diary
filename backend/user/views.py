@@ -372,8 +372,8 @@ def get_collections(request):
                             'id': place.id,
                             'name': place.name,
                             'description': place.description,
-                            'image_url': place.image_url,
-                            'place_type': place.place_type,
+                            'image_url': place.image.url if place.image else None,
+                            'place_type': place.get_place_type_display(),
                             'rating': place.rating,
                             'price_range': place.price_range,
                             'address': place.address,
@@ -444,8 +444,8 @@ def collections(request):
                     'id': place.id,
                     'name': place.name,
                     'description': place.description,
-                    'image_url': place.image_url,
-                    'place_type': place.place_type,
+                    'image': place.image.url if place.image else None,
+                    'place_type': place.get_place_type_display(),
                     'rating': place.rating,
                     'price_range': place.price_range,
                     'address': place.address,
@@ -481,3 +481,212 @@ def collections(request):
             'places': [],
             'unread_count': 0
         })
+
+
+# 关注/取消关注接口
+@login_required
+def follow_toggle(request):
+    """关注/取消关注接口，支持 AJAX"""
+    if request.method == 'POST':
+        followed_id = request.POST.get('followed_id')
+        if not followed_id:
+            return JsonResponse({'success': False, 'message': '缺少被关注用户ID'}, status=400)
+        
+        try:
+            followed = User.objects.get(id=followed_id)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '被关注用户不存在'}, status=404)
+        
+        # 禁止用户关注自己
+        if followed == request.user:
+            return JsonResponse({'success': False, 'message': '不能关注自己'}, status=400)
+        
+        # 使用 get_or_create 判断关注状态，考虑软删除
+        follow_obj, created = Follow.objects.get_or_create(
+            follower=request.user,
+            following=followed,
+            defaults={'is_deleted': False}
+        )
+        
+        if created or follow_obj.is_deleted:
+            # 关注成功
+            follow_obj.is_deleted = False
+            follow_obj.save()
+            
+            # 获取更新后的粉丝数
+            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': '关注成功',
+                    'is_following': True,
+                    'followers_count': followers_count
+                })
+            messages.success(request, '关注成功')
+        else:
+            # 取消关注
+            follow_obj.is_deleted = True
+            follow_obj.save()
+            
+            # 获取更新后的粉丝数
+            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': '取消关注成功',
+                    'is_following': False,
+                    'followers_count': followers_count
+                })
+            messages.success(request, '取消关注成功')
+    
+    # 如果不是POST请求，重定向到个人主页
+    from django.urls import reverse
+    return redirect(reverse('core:personal_center'))
+
+# 关注列表页面
+@login_required
+def following_list(request):
+    """我的关注列表页面"""
+    # 查询当前用户关注的所有用户
+    follows = Follow.objects.filter(follower=request.user, is_deleted=False).select_related('following').order_by('-created_at')
+    
+    # 构建包含用户信息和关注时间的数据结构
+    user_with_follow_status = []
+    for follow in follows:
+        user_with_follow_status.append({
+            'user': follow.following,
+            'follow_time': follow.created_at,
+            'is_following': True  # 关注列表中的用户肯定是已关注的
+        })
+    
+    # 统计关注数和粉丝数
+    following_count = follows.count()
+    follower_count = Follow.objects.filter(following=request.user, is_deleted=False).count()
+    
+    context = {
+        'page_title': '我的关注',   
+        'user_list': user_with_follow_status,
+        'list_type': 'following',
+        'follows': follows,
+        'following_count': following_count,
+        'follower_count': follower_count
+    }
+    
+    return render(request, 'community/follow_list_fixed.html', context)
+
+# 粉丝列表页面
+@login_required
+def follower_list(request):
+    """我的粉丝列表页面"""
+    # 查询关注当前用户的所有用户
+    follows = Follow.objects.filter(following=request.user, is_deleted=False).select_related('follower').order_by('-created_at')
+    
+    # 构建包含用户信息和关注时间的数据结构
+    user_with_follow_status = []
+    for follow in follows:
+        # 判断当前用户是否也关注了粉丝（互相关注）
+        is_following_back = Follow.objects.filter(follower=request.user, following=follow.follower, is_deleted=False).exists()
+        
+        user_with_follow_status.append({
+            'user': follow.follower,
+            'follow_time': follow.created_at,
+            'is_following': is_following_back  # 标记是否已回关
+        })
+    
+    # 统计关注数和粉丝数
+    following_count = Follow.objects.filter(follower=request.user, is_deleted=False).count()
+    follower_count = follows.count()
+    
+    context = {
+        'page_title': '我的粉丝',
+        'user_list': user_with_follow_status,
+        'list_type': 'followers',
+        'follows': follows,
+        'following_count': following_count,
+        'follower_count': follower_count
+    }
+    
+    return render(request, 'community/follow_list_fixed.html', context)
+
+# 用户主页
+def user_profile(request, username):
+    """用户主页，显示关注按钮"""
+    # 获取目标用户对象
+    target_user = get_object_or_404(User, username=username)
+    
+    # 判断当前用户是否关注目标用户
+    is_following = Follow.objects.filter(follower=request.user, following=target_user, is_deleted=False).exists()
+    
+    # 统计目标用户的关注数、粉丝数
+    following_count = Follow.objects.filter(follower=target_user, is_deleted=False).count()
+    follower_count = Follow.objects.filter(following=target_user, is_deleted=False).count()
+    
+    # 获取目标用户的动态数量
+    from moment.models import Moment
+    moment_count = Moment.objects.filter(user=target_user).count()
+    
+    context = {
+        'target_user': target_user,
+        'is_following': is_following,
+        'following_count': following_count,
+        'follower_count': follower_count,
+        'stats': {
+            'moment_count': moment_count
+        }
+    }
+    
+    return render(request, 'community/user_profile.html', context)
+
+# 成就页面
+@login_required
+def achievements_view(request):
+    """成就页面"""
+    return render(request, 'achievements.html', {
+        'user': request.user
+    })
+
+# 成就数据API视图
+@login_required
+def get_achievements_data(request):
+    """获取用户成就数据"""
+    from user.models import Achievement, UserAchievement
+    
+    # 获取用户的所有成就
+    user_achievements = UserAchievement.objects.filter(user=request.user).select_related('achievement')
+    
+    # 构建成就数据
+    achievements_data = []
+    for ua in user_achievements:
+        achievement = ua.achievement
+        achievements_data.append({
+            'id': achievement.id,
+            'title': achievement.title,
+            'description': achievement.description,
+            'icon': achievement.icon,
+            'unlocked': ua.unlocked,
+            'date': ua.unlocked_at.strftime('%Y-%m-%d') if ua.unlocked_at else None,
+            'progress': ua.progress
+        })
+    
+    # 计算统计数据
+    total = Achievement.objects.count()
+    unlocked = len([a for a in achievements_data if a['unlocked']])
+    completion_rate = round((unlocked / total) * 100) if total > 0 else 0
+    recent_unlocked = len([a for a in achievements_data if a['unlocked']])
+    
+    # 构建响应数据
+    response_data = {
+        'achievements': achievements_data,
+        'stats': {
+            'totalAchievements': total,
+            'unlockedAchievements': unlocked,
+            'completionRate': completion_rate,
+            'recentAchievements': recent_unlocked
+        }
+    }
+    
+    import json
+    from django.http import HttpResponse
+    return HttpResponse(json.dumps(response_data), content_type='application/json')

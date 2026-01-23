@@ -96,6 +96,99 @@
         background-color: #FEE2E2;
         color: #EF4444;
     }
+
+    /* 图片懒加载样式 */
+    .img-loading {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* 骨架屏样式 */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 4px;
+    }
+
+    .skeleton-text {
+        height: 12px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+    }
+
+    .skeleton-text-sm {
+        height: 10px;
+        width: 60%;
+        margin-bottom: 6px;
+    }
+
+    .skeleton-button {
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    /* 动画效果 */
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 交互反馈 */
+    .btn-pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+        }
+    }
+
+    /* 响应式优化 */
+    @media (max-width: 768px) {
+        .map-container {
+            height: 160px;
+        }
+
+        .place-card {
+            margin-bottom: 16px;
+        }
+
+        .scrollbar-hide {
+            padding-bottom: 8px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -165,35 +258,30 @@
                         <i class="fa fa-map-marker text-primary mr-1"></i> {{ place.place_type }}
                     </div>
                     <div
-                        class="absolute top-3 right-3 bg-gradient-love rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
-                        <i class="fa fa-star mr-1"></i> {{ place.rating }}分
+                        class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
+                        <i class="fa fa-eye text-primary mr-1"></i> {{ place.review_count }}浏览
                     </div>
-                    <img src="{{ place.image_url }}" alt="{{ place.name }}" class="w-full h-48 object-cover">
+                    <img src="{{ place.image }}" alt="{{ place.name }}" class="w-full h-48 object-cover img-loading"
+                        loading="lazy" onload="this.classList.remove('img-loading')">
                 </div>
 
                 <div class="p-5">
                     <h3 class="font-bold text-lg">{{ place.name }}</h3>
-
                     <div class="flex items-center mt-2">
                         <div class="flex items-center text-amber-400">
                             {% for i in "12345" %}
-                            {% if forloop.counter <= place.rating|floatformat:0 %} <i class="fa fa-star"></i>
+                            {% if forloop.counter <= place.rating %} <i class="fa fa-star"></i>
                                 {% elif forloop.counter == place.rating %}
                                 <i class="fa fa-star-half-o"></i>
                                 {% else %}
                                 <i class="fa fa-star-o"></i>
                                 {% endif %}
                                 {% endfor %}
-                                <span class="ml-1 text-neutral-600 text-sm">{{ place.rating }} ({{ place.review_count}})</span>
+                                <span class="ml-1 text-amber-600 font-medium">{{ place.rating }}分</span>
                         </div>
-
                     </div>
-
                     <p class="text-neutral-600 text-sm mt-3">{{ place.description }}</p>
-
                     <div class="flex flex-wrap gap-2 mt-3">
-                        <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.place_type }}</span>
-                        <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">{{ place.price_range }}</span>
                         {% if place.rating >= 4.8 %}
                         <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
                         {% endif %}
@@ -464,7 +552,7 @@
 
     // 无限滚动加载
     let isLoading = false;
-    window.page = 1;
+    window.page = 2;
     window.hasMoreContent = true;
 
     function loadMorePlaces() {
@@ -530,27 +618,22 @@
                         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
                             <i class="fa fa-map-marker text-primary mr-1"></i> ${place.place_type}
                         </div>
-                        <div class="absolute top-3 right-3 bg-gradient-love rounded-full px-3 py-1 text-xs font-medium text-white flex items-center">
-                            <i class="fa fa-star mr-1"></i> ${place.rating}分
+                        <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium flex items-center">
+                            <i class="fa fa-eye text-primary mr-1"></i> ${place.review_count}浏览
                         </div>
-                        ${ place.image_url }
+                        <img src="${place.image}" alt="${place.name}" class="w-full h-48 object-cover img-loading" loading="lazy" onload="this.classList.remove('img-loading')">
                     </div>
                     <div class="p-5">
                         <h3 class="font-bold text-lg">${place.name}</h3>
                         <div class="flex items-center mt-2">
                             <div class="flex items-center text-amber-400">
                                 ${generateRatingStars(place.rating)}
-                                <span class="ml-1 text-neutral-600 text-sm">${place.rating} (${place.review_count})</span>
+                                <span class="ml-1 text-amber-600 font-medium">${place.rating}分</span>
                             </div>
-
                         </div>
                         <p class="text-neutral-600 text-sm mt-3">${place.description}</p>
                         <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">${place.place_type}</span>
-                            <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">${place.price_range}</span>
-                            ${place.rating >= 4.8 ? `
-                            <span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>
-                            ` : ''}
+                            ${place.rating >= 4.8 ? '<span class="px-3 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">热门</span>' : ''}
                         </div>
                         <div class="flex items-center justify-between mt-4">
                             <div class="flex items-center">

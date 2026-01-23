@@ -191,7 +191,12 @@ class CouplePlace(models.Model):
     rating = models.FloatField(default=0, verbose_name='评分')
     review_count = models.IntegerField(default=0, verbose_name='评价数量')
     price_range = models.CharField(max_length=50, verbose_name='价格范围')
-    image_url = models.URLField(blank=True, null=True, verbose_name='图片URL')
+    image = models.ImageField(
+        upload_to='couple/places_images/',
+        blank=True,
+        null=True,
+        verbose_name='地点图片'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -264,6 +269,46 @@ class CoupleRelationHistory(models.Model):
     
     def __str__(self):
         return f"Relationship from {self.started_at.date()} to {self.ended_at.date()}"
+
+
+class CoupleRelation(models.Model):
+    """情侣关系模型 - 存储情侣之间的共享数据"""
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='couple_relation_as_user1')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='couple_relation_as_user2')
+    love_vow = models.TextField(max_length=1000, null=True, blank=True, verbose_name='爱情誓言')
+    relationship_start_date = models.DateField(verbose_name='相恋日期')
+    
+    # 基本信息
+    couple_name = models.CharField(max_length=100, null=True, blank=True, verbose_name='情侣名')
+    love_story = models.TextField(max_length=2000, null=True, blank=True, verbose_name='恋爱故事')
+    
+    # 主题设置
+    theme = models.CharField(max_length=50, choices=[('light_love', '热恋粉紫'), ('dreamy_sky', '梦幻星空'), ('fresh_nature', '清新自然'), ('vibrant_orange', '活力橙红')], default='light_love', verbose_name='主题风格')
+    primary_color = models.CharField(max_length=20, default='#FF6B8B', verbose_name='主色调')
+    secondary_color = models.CharField(max_length=20, default='#722ED1', verbose_name='辅助色')
+    
+    # 隐私设置
+    visibility = models.CharField(max_length=20, choices=[('only_me', '仅自己可见'), ('friends', '仅好友可见'), ('public', '所有人可见')], default='only_me', verbose_name='情侣关系可见性')
+    show_couple_dynamics = models.BooleanField(default=True, verbose_name='显示情侣动态')
+    show_anniversary = models.BooleanField(default=True, verbose_name='显示纪念日')
+    show_gifts = models.BooleanField(default=False, verbose_name='显示礼物记录')
+    
+    # 消息提醒设置
+    notify_partner_messages = models.BooleanField(default=True, verbose_name='Ta的消息提醒')
+    notify_dynamics = models.BooleanField(default=True, verbose_name='动态提醒')
+    notify_anniversary = models.BooleanField(default=True, verbose_name='纪念日提醒')
+    
+    # 时间戳
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    
+    class Meta:
+        verbose_name = '情侣关系'
+        verbose_name_plural = '情侣关系管理'
+        unique_together = ['user1', 'user2']
+    
+    def __str__(self):
+        return f"Couple: {self.user1.username} & {self.user2.username}"
 
 
 class CoupleQuiz(models.Model):

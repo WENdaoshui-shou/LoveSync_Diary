@@ -8,9 +8,9 @@
     {% if not has_couple %}
     <div class="max-w-2xl mx-auto">
         <!-- 引导标题 -->
-        <div class="text-center mb-10 animate-fade-in">
+        <div class="text-center mb-10">
             <div
-                class="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex bg-gradient-love flex items-center justify-center float-animation text-white shadow-md">
+                class="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex bg-gradient-love flex items-center justify-center text-white shadow-md">
                 <i class="fa fa-heart text-5xl"></i>
             </div>
             <h2 class="text-2xl md:text-3xl font-bold text-neutral-800 mb-2">找到你的另一半</h2>
@@ -19,14 +19,15 @@
 
         <!-- 待处理请求提示 -->
         {% if sent_request %}
-        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-8 animate-slide-up">
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-8">
             <div class="flex items-start">
                 <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <i class="fa fa-clock-o text-yellow-600"></i>
                 </div>
                 <div class="ml-4">
                     <h3 class="font-medium text-neutral-800">待处理的邀请</h3>
-                    <p class="text-neutral-600 text-sm mt-1">你已向 <span class="text-primary font-medium">{{ sent_request.user.name }}</span> 发送了情侣邀请，等待对方回应...</p>
+                    <p class="text-neutral-600 text-sm mt-1">你已向 <span class="text-primary font-medium">{{
+                            sent_request.user.name|default:"对方" }}</span> 发送了情侣邀请，等待对方回应...</p>
                     <button onclick="cancelRequest()" class="mt-3 text-sm text-primary hover:text-primary/80">
                         <i class="fa fa-times-circle mr-1"></i>取消邀请
                     </button>
@@ -35,14 +36,15 @@
         </div>
         {% elif received_request %}
         <!-- 收到的请求提示 -->
-        <div class="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-8 animate-slide-up">
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-8">
             <div class="flex items-start">
                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <i class="fa fa-envelope text-primary"></i>
                 </div>
                 <div class="ml-4 flex-1">
                     <h3 class="font-medium text-neutral-800">收到情侣邀请</h3>
-                    <p class="text-neutral-600 text-sm mt-1"><span class="text-primary font-medium">{{ received_request.user.name }}</span> 想与你绑定为情侣</p>
+                    <p class="text-neutral-600 text-sm mt-1"><span class="text-primary font-medium">{{
+                            received_request.user.name|default:"对方" }}</span> 想与你绑定为情侣</p>
                     <div class="flex gap-3 mt-3">
                         <a href="{% url 'couple_web:accept_request' %}"
                             class="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-custom">
@@ -59,7 +61,7 @@
         {% endif %}
 
         <!-- 绑定方式选择 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 mb-8 animate-slide-up">
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
             <h3 class="text-lg font-bold mb-5 text-neutral-800">绑定情侣的方式</h3>
 
             <!-- 方式1：通过邀请码绑定 -->
@@ -73,7 +75,7 @@
                         <label class="block text-neutral-700 text-sm mb-2">输入对方的邀请码</label>
                         <div class="flex">
                             <input type="text" name="couple_code" placeholder="请输入邀请码"
-                                class="flex-1 px-4 py-3 rounded-l-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
+                                class="flex-1 px-4 py-3 rounded-l-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
                             <button type="submit"
                                 class="px-6 py-3 bg-primary text-white rounded-r-lg hover:bg-primary/90 transition-custom">
                                 绑定
@@ -95,7 +97,7 @@
                         <div class="text-center">
                             <i class="fa fa-qrcode text-5xl text-neutral-300 mb-2"></i>
                             <p class="text-xs text-neutral-500">你的邀请码</p>
-                            <p class="font-medium mt-1 text-primary">{{ user.profile.couple_code }}</p>
+                            <p class="font-medium mt-1 text-primary">{{ user.profile.couple_code|default:"暂无" }}</p>
                         </div>
                     </div>
                     <p class="text-sm text-neutral-600 text-center">
@@ -116,40 +118,40 @@
         </div>
 
         <!-- 功能介绍 -->
-        <div class="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl p-6 animate-slide-up">
+        <div class="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl p-6">
             <h3 class="text-lg font-bold mb-4 text-center text-neutral-800">绑定情侣后可解锁</h3>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                         <i class="fa-solid fa-heart text-primary"></i>
                     </div>
                     <p class="text-sm font-medium">恋爱纪念日</p>
                 </div>
-                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                         <i class="fa-solid fa-lightbulb text-primary"></i>
                     </div>
                     <p class="text-sm font-medium">情侣推荐</p>
                 </div>
-                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                         <i class="fa-solid fa-map-marker text-primary"></i>
                     </div>
-                    <p class="text-sm font-medium">情侣地点</p>
+                    <p class="text-sm font-medium">推荐地点</p>
                 </div>
-                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                         <i class="fa-solid fa-book text-primary"></i>
                     </div>
                     <p class="text-sm font-medium">双人日记</p>
                 </div>
-                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                         <i class="fa-solid fa-question-circle text-primary"></i>
                     </div>
                     <p class="text-sm font-medium">爱情测试</p>
                 </div>
-                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center hover-scale">
+                <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                         <i class="fa-solid fa-gamepad text-primary"></i>
                     </div>
@@ -158,17 +160,20 @@
             </div>
         </div>
     </div>
-
-    <!-- 已绑定情侣：显示情侣设置页面 -->
     {% else %}
+    <!-- 已绑定情侣：显示情侣设置页面 -->
     <!-- 情侣关系卡片 -->
-    <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-fade-in">
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
         <div class="flex flex-col md:flex-row items-center">
             <div class="relative mb-4 md:mb-0">
                 <div class="relative w-28 h-28 rounded-full overflow-hidden border-4 border-primary/20">
-                    <img src="{{ user.profile.userAvatar.url }}" alt="情侣合照"
-                        class="w-full h-full object-cover img-loading" onload="this.classList.remove('img-loading')"
-                        loading="lazy">
+                    {% if user.profile.userAvatar and user.profile.userAvatar.url %}
+                    <img src="{{ user.profile.userAvatar.url }}" alt="情侣合照" class="w-full h-full" loading="lazy">
+                    {% else %}
+                    <div class="w-full h-full bg-neutral-200 flex items-center justify-center">
+                        <i class="fa fa-user text-5xl text-neutral-400"></i>
+                    </div>
+                    {% endif %}
                     <div class="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent rounded-full">
                     </div>
                 </div>
@@ -176,34 +181,25 @@
 
             <div class="md:ml-6 text-center md:text-left">
                 <div class="flex items-center justify-center md:justify-start flex-wrap">
-                    {% if user.profile.couple %}
-                    <h2 class="text-2xl font-bold">{{ user.name }} & {{ user.profile.couple.user.name }}</h2>
-                    {% else %}
-                    <h2 class="text-2xl font-bold">{{ user.name }}</h2>
-                    {% endif %}
+                    <h2 class="text-2xl font-bold">
+                        {{ user.name }}
+                        {% if user.profile.couple %} & {{ user.profile.couple.user.name|default:"未知" }}{% endif %}
+                    </h2>
                     {% if user.profile.couple and user.profile.couple_joined_at %}
-                    {% with days_since_joined=user.profile.couple_joined_at|timesince|cut:",.*" %}
                     <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full mt-1 md:mt-0">
-                        相恋<span>{{ days_since_joined }}</span>
+                        相恋{{ user.profile.couple_joined_at }}
                     </span>
-                    {% endwith %}
                     {% endif %}
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mt-4">
-                    <div class="bg-neutral-50 rounded-lg p-3 text-center hover-scale">
+                    <div class="bg-neutral-50 rounded-lg p-3 text-center">
                         <p class="text-neutral-500 text-sm">我的昵称</p>
-                        <p class="font-medium mt-1">{{user.name}}</p>
+                        <p class="font-medium mt-1">{{ user.name }}</p>
                     </div>
-                    <div class="bg-neutral-50 rounded-lg p-3 text-center hover-scale">
+                    <div class="bg-neutral-50 rounded-lg p-3 text-center">
                         <p class="text-neutral-500 text-sm">Ta的昵称</p>
-                        <p class="font-medium mt-1">
-                            {% if user.profile.couple and user.profile.couple.user %}
-                            {{user.profile.couple.user.name}}
-                            {% else %}
-                            未绑定
-                            {% endif %}
-                        </p>
+                        <p class="font-medium mt-1">{% if user.profile.couple %}{{ user.profile.couple.user.name|default:"未知" }}{% else %}未绑定{% endif %}</p>
                     </div>
                 </div>
             </div>
@@ -220,7 +216,7 @@
     <!-- 基本信息设置 -->
     <form id="coupleSettingsForm" method="post" action="{% url 'couple_web:couple_settings' %}">
         {% csrf_token %}
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.1s">
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
             <h2 class="text-xl font-bold mb-6 flex items-center">
                 <i class="fa fa-user-circle text-primary mr-2"></i>基本信息
             </h2>
@@ -229,23 +225,17 @@
                 <div>
                     <label class="block text-neutral-700 mb-2">我们的情侣名</label>
                     <div class="flex items-center">
-                        <input type="text" name="partner_nickname"
-                            value="{% if user.profile.couple and user.profile.couple.user %}{{ user.profile.couple.user.name }}{% else %}未绑定{% endif %}"
-                            class="flex-1 px-4 py-3 rounded-l-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
-                        <div class="px-4 py-3 bg-neutral-100 border-t border-b border-neutral-300">
-                            &
-                        </div>
-                        <input type="text" name="my_nickname" value="{{ user.name }}"
-                            class="flex-1 px-4 py-3 rounded-r-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
+                        <input type="text" name="couple_name" value="{{ couple_relation.couple_name|default:'' }}"
+                            class="flex-1 px-4 py-3 rounded-l-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
                     </div>
-                    <p class="text-xs text-neutral-500 mt-1">这是你们在情侣空间中的专属称呼</p>
                 </div>
 
                 <div>
                     <label class="block text-neutral-700 mb-2">恋爱纪念日</label>
                     <div class="flex items-center flex-wrap gap-3">
-                        <input type="date" name="anniversary" value='{{user.profile.couple_joined_at|date:"Y-m-d"}}'
-                            class="flex-1 px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">
+                        <input type="date" name="anniversary"
+                            value="{% if couple_relation and couple_relation.relationship_start_date %}{{ couple_relation.relationship_start_date|date:'Y-m-d' }}{% elif user.profile.couple_joined_at %}{{ user.profile.couple_joined_at|date:'Y-m-d' }}{% endif %}"
+                            class="flex-1 px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
                         <button type="button"
                             class="px-4 py-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom">
                             <i class="fa fa-calendar-plus-o mr-1"></i> 添加更多
@@ -256,13 +246,13 @@
                 <div>
                     <label class="block text-neutral-700 mb-2">我们的故事</label>
                     <textarea rows="3" name="love_story" placeholder="分享你们的恋爱故事..."
-                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom form-input-focus">我们在春天相遇，一起走过了三个季节，期待更多的四季与你相伴。</textarea>
+                        class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">{{ couple_relation.love_story|default:"" }}</textarea>
                 </div>
             </div>
         </div>
 
         <!-- 主题设置 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.2s">
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
             <h2 class="text-xl font-bold mb-6 flex items-center">
                 <i class="fa fa-paint-brush text-primary mr-2"></i>主题设置
             </h2>
@@ -271,39 +261,56 @@
                 <p class="text-neutral-600 mb-4">选择你们喜欢的主题风格，让情侣空间更有专属感</p>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div
-                        class="rounded-lg border-2 border-primary relative overflow-hidden cursor-pointer group transition-custom">
-                        <div
-                            class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                    <div class="rounded-lg border-2 {% if couple_relation and couple_relation.theme == 'light_love' %}border-primary{% else %}border-transparent hover:border-primary/50{% endif %} relative overflow-hidden cursor-pointer transition-custom">
+                        {% if couple_relation and couple_relation.theme == 'light_love' or not couple_relation %}
+                        <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center">
                             <i class="fa fa-check text-primary"></i>
                         </div>
+                        {% endif %}
                         <div class="h-24 bg-gradient-to-r from-primary to-secondary"></div>
                         <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">热恋粉紫</h3>
+                            <input type="radio" name="theme" value="light_love" {% if couple_relation and couple_relation.theme == 'light_love' or not couple_relation %}checked{% endif %}
+                                class="sr-only" id="theme_light_love">
+                            <label for="theme_light_love" class="font-medium text-sm cursor-pointer">热恋粉紫</label>
                         </div>
                     </div>
 
-                    <div
-                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
+                    <div class="rounded-lg border-2 {% if couple_relation and couple_relation.theme == 'dreamy_sky' %}border-primary{% else %}border-transparent hover:border-primary/50{% endif %} relative overflow-hidden cursor-pointer transition-custom">
+                        {% if couple_relation and couple_relation.theme == 'dreamy_sky' %}
+                        <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                            <i class="fa fa-check text-primary"></i>
+                        </div>
+                        {% endif %}
                         <div class="h-24 bg-gradient-to-r from-blue-400 to-purple-500"></div>
                         <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">梦幻星空</h3>
+                            <input type="radio" name="theme" value="dreamy_sky" {% if couple_relation and couple_relation.theme == 'dreamy_sky' %}checked{% endif %} class="sr-only" id="theme_dreamy_sky">
+                            <label for="theme_dreamy_sky" class="font-medium text-sm cursor-pointer">梦幻星空</label>
                         </div>
                     </div>
 
-                    <div
-                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
+                    <div class="rounded-lg border-2 {% if couple_relation and couple_relation.theme == 'fresh_nature' %}border-primary{% else %}border-transparent hover:border-primary/50{% endif %} relative overflow-hidden cursor-pointer transition-custom">
+                        {% if couple_relation and couple_relation.theme == 'fresh_nature' %}
+                        <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                            <i class="fa fa-check text-primary"></i>
+                        </div>
+                        {% endif %}
                         <div class="h-24 bg-gradient-to-r from-green-400 to-blue-500"></div>
                         <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">清新自然</h3>
+                            <input type="radio" name="theme" value="fresh_nature" {% if couple_relation and couple_relation.theme == 'fresh_nature' %}checked{% endif %} class="sr-only" id="theme_fresh_nature">
+                            <label for="theme_fresh_nature" class="font-medium text-sm cursor-pointer">清新自然</label>
                         </div>
                     </div>
 
-                    <div
-                        class="rounded-lg border-2 border-transparent hover:border-primary/50 relative overflow-hidden cursor-pointer group transition-custom">
+                    <div class="rounded-lg border-2 {% if couple_relation and couple_relation.theme == 'vibrant_orange' %}border-primary{% else %}border-transparent hover:border-primary/50{% endif %} relative overflow-hidden cursor-pointer transition-custom">
+                        {% if couple_relation and couple_relation.theme == 'vibrant_orange' %}
+                        <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                            <i class="fa fa-check text-primary"></i>
+                        </div>
+                        {% endif %}
                         <div class="h-24 bg-gradient-to-r from-yellow-400 to-red-500"></div>
                         <div class="p-3 bg-neutral-50">
-                            <h3 class="font-medium text-sm">活力橙红</h3>
+                            <input type="radio" name="theme" value="vibrant_orange" {% if couple_relation and couple_relation.theme == 'vibrant_orange' %}checked{% endif %} class="sr-only" id="theme_vibrant_orange">
+                            <label for="theme_vibrant_orange" class="font-medium text-sm cursor-pointer">活力橙红</label>
                         </div>
                     </div>
                 </div>
@@ -314,16 +321,18 @@
                         <div class="flex-1 min-w-[150px]">
                             <label class="block text-sm text-neutral-600 mb-1">主色调</label>
                             <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-primary border-2 border-white shadow-sm"></div>
-                                <input type="color" name="primary_color" value="#FF6B8B"
+                                <div class="w-8 h-8 rounded-full border-2 border-white shadow-sm" ></div>
+                                <input type="color" name="primary_color"
+                                    value="{{ couple_relation.primary_color|default:'#FF6B8B' }}"
                                     class="ml-2 h-8 w-12 rounded border-none cursor-pointer">
                             </div>
                         </div>
                         <div class="flex-1 min-w-[150px]">
                             <label class="block text-sm text-neutral-600 mb-1">辅助色</label>
                             <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-secondary border-2 border-white shadow-sm"></div>
-                                <input type="color" name="secondary_color" value="#722ED1"
+                                <div class="w-8 h-8 rounded-full border-2 border-white shadow-sm"></div>
+                                <input type="color" name="secondary_color"
+                                    value="{{ couple_relation.secondary_color|default:'#722ED1' }}"
                                     class="ml-2 h-8 w-12 rounded border-none cursor-pointer">
                             </div>
                         </div>
@@ -333,7 +342,7 @@
         </div>
 
         <!-- 隐私设置 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.3s">
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
             <h2 class="text-xl font-bold mb-6 flex items-center">
                 <i class="fa fa-lock text-primary mr-2"></i>隐私设置
             </h2>
@@ -342,12 +351,14 @@
                 <div class="p-4 bg-neutral-50 rounded-lg">
                     <h3 class="font-medium mb-3">谁可以看到我们的情侣关系？</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <label class="border-2 border-primary rounded-lg p-4 cursor-pointer relative hover-scale">
-                            <input type="radio" name="visibility" value="only_me" checked class="sr-only">
-                            <div
-                                class="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <label class="border-2 {% if couple_relation and couple_relation.visibility == 'only_me' or not couple_relation %}border-primary{% else %}border-transparent hover:border-primary/50{% endif %} rounded-lg p-4 cursor-pointer relative">
+                            <input type="radio" name="visibility" value="only_me" {% if couple_relation and couple_relation.visibility == 'only_me' or not couple_relation %}checked{% endif %}
+                                class="sr-only" id="visibility_only_me">
+                            {% if couple_relation and couple_relation.visibility == 'only_me' or not couple_relation %}
+                            <div class="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                                 <i class="fa fa-check text-white text-xs"></i>
                             </div>
+                            {% endif %}
                             <div class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
                                 <i class="fa fa-user text-neutral-500"></i>
                             </div>
@@ -355,13 +366,14 @@
                             <p class="text-xs text-neutral-500 mt-1">只有你能看到你们的情侣关系</p>
                         </label>
 
-                        <label
-                            class="border-2 border-transparent hover:border-primary/50 rounded-lg p-4 cursor-pointer relative hover-scale">
-                            <input type="radio" name="visibility" value="friends" class="sr-only">
-                            <div
-                                class="absolute top-3 right-3 w-5 h-5 rounded-full bg-white border border-neutral-300 flex items-center justify-center">
-                                <i class="fa fa-check text-white text-xs opacity-0"></i>
+                        <label class="border-2 {% if couple_relation and couple_relation.visibility == 'friends' %}border-primary{% else %}border-transparent hover:border-primary/50{% endif %} rounded-lg p-4 cursor-pointer relative">
+                            <input type="radio" name="visibility" value="friends" {% if couple_relation and couple_relation.visibility == 'friends' %}checked{% endif %} class="sr-only"
+                                id="visibility_friends">
+                            {% if couple_relation and couple_relation.visibility == 'friends' %}
+                            <div class="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                <i class="fa fa-check text-white text-xs"></i>
                             </div>
+                            {% endif %}
                             <div class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
                                 <i class="fa fa-users text-neutral-500"></i>
                             </div>
@@ -369,13 +381,14 @@
                             <p class="text-xs text-neutral-500 mt-1">只有你们的共同好友能看到</p>
                         </label>
 
-                        <label
-                            class="border-2 border-transparent hover:border-primary/50 rounded-lg p-4 cursor-pointer relative hover-scale">
-                            <input type="radio" name="visibility" value="public" class="sr-only">
-                            <div
-                                class="absolute top-3 right-3 w-5 h-5 rounded-full bg-white border border-neutral-300 flex items-center justify-center">
-                                <i class="fa fa-check text-white text-xs opacity-0"></i>
+                        <label class="border-2 {% if couple_relation and couple_relation.visibility == 'public' %}border-primary{% else %}border-transparent hover:border-primary/50{% endif %} rounded-lg p-4 cursor-pointer relative">
+                            <input type="radio" name="visibility" value="public" {% if couple_relation and couple_relation.visibility == 'public' %}checked{% endif %} class="sr-only"
+                                id="visibility_public">
+                            {% if couple_relation and couple_relation.visibility == 'public' %}
+                            <div class="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                <i class="fa fa-check text-white text-xs"></i>
                             </div>
+                            {% endif %}
                             <div class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mb-2">
                                 <i class="fa fa-globe text-neutral-500"></i>
                             </div>
@@ -388,8 +401,7 @@
                 <div class="p-4 bg-neutral-50 rounded-lg">
                     <h3 class="font-medium mb-3">谁可以看到我们的恋爱动态？</h3>
                     <div class="space-y-3">
-                        <div
-                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                                     <i class="fa fa-heart text-primary"></i>
@@ -400,15 +412,13 @@
                                 </div>
                             </div>
                             <div class="relative inline-block w-12 h-6">
-                                <input type="checkbox" name="show_couple_dynamics" checked class="sr-only peer">
-                                <div
-                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                                </div>
+                                <input type="checkbox" id="show_couple_dynamics" name="show_couple_dynamics" {% if couple_relation and couple_relation.show_couple_dynamics or not couple_relation %}checked{% endif %} class="sr-only peer">
+                                <label for="show_couple_dynamics"
+                                    class="w-12 h-6 {% if couple_relation and couple_relation.show_couple_dynamics or not couple_relation %}bg-primary{% else %}bg-neutral-300{% endif %} rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer block"></label>
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                                     <i class="fa fa-calendar text-primary"></i>
@@ -419,15 +429,13 @@
                                 </div>
                             </div>
                             <div class="relative inline-block w-12 h-6">
-                                <input type="checkbox" name="show_anniversary" checked class="sr-only peer">
-                                <div
-                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                                </div>
+                                <input type="checkbox" id="show_anniversary" name="show_anniversary" {% if couple_relation and couple_relation.show_anniversary or not couple_relation %}checked{% endif %} class="sr-only peer">
+                                <label for="show_anniversary"
+                                    class="w-12 h-6 {% if couple_relation and couple_relation.show_anniversary or not couple_relation %}bg-primary{% else %}bg-neutral-300{% endif %} rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer block"></label>
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                                     <i class="fa fa-gift text-primary"></i>
@@ -438,10 +446,9 @@
                                 </div>
                             </div>
                             <div class="relative inline-block w-12 h-6">
-                                <input type="checkbox" name="show_gifts" class="sr-only peer">
-                                <div
-                                    class="w-12 h-6 bg-neutral-300 rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                                </div>
+                                <input type="checkbox" id="show_gifts" name="show_gifts" {% if couple_relation and couple_relation.show_gifts or not couple_relation %}checked{% endif %} class="sr-only peer">
+                                <label for="show_gifts"
+                                    class="w-12 h-6 {% if couple_relation and couple_relation.show_gifts or not couple_relation %}bg-primary{% else %}bg-neutral-300{% endif %} rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer block"></label>
                             </div>
                         </div>
                     </div>
@@ -450,8 +457,7 @@
                 <div class="p-4 bg-neutral-50 rounded-lg">
                     <h3 class="font-medium mb-3">消息提醒设置</h3>
                     <div class="space-y-3">
-                        <div
-                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                                     <i class="fa fa-comment text-primary"></i>
@@ -462,15 +468,13 @@
                                 </div>
                             </div>
                             <div class="relative inline-block w-12 h-6">
-                                <input type="checkbox" name="notify_partner_messages" checked class="sr-only peer">
-                                <div
-                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                                </div>
+                                <input type="checkbox" id="notify_partner_messages" name="notify_partner_messages" {% if couple_relation and couple_relation.notify_partner_messages or not couple_relation %}checked{% endif %} class="sr-only peer">
+                                <label for="notify_partner_messages"
+                                    class="w-12 h-6 {% if couple_relation and couple_relation.notify_partner_messages or not couple_relation %}bg-primary{% else %}bg-neutral-300{% endif %} rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer block"></label>
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                                     <i class="fa fa-bell text-primary"></i>
@@ -481,15 +485,13 @@
                                 </div>
                             </div>
                             <div class="relative inline-block w-12 h-6">
-                                <input type="checkbox" name="notify_dynamics" checked class="sr-only peer">
-                                <div
-                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                                </div>
+                                <input type="checkbox" id="notify_dynamics" name="notify_dynamics" {% if couple_relation and couple_relation.notify_dynamics or not couple_relation %}checked{% endif %} class="sr-only peer">
+                                <label for="notify_dynamics"
+                                    class="w-12 h-6 {% if couple_relation and couple_relation.notify_dynamics or not couple_relation %}bg-primary{% else %}bg-neutral-300{% endif %} rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer block"></label>
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200 hover:border-primary/50 transition-custom">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                                     <i class="fa fa-star text-primary"></i>
@@ -500,10 +502,9 @@
                                 </div>
                             </div>
                             <div class="relative inline-block w-12 h-6">
-                                <input type="checkbox" name="notify_anniversary" checked class="sr-only peer">
-                                <div
-                                    class="w-12 h-6 bg-primary rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
-                                </div>
+                                <input type="checkbox" id="notify_anniversary" name="notify_anniversary" {% if couple_relation and couple_relation.notify_anniversary or not couple_relation %}checked{% endif %} class="sr-only peer">
+                                <label for="notify_anniversary"
+                                    class="w-12 h-6 {% if couple_relation and couple_relation.notify_anniversary or not couple_relation %}bg-primary{% else %}bg-neutral-300{% endif %} rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer block"></label>
                             </div>
                         </div>
                     </div>
@@ -512,14 +513,13 @@
         </div>
 
         <!-- 绑定账号 -->
-        <div class="bg-white rounded-xl shadow-custom p-6 mb-8 animate-slide-up" style="animation-delay: 0.4s">
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
             <h2 class="text-xl font-bold mb-6 flex items-center">
                 <i class="fa fa-link text-primary mr-2"></i>账号绑定
             </h2>
 
             <div class="space-y-4">
-                <div
-                    class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
+                <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
                     <div class="flex items-center">
                         <div class="w-12 h-12 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center mr-4">
                             <i class="fa-brands fa-twitter text-[#1DA1F2] text-xl"></i>
@@ -534,8 +534,7 @@
                     </button>
                 </div>
 
-                <div
-                    class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
+                <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
                     <div class="flex items-center">
                         <div class="w-12 h-12 rounded-full bg-[#E4405F]/10 flex items-center justify-center mr-4">
                             <i class="fa-brands fa-instagram text-[#E4405F] text-xl"></i>
@@ -550,8 +549,7 @@
                     </button>
                 </div>
 
-                <div
-                    class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
+                <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-custom">
                     <div class="flex items-center">
                         <div class="w-12 h-12 rounded-full bg-[#25D366]/10 flex items-center justify-center mr-4">
                             <i class="fa-brands fa-whatsapp text-[#25D366] text-xl"></i>
@@ -567,7 +565,7 @@
                 </div>
 
                 <!-- 解除关系确认按钮 -->
-                <div class="mb-12 text-center animate-slide-up" style="animation-delay: 0.5s">
+                <div class="mb-12 text-center">
                     <button id="breakupBtn" type="button"
                         class="inline-flex items-center text-red-500 hover:text-red-600 transition-custom">
                         <i class="fa fa-heart-broken mr-1"></i>
@@ -580,16 +578,11 @@
         </div>
 
         <!-- 底部操作区 -->
-        <div class="sticky bottom-0 left-0 right-0 bg-white shadow-lg p-4 z-30 animate-slide-up"
-            style="animation-delay: 0.5s">
+        <div class="sticky bottom-0 left-0 right-0 bg-white shadow-lg p-4 z-30">
             <div class="container mx-auto">
-                <div class="flex items-center justify-between">
-                    <button id="deleteAccountBtn" type="button"
-                        class="px-4 py-2 text-red-500 hover:text-red-600 transition-custom">
-                        <i class="fa fa-trash-o mr-1"></i> 删除账号
-                    </button>
+                <div class="flex items-center justify-end">
                     <button type="submit"
-                        class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-lg btn-pulse">
+                        class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-lg">
                         保存设置
                     </button>
                 </div>
@@ -625,44 +618,23 @@
         </div>
     </div>
 </div>
-
-<!-- 删除账号确认弹窗 -->
-<div id="deleteAccountModal"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-                <i class="fa fa-trash text-red-500 text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-neutral-800">删除账号</h3>
-            <p class="text-neutral-600 mt-2">确定要删除你的账号吗？此操作不可逆，所有数据将被永久删除。</p>
-        </div>
-        <div class="flex space-x-3">
-            <button id="cancelDeleteAccountBtn"
-                class="flex-1 px-4 py-3 border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-custom">
-                取消
-            </button>
-            <form method="post" action="{% url 'delete_account' %}">
-                {% csrf_token %}
-                <button type="submit" id="confirmDeleteAccountBtn"
-                    class="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-custom">
-                    确认删除
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     // 取消情侣请求
     function cancelRequest() {
-        window.location.href = "{% url 'couple_web:cancel_request' %}";
+        if (confirm('确定要取消这个情侣邀请吗？')) {
+            window.location.href = "{% url 'couple_web:cancel_request' %}";
+        }
     }
 
     // 复制邀请码
     function copyCode(code) {
+        if (!code) {
+            alert('暂无可用的邀请码！');
+            return;
+        }
         navigator.clipboard.writeText(code)
             .then(function () {
                 alert('邀请码已复制到剪贴板！');
@@ -670,61 +642,80 @@
             .catch(function (err) {
                 console.error('复制失败:', err);
                 // 降级方案：使用输入框复制
-                var tempInput = document.createElement('input');
-                tempInput.value = code;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand('copy');
-                document.body.removeChild(tempInput);
-                alert('邀请码已复制到剪贴板！');
+                try {
+                    var tempInput = document.createElement('input');
+                    tempInput.value = code;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    alert('邀请码已复制到剪贴板！');
+                } catch (e) {
+                    alert('复制失败，请手动复制：' + code);
+                }
             });
     }
 
     // 解除情侣关系模态框
-    const breakupModal = document.getElementById('breakupModal');
-    const breakupBtn = document.getElementById('breakupBtn');
-    const cancelBreakupBtn = document.getElementById('cancelBreakupBtn');
+    document.addEventListener('DOMContentLoaded', function () {
+        const breakupModal = document.getElementById('breakupModal');
+        const breakupBtn = document.getElementById('breakupBtn');
+        const cancelBreakupBtn = document.getElementById('cancelBreakupBtn');
 
-    if (breakupBtn) {
-        breakupBtn.addEventListener('click', () => {
-            breakupModal.classList.remove('opacity-0', 'pointer-events-none');
-            breakupModal.querySelector('div').classList.remove('scale-95');
-        });
-    }
+        if (breakupBtn) {
+            breakupBtn.addEventListener('click', () => {
+                breakupModal.classList.remove('opacity-0', 'pointer-events-none');
+                const modalContent = breakupModal.querySelector('div');
+                if (modalContent) {
+                    modalContent.classList.remove('scale-95');
+                    modalContent.classList.add('scale-100');
+                }
+            });
+        }
 
-    if (cancelBreakupBtn) {
-        cancelBreakupBtn.addEventListener('click', () => {
-            breakupModal.classList.add('opacity-0', 'pointer-events-none');
-            breakupModal.querySelector('div').classList.add('scale-95');
-        });
-    }
+        if (cancelBreakupBtn) {
+            cancelBreakupBtn.addEventListener('click', () => {
+                breakupModal.classList.add('opacity-0', 'pointer-events-none');
+                const modalContent = breakupModal.querySelector('div');
+                if (modalContent) {
+                    modalContent.classList.add('scale-95');
+                    modalContent.classList.remove('scale-100');
+                }
+            });
+        }
 
-    // 删除账号模态框
-    const deleteAccountModal = document.getElementById('deleteAccountModal');
-    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-    const cancelDeleteAccountBtn = document.getElementById('cancelDeleteAccountBtn');
+        // 点击模态框背景关闭
+        if (breakupModal) {
+            breakupModal.addEventListener('click', (e) => {
+                if (e.target === breakupModal) {
+                    breakupModal.classList.add('opacity-0', 'pointer-events-none');
+                    const modalContent = breakupModal.querySelector('div');
+                    if (modalContent) {
+                        modalContent.classList.add('scale-95');
+                        modalContent.classList.remove('scale-100');
+                    }
+                }
+            });
 
-    if (deleteAccountBtn) {
-        deleteAccountBtn.addEventListener('click', () => {
-            deleteAccountModal.classList.remove('opacity-0', 'pointer-events-none');
-            deleteAccountModal.querySelector('div').classList.remove('scale-95');
-        });
-    }
+            // ESC键关闭模态框
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    breakupModal.classList.add('opacity-0', 'pointer-events-none');
+                    const modalContent = breakupModal.querySelector('div');
+                    if (modalContent) {
+                        modalContent.classList.add('scale-95');
+                        modalContent.classList.remove('scale-100');
+                    }
+                }
+            });
+        }
 
-    if (cancelDeleteAccountBtn) {
-        cancelDeleteAccountBtn.addEventListener('click', () => {
-            deleteAccountModal.classList.add('opacity-0', 'pointer-events-none');
-            deleteAccountModal.querySelector('div').classList.add('scale-95');
-        });
-    }
-
-    // 点击模态框背景关闭
-    [breakupModal, deleteAccountModal].forEach(modal => {
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('opacity-0', 'pointer-events-none');
-                    modal.querySelector('div').classList.add('scale-95');
+        // 表单提交确认
+        const coupleSettingsForm = document.getElementById('coupleSettingsForm');
+        if (coupleSettingsForm) {
+            coupleSettingsForm.addEventListener('submit', function (e) {
+                if (!confirm('确定要保存这些设置吗？')) {
+                    e.preventDefault();
                 }
             });
         }

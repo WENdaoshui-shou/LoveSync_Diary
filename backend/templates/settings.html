@@ -499,13 +499,22 @@
               <div class="flex justify-between items-center py-2 border-b border-neutral-200">
                 <div>
                   <span class="block text-neutral-700">登录密码</span>
-                  <span class="text-sm text-neutral-500">{{ user.password }}</span>
                 </div>
                 <button class="text-primary hover:text-primary/80 transition-custom">
                   修改
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- 删除账号 -->
+          <div class="bg-neutral-50 rounded-xl p-4">
+            <h4 class="text-lg font-medium mb-4 text-center">账号删除</h4>
+            <p class="text-sm text-neutral-500 mb-4 text-center">警告：删除账号将永久删除所有数据，且无法恢复！</p>
+            <button id="deleteAccountBtn" type="button"
+              class="w-full px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-custom">
+              确认删除账号
+            </button>
           </div>
         </div>
 
@@ -596,6 +605,35 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除账号确认弹窗 -->
+  <div id="deleteAccountModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-trash text-red-500 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-neutral-800">删除账号</h3>
+        <p class="text-neutral-600 mt-2">确定要删除你的账号吗？此操作不可逆，所有数据将被永久删除。</p>
+      </div>
+      <div class="flex space-x-3">
+        <button id="cancelDeleteAccountBtn"
+          class="flex-1 px-4 py-3 border border-neutral-300 rounded-lg hover:bg-neutral-100 transition-custom">
+          取消
+        </button>
+
+        <form method="post" action="">
+          {% csrf_token %}
+          <button type="submit" id="confirmDeleteAccountBtn"
+            class="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-custom">
+            确认删除
+          </button>
+        </form>
+
       </div>
     </div>
   </div>
@@ -765,6 +803,75 @@
               submitButton.disabled = false;
               submitButton.innerHTML = originalText;
             }, 1500);
+          }
+        });
+      }
+
+      // 删除账号表单处理
+      const deleteAccountForm = document.querySelector('form[action*="delete_account"]');
+      if (deleteAccountForm) {
+        deleteAccountForm.addEventListener('submit', (e) => {
+          // 显示加载状态
+          const submitButton = e.target.querySelector('button[type="submit"]');
+          if (submitButton) {
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 删除中...';
+
+            // 不需要恢复按钮状态，因为删除后会跳转到其他页面
+          }
+        });
+      }
+
+      // 删除账号模态框
+      const deleteAccountModal = document.getElementById('deleteAccountModal');
+      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+      const cancelDeleteAccountBtn = document.getElementById('cancelDeleteAccountBtn');
+
+      if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', () => {
+          deleteAccountModal.classList.remove('opacity-0', 'pointer-events-none');
+          const modalContent = deleteAccountModal.querySelector('div');
+          if (modalContent) {
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+          }
+        });
+      }
+
+      if (cancelDeleteAccountBtn) {
+        cancelDeleteAccountBtn.addEventListener('click', () => {
+          deleteAccountModal.classList.add('opacity-0', 'pointer-events-none');
+          const modalContent = deleteAccountModal.querySelector('div');
+          if (modalContent) {
+            modalContent.classList.add('scale-95');
+            modalContent.classList.remove('scale-100');
+          }
+        });
+      }
+
+      // 点击模态框背景关闭
+      if (deleteAccountModal) {
+        deleteAccountModal.addEventListener('click', (e) => {
+          if (e.target === deleteAccountModal) {
+            deleteAccountModal.classList.add('opacity-0', 'pointer-events-none');
+            const modalContent = deleteAccountModal.querySelector('div');
+            if (modalContent) {
+              modalContent.classList.add('scale-95');
+              modalContent.classList.remove('scale-100');
+            }
+          }
+        });
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            deleteAccountModal.classList.add('opacity-0', 'pointer-events-none');
+            const modalContent = deleteAccountModal.querySelector('div');
+            if (modalContent) {
+              modalContent.classList.add('scale-95');
+              modalContent.classList.remove('scale-100');
+            }
           }
         });
       }
