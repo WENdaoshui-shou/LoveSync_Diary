@@ -258,7 +258,7 @@ LOGIN_URL = 'login'  # 指定登录页面的URL名称
 LOGIN_REDIRECT_URL = 'community'  # 登录成功后重定向的页面
 LOGOUT_REDIRECT_URL = 'login'  # 登出后重定向的页面
 
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 关闭浏览器后失效
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 关闭浏览器后失效 - 注释掉以支持"记住我"功能
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -291,13 +291,15 @@ VERIFY_CODE_EXPIRE = 60
 
 
 
-
 # 会话配置
-# 使用Redis存储session
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
-SESSION_COOKIE_AGE = 3600 * 24  # 会话有效期24小时
-SESSION_COOKIE_SAMESITE = 'Lax'  # 确保消息在重定向过程中不会丢失
+# 使用数据库存储session，确保服务器重启后会话仍然有效
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_CACHE_ALIAS = 'default'  # 不再使用缓存存储
+SESSION_COOKIE_AGE = 3600 * 24 * 7  # 会话有效期7天，与"记住我"功能对应
+SESSION_COOKIE_NAME = 'lovesync_session'  # 自定义会话cookie名称
+SESSION_COOKIE_SECURE = False  # 开发环境使用HTTP，生产环境应设置为True
+SESSION_COOKIE_HTTPONLY = True  # 防止JavaScript访问cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # 防止CSRF攻击，同时确保消息在重定向过程中不会丢失
 
 # 阿里云 OSS 存储配置
 if not DEBUG:  # 仅在生产环境使用 OSS

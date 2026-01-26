@@ -18,8 +18,7 @@ urlpatterns = [
     
     # 收藏页面路由
     path('collections/', views.collections, name='collections'),  # 收藏页面
-    
-    # 从core应用移动过来的路由
+
     path('achievements/', views.achievements_view, name='achievements'),  # 成就页面
     path('achievements/data/', views.get_achievements_data, name='get_achievements_data'),  # 成就数据API
     path('follow/toggle/', views.follow_toggle, name='follow_toggle'),  # 关注/取消关注接口

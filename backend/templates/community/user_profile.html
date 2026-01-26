@@ -161,47 +161,46 @@
     <div class="container mx-auto px-4 space-y-6">
         <!-- 个人信息展示 -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
-            <div class="h-32 bg-gradient-love relative">
-                <div class="absolute -bottom-8 left-6 w-16 h-16 rounded-full border-4 border-white overflow-hidden">
-                    {% if target_user.profile.userAvatar %}
+            <div
+                class="h-32 {% if couple_relation and couple_relation.primary_color and couple_relation.secondary_color %}bg-gradient-to-r from-[{{ couple_relation.primary_color }}] to-[{{ couple_relation.secondary_color }}]{% else %}bg-gradient-love{% endif %} relative">
+                <div
+                    class="absolute -bottom-8 left-6 w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow-md">
                     <img src="{{ target_user.profile.userAvatar.url }}" alt="{{ target_user.name }}的头像"
                         class="w-full h-full object-cover">
-                    {% else %}
-                    <img src="https://picsum.photos/seed/user{{ target_user.id }}/200/200" alt="默认头像"
-                        class="w-full h-full object-cover">
-                    {% endif %}
                 </div>
+                {% if partner %}
+                <div
+                    class="absolute -bottom-8 right-6 w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow-md">
+                    <img src="{{ partner.profile.userAvatar.url }}" alt="{{ partner.name }}的头像"
+                        class="w-full h-full object-cover">
+                </div>
+                {% endif %}
             </div>
             <div class="pt-10 pb-6 px-6">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                    <div>
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                    <div class="flex-1">
                         <h3 class="text-lg font-semibold text-neutral-900">{{ target_user.name }}</h3>
-                        <p class="text-neutral-600 text-sm mt-1">@{{ target_user.username }}</p>
                     </div>
 
-                    <!-- 关注按钮 -->
-                    {% if target_user != request.user %}
-                    <button id="followButton"
-                        class="inline-flex items-center px-6 py-2 rounded-lg transition-all duration-300"onclick="toggleFollow({{ target_user.id }}, this)">
-                        {% if is_following %}
-                        <i class="fa-solid fa-check mr-2"></i> 已关注
-                        {% else %}
-                        <i class="fa-solid fa-plus mr-2"></i> 关注
-                        {% endif %}
-                    </button>
+                    {% if partner %}
+                    <div class="flex-1 text-right mt-4 md:mt-0">
+                        <h3 class="text-lg font-semibold text-neutral-900">{{ partner.name }}</h3>
+                    </div>
+                    {% else %}
+                    <div class="flex-1"></div>
                     {% endif %}
                 </div>
 
-                <div class="flex justify-between mt-4 pt-4 border-t border-neutral-200">
-                    <div class="text-center">
+                <div class="flex justify-between items-center mt-4 pt-4 border-t border-neutral-200">
+                    <div class="text-center flex-1">
                         <p class="text-neutral-900 font-semibold">{{ stats.moment_count }}</p>
                         <p class="text-neutral-500 text-xs">动态</p>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center flex-1">
                         <p class="text-neutral-900 font-semibold">{{ follower_count }}</p>
                         <p class="text-neutral-500 text-xs">粉丝</p>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center flex-1">
                         <p class="text-neutral-900 font-semibold">{{ following_count }}</p>
                         <p class="text-neutral-500 text-xs">关注</p>
                     </div>
@@ -214,11 +213,11 @@
             <div class="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -mr-10 -mt-10"></div>
             <div class="absolute bottom-0 left-0 w-16 h-16 bg-secondary/10 rounded-full -ml-8 -mb-8"></div>
             <h3 class="text-lg font-semibold text-neutral-900 mb-4">爱情誓言</h3>
-            <p class="text-neutral-700 italic relative z-10">{% if target_user.profile.bio %}"{{ target_user.profile.bio }}"{% else%}"愿我们的爱情如星辰般永恒，如大海般深邃。"{% endif %}</p>
+            <p class="text-neutral-700 italic relative z-10">"{{ love_vow }}"</p>
             <div class="flex justify-between mt-4">
                 <span class="text-sm text-neutral-500">{{ target_user.name }}</span>
-                {% if target_user.profile.couple and target_user.profile.couple.user %}
-                <span class="text-sm text-neutral-500">{{ target_user.profile.couple.user.name }}</span>
+                {% if partner %}
+                <span class="text-sm text-neutral-500">{{ partner.name }}</span>
                 {% else %}
                 <span class="text-sm text-neutral-500">无伴侣</span>
                 {% endif %}
@@ -284,32 +283,37 @@
             <h3 class="text-lg font-semibold text-neutral-900 mb-4">我们的歌单</h3>
             {% if music_player %}
             {% for music in music_player %}
-            <div class="flex items-center space-x-4 mb-4">
-                <div class="w-16 h-16 rounded-lg overflow-hidden">
-                    {% if music.album_cover %}
-                    <img src="{{ music.album_cover.url }}" alt="{{ music.title }}封面" class="w-full h-full object-cover">
+            <div class="mb-6">
+                <div class="flex items-center space-x-4 mb-2">
+                    <div class="w-16 h-16 rounded-lg overflow-hidden">
+                        {% if music.album_cover %}
+                        <img src="{{ music.album_cover.url }}" alt="{{ music.title }}封面"
+                            class="w-full h-full object-cover">
+                        {% else %}
+                        <img src="https://picsum.photos/100/100?random={{ forloop.counter }}" alt="默认封面"
+                            class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-neutral-900 font-medium">{{ music.title }}</h4>
+                        <p class="text-neutral-500 text-sm">{{ music.artist }}</p>
+                    </div>
+                </div>
+                <!-- 播放控制 -->
+                <div class="mt-2">
+                    {% if music.external_link %}
+                    <!-- 外部链接音乐播放器 -->
+                    <iframe src="{{ music.external_link }}" frameborder="0" width="100%" height="86" allowfullscreen=""
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
                     {% else %}
-                    <img src="https://picsum.photos/100/100?random={{ forloop.counter }}" alt="默认封面"
-                        class="w-full h-full object-cover">
+                    <!-- 本地音乐播放器 -->
+                    <div class="flex items-center space-x-3">
+                        <button
+                            class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:opacity-90 transition-custom">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
                     {% endif %}
-                </div>
-                <div class="flex-1">
-                    <h4 class="text-neutral-900 font-medium">{{ music.title }}</h4>
-                    <p class="text-neutral-500 text-sm">{{ music.artist }}</p>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <button
-                        class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-custom">
-                        <i class="fa-solid fa-step-backward"></i>
-                    </button>
-                    <button
-                        class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:opacity-90 transition-custom">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                    <button
-                        class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-custom">
-                        <i class="fa-solid fa-step-forward"></i>
-                    </button>
                 </div>
             </div>
             {% endfor %}
@@ -320,8 +324,6 @@
             </div>
             {% endif %}
         </div>
-
-
 
     </div>
 </div>
@@ -363,81 +365,7 @@
 <script>
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function () {
-        // 初始化关注按钮
-        initFollowButton();
+        // 初始化完成
     });
-
-    // 获取CSRF Token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    // 初始化关注按钮
-    function initFollowButton() {
-        const followButton = document.getElementById('followButton');
-        if (followButton) {
-            // 初始化关注按钮样式
-            if (followButton.innerHTML.includes('已关注')) {
-                followButton.className = 'inline-flex items-center px-6 py-2 rounded-lg transition-all duration-300 bg-neutral-200 text-neutral-700 hover:bg-neutral-300';
-            } else {
-                followButton.className = 'inline-flex items-center px-6 py-2 rounded-lg transition-all duration-300 bg-primary text-white hover:bg-primary/90';
-            }
-        }
-    }
-
-    // 关注/取消关注操作
-    function toggleFollow(userId, button) {
-        // 显示加载状态
-        const originalContent = button.innerHTML;
-        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 处理中';
-        button.disabled = true;
-
-        // 发送AJAX请求
-        fetch('{% url "user:follow_toggle" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: `followed_id=${userId}`
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.status === 'followed') {
-                        // 关注成功
-                        button.innerHTML = '<i class="fa-solid fa-check mr-2"></i> 已关注';
-                        button.className = 'inline-flex items-center px-6 py-2 rounded-lg transition-all duration-300 bg-neutral-200 text-neutral-700 hover:bg-neutral-300';
-                    } else {
-                        // 取消关注成功
-                        button.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> 关注';
-                        button.className = 'inline-flex items-center px-6 py-2 rounded-lg transition-all duration-300 bg-primary text-white hover:bg-primary/90';
-                    }
-                } else {
-                    // 操作失败，恢复原始状态
-                    button.innerHTML = originalContent;
-                    alert(data.message || '操作失败，请重试');
-                }
-            })
-            .catch(error => {
-                console.error('操作失败:', error);
-                button.innerHTML = originalContent;
-                alert('网络错误，请重试');
-            })
-            .finally(() => {
-                button.disabled = false;
-            });
-    }
 </script>
 {% endblock %}

@@ -6,7 +6,8 @@ from .views import (
     love_story_view, couple_test_view, couple_places_view, 
     couple_history_view, delete_couple_history,
     accept_request, reject_request, cancel_request, breakup, couple_settings,
-    couple_places_api, couple_test_api, submit_test_result
+    couple_places_api, couple_test_api, submit_test_result,
+    add_love_story, add_music
 )
 
 app_name = 'couple'
@@ -27,6 +28,8 @@ web_urlpatterns = [
     path('breakup/', breakup, name='breakup'),
     path('couple_settings/', couple_settings, name='couple_settings'),
     path('love-story/', love_story_view, name='love_story'),
+    path('add-love-story/', add_love_story, name='add_love_story'),
+    path('add-music/', add_music, name='add_music'),
     path('test/', couple_test_view, name='couple_test'),
     path('test/api/', couple_test_api, name='couple_test_api'),
     path('test/submit/', submit_test_result, name='submit_test_result'),

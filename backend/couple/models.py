@@ -214,16 +214,21 @@ class MusicPlayer(models.Model):
     title = models.CharField(max_length=100, verbose_name='歌曲标题')
     artist = models.CharField(max_length=100, verbose_name='歌手')
     album_cover = models.ImageField(
-        upload_to='music_covers/',
+        upload_to='couple/music_images/',
         blank=True,
         null=True,
         verbose_name='专辑封面'
     )
     audio_file = models.FileField(
-        upload_to='music_files/',
+        upload_to='couple/music_files/',
         blank=True,
         null=True,
         verbose_name='音频文件'
+    )
+    external_link = models.URLField(
+        blank=True,
+        null=True,
+        verbose_name='外部音乐链接（如网易云音乐）'
     )
     is_currently_playing = models.BooleanField(default=False, verbose_name='是否正在播放')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -239,7 +244,7 @@ class LoveStoryTimeline(models.Model):
     description = models.TextField(verbose_name='事件描述')
     date = models.DateField(verbose_name='事件日期')
     image = models.ImageField(
-        upload_to='love_story_images/',
+        upload_to='couple/love_story_images/',
         blank=True,
         null=True,
         verbose_name='事件图片'

@@ -191,7 +191,7 @@
                 <i class="fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>双人日记</span>
             </a>
-            <a href="{% url 'core:personal_center' %}"
+            <a href="{% url 'user:user_profile' username=user.username %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-id-card w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>主页</span>
@@ -332,10 +332,8 @@
                                     <!-- 主要用户头像 -->
                                     <a href="{% url 'user:profile' moment.user.id %}"
                                         class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300 border-2 border-white"
-                                        title="查看{{ moment.user.name }}的主页"
-                                        onclick="addHistoryRecord('user', '{{ moment.user.id }}')">
-                                        <img src="{{ moment.user.profile.userAvatar.url }}" alt="发布者头像"
-                                            class="w-full h-full object-cover">
+                                        title="查看{{ moment.user.name }}的主页"onclick="addHistoryRecord('user', '{{ moment.user.id }}')">
+                                        <img src="{{ moment.user.profile.userAvatar.url }}" alt="发布者头像"class="w-full h-full object-cover">
                                     </a>
                                     <!-- 情侣头像（如果有） -->
                                     {% if moment.user.profile.couple %}

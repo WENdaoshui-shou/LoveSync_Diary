@@ -20,6 +20,7 @@ from .models import User, Profile, VerificationCode
 from .serializers import UserSerializer, ProfileSerializer, CustomTokenObtainPairSerializer, RegisterSerializer
 
 
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     """自定义JWT令牌获取视图"""
     serializer_class = CustomTokenObtainPairSerializer
@@ -176,9 +177,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
 # 首页视图
 class IndexView(TemplateView):
+    
     template_name = 'index.html'
     
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('community')
+        return super().dispatch(request, *args, **kwargs)
+    
     def get_context_data(self, **kwargs):
+        
         context = super().get_context_data(**kwargs)
         
         # 添加动态内容
@@ -226,6 +234,9 @@ class IndexView(TemplateView):
 
 # 登录视图
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('community')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -343,76 +354,6 @@ def logout_view(request):
     logout(request)
     messages.success(request, '已成功登出')
     return redirect('login')
-
-
-# 个人中心视图
-@login_required
-def personal_center_view(request):
-    """个人中心视图"""
-    # 获取用户信息
-    user = request.user
-    profile = user.profile
-    
-    # 获取用户统计数据
-    from moment.models import Moment
-    from note.models import Note
-    from message.models import Message, PrivateChat
-    from game.models import GameSession
-    
-    moment_count = Moment.objects.filter(user=user).count()
-    note_count = Note.objects.filter(user=user).count()
-    message_count = Message.objects.filter(user=user).count()
-    private_chat_count = PrivateChat.objects.filter(sender=user) | PrivateChat.objects.filter(recipient=user)
-    private_chat_count = private_chat_count.count()
-    game_session_count = GameSession.objects.filter(user=user).count()
-    
-    # 获取关注/粉丝数量
-    from user.models import Follow
-    following_count = Follow.objects.filter(follower=user, is_deleted=False).count()
-    followers_count = Follow.objects.filter(following=user, is_deleted=False).count()
-    
-    # 获取用户成就
-    from user.models import UserAchievement
-    user_achievements = UserAchievement.objects.filter(user=user, unlocked=True).order_by('-unlocked_at')[:5]
-    
-    # 获取用户VIP信息
-    vip_member = None
-    if hasattr(user, 'vip'):
-        vip_member = user.vip
-    
-    # 获取最近的动态
-    recent_moments = Moment.objects.filter(user=user).order_by('-created_at')[:3]
-    
-    # 获取爱情故事时间轴
-    from couple.models import LoveStoryTimeline
-    love_story_timeline = LoveStoryTimeline.objects.filter(user=user).order_by('-date')[:10]
-    
-    # 获取音乐播放器数据
-    from couple.models import MusicPlayer
-    music_player = MusicPlayer.objects.filter(user=user).order_by('-created_at')[:5]
-  
-    context = {
-        'target_user': user,
-        'user': user,
-        'profile': profile,
-        'stats': {
-            'moment_count': moment_count,
-            'note_count': note_count,
-            'message_count': message_count,
-            'private_chat_count': private_chat_count,
-            'game_session_count': game_session_count
-        },
-        'achievements': user_achievements,
-        'vip': vip_member,
-        'recent_moments': recent_moments,
-        'following_count': following_count,
-        'follower_count': followers_count,
-        'love_story_timeline': love_story_timeline,
-        'music_player': music_player,
-        'is_following': False
-    }
-    
-    return render(request, 'community/user_profile.html', context)
 
 
 def share_place_view(request, place_id):

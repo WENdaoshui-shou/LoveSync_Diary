@@ -98,6 +98,16 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username} 的个人设置"
 
+    @property
+    def couple_days(self):
+        """计算相恋天数"""
+        from django.utils import timezone
+        if self.couple_joined_at:
+            now = timezone.now()
+            delta = now - self.couple_joined_at
+            return delta.days
+        return None
+
     class Meta:
         verbose_name = '用户设置'
         verbose_name_plural = '用户设置'

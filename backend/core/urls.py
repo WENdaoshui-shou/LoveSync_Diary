@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     CustomTokenObtainPairView, RegisterViewSet, ProfileViewSet, LoginViewSet,
-    personal_center_view, settings_view, message_view
+    settings_view, message_view
 )
 
 app_name = 'core'
@@ -19,7 +19,6 @@ urlpatterns = [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token'),
     path('api/', include(api_router.urls)),
     # Web视图路由
-    path('personal-center/', personal_center_view, name='personal_center'),
     path('settings/<str:setting_type>/', settings_view, name='settings'),
     path('settings/', settings_view, name='settings'),
     path('message/', message_view, name='message'),

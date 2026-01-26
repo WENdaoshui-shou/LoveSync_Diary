@@ -315,7 +315,7 @@ def generate_test_analysis(answers):
 @login_required
 def love_story_view(request):
     """爱情故事视图"""
-    from .models import LoveStoryTimeline
+    from .models import LoveStoryTimeline, MusicPlayer
     
     # 检查用户是否绑定情侣
     if not request.user.profile.couple:
@@ -335,14 +335,84 @@ def love_story_view(request):
     all_events = list(timeline_events) + list(partner_timeline_events)
     all_events.sort(key=lambda x: x.date, reverse=True)
     
+    # 获取音乐播放器数据
+    music_player = MusicPlayer.objects.filter(user=request.user).order_by('-created_at')[:5]
+    
     context = {
         'timeline_events': timeline_events,
         'partner_timeline_events': partner_timeline_events,
-        'all_events': all_events
+        'all_events': all_events,
+        'music_player': music_player
     }
     
     return render(request, 'couple.html', context)
 
+
+# 添加爱情故事视图
+@login_required
+def add_love_story(request):
+    """添加爱情故事"""
+    from .models import LoveStoryTimeline
+    
+    # 检查用户是否绑定情侣
+    if not request.user.profile.couple:
+        messages.error(request, '请先绑定情侣关系，才能添加爱情故事！')
+        return redirect('couple_web:couple')
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        date = request.POST.get('date')
+        description = request.POST.get('description')
+        image = request.FILES.get('image')
+        
+        # 创建爱情故事时间轴事件
+        LoveStoryTimeline.objects.create(
+            user=request.user,
+            title=title,
+            date=date,
+            description=description,
+            image=image
+        )
+        
+        messages.success(request, '爱情故事添加成功！')
+        return redirect('couple_web:couple')
+    
+    return redirect('couple_web:couple')
+
+
+# 添加音乐视图
+@login_required
+def add_music(request):
+    """添加音乐"""
+    from .models import MusicPlayer
+    
+    # 检查用户是否绑定情侣
+    if not request.user.profile.couple:
+        messages.error(request, '请先绑定情侣关系，才能添加音乐！')
+        return redirect('couple_web:couple')
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        artist = request.POST.get('artist')
+        album_cover = request.FILES.get('album_cover')
+        external_link = request.POST.get('external_link')
+        
+        # 创建音乐播放器记录
+        MusicPlayer.objects.create(
+            user=request.user,
+            title=title,
+            artist=artist,
+            album_cover=album_cover,
+            external_link=external_link
+        )
+        
+        messages.success(request, '音乐添加成功！')
+        return redirect('couple_web:couple')
+    
+    return redirect('couple_web:couple')
+
+
+# 
 
 # 情侣测试视图
 @login_required
@@ -861,6 +931,7 @@ def couple_settings(request):
                         # 更新基本信息
                         relation.couple_name = request.POST.get('couple_name')
                         relation.love_story = request.POST.get('love_story')
+                        relation.love_vow = request.POST.get('love_vow')
                         
                         # 更新主题设置
                         relation.theme = request.POST.get('theme', 'light_love')
@@ -896,6 +967,7 @@ def couple_settings(request):
                                 user2=profile.couple.user,
                                 couple_name=request.POST.get('couple_name'),
                                 love_story=request.POST.get('love_story'),
+                                love_vow=request.POST.get('love_vow'),
                                 theme=request.POST.get('theme', 'light_love'),
                                 primary_color=request.POST.get('primary_color', '#FF6B8B'),
                                 secondary_color=request.POST.get('secondary_color', '#722ED1'),

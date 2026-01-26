@@ -627,16 +627,60 @@ def user_profile(request, username):
     from moment.models import Moment
     moment_count = Moment.objects.filter(user=target_user).count()
     
+    # 获取情侣信息
+    partner = None
+    couple_relation = None
+    love_vow = None
+    
+    if target_user.profile.couple:
+        partner = target_user.profile.couple.user
+        # 获取情侣关系
+        from couple.models import CoupleRelation
+        from django.db.models import Q
+        couple_relation = CoupleRelation.objects.filter(
+            (Q(user1=target_user) & Q(user2=partner)) |
+            (Q(user1=partner) & Q(user2=target_user))
+        ).first()
+        
+        # 获取爱情誓言
+        if couple_relation and couple_relation.love_vow:
+            love_vow = couple_relation.love_vow
+    
+    # 获取爱情故事时间轴
+    love_story_timeline = []
+    from couple.models import LoveStoryTimeline
+    timeline_events = LoveStoryTimeline.objects.filter(user=target_user).order_by('-date')
+    
+    # 获取伴侣的爱情故事时间轴
+    partner_timeline_events = []
+    if partner:
+        partner_timeline_events = LoveStoryTimeline.objects.filter(user=partner).order_by('-date')
+    
+    # 合并并按日期排序
+    all_events = list(timeline_events) + list(partner_timeline_events)
+    all_events.sort(key=lambda x: x.date, reverse=True)
+    love_story_timeline = all_events
+    
+    # 获取音乐播放器数据
+    music_player = []
+    from couple.models import MusicPlayer
+    music_player = MusicPlayer.objects.filter(user=target_user).order_by('-created_at')[:5]
+    
     context = {
         'target_user': target_user,
         'is_following': is_following,
         'following_count': following_count,
         'follower_count': follower_count,
+        'partner': partner,
+        'couple_relation': couple_relation,
+        'love_vow': love_vow,
+        'love_story_timeline': love_story_timeline,
+        'music_player': music_player,
         'stats': {
             'moment_count': moment_count
         }
     }
-    
+
     return render(request, 'community/user_profile.html', context)
 
 # 成就页面

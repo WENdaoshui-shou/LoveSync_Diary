@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core.views import (
     IndexView, login_view, register_view, logout_view,
-    personal_center_view, settings_view, verify_code,
+    settings_view, verify_code,
     share_place_view
 )
 from moment.views import community_view, moments_view, hot_moments_view, share_moment, delete_moment, unshare_moment
@@ -23,10 +23,8 @@ urlpatterns = [
     path('register/', register_view, name='register'),
     path('logout/', logout_view, name='logout'),
     path('verify_code/', verify_code, name='verify_code'),
-    path('personal_center/', personal_center_view, name='personal_center'),
     path('settings/<str:setting_type>/', settings_view, name='settings'),
     path('settings/', settings_view, name='settings'),
-    # 替换旧的message_view为新的消息应用路由
     path('message/', include('message.urls')),
     
     # 分享功能路由
