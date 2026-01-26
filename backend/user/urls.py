@@ -25,4 +25,6 @@ urlpatterns = [
     path('following/', views.following_list, name='following_list'),  # 关注列表页面
     path('followers/', views.follower_list, name='follower_list'),  # 粉丝列表页面
     path('user/<str:username>/', views.user_profile, name='user_profile'),  # 用户主页
+    path('api/recommended-users/', views.get_recommended_users, name='get_recommended_users'),  # 获取推荐用户
+    path('api/hot-couples/', views.get_hot_couples, name='get_hot_couples'),  # 获取热门情侣
 ]

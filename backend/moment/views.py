@@ -30,9 +30,14 @@ class MomentViewSet(viewsets.ModelViewSet):
         """获取动态列表，支持筛选和搜索"""
         filter_type = request.query_params.get('filter', 'latest')
         search_term = request.query_params.get('search', '')
+        topic_id = request.query_params.get('topic', '')
         
         # 基础查询：只查询分享的动态
         queryset = Moment.objects.filter(is_shared=True)
+        
+        # 按话题筛选
+        if topic_id:
+            queryset = queryset.filter(tags__id=topic_id)
         
         # 搜索功能
         if search_term:
@@ -313,6 +318,15 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     permission_classes = [IsAuthenticated]
     
+    def get_permissions(self):
+        """根据不同的action设置不同的权限"""
+        if self.action == 'trending_tags':
+            # 热门标签接口允许匿名访问
+            return [AllowAny()]
+        else:
+            # 其他操作需要登录
+            return super().get_permissions()
+    
     @action(detail=False, methods=['get'])
     def trending_tags(self, request):
         """获取热门标签"""
@@ -323,6 +337,7 @@ class TagViewSet(viewsets.ModelViewSet):
         
         serializer = TagSerializer(trending_tags, many=True)
         return Response({
+            'success': True,
             'message': '获取热门标签成功',
             'trending_tags': serializer.data
         }, status=status.HTTP_200_OK)
@@ -393,37 +408,50 @@ def moments_view(request):
     moments = Moment.objects.filter(user=request.user).order_by('-created_at')
     
     if request.method == 'POST':
-        # 处理动态发布
-        content = request.POST.get('content', '').strip()
-        tags_data = request.POST.getlist('tags', [])
-        images = request.FILES.getlist('image')
-        
-        # 验证内容
-        if not content:
-            messages.error(request, '动态内容不能为空')
-            return redirect('moments')
-        
-        try:
-            # 创建动态
-            moment = Moment.objects.create(
-                user=request.user,
-                content=content
-            )
+            # 处理动态发布
+            content = request.POST.get('content', '').strip()
+            tags_data = request.POST.getlist('tags', [])
+            custom_tags = request.POST.get('custom_tags', '')
+            images = request.FILES.getlist('image')
             
-            # 处理标签
-            for tag_name in tags_data:
-                tag, created = Tag.objects.get_or_create(name=tag_name)
-                moment.tags.add(tag)
+            # 验证内容
+            if not content:
+                messages.error(request, '动态内容不能为空')
+                return redirect('moments')
             
-            # 处理图片
-            for image in images:
-                MomentImage.objects.create(moment=moment, image=image)
+            try:
+                # 创建动态
+                moment = Moment.objects.create(
+                    user=request.user,
+                    content=content
+                )
+                
+                # 处理标签
+                for tag_name in tags_data:
+                    tag, created = Tag.objects.get_or_create(name=tag_name)
+                    moment.tags.add(tag)
+                
+                # 处理自定义标签
+                if custom_tags:
+                    # 分割自定义标签（使用空格分隔）
+                    custom_tags_list = custom_tags.split()
+                    for tag_name in custom_tags_list:
+                        tag_name = tag_name.strip()
+                        # 移除#符号
+                        tag_name = tag_name.replace('#', '')
+                        if tag_name:
+                            tag, created = Tag.objects.get_or_create(name=tag_name)
+                            moment.tags.add(tag)
             
-            messages.success(request, '动态发布成功')
-            return redirect('moments')
-        except Exception as e:
-            messages.error(request, f'发布失败: {str(e)}')
-            return redirect('moments')
+                # 处理图片
+                for image in images:
+                    MomentImage.objects.create(moment=moment, image=image)
+                
+                messages.success(request, '动态发布成功')
+                return redirect('moments')
+            except Exception as e:
+                messages.error(request, f'发布失败: {str(e)}')
+                return redirect('moments')
     
     return render(request, 'moments.html', {
         'moments': moments,

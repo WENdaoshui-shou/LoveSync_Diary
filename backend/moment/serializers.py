@@ -5,9 +5,15 @@ from core.serializers import UserSerializer
 
 class TagSerializer(serializers.ModelSerializer):
     """标签序列化器"""
+    moment_count = serializers.SerializerMethodField()
+    
+    def get_moment_count(self, obj):
+        """获取标签关联的动态数量"""
+        return obj.moments.count()
+    
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'created_at']
+        fields = ['id', 'name', 'created_at', 'moment_count']
 
 
 class MomentImageSerializer(serializers.ModelSerializer):

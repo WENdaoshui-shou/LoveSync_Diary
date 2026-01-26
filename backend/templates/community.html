@@ -360,8 +360,7 @@
                                         {% if moment.user.vip and moment.user.vip.is_active %}
                                         <!-- 使用后端提供的VIP等级对应颜色 -->
                                         <a href="{% url 'vip_web:index' %}"
-                                            class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium"
-                                            style="background: {{ moment.user.vip.get_level_color }}; color: {{ moment.user.vip.get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                            class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium"style="background: {{ moment.user.vip.get_level_color }}; color: {{ moment.user.vip.get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                                             <i class="fa-solid fa-crown text-xs mr-0.5"></i>
                                             {{ moment.user.vip.get_level_display }}
                                         </a>
@@ -411,6 +410,19 @@
                             </div>
                             {% endfor %}
                         </div>
+
+                        <!-- 动态标签-->
+                        {% if moment.tags.all %}
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            {% for tag in moment.tags.all %}
+                            <span
+                                class="text-primary bg-primary/10 px-2 py-1 rounded-full text-xs hover:bg-primary/20 transition-custom tag-link cursor-pointer"
+                                data-tag-id="{{ tag.id }}">
+                                #{{ tag.name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
 
                         <div class="mt-4 flex justify-between items-center">
                             <div class="flex space-x-4">
@@ -540,41 +552,10 @@
                         <i class="fa-solid fa-fire text-primary mr-2"></i>
                         热门话题
                     </h3>
-                    <ul class="space-y-3">
-                        <li>
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
-                                <span
-                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情人节计划#</span>
-                                <span class="text-neutral-700 text-sm">2.4k 动态</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
-                                <span
-                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情侣穿搭#</span>
-                                <span class="text-neutral-700 text-sm">1.8k 动态</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
-                                <span
-                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#爱情保鲜秘诀#</span>
-                                <span class="text-neutral-700 text-sm">1.5k 动态</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
-                                <span
-                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#情侣旅行#</span>
-                                <span class="text-neutral-700 text-sm">1.2k 动态</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom">
-                                <span
-                                    class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#恋爱周年纪念#</span>
-                                <span class="text-neutral-700 text-sm">980 动态</span>
-                            </a>
+                    <ul class="space-y-3" id="hotTopicsList">
+                        <!-- 动态加载热门话题 -->
+                        <li class="flex justify-center py-8">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                         </li>
                     </ul>
                 </div>
@@ -585,7 +566,8 @@
                         <i class="fa-solid fa-user-plus text-primary mr-2"></i>
                         推荐关注
                     </h3>
-                    <ul class="space-y-4">
+                    <ul class="space-y-4" id="recommendedUsersList">
+                        <!-- 由JavaScript动态加载 -->
                         <li>
                             <div class="flex items-center">
                                 <a href="#"
@@ -606,78 +588,20 @@
                                 </button>
                             </div>
                         </li>
-                        <li>
-                            <div class="flex items-center">
-                                <a href="#"
-                                    class="block w-10 h-10 rounded-full overflow-hidden mr-3 hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                    title="查看情侣摄影师的主页">
-                                    <img src="https://picsum.photos/200/200?random=3" alt="推荐用户头像"
-                                        class="w-full h-full object-cover">
-                                </a>
-                                <div class="flex-1">
-                                    <a href="#"
-                                        class="block text-neutral-900 font-medium text-sm hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
-                                        title="查看情侣摄影师的主页">情侣摄影师</a>
-                                    <p class="text-neutral-500 text-xs">记录爱情的每一刻</p>
-                                </div>
-                                <button
-                                    class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
-                                    关注
-                                </button>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="flex items-center">
-                                <a href="#"
-                                    class="block w-10 h-10 rounded-full overflow-hidden mr-3 hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                    title="查看恋爱导师的主页">
-                                    <img src="https://picsum.photos/200/200?random=4" alt="推荐用户头像"
-                                        class="w-full h-full object-cover">
-                                </a>
-                                <div class="flex-1">
-                                    <a href="#"
-                                        class="block text-neutral-900 font-medium text-sm hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
-                                        title="查看恋爱导师的主页">恋爱导师</a>
-                                    <p class="text-neutral-500 text-xs">分享恋爱技巧与建议</p>
-                                </div>
-                                <button
-                                    class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
-                                    关注
-                                </button>
-                            </div>
-                        </li>
                     </ul>
                 </div>
 
                 <!-- 社区活动 -->
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-neutral-900 mb-4">社区活动</h3>
-                        <div class="space-y-4">
-                            <div class="bg-gradient-love rounded-lg p-4 text-white">
-                                <h4 class="font-semibold">七夕情侣摄影大赛</h4>
-                                <p class="text-white/80 text-sm mt-1">分享你们的甜蜜照片，赢取浪漫奖品</p>
-                                <div class="mt-3 text-xs bg-white/20 inline-block px-3 py-1 rounded-full">
-                                    还有3天结束
-                                </div>
-                            </div>
-                            <div
-                                class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
-                                <h4 class="font-medium text-neutral-900">情侣默契大考验</h4>
-                                <p class="text-neutral-600 text-sm mt-1">测试你们的默契程度，看看是否心灵相通</p>
-                                <div
-                                    class="mt-3 text-xs bg-primary/10 text-primary inline-block px-3 py-1 rounded-full">
-                                    进行中
-                                </div>
-                            </div>
-                            <div
-                                class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
-                                <h4 class="font-medium text-neutral-900">爱情故事征集</h4>
-                                <p class="text-neutral-600 text-sm mt-1">分享你们的爱情故事，让更多人感受幸福</p>
-                                <div
-                                    class="mt-3 text-xs bg-neutral-100 text-neutral-600 inline-block px-3 py-1 rounded-full">
-                                    即将开始
-                                </div>
+                        <h3 class="text-lg font-semibold text-neutral-900 mb-4">
+                            <i class="fa-solid fa-bullhorn text-primary mr-2"></i>
+                            社区活动
+                        </h3>
+                        <div class="space-y-4" id="communityEventsList">
+                            <!-- 由JavaScript动态加载 -->
+                            <div class="flex justify-center items-center py-8">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                             </div>
                         </div>
                     </div>
@@ -685,31 +609,13 @@
 
                 <!-- 热门情侣 -->
                 <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
-                    <h3 class="text-lg font-semibold text-neutral-900 mb-4">热门情侣</h3>
-                    <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-4">
+                        <i class="fa-solid fa-user-friends text-primary mr-2"></i>
+                        热门情侣
+                    </h3>
+                    <div class="space-y-4" id="hotCouplesList">
+                        <!-- 由JavaScript动态加载 -->
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex -space-x-2">
-                                    <a href="#"
-                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                        title="查看甜蜜二人组的主页">
-                                        <img src="https://picsum.photos/200/200?random=12" alt="情侣头像1"
-                                            class="w-full h-full object-cover">
-                                    </a>
-                                    <a href="#"
-                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                        title="查看甜蜜二人组的主页">
-                                        <img src="https://picsum.photos/200/200?random=13" alt="情侣头像2"
-                                            class="w-full h-full object-cover">
-                                    </a>
-                                </div>
-                                <div>
-                                    <a href="#"
-                                        class="block font-medium text-sm text-neutral-900 hover:text-primary transition-all duration-300"
-                                        title="查看甜蜜二人组的主页">甜蜜二人组</a>
-                                    <p class="text-neutral-500 text-xs">3.2k 粉丝</p>
-                                </div>
-                            </div>
                             <button
                                 class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
                                 关注
@@ -772,10 +678,6 @@
                             </button>
                         </div>
                     </div>
-                    <button
-                        class="w-full mt-4 py-2 text-center text-primary text-sm border border-primary rounded-lg hover:bg-primary hover:text-white transition-custom">
-                        查看更多
-                    </button>
                 </div>
 
                 <!-- 应用下载 -->
@@ -835,6 +737,16 @@
             .catch(error => {
                 console.error('添加历史记录失败:', error);
             });
+
+        // 标签链接点击事件
+        document.querySelectorAll('.tag-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const tagId = this.getAttribute('data-tag-id');
+                const tagName = this.textContent.trim().replace('#', '');
+                loadMomentsByTopic(tagId, tagName);
+            });
+        });
     }
 
     // 获取CSRF令牌
@@ -1125,7 +1037,676 @@
 
         // 初始化收藏功能
         initCollectionFunctionality();
+
+        // 初始化热门话题
+        initHotTopics();
+
+        // 初始化推荐关注
+        initRecommendedUsers();
+
+        // 初始化热门情侣
+        initHotCouples();
+
+        // 初始化社区活动
+        initCommunityEvents();
     });
+
+    // 初始化推荐关注
+    function initRecommendedUsers() {
+        const recommendedUsersList = document.getElementById('recommendedUsersList');
+        if (!recommendedUsersList) return;
+
+        // 发送请求获取推荐用户
+        fetch('/user/api/recommended-users/', {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.recommended_users) {
+                    renderRecommendedUsers(data.recommended_users);
+                } else {
+                    console.error('获取推荐用户失败:', data.message);
+                    recommendedUsersList.innerHTML = '<li class="text-center text-neutral-500 py-4">加载推荐用户失败</li>';
+                }
+            })
+            .catch(error => {
+                console.error('获取推荐用户失败:', error);
+                recommendedUsersList.innerHTML = '<li class="text-center text-neutral-500 py-4">网络错误，请重试</li>';
+            });
+    }
+
+    // 渲染推荐用户
+    function renderRecommendedUsers(users) {
+        const recommendedUsersList = document.getElementById('recommendedUsersList');
+        if (!recommendedUsersList) return;
+
+        // 清空列表
+        recommendedUsersList.innerHTML = '';
+
+        // 如果没有推荐用户
+        if (users.length === 0) {
+            recommendedUsersList.innerHTML = '<li class="text-center text-neutral-500 py-4">暂无推荐用户</li>';
+            return;
+        }
+
+        // 渲染推荐用户
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="flex items-center">
+                    <a href="/user/profile/${user.id}/"
+                        class="block w-10 h-10 rounded-full overflow-hidden mr-3 hover:scale-110 hover:shadow-lg transition-all duration-300"
+                        title="查看${user.name}的主页">
+                        <img src="${user.avatar}" alt="${user.name}的头像"
+                            class="w-full h-full object-cover">
+                    </a>
+                    <div class="flex-1">
+                        <a href="/user/profile/${user.id}/"
+                            class="block text-neutral-900 font-medium text-sm hover:text-primary transition-all duration-300"
+                            title="查看${user.name}的主页">${user.name}</a>  
+                        <p class="text-neutral-500 text-xs">${user.followers_count} 粉丝</p>
+                        
+                    </div>
+                    <button class="follow-btn text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom"
+                        data-user-id="${user.id}">
+                        关注
+                    </button>
+                </div>
+            `;
+            recommendedUsersList.appendChild(li);
+        });
+
+        // 添加关注按钮事件监听
+        addFollowEventListeners();
+    }
+
+    // 搜索功能
+    function loadMomentsByTopic(topicId, topicName) {
+        const momentsContainer = document.querySelector('.space-y-6');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const noMoreContent = document.getElementById('no-more-content');
+
+        if (!momentsContainer) return;
+
+        // 显示加载指示
+        if (loadingIndicator) {
+            loadingIndicator.classList.remove('hidden');
+            noMoreContent.classList.add('hidden');
+        }
+
+        // 清空当前内容
+        momentsContainer.innerHTML = '';
+
+        // 发送请求获取指定话题的动态
+        fetch(`/api/moment/moments/?topic=${topicId}`, {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 检查数据结构，API返回的数据在results字段中
+                const moments = data.results || [];
+
+                if (moments.length > 0) {
+                    moments.forEach(moment => {
+                        const momentElement = document.createElement('div');
+                        momentElement.className = 'bg-white rounded-xl shadow-lg overflow-hidden post-card w-full animate-fade-in';
+                        momentElement.setAttribute('data-moment-id', moment.id);
+
+                        // 构建用户头像
+                        let avatarHtml = '';
+                        if (moment.user.avatar) {
+                            avatarHtml = `<img src="${moment.user.avatar}" alt="发布者头像" class="w-full h-full object-cover">`;
+                        } else {
+                            avatarHtml = `<div class="w-full h-full bg-neutral-200 flex items-center justify-center"><i class="fa fa-user text-2xl text-neutral-400"></i></div>`;
+                        }
+
+                        // 构建VIP徽章
+                        let vipHtml = '';
+                        if (moment.user.vip && moment.user.vip.is_active) {
+                            vipHtml = `<a href="/vip/" class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium" style="background: ${moment.user.vip.level_color}; color: ${moment.user.vip.level_text_color}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                            <i class="fa-solid fa-crown text-xs mr-0.5"></i>
+                            ${moment.user.vip.level_display}
+                        </a>`;
+                        }
+
+                        // 构建图片列表
+                        let imagesHtml = '';
+                        if (moment.moment_images && moment.moment_images.length > 0) {
+                            imagesHtml = `
+                            <div class="mt-4 grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                ${moment.moment_images.map(image => `
+                                    <div class="cursor-pointer" onclick="addHistoryRecord('moment', '${moment.id}'); saveScrollPositionAndRedirect('/moment/community/moment/${moment.id}/')">
+                                        <img src="${image.image}" alt="动态图片" class="rounded-lg w-full h-40 object-cover hover-scale">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        }
+
+                        momentElement.innerHTML = `
+                        <div class="p-8">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="flex -space-x-2">
+                                        <!-- 主要用户头像 -->
+                                        <a href="/user/profile/${moment.user.id}/" 
+                                            class="block w-10 h-10 rounded-full overflow-hidden hover:scale-110 hover:shadow-lg transition-all duration-300 border-2 border-white" 
+                                            title="查看${moment.user.name}的主页" onclick="addHistoryRecord('user', '${moment.user.id}')">
+                                            ${avatarHtml}
+                                        </a>
+                                        <!-- 情侣头像（如果有） -->
+                                        <!-- 注意：API返回的数据中可能没有情侣信息，这里暂时为空 -->
+                                        <!-- 后续可以通过扩展UserSerializer来添加情侣信息 -->
+                                    </div>
+                                    
+                                    <!-- 昵称 -->
+                                    <div>
+                                        <a href="/user/profile/${moment.user.id}/" 
+                                            class="font-semibold text-neutral-900 hover:text-primary transition-all duration-300" 
+                                            title="查看${moment.user.name}的主页" onclick="addHistoryRecord('user', '${moment.user.id}')">
+                                            ${moment.user.name}
+                                            ${vipHtml}
+                                        </a>
+                                        <p class="text-neutral-500 text-xs">${new Date(moment.created_at).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <button 
+                                        class="text-neutral-400 hover:text-neutral-700 transition-custom dropdown-toggle"
+                                        data-moment-id="${moment.id}">
+                                        <i class="fa-solid fa-ellipsis-h"></i>
+                                    </button>
+                                    <!-- 下拉菜单 -->
+                                    <div 
+                                        class="dropdown-menu hidden absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg w-40 z-50 border border-neutral-200">
+                                        <button 
+                                            class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition-custom collection-btn"
+                                            data-moment-id="${moment.id}">
+                                            <i class="fa-regular fa-bookmark mr-2"></i> 收藏
+                                        </button>
+                                        <button 
+                                            class="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition-custom">
+                                            <i class="fa-solid fa-flag mr-2"></i> 举报
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 cursor-pointer" onclick="addHistoryRecord('moment', '${moment.id}'); saveScrollPositionAndRedirect('/moment/community/moment/${moment.id}/')">
+                                <p class="text-neutral-800 hover:text-primary transition-colors">${moment.content}</p>
+                            </div>
+                            
+                            <!-- 动态图片 -->
+                            ${imagesHtml}
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="flex space-x-4">
+                                    <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom like-btn">
+                                        <i class="fa-regular fa-heart"></i>
+                                        <span>${moment.likes}</span>
+                                    </button>
+                                    <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom comment-btn">
+                                        <i class="fa-regular fa-comment"></i>
+                                        <span>${moment.comments}</span>
+                                    </button>
+                                    <div class="flex items-center space-x-1 text-neutral-500">
+                                        <i class="fa-regular fa-eye"></i>
+                                        <span>${moment.view_count || 0}</span>
+                                    </div>
+                                </div>
+                                <button class="flex items-center space-x-1 text-neutral-500 hover:text-primary transition-custom share-btn" data-moment-id="${moment.id}">
+                                    <i class="fa-regular fa-share-from-square"></i>
+                                    <span>分享</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 评论区域 -->
+                        <div class="bg-neutral-50 p-4 border-t border-neutral-100 hidden comment-section">
+                            <div class="space-y-4">
+                                <!-- 评论列表 -->
+                                <div class="comments-list space-y-3">
+                                    <!-- 评论将通过JavaScript动态加载 -->
+                                </div>
+                                <!-- 发表评论 -->
+                                <div class="flex space-x-3 mt-2">
+                                    <div class="w-8 h-8 rounded-full overflow-hidden">
+                                        ${moment.user.avatar ? `<img src="${moment.user.avatar}" alt="用户头像" class="w-full h-full object-cover">` : `<div class="w-full h-full bg-neutral-200 flex items-center justify-center"><i class="fa fa-user text-xl text-neutral-400"></i></div>`}
+                                    </div>
+                                    <div class="flex-1 relative">
+                                        <input type="text" placeholder="写下你的评论..." 
+                                            class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
+                                        <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                        momentsContainer.appendChild(momentElement);
+                    });
+                } else {
+                    // 没有内容时显示提示
+                    noMoreContent.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error searching moments:', error);
+                noMoreContent.classList.remove('hidden');
+            })
+            .finally(() => {
+                // 隐藏加载指示器
+                loadingIndicator.classList.add('hidden');
+
+                // 重新初始化点赞评论功能
+                if (typeof initLikeCommentFunctionality === 'function') {
+                    initLikeCommentFunctionality();
+                }
+
+                // 重新初始化收藏功能
+                if (typeof initCollectionFunctionality === 'function') {
+                    initCollectionFunctionality();
+                }
+            });
+    }
+
+
+    // 初始化社区活动
+    function initCommunityEvents() {
+        const eventsList = document.getElementById('communityEventsList');
+        if (!eventsList) return;
+
+        // 发送请求获取社区活动
+        fetch('/api/community/events/', {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.events) {
+                    renderCommunityEvents(data.events);
+                } else {
+                    console.error('获取社区活动失败:', data.message);
+                    eventsList.innerHTML = '<div class="text-center text-neutral-500 py-4">加载社区活动失败</div>';
+                }
+            })
+            .catch(error => {
+                console.error('获取社区活动失败:', error);
+                // 显示默认活动数据作为备选
+                eventsList.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-gradient-love rounded-lg p-4 text-white">
+                            <h4 class="font-semibold">七夕情侣摄影大赛</h4>
+                            <p class="text-white/80 text-sm mt-1">分享你们的甜蜜照片，赢取浪漫奖品</p>
+                            <div class="mt-3 text-xs bg-white/20 inline-block px-3 py-1 rounded-full">
+                                还有3天结束
+                            </div>
+                        </div>
+                        <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
+                            <h4 class="font-medium text-neutral-900">情侣默契大考验</h4>
+                            <p class="text-neutral-600 text-sm mt-1">测试你们的默契程度，看看是否心灵相通</p>
+                            <div class="mt-3 text-xs bg-primary/10 text-primary inline-block px-3 py-1 rounded-full">
+                                进行中
+                            </div>
+                        </div>
+                        <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom">
+                            <h4 class="font-medium text-neutral-900">爱情故事征集</h4>
+                            <p class="text-neutral-600 text-sm mt-1">分享你们的爱情故事，让更多人感受幸福</p>
+                            <div class="mt-3 text-xs bg-neutral-100 text-neutral-600 inline-block px-3 py-1 rounded-full">
+                                即将开始
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+    }
+
+    // 渲染社区活动
+    function renderCommunityEvents(events) {
+        const eventsList = document.getElementById('communityEventsList');
+        if (!eventsList) return;
+
+        // 清空列表
+        eventsList.innerHTML = '';
+
+        // 如果没有活动
+        if (events.length === 0) {
+            eventsList.innerHTML = '<div class="text-center text-neutral-500 py-4">暂无社区活动</div>';
+            return;
+        }
+
+        // 渲染活动
+        events.forEach(event => {
+            const eventElement = document.createElement('div');
+
+            // 根据活动状态设置不同的样式
+            let eventClass = '';
+            let statusClass = '';
+            let statusText = '';
+
+            if (event.status === 'active') {
+                eventClass = 'bg-gradient-love rounded-lg p-4 text-white';
+                statusClass = 'bg-white/20 text-white';
+                statusText = '进行中';
+            } else if (event.status === 'upcoming') {
+                eventClass = 'border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom';
+                statusClass = 'bg-neutral-100 text-neutral-600';
+                statusText = '即将开始';
+            } else if (event.status === 'ended') {
+                eventClass = 'border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom';
+                statusClass = 'bg-neutral-100 text-neutral-600';
+                statusText = '已结束';
+            }
+
+            eventElement.className = eventClass;
+            eventElement.innerHTML = `
+                <h4 class="font-semibold ${event.status !== 'active' ? 'text-neutral-900' : ''}">${event.title}</h4>
+                <p class="${event.status === 'active' ? 'text-white/80' : 'text-neutral-600'} text-sm mt-1">${event.description}</p>
+                <div class="mt-3 text-xs ${statusClass} inline-block px-3 py-1 rounded-full">
+                    ${statusText}
+                </div>
+            `;
+
+            eventsList.appendChild(eventElement);
+        });
+    }
+
+    // 初始化热门情侣
+    function initHotCouples() {
+        const hotCouplesList = document.getElementById('hotCouplesList');
+        if (!hotCouplesList) return;
+
+        // 发送请求获取热门情侣
+        fetch('/user/api/hot-couples/', {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.hot_couples) {
+                    renderHotCouples(data.hot_couples);
+                } else {
+                    console.error('获取热门情侣失败:', data.message);
+                    hotCouplesList.innerHTML = '<div class="text-center text-neutral-500 py-4">加载热门情侣失败</div>';
+                }
+            })
+            .catch(error => {
+                console.error('获取热门情侣失败:', error);
+                hotCouplesList.innerHTML = '<div class="text-center text-neutral-500 py-4">网络错误，请重试</div>';
+            });
+    }
+
+    // 渲染热门情侣
+    function renderHotCouples(couples) {
+        const hotCouplesList = document.getElementById('hotCouplesList');
+        if (!hotCouplesList) return;
+
+        // 清空列表
+        hotCouplesList.innerHTML = '';
+
+        // 如果没有热门情侣
+        if (couples.length === 0) {
+            hotCouplesList.innerHTML = '<div class="text-center text-neutral-500 py-4">暂无热门情侣</div>';
+            return;
+        }
+
+        // 渲染热门情侣
+        couples.forEach((couple, index) => {
+            const coupleDiv = document.createElement('div');
+            coupleDiv.className = 'flex items-center justify-between';
+            coupleDiv.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="flex -space-x-2">
+                        <a href="/user/profile/${couple.user1.id}/"
+                            class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                            title="查看${couple.user1.name}的主页">
+                            <img src="${couple.user1.avatar}" alt="${couple.user1.name}的头像"
+                                class="w-full h-full object-cover">
+                        </a>
+                        <a href="/user/profile/${couple.user2.id}/"
+                            class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
+                            title="查看${couple.user2.name}的主页">
+                            <img src="${couple.user2.avatar}" alt="${couple.user2.name}的头像"
+                                class="w-full h-full object-cover">
+                        </a>
+                    </div>
+                    <div>
+                        <a href="/user/profile/${couple.user1.id}/"
+                            class="block font-medium text-sm text-neutral-900 hover:text-primary transition-all duration-300"
+                            title="查看${couple.user1.name}的主页">${couple.user1.name} & ${couple.user2.name}</a>
+                        <p class="text-neutral-500 text-xs">${couple.love_vow}</p>
+                    </div>
+                </div>
+                <button class="follow-couple-btn text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom"
+                    data-user1-id="${couple.user1.id}" data-user2-id="${couple.user2.id}">
+                    关注情侣
+                </button>
+            `;
+            hotCouplesList.appendChild(coupleDiv);
+        });
+
+        // 添加关注按钮事件监听
+        addFollowEventListeners();
+    }
+
+    // 添加关注按钮事件监听
+    function addFollowEventListeners() {
+        // 普通用户关注按钮
+        document.querySelectorAll('.follow-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const userId = this.getAttribute('data-user-id');
+                const btn = this;
+                const originalText = btn.textContent;
+
+                // 禁用按钮
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                // 发送关注请求
+                fetch('/user/follow/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `following_id=${userId}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            btn.textContent = '已关注';
+                            btn.classList.remove('text-primary', 'border-primary', 'hover:bg-primary', 'hover:text-white');
+                            btn.classList.add('bg-primary', 'text-white');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('关注失败:', error);
+                        showNotification('关注失败，请重试');
+                        btn.textContent = originalText;
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                    });
+            });
+        });
+
+        // 情侣关注按钮
+        document.querySelectorAll('.follow-couple-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const user1Id = this.getAttribute('data-user1-id');
+                const user2Id = this.getAttribute('data-user2-id');
+                const btn = this;
+                const originalText = btn.textContent;
+
+                // 检查是否包含当前用户
+                const currentUserId = '{{ user.id }}';
+                if (currentUserId === user1Id || currentUserId === user2Id) {
+                    showNotification('不能关注自己', 'error');
+                    return;
+                }
+
+                // 禁用按钮
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                // 先关注第一个用户
+                fetch('/user/follow/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `following_id=${user1Id}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 再关注第二个用户
+                        return fetch('/user/follow/', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: `following_id=${user2Id}`
+                        });
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            btn.textContent = '已关注';
+                            btn.classList.remove('text-primary', 'border-primary', 'hover:bg-primary', 'hover:text-white');
+                            btn.classList.add('bg-primary', 'text-white');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('关注情侣失败:', error);
+                        showNotification('关注失败，请重试');
+                        btn.textContent = originalText;
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                    });
+            });
+        });
+    }
+
+    // 显示通知
+    function showNotification(message, type = 'success') {
+        // 移除旧通知
+        const oldNotifications = document.querySelectorAll('.notification');
+        oldNotifications.forEach(notification => notification.remove());
+
+        // 创建新通知
+        const notification = document.createElement('div');
+        notification.className = `notification fixed top-20 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
+        notification.textContent = message;
+
+        // 添加到页面
+        document.body.appendChild(notification);
+
+        // 显示通知
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+
+        // 3秒后隐藏通知
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    // 初始化热门话题
+    function initHotTopics() {
+        const hotTopicsList = document.getElementById('hotTopicsList');
+        if (!hotTopicsList) return;
+
+        // 发送请求获取热门话题
+        fetch('/api/moment/tags/trending_tags/', {
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.trending_tags) {
+                    renderHotTopics(data.trending_tags);
+                } else {
+                    console.error('获取热门话题失败:', data.message);
+                    hotTopicsList.innerHTML = '<li class="text-center text-neutral-500 py-4">加载热门话题失败</li>';
+                }
+            })
+            .catch(error => {
+                console.error('获取热门话题失败:', error);
+                hotTopicsList.innerHTML = '<li class="text-center text-neutral-500 py-4">网络错误，请重试</li>';
+            });
+    }
+
+    // 渲染热门话题
+    function renderHotTopics(topics) {
+        const hotTopicsList = document.getElementById('hotTopicsList');
+        if (!hotTopicsList) return;
+
+        // 清空列表
+        hotTopicsList.innerHTML = '';
+
+        // 如果没有热门话题
+        if (topics.length === 0) {
+            hotTopicsList.innerHTML = '<li class="text-center text-neutral-500 py-4">暂无热门话题</li>';
+            return;
+        }
+
+        // 渲染热门话题
+        topics.forEach(topic => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <a href="#" class="topic-item flex items-center p-2 rounded-lg hover:bg-neutral-50 transition-custom"
+                    data-topic-id="${topic.id}" data-topic-name="${topic.name}">
+                    <span
+                        class="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full mr-2">#${topic.name}#</span>
+                    <span class="text-neutral-700 text-sm">${formatNumber(topic.moment_count * 1000)} 动态</span>
+                </a>
+            `;
+            hotTopicsList.appendChild(li);
+        });
+
+        // 添加点击事件
+        document.querySelectorAll('.topic-item').forEach(item => {
+            item.addEventListener('click', function (e) {
+                e.preventDefault();
+                const topicId = this.getAttribute('data-topic-id');
+                const topicName = this.getAttribute('data-topic-name');
+                loadMomentsByTopic(topicId, topicName);
+            });
+        });
+    }
+
+    // 格式化数字
+    function formatNumber(num) {
+        if (num >= 10000) {
+            return (num / 10000).toFixed(1) + 'w';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'k';
+        }
+        return num;
+    }
 
     // 搜索功能
     function searchMoments(searchTerm) {
@@ -1568,8 +2149,6 @@
                 // 显示提示信息
                 if (typeof showNotification === 'function') {
                     showNotification('链接已复制，请打开微信粘贴给好友/朋友圈', 'success');
-                } else {
-                    alert('链接已复制，请打开微信粘贴给好友/朋友圈');
                 }
                 closeShareModal();
             })
@@ -1581,7 +2160,7 @@
                     if (typeof showNotification === 'function') {
                         showNotification('请手动复制上方链接', 'info');
                     } else {
-                        alert('请手动复制上方链接');
+                        showNotification('请手动复制上方链接');
                     }
                 }
                 closeShareModal();
@@ -1616,7 +2195,7 @@
             if (typeof showNotification === 'function') {
                 showNotification('请允许弹出窗口以分享到微博', 'info');
             } else {
-                alert('请允许弹出窗口以分享到微博');
+                showNotification('请允许弹出窗口以分享到微博');
             }
         }
         closeShareModal();
@@ -1634,7 +2213,7 @@
                 if (typeof showNotification === 'function') {
                     showNotification('分享链接已复制到剪贴板', 'success');
                 } else {
-                    alert('分享链接已复制到剪贴板');
+                    showNotification('分享链接已复制到剪贴板');
                 }
                 closeShareModal();
             })
@@ -1646,7 +2225,7 @@
                     if (typeof showNotification === 'function') {
                         showNotification('请手动复制上方链接', 'info');
                     } else {
-                        alert('请手动复制上方链接');
+                        showNotification('请手动复制上方链接');
                     }
                 }
                 closeShareModal();
@@ -1843,7 +2422,7 @@
                     })
                     .catch(error => {
                         console.error('点赞失败:', error);
-                        alert('点赞失败，请重试');
+                        showNotification('点赞失败，请重试');
                     });
             });
         });
@@ -1954,7 +2533,7 @@
                 })
                 .catch(error => {
                     console.error('删除评论失败:', error);
-                    alert(`删除失败：${error.message}`);
+                    showNotification(`删除失败：${error.message}`);
                 });
         }
     }
@@ -1992,7 +2571,7 @@
             })
             .catch(error => {
                 console.error('点赞失败:', error);
-                alert('点赞失败，请重试');
+                showNotification('点赞失败，请重试');
             });
     }
 
@@ -2030,7 +2609,7 @@
             })
             .catch(error => {
                 console.error('点赞失败:', error);
-                alert('点赞失败，请重试');
+                showNotification('点赞失败，请重试');
             });
     }
 
@@ -2070,7 +2649,7 @@
             })
             .catch(error => {
                 console.error('删除回复失败:', error);
-                alert(`删除失败：${error.message}`);
+                showNotification(`删除失败：${error.message}`);
             });
     }
 
@@ -2364,7 +2943,7 @@
             })
             .catch(error => {
                 console.error('评论失败:', error);
-                alert('评论失败，请重试');
+                showNotification('评论失败，请重试');
             });
     }
 
@@ -2394,7 +2973,7 @@
             })
             .catch(error => {
                 console.error('回复失败:', error);
-                alert('回复失败，请重试');
+                showNotification('回复失败，请重试');
             });
     }
 
@@ -2761,4 +3340,46 @@
     });
 </script>
 
-{% endblock %}
+{% endblock %} <i class="fa-solid fa-bookmark w-5 text-center group-hover:scale-110 transition-transform"></i>
+<span>收藏</span>
+</a>
+<a href="{% url 'history:index' %}"
+    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+    <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
+    <span>历史</span>
+</a>
+<a href="{% url 'articles' %}"
+    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+    <i class="fa-solid fa-book-open w-5 text-center group-hover:scale-110 transition-transform"></i>
+    <span>官方专栏</span>
+</a>
+<a href="{% url 'vip_web:index' %}"
+    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+    <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
+    <span>会员中心</span>
+</a>
+<a href="{% url 'mall' %}"
+    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+    <i class="fa-solid fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i>
+    <span>购物商城</span>
+</a>
+</div>
+<div class="border-t border-neutral-200 mt-4 pt-4">
+    <a href="#"
+        class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+        <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
+        <span>联系我们</span>
+    </a>
+    <div class="mt-3 space-y-2 text-xs text-neutral-500 pl-2">
+        <p>工作时间: 8:30 - 22:00</p>
+        <p>客服电话: 187-0022-2185</p>
+        <p><a href="#" class="hover:text-primary transition-custom">关于我们</a>
+            <a href="#" class="hover:text-primary transition-custom">招贤纳士</a>
+        </p>
+        <p><a href="#" class="hover:text-primary transition-custom">商务合作</a>
+            <a href="#" class="hover:text-primary transition-custom">寻求报道</a>
+        </p>
+        <p>18700222185@163.com在线客服</p>
+        <p>京ICP备19004658号</p>
+        <p>经营性网站备案信息</p>
+        <p>公安备案号1101

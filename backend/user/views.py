@@ -734,3 +734,148 @@ def get_achievements_data(request):
     import json
     from django.http import HttpResponse
     return HttpResponse(json.dumps(response_data), content_type='application/json')
+
+def get_recommended_users(request):
+    """获取推荐关注的用户"""
+    # 获取当前用户
+    current_user = request.user
+    
+    # 获取当前用户已经关注的用户
+    followed_users = []
+    if request.user.is_authenticated:
+        followed_users = Follow.objects.filter(
+            follower=current_user,
+            is_deleted=False
+        ).values_list('following_id', flat=True)
+    
+    # 获取推荐用户：排除已关注的用户
+    recommended_users_query = User.objects.all()
+    
+    # 如果用户已登录，排除自己和已关注的用户
+    if request.user.is_authenticated:
+        recommended_users_query = recommended_users_query.exclude(
+            id__in=[current_user.id] + list(followed_users)
+        )
+    
+    recommended_users = recommended_users_query[:10]
+    
+    # 构建推荐用户数据
+    recommended_users_data = []
+    for user in recommended_users:
+        try:
+            # 计算粉丝数
+            followers_count = Follow.objects.filter(
+                following=user,
+                is_deleted=False
+            ).count()
+            
+            # 安全获取头像URL
+            avatar_url = None
+            if hasattr(user, 'profile') and hasattr(user.profile, 'userAvatar') and user.profile.userAvatar:
+                avatar_url = user.profile.userAvatar.url
+            
+            # 安全获取简介
+            bio = ''
+            if hasattr(user, 'profile') and hasattr(user.profile, 'bio'):
+                bio = user.profile.bio or ''
+            
+            recommended_users_data.append({
+                'id': user.id,
+                'name': user.name,
+                'avatar': avatar_url,
+                'followers_count': followers_count,
+                'bio': bio
+            })
+        except Exception as e:
+            print(f"处理用户 {user.id} 时出错: {str(e)}")
+            continue
+    
+    return JsonResponse({'success': True, 'recommended_users': recommended_users_data})
+
+def get_hot_couples(request):
+    """获取热门情侣"""
+    from django.db.models import Sum
+    
+    # 获取有情侣关系的用户
+    coupled_users = User.objects.filter(profile__couple__isnull=False)
+    
+    # 构建情侣数据
+    couples_data = []
+    processed_couples = set()
+    
+    for user in coupled_users:
+        try:
+            # 获取情侣对象
+            if not hasattr(user, 'profile') or not hasattr(user.profile, 'couple') or not user.profile.couple:
+                continue
+            
+            couple = user.profile.couple
+            
+            # 获取情侣双方
+            user1 = user
+            user2 = couple.user
+            
+            # 排除包含当前用户的情侣
+            if request.user.is_authenticated and (user1.id == request.user.id or user2.id == request.user.id):
+                continue
+            
+            # 避免重复处理
+            couple_key = frozenset([user1.id, user2.id])
+            if couple_key in processed_couples:
+                continue
+            processed_couples.add(couple_key)
+            
+            # 计算双方粉丝数
+            user1_followers = Follow.objects.filter(following=user1, is_deleted=False).count()
+            user2_followers = Follow.objects.filter(following=user2, is_deleted=False).count()
+            total_followers = user1_followers + user2_followers
+            
+            # 安全获取用户1头像
+            user1_avatar = None
+            if hasattr(user1, 'profile') and hasattr(user1.profile, 'userAvatar') and user1.profile.userAvatar:
+                user1_avatar = user1.profile.userAvatar.url
+            
+            # 安全获取用户2头像
+            user2_avatar = None
+            if hasattr(user2, 'profile') and hasattr(user2.profile, 'userAvatar') and user2.profile.userAvatar:
+                user2_avatar = user2.profile.userAvatar.url
+            
+            # 尝试获取爱情誓言
+            love_vow = ''
+            try:
+                from couple.models import CoupleRelation
+                from django.db.models import Q
+                couple_relation = CoupleRelation.objects.filter(
+                    (Q(user1=user1) & Q(user2=user2)) |
+                    (Q(user1=user2) & Q(user2=user1))
+                ).first()
+                if couple_relation and couple_relation.love_vow:
+                    love_vow = couple_relation.love_vow
+            except Exception as e:
+                print(f"获取爱情誓言时出错: {str(e)}")
+            
+            couples_data.append({
+                'user1': {
+                    'id': user1.id,
+                    'name': user1.name,
+                    'avatar': user1_avatar
+                },
+                'user2': {
+                    'id': user2.id,
+                    'name': user2.name,
+                    'avatar': user2_avatar
+                },
+                'total_followers': total_followers,
+                'love_vow': love_vow
+            })
+        except Exception as e:
+            print(f"处理情侣时出错: {str(e)}")
+            continue
+    
+    # 按总粉丝数排序
+    couples_data.sort(key=lambda x: x['total_followers'], reverse=True)
+    
+    # 取前10个
+    hot_couples = couples_data[:10]
+    
+    return JsonResponse({'success': True, 'hot_couples': hot_couples})

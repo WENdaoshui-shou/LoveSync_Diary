@@ -80,31 +80,40 @@
                 </div>
 
                 <!--标签 -->
-                <div class="flex flex-wrap gap-4 mb-4">
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="tag-travel" name="tags" value="旅行"
-                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
-                        <label for="tag-travel" class="text-sm text-neutral-700">旅行</label>
+                <div class="mb-4">
+                    <div class="flex flex-wrap gap-4 mb-3">
+                        <span class="text-sm text-neutral-700">推荐标签：</span>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="tag-travel" name="tags" value="旅行"
+                                class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                            <label for="tag-travel" class="text-sm text-neutral-700">旅行</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="tag-food" name="tags" value="美食"
+                                class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                            <label for="tag-food" class="text-sm text-neutral-700">美食</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="tag-anniversary" name="tags" value="纪念日"
+                                class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                            <label for="tag-anniversary" class="text-sm text-neutral-700">纪念日</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="tag-daily" name="tags" value="日常"
+                                class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                            <label for="tag-daily" class="text-sm text-neutral-700">日常</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="tag-gift" name="tags" value="礼物"
+                                class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
+                            <label for="tag-gift" class="text-sm text-neutral-700">礼物</label>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="tag-food" name="tags" value="美食"
-                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
-                        <label for="tag-food" class="text-sm text-neutral-700">美食</label>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="tag-anniversary" name="tags" value="纪念日"
-                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
-                        <label for="tag-anniversary" class="text-sm text-neutral-700">纪念日</label>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="tag-daily" name="tags" value="日常"
-                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
-                        <label for="tag-daily" class="text-sm text-neutral-700">日常</label>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="tag-gift" name="tags" value="礼物"
-                            class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded">
-                        <label for="tag-gift" class="text-sm text-neutral-700">礼物</label>
+                    <!-- 自定义话题输入 -->
+                    <div class="mt-2">
+                        <input type="text" id="custom-tag" name="custom_tags"
+                            placeholder="添加自定义话题（多个话题用空格分隔，如：情人节计划 情侣穿搭）"
+                            class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
                     </div>
                 </div>
 
@@ -1157,7 +1166,6 @@
                                     commentBtn.textContent = data.comments;
                                 }
                             }
-                            alert('回复删除成功！');
                         }
                     })
                     .catch(error => {
@@ -1476,6 +1484,8 @@
                 }, 500);
             });
         }
+
+
     });
 </script>
 {% endblock %}
