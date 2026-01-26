@@ -42,7 +42,7 @@ class MomentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Moment
-        fields = ['id', 'user', 'content', 'likes', 'comments', 'favorites', 'created_at', 'is_shared', 'moment_images', 'comment_set', 'tags']
+        fields = ['id', 'user', 'content', 'likes', 'comments', 'favorites', 'created_at', 'is_shared', 'moment_images', 'comment_set', 'tags', 'view_count']
     
     def create(self, validated_data):
         """创建动态"""

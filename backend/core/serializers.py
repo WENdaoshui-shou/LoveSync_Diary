@@ -5,9 +5,30 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     """用户序列化器"""
+    avatar = serializers.SerializerMethodField()
+    vip = serializers.SerializerMethodField()
+    
+    def get_avatar(self, obj):
+        """获取用户头像"""
+        if hasattr(obj, 'profile') and obj.profile.userAvatar:
+            return obj.profile.userAvatar.url
+        return None
+    
+    def get_vip(self, obj):
+        """获取用户VIP信息"""
+        if hasattr(obj, 'vip') and obj.vip.is_active:
+            return {
+                'is_active': obj.vip.is_active,
+                'level': obj.vip.level,
+                'level_display': obj.vip.get_level_display(),
+                'level_color': obj.vip.get_level_color(),
+                'level_text_color': obj.vip.get_level_text_color()
+            }
+        return None
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'name', 'email']
+        fields = ['id', 'username', 'name', 'email', 'avatar', 'vip']
 
 
 class ProfileSerializer(serializers.ModelSerializer):

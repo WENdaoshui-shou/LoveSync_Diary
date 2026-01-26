@@ -26,6 +26,59 @@ class MomentViewSet(viewsets.ModelViewSet):
             # 其他操作需要登录
             return super().get_permissions()
     
+    def list(self, request, *args, **kwargs):
+        """获取动态列表，支持筛选和搜索"""
+        filter_type = request.query_params.get('filter', 'latest')
+        search_term = request.query_params.get('search', '')
+        
+        # 基础查询：只查询分享的动态
+        queryset = Moment.objects.filter(is_shared=True)
+        
+        # 搜索功能
+        if search_term:
+            # 搜索动态作者（用户名、昵称）和动态内容
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(user__username__icontains=search_term) |
+                Q(user__name__icontains=search_term) |
+                Q(content__icontains=search_term)
+            )
+        
+        # 根据筛选类型构建不同的查询
+        if filter_type == 'latest':
+            # 最新：按创建时间倒序排列
+            queryset = queryset.order_by('-created_at')
+        elif filter_type == 'popular':
+            # 热门：按热度分数排序
+            # 先获取所有动态，计算热度分数并排序
+            moments_list = list(queryset)
+            moments_list.sort(key=lambda x: x.get_hot_score() if hasattr(x, 'get_hot_score') else (x.likes * 1.0 + x.comments * 0.5 + x.favorites * 0.3), reverse=True)
+            # 转回查询集（这里简化处理，实际项目中可能需要更复杂的实现）
+            if moments_list:
+                # 保持排序顺序
+                from django.db.models import Case, When
+                preserved = Case(*[When(id=moment.id, then=pos) for pos, moment in enumerate(moments_list)])
+                queryset = Moment.objects.filter(id__in=[m.id for m in moments_list]).order_by(preserved)
+        else:  # recommended
+            # 推荐：随机排序
+            import random
+            moments_list = list(queryset)
+            random.shuffle(moments_list)
+            if moments_list:
+                # 保持排序顺序
+                from django.db.models import Case, When
+                preserved = Case(*[When(id=moment.id, then=pos) for pos, moment in enumerate(moments_list)])
+                queryset = Moment.objects.filter(id__in=[m.id for m in moments_list]).order_by(preserved)
+        
+        # 分页处理
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
     @action(detail=False, methods=['get'])
     def hot_moments(self, request):
         """获取热门动态排行"""
@@ -557,23 +610,43 @@ def load_more_moments(request):
     """加载更多社区动态的API"""
     page = int(request.GET.get('page', 1))
     page_size = 10
+    filter_type = request.GET.get('filter', 'latest')  # 默认为最新
     
     # 计算偏移量
     offset = (page - 1) * page_size
     
-    # 查询分享的动态，按时间倒序排列，支持分页
-    moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[offset:offset + page_size]
+    # 基础查询：只查询分享的动态
+    base_query = Moment.objects.filter(is_shared=True)
+    
+    # 根据筛选类型构建不同的查询
+    if filter_type == 'latest':
+        # 最新：按创建时间倒序排列
+        moments = base_query.order_by('-created_at')[offset:offset + page_size]
+        total_count = base_query.count()
+    elif filter_type == 'popular':
+        # 热门：按热度分数排序
+        # 先获取所有动态，计算热度分数并排序
+        moments_list = list(base_query)
+        moments_list.sort(key=lambda x: x.get_hot_score() if hasattr(x, 'get_hot_score') else (x.likes * 1.0 + x.comments * 0.5), reverse=True)
+        # 分页
+        moments = moments_list[offset:offset + page_size]
+        total_count = len(moments_list)
+    else:  # recommended
+        # 推荐：暂时使用最新的逻辑，后续可根据用户兴趣进行个性化推荐
+        moments = base_query.order_by('-created_at')[offset:offset + page_size]
+        total_count = base_query.count()
     
     # 序列化数据
     moments_data = []
     for moment in moments:
         # 获取用户头像
-        avatar_url = moment.user.profile.userAvatar.url if moment.user.profile.userAvatar else ''
+        avatar_url = moment.user.profile.userAvatar.url if hasattr(moment.user, 'profile') and hasattr(moment.user.profile, 'userAvatar') and moment.user.profile.userAvatar else ''
         
         # 获取动态图片
         image_urls = []
-        for image in moment.moment_images.all():
-            image_urls.append(image.image.url)
+        if hasattr(moment, 'moment_images'):
+            for image in moment.moment_images.all():
+                image_urls.append(image.image.url)
         
         # 获取VIP信息
         vip_info = {}
@@ -597,11 +670,12 @@ def load_more_moments(request):
             'images': image_urls,
             'created_at': moment.created_at.strftime('%Y-%m-%d %H:%M'),
             'likes': moment.likes,
-            'comments': moment.comments
+            'comments': moment.comments,
+            'view_count': moment.view_count
         })
     
     # 检查是否还有更多数据
-    has_more = Moment.objects.filter(is_shared=True).count() > offset + page_size
+    has_more = total_count > offset + page_size
     
     return JsonResponse({
         'success': True,
