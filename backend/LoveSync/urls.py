@@ -79,6 +79,7 @@ api_urlpatterns = [
     path('api/note/', include('note.urls', namespace='note_api')),
     path('api/game/', include('game.urls', namespace='game_api')),
     path('api/articles/', include('articles.urls')),
+    path('api/community/', include('sys_community.urls', namespace='sys_community_api')),
 ]
 
 # Web视图路由 - 单独定义，使用不同的命名空间
@@ -94,6 +95,7 @@ web_urlpatterns = [
     path('user/', include('user.urls', namespace='user')),
     path('articles/', include('articles.urls')),
     path('history/', include('history.urls', namespace='history')),  # 添加历史应用路由
+    path('collab/', include('collab.urls', namespace='collab')),  # 添加协作功能路由
 ]
 
 # 将API路由和Web视图路由添加到主URL列表中

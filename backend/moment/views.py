@@ -572,7 +572,7 @@ def hot_ranking(request):
     
     # 限制前50条
     hot_posts_with_rank = []
-    for idx, post in enumerate(moments_list[:50]):
+    for idx, post in enumerate(moments_list[:10]):
         rank = idx + 1  # 排名从1开始
         rank_times_100 = rank * 100  # 提前计算rank*100
         hot_posts_with_rank.append({

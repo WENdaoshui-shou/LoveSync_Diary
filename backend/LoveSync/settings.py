@@ -16,7 +16,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://7975812d.r7.cpolar.top",
+    "https://6a10c670.r7.cpolar.top",
 ]
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'user',
     'articles',
     'history',  # 添加历史应用
+    'sys_community',  # 社区活动管理应用
     # 其他应用
     'channels',
     'AI',
@@ -90,20 +91,13 @@ SIMPLE_JWT = {
 }
 
 # 通道层配置（使用Redis）
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("127.0.0.1", 6379)],
-#         },
-#     },
-# }
-
-# settings.py 临时替换为
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
 
 

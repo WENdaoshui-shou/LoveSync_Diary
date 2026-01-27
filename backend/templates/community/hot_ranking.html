@@ -100,7 +100,7 @@
 
                     <!-- 作者信息 -->
                     <div class="flex items-center text-sm text-neutral-500 mb-3">
-                        <a href="{% url 'core:user_profile' post.user.username %}"
+                        <a href="{% url 'user:user_profile' post.user.username %}"
                             class="flex items-center hover:text-primary transition-colors duration-200">
                             {% if post.user.profile and post.user.profile.userAvatar %}
                             <div class="w-6 h-6 rounded-full overflow-hidden mr-2 border border-primary/20">

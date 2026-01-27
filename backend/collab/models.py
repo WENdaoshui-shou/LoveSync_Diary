@@ -7,7 +7,7 @@ class CollaborativeDocument(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField(default='')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    couple = models.OneToOneField(Profile, on_delete=models.SET_NULL, null=True, blank=True)  # 关联情侣关系
+    couple = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True)  # 关联情侣关系，每个Profile可以有多个文档
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -25,10 +25,9 @@ class DocumentOperation(models.Model):
     revision = models.IntegerField(default=0)  # 操作版本号
 
     def to_operation(self):
-        """转换为OT算法可用的Operation对象"""
-        from App.ot import Operation
-        return Operation(
-            op_type=self.operation_type,
-            position=self.position,
-            text=self.text
-        )
+        return {
+            'op_type': self.operation_type,
+            'position': self.position,
+            'text': self.text,
+            'revision': self.revision
+        }

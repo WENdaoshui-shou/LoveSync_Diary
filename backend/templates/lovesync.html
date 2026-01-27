@@ -99,7 +99,8 @@
             <div class="flex flex-col md:flex-row items-center justify-between">
                 <div class="mb-4 md:mb-0">
                     <h2 class="text-2xl font-bold text-neutral-800 mb-1">我们的爱情日记</h2>
-                    <p class="text-neutral-600">已共同记录 <span class="text-primary font-semibold">{{ total_notes }}</span> 篇日记 · 相恋 <span class="text-primary font-semibold" id="days-together"
+                    <p class="text-neutral-600">已共同记录 <span class="text-primary font-semibold">{{ total_notes }}</span>
+                        篇日记 · 相恋 <span class="text-primary font-semibold" id="days-together"
                             data-joined-date="{{ user.profile.couple_joined_at }}"></span> 天</p>
                 </div>
 
@@ -108,20 +109,7 @@
                     <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3">
                         <div class="w-10 h-10 rounded-full overflow-hidden">
                             <!-- 使用default过滤器确保没有头像时显示默认图片 -->
-                            <img src="
-
-
-
-
-
-
-
-
-
-
-
-
-                                    {{ user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=1' }}"
+                            <img src="{{ user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=1' }}"
                                 alt="我的头像" class="w-full h-full object-cover">
                         </div>
                         <div>
@@ -135,20 +123,7 @@
                     <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3">
                         <div class="w-10 h-10 rounded-full overflow-hidden">
                             <!-- 确保伴侣有头像，没有则显示默认 -->
-                            <img src="
-
-
-
-
-
-
-
-
-
-
-
-
-                                    {{ user.profile.couple.user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=2' }}"
+                            <img src="{{ user.profile.couple.user.profile.userAvatar.url|default:'https://picsum.photos/200/200?random=2' }}"
                                 alt="{{ user.profile.couple.user.name }}的头像" class="w-full h-full object-cover">
                         </div>
                         <div>
@@ -158,7 +133,8 @@
                     </div>
                     {% else %}
                     <!-- 没有伴侣时显示邀请卡片 -->
-                    <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3 cursor-pointer hover:bg-neutral-200 transition-colors"onclick="location.href='{% url 'couple_web:invite_partner' %}'">
+                    <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3 cursor-pointer hover:bg-neutral-200 transition-colors"
+                        onclick="location.href='{% url 'couple_web:invite_partner' %}'">
                         <div
                             class="w-10 h-10 rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center">
                             <i class="fa fa-user-plus text-neutral-400"></i>
@@ -258,7 +234,8 @@
                             style="--mood-color: {{ note.get_mood_color }};" data-mood="{{ note.mood }}">
 
                             <!-- 心情指示器（动态图标） -->
-                            <div class="absolute -left-3 -top-3 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mood-indicator"style="color: {{ note.get_mood_color }};">
+                            <div class="absolute -left-3 -top-3 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mood-indicator"
+                                style="color: {{ note.get_mood_color }};">
                                 {{ note.get_mood_icon }}
                             </div>
 
@@ -303,7 +280,8 @@
                             <!-- 操作区（点赞数、评论按钮） -->
                             <div class="flex justify-between items-center">
                                 <!-- 动态心情标签 -->
-                                <span class="text-xs px-2 py-1 rounded-full"style="color: {{ note.get_mood_color }}; background-color: {{ note.get_mood_color }}26;">
+                                <span class="text-xs px-2 py-1 rounded-full"
+                                    style="color: {{ note.get_mood_color }}; background-color: {{ note.get_mood_color }}26;">
                                     {{ note.get_mood_display_text }}
                                 </span>
                                 <div class="flex items-center space-x-3">
@@ -445,6 +423,23 @@
                 <p class="text-xs text-neutral-500 mt-1">开启后，你的伴侣将看到这篇日记</p>
             </div>
 
+            <!-- 协作编辑选项 -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between">
+                    <label class="block text-sm font-medium text-neutral-700">协作编辑</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="collaborative-edit" name="collaborative_edit" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                        </div>
+                    </label>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                    <p class="text-xs text-neutral-500">开启后，你和伴侣可以同时编辑这篇日记</p>
+                    <span id="sync-status" class="text-xs text-neutral-500">未连接</span>
+                </div>
+            </div>
+
             <!-- 提交按钮 -->
             <div class="flex justify-end space-x-3">
                 <button type="button" id="cancel-diary"
@@ -463,6 +458,86 @@
 
 
 <script>
+    // OT引擎前端实现
+    class Operation {
+        constructor() { }
+    }
+
+    class Insert extends Operation {
+        constructor(position, text) {
+            super();
+            this.position = position;
+            this.text = text;
+        }
+    }
+
+    class Delete extends Operation {
+        constructor(position, length) {
+            super();
+            this.position = position;
+            this.length = length;
+        }
+    }
+
+    class OTEngine {
+        static apply(operation, text) {
+            if (operation.type === 'insert') {
+                return text.substring(0, operation.position) + operation.text + text.substring(operation.position);
+            } else if (operation.type === 'delete') {
+                return text.substring(0, operation.position) + text.substring(operation.position + operation.length);
+            }
+            return text;
+        }
+
+        static transform(operation1, operation2) {
+            if (operation1.type === 'insert' && operation2.type === 'insert') {
+                if (operation1.position <= operation2.position) {
+                    return operation1, { type: 'insert', position: operation2.position + operation1.text.length, text: operation2.text };
+                } else {
+                    return { type: 'insert', position: operation1.position + operation2.text.length, text: operation1.text }, operation2;
+                }
+            } else if (operation1.type === 'insert' && operation2.type === 'delete') {
+                if (operation1.position <= operation2.position) {
+                    return operation1, { type: 'delete', position: operation2.position + operation1.text.length, length: operation2.length };
+                } else {
+                    return { type: 'insert', position: operation1.position - operation2.length, text: operation1.text }, operation2;
+                }
+            } else if (operation1.type === 'delete' && operation2.type === 'insert') {
+                if (operation1.position < operation2.position) {
+                    return operation1, { type: 'insert', position: operation2.position - operation1.length, text: operation2.text };
+                } else {
+                    return operation1, operation2;
+                }
+            } else if (operation1.type === 'delete' && operation2.type === 'delete') {
+                if (operation1.position + operation1.length <= operation2.position) {
+                    return operation1, { type: 'delete', position: operation2.position - operation1.length, length: operation2.length };
+                } else if (operation2.position + operation2.length <= operation1.position) {
+                    return operation1, operation2;
+                } else {
+                    const newOp1Length = Math.max(0, operation1.position + operation1.length - operation2.position);
+                    const newOp2Length = Math.max(0, operation2.position + operation2.length - operation1.position - operation1.length);
+                    return { type: 'delete', position: operation1.position, length: newOp1Length }, { type: 'delete', position: operation1.position, length: newOp2Length };
+                }
+            }
+            return operation1, operation2;
+        }
+
+        static generateOperation(oldText, newText) {
+            const minLen = Math.min(oldText.length, newText.length);
+            let i = 0;
+            while (i < minLen && oldText.charAt(i) === newText.charAt(i)) {
+                i++;
+            }
+
+            if (newText.length > oldText.length) {
+                return { type: 'insert', position: i, text: newText.substring(i) };
+            } else if (newText.length < oldText.length) {
+                return { type: 'delete', position: i, length: oldText.length - newText.length };
+            }
+            return null;
+        }
+    }
+
     const moodColors = {};
     document.querySelectorAll('.diary-trigger').forEach(trigger => {
         moodColors[trigger.dataset.mood] = trigger.dataset.color;
@@ -470,6 +545,16 @@
     let currentMoodColor = '#FF6B8B';
     let currentDocumentId = "{{ document.id|default:'' }}"; // 当前日记ID
     let lastValue = ''; // 用于跟踪编辑器内容变化
+    let ws = null; // WebSocket连接
+    let isConnected = false; // 连接状态
+    let isSyncing = false; // 同步状态
+    let documentState = ""; // 当前文档状态
+    let documentVersion = 0; // 当前文档版本
+    let pendingOperations = []; // 待处理的操作
+    let collaborativeStatus = {
+        local: false, // 本地用户的协作编辑状态
+        remote: false // 远程用户的协作编辑状态
+    }; // 协作编辑状态
 
     // 切换查询日期表单显示/隐藏
     function toggleQueryForm(element) {
@@ -557,15 +642,378 @@
         saveButton.classList.remove('bg-gradient-love');
     }
 
+    // 生成UUID函数
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    // 初始化WebSocket连接
+    function initWebSocket() {
+        if (ws) {
+            ws.close();
+        }
+
+        // 构建WebSocket URL
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/ws/diary/sync/`;
+
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = function () {
+            console.log('WebSocket连接已打开');
+            isConnected = true;
+            console.log('连接状态:', isConnected);
+            console.log('协作编辑状态:', collaborativeStatus);
+            updateSyncStatus();
+
+            // 发送协作状态
+            sendCollaborativeStatus(collaborativeStatus.local);
+
+            // 开始心跳检测
+            startHeartbeat();
+        };
+
+        ws.onmessage = function (event) {
+            try {
+                console.log('收到WebSocket消息:', event.data);
+                const data = JSON.parse(event.data);
+                console.log('解析后的消息:', data);
+
+                // 处理版本冲突
+                if (data.code === 4006) { // 版本冲突
+                    // 同步最新文档
+                    console.log('检测到版本冲突，同步最新文档');
+                    ws.send(JSON.stringify({ type: 'document_sync' }));
+                } else {
+                    handleWebSocketMessage(data);
+                }
+            } catch (error) {
+                console.error('处理WebSocket消息错误:', error);
+            }
+        };
+
+        ws.onclose = function () {
+            console.log('WebSocket连接已关闭');
+            isConnected = false;
+            stopHeartbeat();
+            document.getElementById('sync-status').textContent = '未连接';
+            document.getElementById('sync-status').classList.remove('text-green-500');
+            document.getElementById('sync-status').classList.add('text-neutral-500');
+        };
+
+        ws.onerror = function (error) {
+            console.error('WebSocket错误:', error);
+        };
+    }
+
+    // 心跳检测
+    let heartbeatInterval = null;
+
+    function startHeartbeat() {
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+        }
+        heartbeatInterval = setInterval(function () {
+            sendHeartbeat();
+        }, 30000);
+    }
+
+    function stopHeartbeat() {
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+        }
+    }
+
+    function sendHeartbeat() {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            console.log('发送心跳检测');
+            ws.send(JSON.stringify({ type: 'heartbeat' }));
+        }
+    }
+
+    // 发送插入操作
+    function sendInsertOperation(position, text, version) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            console.log('发送插入操作:', position, text, version);
+            ws.send(JSON.stringify({
+                type: 'ot_operation',
+                revision: version,
+                operation_id: generateUUID(), // 幂等性ID
+                operation: {
+                    type: 'insert',
+                    position: position,
+                    text: text
+                }
+            }));
+        }
+    }
+
+    // 发送删除操作
+    function sendDeleteOperation(position, length, version) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            console.log('发送删除操作:', position, length, version);
+            ws.send(JSON.stringify({
+                type: 'ot_operation',
+                revision: version,
+                operation_id: generateUUID(), // 幂等性ID
+                operation: {
+                    type: 'delete',
+                    position: position,
+                    length: length
+                }
+            }));
+        }
+    }
+
+    // 处理WebSocket消息
+    function handleWebSocketMessage(data) {
+        switch (data.type) {
+            case 'connection_established':
+                console.log('连接成功:', data.message);
+                console.log('服务器返回的文档状态:', data.content);
+                console.log('服务器返回的文档版本:', data.revision);
+                documentState = data.content || '';
+                documentVersion = data.revision || 0;
+                lastValue = documentState;
+                console.log('更新后的文档状态:', documentState);
+                console.log('更新后的文档版本:', documentVersion);
+                // 更新编辑器内容
+                const contextTextarea = document.getElementById('context');
+                if (contextTextarea && documentState !== contextTextarea.value) {
+                    isSyncing = true;
+                    console.log('更新编辑器内容:', documentState);
+                    contextTextarea.value = documentState;
+                    isSyncing = false;
+                }
+                break;
+
+            case 'ot_operation':
+                // 处理OT操作
+                console.log('收到OT操作:', data.operation);
+                console.log('服务器版本:', data.revision);
+                const operation = data.operation;
+                const serverVersion = data.revision;
+
+                // 应用操作到本地文档状态
+                console.log('应用操作前的文档状态:', documentState);
+                documentState = OTEngine.apply(operation, documentState);
+                documentVersion = serverVersion;
+                console.log('应用操作后的文档状态:', documentState);
+                console.log('更新后的文档版本:', documentVersion);
+
+                // 更新编辑器内容
+                const textarea = document.getElementById('context');
+                if (textarea && documentState !== textarea.value) {
+                    isSyncing = true;
+                    console.log('更新编辑器内容:', documentState);
+                    textarea.value = documentState;
+                    lastValue = documentState; // 同步更新lastValue，避免生成错误的OT操作
+                    console.log('更新后的lastValue:', lastValue);
+                    isSyncing = false;
+                }
+                break;
+
+            case 'diary_content':
+                // 兼容旧版本消息
+                console.log('收到旧版本日记内容:', data.content);
+                const content = data.content;
+                const textareaEl = document.getElementById('context');
+                if (textareaEl && content !== textareaEl.value) {
+                    isSyncing = true;
+                    console.log('更新编辑器内容:', content);
+                    textareaEl.value = content;
+                    isSyncing = false;
+                }
+                break;
+
+            case 'no_couple':
+                console.log('没有情侣关系，无法同步');
+                document.getElementById('sync-status').textContent = '无情侣关系';
+                document.getElementById('sync-status').classList.remove('text-green-500', 'text-neutral-500');
+                document.getElementById('sync-status').classList.add('text-red-500');
+                break;
+
+            case 'collaborative_status':
+                // 处理协作编辑状态更新
+                console.log('收到协作编辑状态更新:', data);
+                console.log('当前协作编辑状态:', collaborativeStatus);
+                // 只有当远程状态发生变化时，才更新状态并发送本地状态
+                if (collaborativeStatus.remote !== data.status) {
+                    console.log('更新对方协作编辑状态:', data.status);
+                    collaborativeStatus.remote = data.status;
+                    console.log('更新后的协作编辑状态:', collaborativeStatus);
+                    updateSyncStatus();
+                    // 只有当远程状态发生变化时，才发送本地协作状态，避免无限循环
+                    console.log('收到对方协作状态后，发送本地协作状态:', collaborativeStatus.local);
+                    sendCollaborativeStatus(collaborativeStatus.local);
+                } else {
+                    console.log('远程协作状态未发生变化，跳过更新和发送');
+                }
+                break;
+
+            case 'document_sync_response':
+                // 处理文档同步响应
+                console.log('收到文档同步响应:', data);
+                console.log('服务器返回的文档内容:', data.content);
+                console.log('服务器返回的文档版本:', data.revision);
+                documentState = data.content || '';
+                documentVersion = data.revision || 0;
+                lastValue = documentState;
+                console.log('更新后的文档状态:', documentState);
+                console.log('更新后的文档版本:', documentVersion);
+                console.log('更新后的lastValue:', lastValue);
+                // 更新编辑器内容
+                const syncTextarea = document.getElementById('context');
+                if (syncTextarea) {
+                    isSyncing = true;
+                    console.log('更新编辑器内容:', documentState);
+                    syncTextarea.value = documentState;
+                    // 确保lastValue与编辑器内容一致
+                    lastValue = documentState;
+                    console.log('确保lastValue与编辑器内容一致:', lastValue);
+                    isSyncing = false;
+                }
+                break;
+
+            case 'ot_operation_ack':
+                // 处理OT操作确认
+                console.log('收到OT操作确认:', data);
+                console.log('服务器返回的新版本:', data.new_revision);
+                documentVersion = data.new_revision || documentVersion;
+                console.log('更新后的文档版本:', documentVersion);
+                break;
+        }
+    }
+
+    // 发送协作编辑状态
+    function sendCollaborativeStatus(status) {
+        console.log('准备发送协作编辑状态:', status);
+        console.log('连接状态:', isConnected);
+        console.log('WebSocket状态:', ws ? ws.readyState : '未初始化');
+        if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) {
+            console.log('WebSocket未连接，无法发送协作编辑状态');
+            return;
+        }
+
+        try {
+            const message = {
+                type: 'collaborative_status',
+                status: status
+            };
+            console.log('发送协作编辑状态消息:', message);
+            ws.send(JSON.stringify(message));
+            console.log('协作编辑状态发送成功');
+        } catch (error) {
+            console.error('发送协作编辑状态错误:', error);
+        }
+    }
+
+    // 发送OT操作
+    function sendOTOperation(operation) {
+        console.log('准备发送OT操作:', operation);
+        console.log('连接状态:', isConnected);
+        console.log('WebSocket状态:', ws ? ws.readyState : '未初始化');
+        console.log('协作编辑状态:', collaborativeStatus);
+        if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN || !collaborativeStatus.local || !collaborativeStatus.remote) {
+            console.log('无法发送OT操作，条件不满足');
+            return;
+        }
+
+        try {
+            // 根据操作类型选择发送函数
+            if (operation.type === 'insert') {
+                sendInsertOperation(operation.position, operation.text, documentVersion);
+            } else if (operation.type === 'delete') {
+                sendDeleteOperation(operation.position, operation.length, documentVersion);
+            }
+            console.log('OT操作发送成功');
+        } catch (error) {
+            console.error('发送OT操作错误:', error);
+        }
+    }
+
     // 初始化模态框
     function initDiaryModal() {
         document.getElementById('close-diary-modal')?.addEventListener('click', closeDiaryModal);
         document.getElementById('cancel-diary')?.addEventListener('click', closeDiaryModal);
 
         const saveButton = document.getElementById('saveButton');
+        const diaryForm = document.getElementById('diary-form');
+        const collaborativeEditCheckbox = document.getElementById('collaborative-edit');
+        const contextTextarea = document.getElementById('context');
+
+        // 处理表单提交
+        diaryForm.addEventListener('submit', function (e) {
+            if (collaborativeEditCheckbox.checked) {
+                e.preventDefault();
+                createCollaborativeDocument();
+            }
+        });
+
+        // 添加日记内容输入监听
+        if (contextTextarea) {
+            console.log('添加日记内容输入监听');
+            contextTextarea.addEventListener('input', function () {
+                console.log('文本输入事件触发');
+                console.log('当前输入值:', this.value);
+                console.log('上次值:', lastValue);
+                console.log('连接状态:', isConnected);
+                console.log('同步状态:', isSyncing);
+                console.log('协作编辑状态:', collaborativeStatus);
+                if (isConnected && !isSyncing && collaborativeStatus.local && collaborativeStatus.remote) {
+                    console.log('条件满足，生成并发送OT操作');
+                    // 生成OT操作
+                    const operation = OTEngine.generateOperation(lastValue, this.value);
+                    console.log('生成的OT操作:', operation);
+                    // 发送OT操作
+                    sendOTOperation(operation);
+                    // 更新最后值
+                    lastValue = this.value;
+                    console.log('更新后的lastValue:', lastValue);
+                } else {
+                    console.log('条件不满足，不发送OT操作');
+                    // 即使不发送OT操作，也需要更新lastValue，以确保下次输入时生成正确的OT操作
+                    lastValue = this.value;
+                    console.log('更新后的lastValue:', lastValue);
+                }
+            });
+        }
+
         saveButton.addEventListener('click', function () {
             this.classList.add('bg-gradient-love');
         });
+    }
+
+    // 创建协作文档并跳转到协作编辑器
+    function createCollaborativeDocument() {
+        const title = '共同日记';
+        const content = document.getElementById('context').value;
+
+        fetch('/collab/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ title: title, content: content })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('创建协作文档失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('创建协作文档失败:', error);
+                alert('网络错误，请重试');
+            });
     }
 
     // 打开日记模态框
@@ -576,7 +1024,10 @@
 
         // 重置编辑器状态（针对新日记）
         const editor = document.getElementById('context');
-        lastValue = editor.value; // 初始化基准值
+        // 清空编辑器内容，每次打开都是新的日记
+        editor.value = '';
+        lastValue = ''; // 初始化基准值
+        console.log('清空编辑器内容，准备新日记');
     }
 
     // 关闭日记模态框
@@ -681,6 +1132,69 @@
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
         daysTogetherElement.textContent = daysDiff;
+    }
+
+    // 初始化协作编辑选项
+    function initCollaborativeEdit() {
+        const collaborativeEditCheckbox = document.getElementById('collaborative-edit');
+        if (collaborativeEditCheckbox) {
+            console.log('初始化协作编辑选项');
+            console.log('当前协作编辑状态:', collaborativeStatus);
+            collaborativeEditCheckbox.addEventListener('change', function () {
+                console.log('协作编辑复选框状态改变:', this.checked);
+                collaborativeStatus.local = this.checked;
+                console.log('更新后的协作编辑状态:', collaborativeStatus);
+                updateSyncStatus();
+
+                if (this.checked) {
+                    // 开启协作编辑，初始化WebSocket连接
+                    console.log('开启协作编辑，初始化WebSocket连接');
+                    initWebSocket();
+
+                    // 发送本地协作编辑状态
+                    // 注意：当WebSocket连接建立后，会自动发送本地协作编辑状态
+                    // 由于WebSocket连接是异步建立的，所以我们需要在连接建立后发送状态
+                    // 这里简化处理，直接发送状态，如果WebSocket连接未建立，sendCollaborativeStatus会自动处理
+                    console.log('发送本地协作编辑状态:', collaborativeStatus.local);
+                    sendCollaborativeStatus(collaborativeStatus.local);
+                } else {
+                    // 关闭协作编辑，发送本地协作编辑状态
+                    console.log('关闭协作编辑，发送本地协作编辑状态:', collaborativeStatus.local);
+                    sendCollaborativeStatus(collaborativeStatus.local);
+                }
+            });
+        }
+    }
+
+    // 更新同步状态显示
+    function updateSyncStatus() {
+        console.log('更新同步状态显示');
+        console.log('连接状态:', isConnected);
+        console.log('协作编辑状态:', collaborativeStatus);
+        const syncStatusElement = document.getElementById('sync-status');
+        if (!syncStatusElement) {
+            console.log('同步状态元素不存在');
+            return;
+        }
+
+        if (!isConnected) {
+            console.log('同步状态: 未连接');
+            syncStatusElement.textContent = '未连接';
+            syncStatusElement.className = 'text-xs text-neutral-500';
+        } else if (!collaborativeStatus.local) {
+            console.log('同步状态: 未开启协作编辑');
+            syncStatusElement.textContent = '未开启协作编辑';
+            syncStatusElement.className = 'text-xs text-neutral-500';
+        } else if (!collaborativeStatus.remote) {
+            console.log('同步状态: 等待对方开启协作编辑');
+            syncStatusElement.textContent = '等待对方开启协作编辑';
+            syncStatusElement.className = 'text-xs text-yellow-500';
+        } else {
+            console.log('同步状态: 已连接，实时同步中');
+            syncStatusElement.textContent = '已连接，实时同步中';
+            syncStatusElement.className = 'text-xs text-green-500';
+        }
+        console.log('同步状态显示更新完成');
     }
 
     // 删除评论功能
@@ -1071,6 +1585,9 @@
         return div;
     }
 
+    // 已在前面定义了WebSocket连接逻辑
+    // 此处删除旧的WebSocket连接逻辑，保留新的OT-based WebSocket连接逻辑
+
     // 所有事件监听和功能都放在同一个DOMContentLoaded事件监听器中
     // DOM加载后初始化
     document.addEventListener('DOMContentLoaded', () => {
@@ -1079,6 +1596,9 @@
         initDiaryModal();
         initPhotoUpload();
         initDaysTogether();
+        initCollaborativeEdit();
+
+        // WebSocket连接将在用户开启协作编辑时建立
 
         // 初始化点赞状态
         document.querySelectorAll('.like-btn').forEach(btn => {

@@ -200,9 +200,7 @@
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1 relative">
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>消息</span>{% if unread_message_count > 0 %}
-                <span
-                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{
-                    unread_message_count }}</span>
+                <span class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{ unread_message_count }}</span>
                 {% endif %}
             </a>
             <a href="{% url 'moment_web:hot_ranking' %}"
@@ -567,26 +565,9 @@
                         推荐关注
                     </h3>
                     <ul class="space-y-4" id="recommendedUsersList">
-                        <!-- 由JavaScript动态加载 -->
-                        <li>
-                            <div class="flex items-center">
-                                <a href="#"
-                                    class="block w-10 h-10 rounded-full overflow-hidden mr-3 hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                    title="查看甜甜的小两口的主页">
-                                    <img src="https://picsum.photos/200/200?random=21" alt="推荐用户头像"
-                                        class="w-full h-full object-cover">
-                                </a>
-                                <div class="flex-1">
-                                    <a href="#"
-                                        class="block text-neutral-900 font-medium text-sm hover:text-primary transition-all duration-300"
-                                        title="查看甜甜的小两口的主页">甜甜的小两口</a>
-                                    <p class="text-neutral-500 text-xs">分享日常甜蜜瞬间</p>
-                                </div>
-                                <button
-                                    class="text-primary text-sm border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
-                                    关注
-                                </button>
-                            </div>
+                        <!-- 动态加载推荐关注 -->
+                        <li class="flex justify-center py-8">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                         </li>
                     </ul>
                 </div>
@@ -614,68 +595,9 @@
                         热门情侣
                     </h3>
                     <div class="space-y-4" id="hotCouplesList">
-                        <!-- 由JavaScript动态加载 -->
-                        <div class="flex items-center justify-between">
-                            <button
-                                class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
-                                关注
-                            </button>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex -space-x-2">
-                                    <a href="#"
-                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                        title="查看旅行伴侣的主页">
-                                        <img src="https://picsum.photos/200/200?random=14" alt="情侣头像1"
-                                            class="w-full h-full object-cover">
-                                    </a>
-                                    <a href="#"
-                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                        title="查看旅行伴侣的主页">
-                                        <img src="https://picsum.photos/200/200?random=15" alt="情侣头像2"
-                                            class="w-full h-full object-cover">
-                                    </a>
-                                </div>
-                                <div>
-                                    <a href="#"
-                                        class="block font-medium text-sm text-neutral-900 hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
-                                        title="查看旅行伴侣的主页">旅行伴侣</a>
-                                    <p class="text-neutral-500 text-xs">2.8k 粉丝</p>
-                                </div>
-                            </div>
-                            <button
-                                class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
-                                关注
-                            </button>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex -space-x-2">
-                                    <a href="#"
-                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                        title="查看美食爱好者的主页">
-                                        <img src="https://picsum.photos/200/200?random=16" alt="情侣头像1"
-                                            class="w-full h-full object-cover">
-                                    </a>
-                                    <a href="#"
-                                        class="block w-8 h-8 rounded-full overflow-hidden border-2 border-white hover:scale-110 hover:shadow-lg transition-all duration-300"
-                                        title="查看美食爱好者的主页">
-                                        <img src="https://picsum.photos/200/200?random=17" alt="情侣头像2"
-                                            class="w-full h-full object-cover">
-                                    </a>
-                                </div>
-                                <div>
-                                    <a href="#"
-                                        class="block font-medium text-sm text-neutral-900 hover:text-primary hover:bg-primary/5 px-1 rounded transition-all duration-300"
-                                        title="查看美食爱好者的主页">美食爱好者</a>
-                                    <p class="text-neutral-500 text-xs">2.5k 粉丝</p>
-                                </div>
-                            </div>
-                            <button
-                                class="text-primary text-xs border border-primary rounded-full px-3 py-1 hover:bg-primary hover:text-white transition-custom">
-                                关注
-                            </button>
+                        <!-- 动态加载热门情侣 -->
+                        <div class="flex justify-center py-8">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                         </div>
                     </div>
                 </div>
@@ -1346,7 +1268,7 @@
                     <div class="space-y-4">
                         <div class="bg-gradient-love rounded-lg p-4 text-white">
                             <h4 class="font-semibold">七夕情侣摄影大赛</h4>
-                            <p class="text-white/80 text-sm mt-1">分享你们的甜蜜照片，赢取浪漫奖品</p>
+                            <p class="text-white/80 text-sm mt-1"> </p>
                             <div class="mt-3 text-xs bg-white/20 inline-block px-3 py-1 rounded-full">
                                 还有3天结束
                             </div>
@@ -1394,27 +1316,49 @@
             let statusText = '';
 
             if (event.status === 'active') {
-                eventClass = 'bg-gradient-love rounded-lg p-4 text-white';
+                eventClass = 'bg-gradient-love rounded-lg p-4 text-white hover-scale transition-custom';
                 statusClass = 'bg-white/20 text-white';
                 statusText = '进行中';
             } else if (event.status === 'upcoming') {
-                eventClass = 'border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom';
+                eventClass = 'border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom hover-scale';
                 statusClass = 'bg-neutral-100 text-neutral-600';
                 statusText = '即将开始';
             } else if (event.status === 'ended') {
-                eventClass = 'border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom';
+                eventClass = 'border border-neutral-200 rounded-lg p-4 hover:border-primary transition-custom hover-scale';
                 statusClass = 'bg-neutral-100 text-neutral-600';
                 statusText = '已结束';
             }
 
-            eventElement.className = eventClass;
-            eventElement.innerHTML = `
-                <h4 class="font-semibold ${event.status !== 'active' ? 'text-neutral-900' : ''}">${event.title}</h4>
-                <p class="${event.status === 'active' ? 'text-white/80' : 'text-neutral-600'} text-sm mt-1">${event.description}</p>
-                <div class="mt-3 text-xs ${statusClass} inline-block px-3 py-1 rounded-full">
-                    ${statusText}
-                </div>
-            `;
+            // 重新设计活动卡片样式
+            if (event.status === 'active') {
+                eventElement.innerHTML = `
+                    <div class="relative overflow-hidden rounded-lg">
+                        ${event.image_url ? `<img src="${event.image_url}" alt="${event.title}" class="w-full h-48 object-cover">` : ''}
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/70"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                            <h4 class="font-semibold text-lg">${event.title}</h4>
+                            <p class="text-white/90 text-sm mt-2">${event.description}</p>
+                            <div class="mt-3 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm">
+                                ${statusText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                eventElement.innerHTML = `
+                    <div class="rounded-lg overflow-hidden border border-neutral-200">
+                        ${event.image_url ? `<img src="${event.image_url}" alt="${event.title}" class="w-full h-40 object-cover">` : ''}
+                        <div class="p-4">
+                            <h4 class="font-semibold text-neutral-900">${event.title}</h4>
+                            <p class="text-neutral-600 text-sm mt-2">${event.description}</p>
+                            <div class="mt-3 inline-block px-4 py-1.5 bg-neutral-100 rounded-full text-neutral-600 text-sm">
+                                ${statusText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            eventElement.className = 'hover-scale transition-custom';
 
             eventsList.appendChild(eventElement);
         });
