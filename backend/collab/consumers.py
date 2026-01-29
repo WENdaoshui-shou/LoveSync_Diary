@@ -45,14 +45,28 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
                     user_ids = sorted([self.user.id, couple_user.id])
                     room_name = f'diary_{user_ids[0]}_{user_ids[1]}'
 
-                    # 每次连接都创建新的协作文档，确保每次都是新的日记
-                    # 逻辑：情侣双方共享一个新文档，owner为创建者
-                    document = CollaborativeDocument.objects.create(
-                        title=f'情侣日记_{user_ids[0]}_{user_ids[1]}_{datetime.now().strftime("%Y%m%d_%H%M%S")}',
-                        content='',
-                        owner=self.user,
-                        couple=user_profile
-                    )
+                    # 确保情侣双方使用同一个协作文档，避免版本冲突
+                    # 逻辑：优先使用已存在的文档，如无则创建新文档，内容为空
+                    try:
+                        # 先找情侣关联的文档（按创建时间倒序，取最新的）
+                        document = CollaborativeDocument.objects.filter(
+                            couple__in=[user_profile, couple_profile]
+                        ).order_by('-id').first()
+                        if not document:
+                            # 都没有则创建新文档
+                            document = CollaborativeDocument.objects.create(
+                                title=f'情侣日记_{user_ids[0]}_{user_ids[1]}_{datetime.now().strftime("%Y%m%d_%H%M%S")}',
+                                content='',  # 确保每次都是空内容
+                                owner=self.user,
+                                couple=user_profile
+                            )
+                        else:
+                            # 如果文档已存在，重置内容为空
+                            document.content = ''
+                            document.save()
+                    except Exception as e:
+                        print(f'获取/创建文档失败: {e}')
+                        return None, None
                     return room_name, document
 
                 except ObjectDoesNotExist as e:
@@ -78,6 +92,7 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
             # 获取最新版本号（取操作历史的最大revision，无则为0）
             self.current_revision = await self._get_latest_revision()
             self.collaborative_status = False
+            self.executed_operation_ids = set()  # 用于记录已执行的操作ID，确保幂等性
 
             # 4. 接受连接（校验通过后）
             await self.accept()
@@ -231,14 +246,39 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
         op_data = data.get('operation', {})
         client_revision = int(data.get('revision', 0))
         op_id = data.get('operation_id', str(uuid.uuid4()))
+        
+        # 2. 操作幂等性校验：检查是否已执行过相同ID的操作
+        if op_id in self.executed_operation_ids:
+            # 已执行过相同ID的操作，直接返回成功
+            await self.send(text_data=json.dumps({
+                'type': 'ot_operation_ack',
+                'status': 'success',
+                'operation_id': op_id,
+                'new_revision': self.current_revision
+            }))
+            return
 
         # 2. 校验版本一致性
         if client_revision != self.current_revision:
-            await self._send_error(
-                4006,
-                f'版本冲突！当前最新版本: {self.current_revision}，客户端版本: {client_revision}',
-                {'current_revision': self.current_revision, 'current_content': self.document_content}
-            )
+            # 尝试自动解决版本冲突，而不是直接拒绝
+            try:
+                # 重新加载最新的文档内容和版本号
+                await self._refresh_document_from_db()
+                # 发送最新内容给客户端，让客户端同步
+                await self.send(text_data=json.dumps({
+                    'type': 'document_sync_response',
+                    'document_id': self.document.id,
+                    'title': self.document.title,
+                    'content': self.document_content,
+                    'revision': self.current_revision,
+                    'last_updated': self.document.last_updated.timestamp()
+                }))
+            except Exception as e:
+                await self._send_error(
+                    4006,
+                    f'版本冲突！当前最新版本: {self.current_revision}，客户端版本: {client_revision}',
+                    {'current_revision': self.current_revision, 'current_content': self.document_content}
+                )
             return
 
         # 3. 校验操作类型
@@ -251,9 +291,11 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
         try:
             if op_type == 'insert':
                 position = int(op_data.get('position', 0))
-                text = str(op_data.get('text', '')).strip()
-                if not text:
+                text = op_data.get('text')
+                if text is None:
                     raise ValidationError('插入文本不能为空')
+                # 确保 text 是字符串类型
+                text = str(text)
                 ot_operation = Insert(
                     position=position,
                     text=text
@@ -304,6 +346,9 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
             'operation_id': op_id
         })
 
+        # 记录操作ID，确保幂等性
+        self.executed_operation_ids.add(op_id)
+        
         # 10. 响应客户端操作成功
         await self.send(text_data=json.dumps({
             'type': 'ot_operation_ack',

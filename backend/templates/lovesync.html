@@ -133,8 +133,7 @@
                     </div>
                     {% else %}
                     <!-- 没有伴侣时显示邀请卡片 -->
-                    <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3 cursor-pointer hover:bg-neutral-200 transition-colors"
-                        onclick="location.href='{% url 'couple_web:invite_partner' %}'">
+                    <div class="bg-neutral-100 rounded-lg p-3 flex items-center space-x-3 cursor-pointer hover:bg-neutral-200 transition-colors"onclick="location.href='{% url 'couple_web:invite_partner' %}'">
                         <div
                             class="w-10 h-10 rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center">
                             <i class="fa fa-user-plus text-neutral-400"></i>
@@ -234,8 +233,7 @@
                             style="--mood-color: {{ note.get_mood_color }};" data-mood="{{ note.mood }}">
 
                             <!-- 心情指示器（动态图标） -->
-                            <div class="absolute -left-3 -top-3 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mood-indicator"
-                                style="color: {{ note.get_mood_color }};">
+                            <div class="absolute -left-3 -top-3 w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mood-indicator"style="color: {{ note.get_mood_color }};">
                                 {{ note.get_mood_icon }}
                             </div>
 
@@ -280,8 +278,7 @@
                             <!-- 操作区（点赞数、评论按钮） -->
                             <div class="flex justify-between items-center">
                                 <!-- 动态心情标签 -->
-                                <span class="text-xs px-2 py-1 rounded-full"
-                                    style="color: {{ note.get_mood_color }}; background-color: {{ note.get_mood_color }}26;">
+                                <span class="text-xs px-2 py-1 rounded-full"style="color: {{ note.get_mood_color }}; background-color: {{ note.get_mood_color }}26;">
                                     {{ note.get_mood_display_text }}
                                 </span>
                                 <div class="flex items-center space-x-3">
@@ -482,9 +479,14 @@
     class OTEngine {
         static apply(operation, text) {
             if (operation.type === 'insert') {
-                return text.substring(0, operation.position) + operation.text + text.substring(operation.position);
+                // 边界校验：确保插入位置不超出文本长度
+                const position = Math.min(operation.position, text.length);
+                return text.substring(0, position) + operation.text + text.substring(position);
             } else if (operation.type === 'delete') {
-                return text.substring(0, operation.position) + text.substring(operation.position + operation.length);
+                // 边界校验：确保删除位置和长度不超出文本长度
+                const position = Math.min(operation.position, text.length);
+                const length = Math.min(operation.length, text.length - position);
+                return text.substring(0, position) + text.substring(position + length);
             }
             return text;
         }
@@ -523,17 +525,98 @@
         }
 
         static generateOperation(oldText, newText) {
-            const minLen = Math.min(oldText.length, newText.length);
-            let i = 0;
-            while (i < minLen && oldText.charAt(i) === newText.charAt(i)) {
-                i++;
+            const oldLen = oldText.length;
+            const newLen = newText.length;
+
+            // 1. 检查是否完全相同
+            if (oldText === newText) {
+                return null;
             }
 
-            if (newText.length > oldText.length) {
-                return { type: 'insert', position: i, text: newText.substring(i) };
-            } else if (newText.length < oldText.length) {
-                return { type: 'delete', position: i, length: oldText.length - newText.length };
+            // 2. 检查是否为纯删除操作
+            if (newLen < oldLen) {
+                // 尝试找到最长公共前缀
+                let i = 0;
+                while (i < newLen && oldText.charAt(i) === newText.charAt(i)) {
+                    i++;
+                }
+
+                // 尝试找到最长公共后缀
+                let j = oldLen - 1;
+                let k = newLen - 1;
+                while (j >= i && k >= i && oldText.charAt(j) === newText.charAt(k)) {
+                    j--;
+                    k--;
+                }
+
+                // 如果公共前缀和后缀覆盖了整个新文本，说明是删除操作
+                if (i > k) {
+                    return {
+                        type: 'delete',
+                        position: i, // 字符位置，支持中文
+                        length: j - i + 1, // 字符长度，非字节数
+                        text: ''
+                    };
+                }
             }
+
+            // 3. 检查是否为纯插入操作
+            if (newLen > oldLen) {
+                // 尝试找到最长公共前缀
+                let i = 0;
+                while (i < oldLen && oldText.charAt(i) === newText.charAt(i)) {
+                    i++;
+                }
+
+                // 尝试找到最长公共后缀
+                let j = oldLen - 1;
+                let k = newLen - 1;
+                while (j >= i && k >= i && oldText.charAt(j) === newText.charAt(k)) {
+                    j--;
+                    k--;
+                }
+
+                // 如果公共前缀和后缀覆盖了整个旧文本，说明是插入操作
+                if (i > j) {
+                    return {
+                        type: 'insert',
+                        position: i, // 字符位置，支持中文
+                        text: newText.substring(i, k + 1), // 插入的文本，包含中文和换行符
+                        length: 0
+                    };
+                }
+            }
+
+            // 4. 处理复杂的替换操作（先删后插）
+            if (newLen !== oldLen) {
+                // 尝试找到最长公共前缀
+                let i = 0;
+                while (i < oldLen && i < newLen && oldText.charAt(i) === newText.charAt(i)) {
+                    i++;
+                }
+
+                // 尝试找到最长公共后缀
+                let j = oldLen - 1;
+                let k = newLen - 1;
+                while (j >= i && k >= i && oldText.charAt(j) === newText.charAt(k)) {
+                    j--;
+                    k--;
+                }
+
+                // 计算删除的长度和插入的文本
+                const deleteLength = j - i + 1;
+                const insertText = newText.substring(i, k + 1);
+
+                // 先删除后插入，这里返回插入操作，删除操作由服务端处理
+                return {
+                    type: 'insert',
+                    position: i, // 字符位置，支持中文
+                    text: insertText, // 插入的文本，包含中文和换行符
+                    length: 0
+                };
+            }
+
+            // 5. 其他情况，返回null
             return null;
         }
     }
@@ -685,9 +768,12 @@
 
                 // 处理版本冲突
                 if (data.code === 4006) { // 版本冲突
-                    // 同步最新文档
+                    // 同步最新文档，但避免频繁同步
                     console.log('检测到版本冲突，同步最新文档');
-                    ws.send(JSON.stringify({ type: 'document_sync' }));
+                    // 避免频繁同步，添加延迟
+                    setTimeout(() => {
+                        ws.send(JSON.stringify({ type: 'document_sync' }));
+                    }, 100);
                 } else {
                     handleWebSocketMessage(data);
                 }
@@ -777,17 +863,17 @@
                 console.log('连接成功:', data.message);
                 console.log('服务器返回的文档状态:', data.content);
                 console.log('服务器返回的文档版本:', data.revision);
-                documentState = data.content || '';
-                documentVersion = data.revision || 0;
-                lastValue = documentState;
-                console.log('更新后的文档状态:', documentState);
-                console.log('更新后的文档版本:', documentVersion);
-                // 更新编辑器内容
+                // 重置文档状态，确保每次都是新的日记
+                documentState = '';
+                documentVersion = 0;
+                lastValue = '';
+                console.log('重置文档状态为空，准备新日记');
+                // 清空编辑器内容
                 const contextTextarea = document.getElementById('context');
-                if (contextTextarea && documentState !== contextTextarea.value) {
+                if (contextTextarea) {
                     isSyncing = true;
-                    console.log('更新编辑器内容:', documentState);
-                    contextTextarea.value = documentState;
+                    console.log('清空编辑器内容');
+                    contextTextarea.value = '';
                     isSyncing = false;
                 }
                 break;
@@ -799,23 +885,40 @@
                 const operation = data.operation;
                 const serverVersion = data.revision;
 
-                // 应用操作到本地文档状态
-                console.log('应用操作前的文档状态:', documentState);
-                documentState = OTEngine.apply(operation, documentState);
-                documentVersion = serverVersion;
-                console.log('应用操作后的文档状态:', documentState);
-                console.log('更新后的文档版本:', documentVersion);
+                // 操作类型校验：确保仅处理已知的OT操作类型
+                if (operation.type !== 'insert' && operation.type !== 'delete') {
+                    console.log('忽略未知的操作类型:', operation.type);
+                    break;
+                }
+
+                // 获取当前编辑器的实际内容，禁止使用缓存的内容
+                const textarea = document.getElementById('context');
+                if (!textarea) {
+                    console.log('编辑器元素不存在，无法应用操作');
+                    break;
+                }
+                const currentContent = textarea.value;
+                console.log('应用操作前的实际内容:', currentContent);
+
+                // 应用操作到实际内容
+                const newContent = OTEngine.apply(operation, currentContent);
+                console.log('应用操作后的文档状态:', newContent);
 
                 // 更新编辑器内容
-                const textarea = document.getElementById('context');
-                if (textarea && documentState !== textarea.value) {
+                if (newContent !== currentContent) {
                     isSyncing = true;
-                    console.log('更新编辑器内容:', documentState);
-                    textarea.value = documentState;
-                    lastValue = documentState; // 同步更新lastValue，避免生成错误的OT操作
-                    console.log('更新后的lastValue:', lastValue);
+                    console.log('更新编辑器内容:', newContent);
+                    textarea.value = newContent;
                     isSyncing = false;
                 }
+
+                // 版本号严格同步：仅在成功应用远端操作后，才更新本地版本号
+                documentState = newContent;
+                documentVersion = serverVersion;
+                lastValue = newContent;
+                console.log('更新后的文档状态:', documentState);
+                console.log('更新后的文档版本:', documentVersion);
+                console.log('更新后的lastValue:', lastValue);
                 break;
 
             case 'diary_content':
@@ -867,7 +970,7 @@
                 console.log('更新后的文档状态:', documentState);
                 console.log('更新后的文档版本:', documentVersion);
                 console.log('更新后的lastValue:', lastValue);
-                // 更新编辑器内容
+                // 更新编辑器内容，确保与服务器状态一致
                 const syncTextarea = document.getElementById('context');
                 if (syncTextarea) {
                     isSyncing = true;
@@ -886,6 +989,28 @@
                 console.log('服务器返回的新版本:', data.new_revision);
                 documentVersion = data.new_revision || documentVersion;
                 console.log('更新后的文档版本:', documentVersion);
+                break;
+
+            case 'heartbeat':
+                // 处理心跳响应
+                console.log('收到心跳响应:', data.timestamp);
+                // 过滤低版本心跳包，仅处理>=本地版本的
+                if (data.revision !== undefined && data.revision < documentVersion) {
+                    console.warn('跳过低版本心跳包', '服务器版本:', data.revision, '本地版本:', documentVersion);
+                    return;
+                }
+                // 心跳包状态同步：检查版本号是否一致
+                if (data.revision !== undefined && data.revision > documentVersion) {
+                    console.log('心跳包版本号不一致，触发全量同步');
+                    console.log('本地版本:', documentVersion, '服务器版本:', data.revision);
+                    // 发送全量同步请求
+                    ws.send(JSON.stringify({ type: 'document_sync' }));
+                }
+                // 正常处理高版本/同版本心跳包
+                if (data.revision !== undefined) {
+                    console.log('收到心跳响应:', data.timestamp, '最新版本:', data.revision);
+                    documentVersion = data.revision;
+                }
                 break;
         }
     }
@@ -913,12 +1038,44 @@
         }
     }
 
+    // 准备发送OT操作，确保版本号对齐
+    function prepareSendOTOperation(operation) {
+        // 操作对象非空校验
+        if (!operation || !operation.type) {
+            console.error('操作对象为空或缺少type属性，无法发送OT操作');
+            return;
+        }
+
+        // 版本号对齐：确保使用服务器最新版本号
+        // 这里使用documentVersion作为服务器版本号的兜底
+        const serverVersion = documentVersion;
+        console.log('版本号对齐：使用服务器版本:', serverVersion);
+
+        // 调用发送操作函数，传递版本号
+        sendOTOperation(operation, serverVersion);
+    }
+
     // 发送OT操作
-    function sendOTOperation(operation) {
-        console.log('准备发送OT操作:', operation);
+    function sendOTOperation(operation, version) {
+        // 操作对象非空校验
+        if (!operation || !operation.type) {
+            console.error('操作对象为空或缺少type属性，无法发送OT操作');
+            return;
+        }
+        // 对operation.text做兜底处理
+        if (operation.text === undefined) {
+            operation.text = '';
+        }
+        // 优化日志打印，可视化换行符
+        const logOperation = { ...operation };
+        if (logOperation.text) {
+            logOperation.text = logOperation.text.replace(/\n/g, '[LF]');
+        }
+        console.log('准备发送OT操作:', logOperation);
         console.log('连接状态:', isConnected);
         console.log('WebSocket状态:', ws ? ws.readyState : '未初始化');
         console.log('协作编辑状态:', collaborativeStatus);
+        console.log('使用版本号:', version);
         if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN || !collaborativeStatus.local || !collaborativeStatus.remote) {
             console.log('无法发送OT操作，条件不满足');
             return;
@@ -927,9 +1084,9 @@
         try {
             // 根据操作类型选择发送函数
             if (operation.type === 'insert') {
-                sendInsertOperation(operation.position, operation.text, documentVersion);
+                sendInsertOperation(operation.position, operation.text, version);
             } else if (operation.type === 'delete') {
-                sendDeleteOperation(operation.position, operation.length, documentVersion);
+                sendDeleteOperation(operation.position, operation.length, version);
             }
             console.log('OT操作发送成功');
         } catch (error) {
@@ -958,29 +1115,70 @@
         // 添加日记内容输入监听
         if (contextTextarea) {
             console.log('添加日记内容输入监听');
+
+            // 主要的输入事件处理
             contextTextarea.addEventListener('input', function () {
+                const currentValue = this.value;
                 console.log('文本输入事件触发');
-                console.log('当前输入值:', this.value);
+                console.log('当前输入值:', currentValue);
                 console.log('上次值:', lastValue);
                 console.log('连接状态:', isConnected);
                 console.log('同步状态:', isSyncing);
                 console.log('协作编辑状态:', collaborativeStatus);
+
+                // 输入无变化过滤，避免无效操作
+                if (currentValue === lastValue) {
+                    console.log('输入值无变化，跳过OT操作');
+                    return;
+                }
+
                 if (isConnected && !isSyncing && collaborativeStatus.local && collaborativeStatus.remote) {
                     console.log('条件满足，生成并发送OT操作');
+                    // 重新读取编辑器实时值，禁止使用缓存的lastValue
+                    const realTimeValue = this.value;
+                    console.log('生成操作前读取实时值:', realTimeValue);
                     // 生成OT操作
-                    const operation = OTEngine.generateOperation(lastValue, this.value);
-                    console.log('生成的OT操作:', operation);
-                    // 发送OT操作
-                    sendOTOperation(operation);
-                    // 更新最后值
-                    lastValue = this.value;
-                    console.log('更新后的lastValue:', lastValue);
+                    const operation = OTEngine.generateOperation(lastValue, realTimeValue);
+                    // 添加操作预览日志
+                    console.log('混合操作检测:');
+                    console.log('- 旧值:', lastValue);
+                    console.log('- 新值:', realTimeValue);
+                    console.log('- 生成操作:', operation);
+                    // 优化日志打印，可视化换行符
+                    const logOperation = { ...operation };
+                    if (logOperation.text) {
+                        logOperation.text = logOperation.text.replace(/\n/g, '[LF]');
+                    }
+                    console.log('生成的OT操作:', logOperation);
+                    // 只有当操作有效时才发送
+                    if (operation && operation.type) {
+                        // 发送OT操作（通过版本号对齐中间函数）
+                        prepareSendOTOperation(operation);
+                        // 操作发送成功后，立即更新lastValue为最新编辑器内容，无延迟
+                        lastValue = realTimeValue;
+                        console.log('操作发送后更新lastValue:', lastValue);
+                    } else {
+                        console.log('生成的操作无效，跳过发送');
+                        // 对于复杂变化，发送全量同步请求
+                        console.log('发送全量同步请求');
+                        ws.send(JSON.stringify({ type: 'document_sync' }));
+                        // 更新lastValue
+                        lastValue = realTimeValue;
+                        console.log('发送同步请求后更新lastValue:', lastValue);
+                    }
                 } else {
                     console.log('条件不满足，不发送OT操作');
                     // 即使不发送OT操作，也需要更新lastValue，以确保下次输入时生成正确的OT操作
-                    lastValue = this.value;
+                    lastValue = currentValue;
                     console.log('更新后的lastValue:', lastValue);
                 }
+            });
+
+            // 仅在blur事件中同步lastValue，避免干扰input事件的处理
+            contextTextarea.addEventListener('blur', function () {
+                const currentValue = this.value;
+                lastValue = currentValue;
+                console.log('blur事件同步lastValue:', lastValue);
             });
         }
 
