@@ -55,7 +55,7 @@
                         <div class="p-4">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <a href="{% url 'core:user_profile' item.user.username %}" class="block w-12 h-12 rounded-full overflow-hidden">
+                                    <a href="{% url 'user:user_profile' item.user.username %}" class="block w-12 h-12 rounded-full overflow-hidden">
                                         {% if item.user.profile.userAvatar %}
                                         <img src="{{ item.user.profile.userAvatar.url }}" alt="{{ item.user.name }}的头像" class="w-full h-full object-cover">
                                         {% else %}
@@ -65,7 +65,7 @@
                                         {% endif %}
                                     </a>
                                     <div>
-                                        <a href="{% url 'core:user_profile' item.user.username %}" class="font-medium text-neutral-800 hover:text-primary transition-colors">{{ item.user.name }}
+                                        <a href="{% url 'user:user_profile' item.user.username %}" class="font-medium text-neutral-800 hover:text-primary transition-colors">{{ item.user.name }}
                                         </a>
                                         <p class="text-neutral-500 text-xs">@{{ item.user.username }}</p>
                                         <p class="text-neutral-400 text-xs mt-1">
@@ -111,10 +111,10 @@
 <!-- 标签页切换脚本 - 修复编辑器语法误报 -->
 <script>
     // 提前渲染常量，避免编辑器报错
-    const FOLLOWING_LIST_URL = "{% url 'core:following_list' %}";
-    const FOLLOWER_LIST_URL = "{% url 'core:follower_list' %}";
+    const FOLLOWING_LIST_URL = "{% url 'user:following_list' %}";
+    const FOLLOWER_LIST_URL = "{% url 'user:follower_list' %}";
     const CURRENT_LIST_TYPE = "{{ list_type }}";
-    const FOLLOW_TOGGLE_URL = "{% url 'core:follow_toggle' %}";
+    const FOLLOW_TOGGLE_URL = "{% url 'user:follow_toggle' %}";
 
     function switchTab(tabType) {
         const url = tabType === 'following' ? FOLLOWING_LIST_URL : FOLLOWER_LIST_URL;

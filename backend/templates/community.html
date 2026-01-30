@@ -162,6 +162,22 @@
                     opacity: 1;
                 }
             }
+
+            /* 客服联系框样式 */
+            #contactForm {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                z-index: 50;
+                transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+            }
+
+            #contactForm.show {
+                transform: translateY(-50%) translateX(64px) !important;
+                box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+            }
+
+            #contactForm.hide {
+                transform: translateY(-50%) translateX(-100%) !important;
+            }
         }
     </style>
 {% endblock %}
@@ -243,8 +259,8 @@
             </a>
         </div>
         <div class="border-t border-neutral-200 mt-4 pt-4">
-            <a href="#"
-                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
+            <a href="#" id="contactUsBtn"
+                class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer">
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>联系我们</span>
             </a>
@@ -281,6 +297,55 @@
                 </div>
             </div>
             <p class="text-xs text-neutral-500 text-center">©2003-2025 陕西文刀水寿网络技术有限责任公司</p>
+        </div>
+    </div>
+</div>
+
+<!-- 客服联系框 -->
+<div id="contactForm"
+    class="fixed left-0 top-1/2 w-80 bg-white shadow-2xl rounded-lg overflow-hidden transition-transform duration-300 ease-in-out z-50 transform -translate-y-1/2 -translate-x-full hide">
+    <!-- 客服框头部 -->
+    <div class="bg-gradient-to-r from-primary to-primary/50 text-white p-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">联系官方客服</h3>
+            <button id="closeContactForm" class="text-white hover:text-white/80 transition-all duration-200">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <p class="text-xs text-white/80 mt-1">工作时间: 8:30 - 22:00</p>
+    </div>
+    <!-- 客服框内容 -->
+    <div class="p-4 space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1">如何称呼您</label>
+            <input type="text" name="name"
+                class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                placeholder="请输入您的姓名">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1">联系电话</label>
+            <input type="tel" name="phone"
+                class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                placeholder="请输入您的联系电话">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1">您的问题</label>
+            <textarea name="message"
+                class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none"
+                rows="4" placeholder="请详细描述您的问题"></textarea>
+        </div>
+        <button id="submitContactForm"
+            class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+            提交
+        </button>
+        <div id="contactFormMessage" class="text-sm text-center hidden"></div>
+    </div>
+    <!-- 客服联系方式 -->
+    <div class="border-t border-neutral-200 p-4 bg-neutral-50">
+        <p class="text-sm text-neutral-600 mb-2">其他联系方式：</p>
+        <div class="space-y-1 text-sm text-neutral-500">
+            <p><i class="fa-solid fa-phone mr-2"></i> 客服电话: 187-0022-2185</p>
+            <p><i class="fa-solid fa-envelope mr-2"></i> 邮箱: 18700222185@163.com</p>
         </div>
     </div>
 </div>
@@ -962,6 +1027,91 @@
 
         // 初始化热门话题
         initHotTopics();
+
+        // 客服联系框功能
+        const contactUsBtn = document.getElementById('contactUsBtn');
+        const contactForm = document.getElementById('contactForm');
+        const closeContactForm = document.getElementById('closeContactForm');
+
+        if (contactUsBtn && contactForm && closeContactForm) {
+            // 点击联系我们按钮显示客服框
+            contactUsBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                contactForm.classList.remove('hide');
+                contactForm.classList.add('show');
+            });
+
+            // 点击关闭按钮隐藏客服框
+            closeContactForm.addEventListener('click', function () {
+                contactForm.classList.remove('show');
+                contactForm.classList.add('hide');
+            });
+
+            // 点击客服框外部区域隐藏客服框
+            document.addEventListener('click', function (e) {
+                if (!contactForm.contains(e.target) && e.target !== contactUsBtn && !contactUsBtn.contains(e.target)) {
+                    contactForm.classList.remove('show');
+                    contactForm.classList.add('hide');
+                }
+            });
+
+            // 表单提交功能
+            const submitContactForm = document.getElementById('submitContactForm');
+            const contactFormMessage = document.getElementById('contactFormMessage');
+
+            if (submitContactForm && contactFormMessage) {
+                submitContactForm.addEventListener('click', function () {
+                    // 获取表单数据
+                    const name = contactForm.querySelector('input[name="name"]').value;
+                    const phone = contactForm.querySelector('input[name="phone"]').value;
+                    const message = contactForm.querySelector('textarea[name="message"]').value;
+
+                    // 表单验证
+                    if (!name || !phone || !message) {
+                        showContactFormMessage('请填写所有必填字段', 'error');
+                        return;
+                    }
+
+                    // 模拟表单提交
+                    showContactFormMessage('提交中，请稍候...', 'info');
+                    submitContactForm.disabled = true;
+
+                    // 这里预留后台接口调用
+                    // 实际项目中，这里会发送AJAX请求到后台API
+                    setTimeout(function () {
+                        showContactFormMessage('提交成功！我们会尽快与您联系', 'success');
+                        submitContactForm.disabled = false;
+
+                        // 清空表单
+                        contactForm.querySelector('input[name="name"]').value = '';
+                        contactForm.querySelector('input[name="phone"]').value = '';
+                        contactForm.querySelector('textarea[name="message"]').value = '';
+
+                        // 3秒后自动关闭客服框
+                        setTimeout(function () {
+                            contactForm.classList.remove('show');
+                            contactForm.classList.add('hide');
+                        }, 3000);
+                    }, 1500);
+                });
+            }
+
+            // 显示表单消息
+            function showContactFormMessage(text, type) {
+                contactFormMessage.textContent = text;
+                contactFormMessage.classList.remove('hidden', 'text-red-500', 'text-blue-500', 'text-green-500');
+
+                if (type === 'error') {
+                    contactFormMessage.classList.add('text-red-500');
+                } else if (type === 'info') {
+                    contactFormMessage.classList.add('text-blue-500');
+                } else if (type === 'success') {
+                    contactFormMessage.classList.add('text-green-500');
+                }
+
+                contactFormMessage.classList.remove('hidden');
+            }
+        }
 
         // 初始化推荐关注
         initRecommendedUsers();
@@ -3284,46 +3434,4 @@
     });
 </script>
 
-{% endblock %} <i class="fa-solid fa-bookmark w-5 text-center group-hover:scale-110 transition-transform"></i>
-<span>收藏</span>
-</a>
-<a href="{% url 'history:index' %}"
-    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-    <i class="fa-solid fa-history w-5 text-center group-hover:scale-110 transition-transform"></i>
-    <span>历史</span>
-</a>
-<a href="{% url 'articles' %}"
-    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-    <i class="fa-solid fa-book-open w-5 text-center group-hover:scale-110 transition-transform"></i>
-    <span>官方专栏</span>
-</a>
-<a href="{% url 'vip_web:index' %}"
-    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-    <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
-    <span>会员中心</span>
-</a>
-<a href="{% url 'mall' %}"
-    class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-    <i class="fa-solid fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i>
-    <span>购物商城</span>
-</a>
-</div>
-<div class="border-t border-neutral-200 mt-4 pt-4">
-    <a href="#"
-        class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
-        <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
-        <span>联系我们</span>
-    </a>
-    <div class="mt-3 space-y-2 text-xs text-neutral-500 pl-2">
-        <p>工作时间: 8:30 - 22:00</p>
-        <p>客服电话: 187-0022-2185</p>
-        <p><a href="#" class="hover:text-primary transition-custom">关于我们</a>
-            <a href="#" class="hover:text-primary transition-custom">招贤纳士</a>
-        </p>
-        <p><a href="#" class="hover:text-primary transition-custom">商务合作</a>
-            <a href="#" class="hover:text-primary transition-custom">寻求报道</a>
-        </p>
-        <p>18700222185@163.com在线客服</p>
-        <p>京ICP备19004658号</p>
-        <p>经营性网站备案信息</p>
-        <p>公安备案号1101
+{% endblock %}

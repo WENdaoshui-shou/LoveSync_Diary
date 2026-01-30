@@ -46,19 +46,18 @@
                 </div>
                 <div class="text-center md:text-left">
                     <h2 class="text-2xl font-bold text-neutral-800 mb-1">{{ user.name }}</h2>
-                    <p class="text-neutral-600 mb-1">分享我们的爱情故事</p>
-                    <p class="text-neutral-700 mb-3 text-sm italic">"你是我的今天和所有的明天"</p>
+                    <p class="text-neutral-600 mb-1">{{ user.profile.bio }}</p>
                     <div class="flex flex-wrap justify-center md:justify-start gap-4">
                         <div class="text-center">
                             <p id="moments-count" class="text-2xl font-bold text-primary">{{ moments.count }}</p>
                             <p class="text-neutral-500 text-sm">动态</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-2xl font-bold text-primary">0</p>
+                            <p class="text-2xl font-bold text-primary">{{ followers_count }}</p>
                             <p class="text-neutral-500 text-sm">粉丝</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-2xl font-bold text-primary">0</p>
+                            <p class="text-2xl font-bold text-primary">{{ following_count }}</p>
                             <p class="text-neutral-500 text-sm">关注</p>
                         </div>
                     </div>
