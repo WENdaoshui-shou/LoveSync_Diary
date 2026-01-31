@@ -1,0 +1,626 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}LoveSync{% endblock %}</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+  <!-- Swiper JS -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <!-- 通用消息提示工具 -->
+  <script src="https://wendaoshuishou.oss-cn-chengdu.aliyuncs.com/static/js/toast.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF6B8B', // 爱情粉色作为主色调
+            secondary: '#722ED1', // 紫色作为辅助色
+            neutral: {
+              100: '#F9F9F9',
+              200: '#F0F0F0',
+              300: '#E0E0E0',
+              400: '#BDBDBD',
+              500: '#9E9E9E',
+              600: '#757575',
+              700: '#616161',
+              800: '#424242',
+              900: '#212121',
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .bg-gradient-love {
+                background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+            }
+
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+
+            .hover-scale:hover {
+                transform: scale(1.03);
+            }
+
+            .form-input-focus {
+                transition: all 0.3s ease;
+            }
+
+            .form-input-focus:focus {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+            }
+
+            .btn-pulse {
+                animation: pulse 2s infinite;
+            }
+
+            .scroll-smooth {
+                scroll-behavior: smooth;
+            }
+
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+                }
+            }
+        }
+  </style>
+  <style>
+    /* 动画类 */
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-in-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .animate-slide-up {
+      animation: slideUp 0.5s ease-out forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen scroll-smooth">
+  <!-- 导航栏 -->
+  {% block navigation %}
+  <header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3">
+    <div class="container mx-auto px-4 flex items-center justify-between">
+      <!-- 品牌标识 -->
+      <a href="{% url 'index' %}" class="flex items-center space-x-2">
+        <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
+          <i class="fa-solid fa-heart text-xl"></i>
+        </div>
+        <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
+      </a>
+      <!-- 桌面端导航菜单 -->
+      <nav class="hidden md:flex items-center space-x-6">
+        <a href="{% url 'community' %}"
+          class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">爱享公社</a>
+        <a href="{% url 'moments' %}"
+          class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心动轨迹</a>
+        <a href="{% url 'photo_album' %}"
+          class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心跳相簿</a>
+        <a href="{% url 'lovesync' %}"
+          class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
+
+        <!-- 更多下拉菜单 -->
+        <div class="relative" id="moreDropdown">
+          <button class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
+            id="moreButton">
+            更多 <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
+          </button>
+          <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden" id="moreOptions">
+            <a href="{% url 'couple_web:couple' %}"
+              class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+              <i class="fa-solid fa-heart mr-2 w-5 text-center"></i>情侣设置
+            </a>
+            <a href="{% url 'couple_web:couple_places' %}"
+              class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+              <i class="fa-solid fa-map-marker mr-2 w-5 text-center"></i>推荐地点
+            </a>
+            <a href="{% url 'couple_web:couple_test' %}"
+              class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+              <i class="fa-solid fa-question-circle mr-2 w-5 text-center"></i>爱情测试
+            </a>
+            <a href="{% url 'game_web:game_list' %}"
+              class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+              <i class="fa-solid fa-gamepad mr-2 w-5 text-center"></i>情侣游戏
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- 内容过滤器 -->
+      <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale">
+        <div class="flex space-x-2">
+          <button class="filter-btn active px-4 py-2 rounded-full bg-primary text-white text-sm font-medium"
+            data-filter="recommended">
+            推荐
+          </button>
+          <button
+            class="filter-btn px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
+            data-filter="latest">
+            最新
+          </button>
+          <button
+            class="filter-btn px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
+            data-filter="popular">
+            热门
+          </button>
+        </div>
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="LoveSync: 搜索..."
+            class="pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
+          <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+        </div>
+      </div>
+
+      <!-- 用户操作区 -->
+      <div class="flex items-center space-x-4">
+        <button id="backToMall"
+          onclick="if (window.location.pathname === '/mall/') { window.location.reload(); } else { history.back(); }"
+          class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>返回</span>
+        </button>
+
+        <!-- 购物车 - 显示购物车数量 -->
+        <a href="{% url 'mall:mallcart' %}"
+          class="relative text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
+          <i class="fa-solid fa-shopping-cart text-xl"></i>
+          <span
+            class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center"
+            id="cartCount">0</span>
+        </a>
+
+        <!-- 我的收藏图标 - 显示收藏数量 -->
+        <a href="{% url 'mall:mallmark' %}"
+          class="relative text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
+          <i class="fa-solid fa-heart text-xl"></i>
+          <span
+            class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center"
+            id="markCount">0</span>
+        </a>
+
+        <!-- 我的订单 -->
+        <a href="{% url 'mall:order_list' %}"
+          class="relative text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
+          <i class="fa-solid fa-box text-xl"></i>
+        </a>
+
+        <!-- 用户头像与下拉菜单 -->
+        <div class="relative" id="userDropdown">
+          <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer " id="userAvatar">
+            <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+          </div>
+          <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden" id="userOptions">
+            <a href="{% url 'settings' %}"
+              class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+              <i class="fa-solid fa-cog mr-2 w-5 text-center"></i>设置
+            </a>
+            <div class="border-t border-neutral-200 my-1"></div>
+            <a href="{% url 'logout' %}"
+              class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
+              <i class="fa-solid fa-sign-out mr-2 w-5 text-center"></i>退出登录
+            </a>
+          </div>
+        </div>
+
+        <!-- 移动端菜单按钮 -->
+        <button class="md:hidden text-neutral-700 focus:outline-none" id="menu-toggle">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu"
+      class="hidden md:hidden bg-white shadow-lg absolute w-full transform -translate-y-2 opacity-0 transition-all duration-200 ease-in-out"
+      style="top: 100%;">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+        <a href="{% url 'community' %}"
+          class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+          <i class="fa-solid fa-users mr-3 w-5 text-center"></i>爱享公社
+        </a>
+        <a href="{% url 'moments' %}"
+          class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+          <i class="fa-solid fa-bolt mr-3 w-5 text-center"></i>心动轨迹
+        </a>
+        <a href="{% url 'photo_album' %}"
+          class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+          <i class="fa-solid fa-images mr-3 w-5 text-center"></i>心跳相簿
+        </a>
+        <a href="{% url 'lovesync' %}"
+          class="text-neutral-700 hover:text-primary py-2 transition-custom font-medium flex items-center">
+          <i class="fa-solid fa-bookmark mr-3 w-5 text-center"></i>双人日记
+        </a>
+        <div class="border-t border-neutral-200 my-1"></div>
+        <a href="{% url 'couple_web:couple' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-calendar-heart mr-3 w-5 text-center"></i>情侣设置
+        </a>
+        <a href="{% url 'couple_web:couple_places' %}"
+          class="text-neutral-700 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-map-marker-heart mr-3 w-5 text-center"></i>情侣地点
+        </a>
+        <a href="{% url 'couple_web:couple_test' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-question-circle mr-3 w-5 text-center"></i>爱情测试
+        </a>
+        <a href="{% url 'game_web:game_list' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-gamepad mr-3 w-5 text-center"></i>情侣游戏
+        </a>
+        {% if '/mall/' in request.path %}
+        <div class="border-t border-neutral-200 my-1"></div>
+        <a href="{% url 'mall:mallcart' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-shopping-cart mr-3 w-5 text-center"></i>购物车
+        </a>
+        <a href="{% url 'mall:mallmark' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-heart mr-3 w-5 text-center"></i>我的收藏
+        </a>
+        <div class="border-t border-neutral-200 my-1"></div>
+        {% endif %}
+        <a href="{% url 'settings' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-cog mr-3 w-5 text-center"></i>设置
+        </a>
+        <div class="border-t border-neutral-200 my-1"></div>
+        <a href="{% url 'logout' %}" class="text-red-500 py-2 transition-custom flex items-center">
+          <i class="fa-solid fa-sign-out mr-3 w-5 text-center"></i>退出登录
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 背景装饰元素 -->
+  <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl float-animation">
+    </div>
+    <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl float-animation"
+      style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-40 h-40 bg-primary/5 rounded-full filter blur-2xl float-animation"
+      style="animation-delay: -4s;"></div>
+  </div>
+
+  {% endblock %}
+
+  <!-- 主要内容区域 -->
+  {% block content %}
+  <main class="container mx-auto px-4 pt-24 pb-16">
+    <!-- 面包屑导航 -->
+    {% block breadcrumb %}
+    <div class="mb-4">
+      <nav class="flex" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+          <li class="inline-flex items-center">
+            <a href="{% url 'mall:mall' %}"
+              class="text-neutral-600 hover:text-primary transition-custom text-sm font-medium">
+              <i class="fa-solid fa-home mr-2"></i>
+              商城首页
+            </a>
+          </li>
+          {% block breadcrumb_items %}
+          {% endblock %}
+        </ol>
+      </nav>
+    </div>
+    {% endblock %}
+    {% block content_body %}
+    {% endblock %}
+  </main>
+  {% endblock %}
+
+  <!-- JavaScript -->
+  <script>
+    // 移动端菜单切换
+    document.addEventListener('DOMContentLoaded', function () {
+      // 移动端菜单
+      const menuToggle = document.getElementById('menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', function () {
+          mobileMenu.classList.toggle('hidden');
+          // 添加动画效果
+          if (!mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.remove('-translate-y-2', 'opacity-0');
+            mobileMenu.classList.add('translate-y-0', 'opacity-100');
+          } else {
+            mobileMenu.classList.add('-translate-y-2', 'opacity-0');
+            mobileMenu.classList.remove('translate-y-0', 'opacity-100');
+          }
+        });
+      }
+
+      // 更多下拉菜单
+      const moreDropdown = document.getElementById('moreDropdown');
+      const moreButton = document.getElementById('moreButton');
+      const moreOptions = document.getElementById('moreOptions');
+
+      if (moreDropdown && moreButton && moreOptions) {
+        moreButton.addEventListener('click', function (e) {
+          e.preventDefault();
+          moreOptions.classList.toggle('hidden');
+        });
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', function (e) {
+          if (!moreDropdown.contains(e.target)) {
+            moreOptions.classList.add('hidden');
+          }
+        });
+      }
+
+      // 用户下拉菜单
+      const userDropdown = document.getElementById('userDropdown');
+      const userAvatar = document.getElementById('userAvatar');
+      const userOptions = document.getElementById('userOptions');
+
+      if (userDropdown && userAvatar && userOptions) {
+        userAvatar.addEventListener('click', function () {
+          userOptions.classList.toggle('hidden');
+        });
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', function (e) {
+          if (!userDropdown.contains(e.target)) {
+            userOptions.classList.add('hidden');
+          }
+        });
+      }
+    });
+
+    let closeTimer;
+
+    // 鼠标经过头像时打开菜单
+    userAvatar.addEventListener('mouseenter', function () {
+      clearTimeout(closeTimer); // 清除之前的定时器
+      userOptions.classList.remove('hidden');
+    });
+
+    // 鼠标悬停在下拉菜单时保持菜单打开
+    userDropdown.addEventListener('mouseenter', function () {
+      clearTimeout(closeTimer); // 清除之前的定时器
+      userOptions.classList.remove('hidden');
+    });
+
+    // 鼠标离开下拉菜单时关闭菜单
+    userDropdown.addEventListener('mouseleave', function () {
+      closeTimer = setTimeout(() => {
+        userOptions.classList.add('hidden');
+      }, 500);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // 使用之前声明的变量，避免重复声明
+
+      let closeTimer;
+
+      // 鼠标经过按钮时打开菜单
+      moreButton.addEventListener('mouseenter', function () {
+        clearTimeout(closeTimer); // 清除之前的定时器
+        moreOptions.classList.remove('hidden');
+      });
+
+      // 鼠标悬停在下拉菜单时保持菜单打开
+      moreDropdown.addEventListener('mouseenter', function () {
+        clearTimeout(closeTimer); // 清除之前的定时器
+        moreOptions.classList.remove('hidden');
+      });
+
+      // 鼠标离开下拉菜单时关闭菜单
+      moreDropdown.addEventListener('mouseleave', function () {
+        closeTimer = setTimeout(() => {
+          moreOptions.classList.add('hidden');
+        }, 500); // 延迟200毫秒
+      });
+    });
+
+    // 筛选功能
+    const filterBtns = document.querySelectorAll('.filter-btn');
+
+    if (filterBtns.length > 0) {
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+          const filter = this.getAttribute('data-filter');
+
+          // 更新按钮状态
+          filterBtns.forEach(b => {
+            b.classList.remove('active', 'bg-primary', 'text-white');
+            b.classList.add('bg-neutral-100', 'text-neutral-700');
+          });
+          this.classList.add('active', 'bg-primary', 'text-white');
+          this.classList.remove('bg-neutral-100', 'text-neutral-700');
+
+          // 检查当前页面是否是社区页面
+          if (window.location.pathname.includes('/community/')) {
+            // 在社区页面，调用loadFilteredMoments函数
+            if (typeof loadFilteredMoments === 'function') {
+              loadFilteredMoments(filter);
+            }
+          } else {
+            // 在其他页面，重定向到社区页面并应用筛选
+            window.location.href = `/community/?filter=${filter}`;
+          }
+        });
+      });
+    }
+
+    // 搜索功能
+    const searchInput = document.getElementById('searchInput');
+
+    if (searchInput) {
+      // 监听回车键
+      searchInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          performSearch();
+        }
+      });
+
+      // 监听搜索图标点击
+      const searchIcon = searchInput.nextElementSibling;
+      if (searchIcon && searchIcon.classList.contains('fa-search')) {
+        searchIcon.parentElement.addEventListener('click', function (e) {
+          // 确保点击的是搜索图标而不是输入框
+          if (e.target === searchIcon) {
+            performSearch();
+          }
+        });
+      }
+    }
+
+    function performSearch() {
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm) {
+        // 添加搜索中状态
+        const searchIcon = searchInput.nextElementSibling;
+        if (searchIcon && searchIcon.classList.contains('fa-search')) {
+          searchIcon.classList.remove('fa-search');
+          searchIcon.classList.add('fa-spinner', 'fa-spin');
+        }
+
+        // 检查当前页面是否是社区页面
+        if (window.location.pathname.includes('/community/')) {
+          // 在社区页面，调用搜索函数
+          if (typeof searchMoments === 'function') {
+            searchMoments(searchTerm);
+            // 清空搜索框
+            searchInput.value = '';
+          } else {
+            // 如果没有searchMoments函数，刷新页面并添加搜索参数
+            window.location.href = `/community/?search=${encodeURIComponent(searchTerm)}`;
+          }
+        } else {
+          // 在其他页面，重定向到社区页面并添加搜索参数
+          window.location.href = `/community/?search=${encodeURIComponent(searchTerm)}`;
+        }
+
+        // 恢复搜索图标
+        setTimeout(() => {
+          if (searchIcon && searchIcon.classList.contains('fa-spinner')) {
+            searchIcon.classList.remove('fa-spinner', 'fa-spin');
+            searchIcon.classList.add('fa-search');
+          }
+        }, 500);
+      }
+    }
+
+    // 会话状态管理
+    let chatSession = {
+      sessionId: null,
+      isInitialized: false
+    };
+
+    // 更新购物车和收藏数量
+    async function updateCartAndMarkCounts() {
+      try {
+        // 获取CSRF令牌
+        const csrfToken = getCSRFToken();
+
+        // 更新购物车数量
+        const cartResponse = await fetch('{% url "mall:cart_count" %}', {
+          method: 'GET',
+          headers: {
+            'X-CSRFToken': csrfToken
+          }
+        });
+
+        if (cartResponse.ok) {
+          const cartData = await cartResponse.json();
+          const cartCountElement = document.getElementById('cartCount');
+          if (cartCountElement) {
+            cartCountElement.textContent = cartData.count;
+          }
+        }
+
+        // 更新收藏数量
+        const markResponse = await fetch('{% url "mall:mark_count" %}', {
+          method: 'GET',
+          headers: {
+            'X-CSRFToken': csrfToken
+          }
+        });
+
+        if (markResponse.ok) {
+          const markData = await markResponse.json();
+          const markCountElement = document.getElementById('markCount');
+          if (markCountElement) {
+            markCountElement.textContent = markData.count;
+          }
+        }
+      } catch (error) {
+        console.error('更新购物车和收藏数量失败:', error);
+      }
+    }
+
+    // 获取CSRF令牌
+    function getCSRFToken() {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        const [name, ...valueParts] = cookie.trim().split('=');
+        const value = valueParts.join('=');
+        if (name === 'csrftoken') {
+          return decodeURIComponent(value);
+        }
+      }
+      return '';
+    }
+
+    // 页面加载完成后更新数量
+    document.addEventListener('DOMContentLoaded', function () {
+      updateCartAndMarkCounts();
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

@@ -216,7 +216,8 @@
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1 relative">
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>消息</span>{% if unread_message_count > 0 %}
-                <span class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{ unread_message_count }}</span>
+                <span
+                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center">{{ unread_message_count }}</span>
                 {% endif %}
             </a>
             <a href="{% url 'moment_web:hot_ranking' %}"
@@ -252,7 +253,7 @@
                 <i class="fa-solid fa-crown w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>会员中心</span>
             </a>
-            <a href="{% url 'mall' %}"
+            <a href="{% url 'mall_web:mall' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-shopping-bag w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>购物商城</span>
@@ -305,47 +306,67 @@
 <div id="contactForm"
     class="fixed left-0 top-1/2 w-80 bg-white shadow-2xl rounded-lg overflow-hidden transition-transform duration-300 ease-in-out z-50 transform -translate-y-1/2 -translate-x-full hide">
     <!-- 客服框头部 -->
-    <div class="bg-gradient-to-r from-primary to-primary/50 text-white p-4">
-        <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold">联系官方客服</h3>
-            <button id="closeContactForm" class="text-white hover:text-white/80 transition-all duration-200">
+    <div class="bg-gradient-to-r from-primary via-primary/70 to-primary/50 text-white p-4 relative overflow-hidden">
+        <!-- 装饰元素 -->
+        <div class="absolute -top-10 -right-10 w-20 h-20 bg-white/20 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-8 -left-8 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
+        <div class="flex items-center relative z-10">
+            <div
+                class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md animate-pulse-slow mr-3">
+                <i class="fa-solid fa-heart text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold flex-1">联系官方客服</h3>
+            <button id="closeContactForm"
+                class="text-white hover:text-white/80 transition-all duration-200 transform hover:scale-110 ml-3">
                 <i class="fa-solid fa-times"></i>
             </button>
         </div>
-        <p class="text-xs text-white/80 mt-1">工作时间: 8:30 - 22:00</p>
     </div>
     <!-- 客服框内容 -->
     <div class="p-4 space-y-4">
-        <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">如何称呼您</label>
-            <input type="text" name="name"
-                class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-                placeholder="请输入您的姓名">
+        <div class="form-group">
+            <label class="block text-sm font-medium text-neutral-700 mb-1.5">如何称呼您</label>
+            <div class="relative">
+                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <input type="text" name="name"
+                    class="w-full pl-9 pr-3 py-2.5 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                    placeholder="请输入您的姓名">
+            </div>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">联系电话</label>
-            <input type="tel" name="phone"
-                class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-                placeholder="请输入您的联系电话">
+
+        <div class="form-group">
+            <label class="block text-sm font-medium text-neutral-700 mb-1.5">联系电话</label>
+            <div class="relative">
+                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+                <input type="tel" name="phone"
+                    class="w-full pl-9 pr-3 py-2.5 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                    placeholder="请输入您的联系电话">
+            </div>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">您的问题</label>
-            <textarea name="message"
-                class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none"
-                rows="4" placeholder="请详细描述您的问题"></textarea>
+
+        <div class="form-group">
+            <label class="block text-sm font-medium text-neutral-700 mb-1.5">您的问题</label>
+            <div class="relative">
+                <div class="absolute left-3 top-3 text-neutral-400">
+                    <i class="fa-solid fa-message"></i>
+                </div>
+                <textarea name="message"
+                    class="w-full pl-9 pr-3 py-2.5 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none bg-white shadow-sm hover:shadow-md"
+                    rows="4" placeholder="请详细描述您的问题"></textarea>
+            </div>
         </div>
         <button id="submitContactForm"
-            class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
-            提交
+            class="w-full bg-gradient-love text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2">
+            <span class="submit-text">提交</span>
+            <span class="loading-text hidden flex items-center justify-center">
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i> 提交中...
+            </span>
         </button>
-        <div id="contactFormMessage" class="text-sm text-center hidden"></div>
-    </div>
-    <!-- 客服联系方式 -->
-    <div class="border-t border-neutral-200 p-4 bg-neutral-50">
-        <p class="text-sm text-neutral-600 mb-2">其他联系方式：</p>
-        <div class="space-y-1 text-sm text-neutral-500">
-            <p><i class="fa-solid fa-phone mr-2"></i> 客服电话: 187-0022-2185</p>
-            <p><i class="fa-solid fa-envelope mr-2"></i> 邮箱: 18700222185@163.com</p>
+        <div id="contactFormMessage" class="text-sm text-center hidden py-2 rounded-lg transition-all duration-300">
         </div>
     </div>
 </div>
@@ -554,7 +575,7 @@
             </div>
 
             <!-- 右侧内容区 -->
-            <div class="w-full md:w-1/4 space-y-6 mt-6 md:mt-0">
+            <div class="w-full md:w-1/4 space-y-6">
 
                 <!-- 智能体聊天窗口 -->
                 <div
@@ -598,7 +619,7 @@
                 </div>
 
                 <!-- 成就系统入口 -->
-                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale">
+                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale mt-0">
                     <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
                         <i class="fa-solid fa-trophy text-primary mr-2"></i>
                         成就系统

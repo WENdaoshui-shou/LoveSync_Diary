@@ -1,0 +1,705 @@
+{% extends 'mall/mall_base.html' %}
+
+{% block title %}LoveSync - 我的收藏{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+        .product-card {
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block breadcrumb_items %}
+<li>
+    <div class="flex items-center">
+        <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+        <span class="text-neutral-800 font-medium text-sm text-primary">我的收藏</span>
+    </div>
+</li>
+{% endblock %}
+
+{% block content_body %}
+<div class="py-4 relative z-10">
+    <!-- 收藏内容 -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <!-- 收藏筛选 -->
+        <div class="px-6 py-4 border-b border-neutral-200 flex flex-wrap items-center justify-between">
+            <div class="flex space-x-4 mb-2 sm:mb-0">
+                <button class="px-4 py-2 rounded-full bg-primary/10 text-primary font-medium"
+                    data-filter="all">全部收藏</button>
+                <button
+                    class="px-4 py-2 rounded-full bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-custom"
+                    data-filter="unavailable">已下架</button>
+                <button
+                    class="px-4 py-2 rounded-full bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-custom"
+                    data-filter="price_drop">降价提醒</button>
+            </div>
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox"
+                        class="form-checkbox h-5 w-5 text-primary rounded border-neutral-300 focus:ring-primary">
+                    <span class="ml-2 text-sm">全选</span>
+                </label>
+                <div class="relative">
+                    <select
+                        class="appearance-none bg-neutral-100 border border-neutral-200 rounded-lg py-2 pl-4 pr-8 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                        data-sort>
+                        <option value="created_at">按添加时间排序</option>
+                        <option value="price_asc">价格从低到高</option>
+                        <option value="price_desc">价格从高到低</option>
+                        <option value="newest">最新上架</option>
+                    </select>
+                    <i
+                        class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 收藏商品列表 -->
+        <div class="divide-y divide-neutral-200">
+            {% for mark in marks %}
+            <!-- 收藏商品 -->
+            <div class="px-6 py-5 flex items-start product-card">
+                <label class="mt-6 mr-4">
+                    <input type="checkbox"
+                        class="form-checkbox h-5 w-5 text-primary rounded border-neutral-300 focus:ring-primary">
+                </label>
+                <div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden">
+                    <img src="{{ mark.product.main_image.url }}" alt="{{ mark.product.name }}"
+                        class="w-full h-full object-cover">
+                </div>
+                <div class="ml-4 flex-grow">
+                    <div class="flex justify-between">
+                        <div>
+                            <h3 class="font-medium text-neutral-800">{{ mark.product.name }}</h3>
+                            <p class="text-neutral-500 text-sm mt-1">已收藏 {{ mark.created_at|timesince }}前</p>
+                            <div class="flex items-center mt-2">
+                                <div class="flex items-center text-yellow-400">
+                                    {% for i in "12345" %}
+                                    {% if i|add:0 <= mark.product.rating|floatformat:0 %} <i
+                                        class="fa-solid fa-star text-xs"></i>
+                                        {% else %}
+                                        <i class="fa-solid fa-star-half-stroke text-xs"></i>
+                                        {% endif %}
+                                        {% endfor %}
+                                        <span class="text-neutral-600 text-xs ml-1">{{ mark.product.rating }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-primary">¥{{ mark.product.price }}</p>
+                            <div class="mt-4 flex space-x-2 justify-end">
+                                <button
+                                    class="px-3 py-1 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-custom text-sm"
+                                    onclick="removeMark('{{ mark.product.id }}')">
+                                    <i class="fa-solid fa-trash mr-1"></i> 删除
+                                </button>
+                                <button
+                                    class="px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom text-sm"
+                                    onclick="addToCart('{{ mark.product.id }}')">
+                                    <i class="fa-solid fa-shopping-cart mr-1"></i> 加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- 无收藏商品 -->
+            <div class="px-6 py-12 text-center">
+                <div class="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-heart text-2xl text-neutral-400"></i>
+                </div>
+                {% if current_filter == '已下架' %}
+                <h3 class="text-lg font-medium text-neutral-800 mb-2">没有已下架的收藏商品</h3>
+                <p class="text-neutral-500 mb-4">您的收藏中没有已下架的商品</p>
+                {% elif current_filter == '降价提醒' %}
+                <h3 class="text-lg font-medium text-neutral-800 mb-2">没有降价提醒的商品</h3>
+                <p class="text-neutral-500 mb-4">您的收藏中没有降价的商品</p>
+                {% else %}
+                <h3 class="text-lg font-medium text-neutral-800 mb-2">还没有收藏商品</h3>
+                <p class="text-neutral-500 mb-4">去商城逛逛，收藏喜欢的商品吧</p>
+                {% endif %}
+                <a href="{% url 'mall:mall' %}"
+                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                    去商城
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 分页 -->
+        <div class="px-6 py-4 bg-neutral-50 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button class="text-neutral-500 hover:text-primary transition-custom">
+                    <i class="fa-solid fa-heart mr-1"></i> 批量加入购物车
+                </button>
+                <button class="text-neutral-500 hover:text-red-500 transition-custom">
+                    <i class="fa-solid fa-trash mr-1"></i> 批量删除
+                </button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button
+                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary transition-custom">
+                    <i class="fa-solid fa-angle-left"></i>
+                </button>
+                <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white">1</button>
+                <button
+                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary transition-custom">2</button>
+                <button
+                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary transition-custom">
+                    <i class="fa-solid fa-angle-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 推荐商品 -->
+    <div class="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-neutral-200">
+            <h2 class="font-semibold text-lg">猜你喜欢</h2>
+        </div>
+        <div class="p-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {% for product in recommended_products %}
+                <!-- 推荐商品 -->
+                <div class="rounded-lg overflow-hidden hover-scale">
+                    <div class="relative">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}"
+                            class="w-full h-36 object-cover">
+                        <div class="absolute top-2 right-2">
+                            <button
+                                class="w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-custom"
+                                onclick="toggleMark('{{ product.id }}')">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        <h3 class="font-medium text-sm line-clamp-1">{{ product.name }}</h3>
+                        <div class="flex items-center justify-between mt-1">
+                            <span class="text-primary font-bold text-sm">¥{{ product.price }}</span>
+                            <button
+                                class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-custom"
+                                onclick="addToCart('{{ product.id }}')">
+                                <i class="fa-solid fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 删除收藏
+    function removeMark(productId) {
+        // 直接执行删除操作，不显示确认对话框
+        fetch('{% url "mall:remove_mark" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: 'product_id=' + productId
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('删除成功', '收藏已移除');
+                    // 延迟刷新页面，让用户看到提示
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showToast('删除失败', data.message || '删除收藏失败，请重试', false);
+                }
+            });
+    }
+
+    // 添加到购物车
+    function addToCart(productId, quantity = 1) {
+        fetch('{% url "mall:add_to_cart" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: 'product_id=' + productId + '&quantity=' + quantity
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // 更新购物车数量
+                    updateCartCount();
+                    showToast('添加成功', '商品已成功加入购物车');
+                } else {
+                    showToast('添加失败', data.message || '加入购物车失败，请重试！', false);
+                }
+            })
+            .catch(error => {
+                console.error('加入购物车出错：', error);
+                showToast('网络异常', '网络异常，请稍后再试！', false);
+            });
+    }
+
+    // 更新购物车数量
+    function updateCartCount() {
+        fetch('{% url "mall:cart_count" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const cartCountElements = document.querySelectorAll('.fa-shopping-cart + span span');
+                    cartCountElements.forEach(el => {
+                        el.textContent = data.count || 0;
+                        el.classList.add('animate-pulse');
+                        setTimeout(() => el.classList.remove('animate-pulse'), 500);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('获取购物车数量失败：', error);
+            });
+    }
+
+    // 切换收藏状态
+    function toggleMark(productId) {
+        const button = event.target.closest('button');
+        const icon = button.querySelector('.fa-heart');
+        const isCollected = icon.classList.contains('fa-solid');
+
+        if (isCollected) {
+            // 取消收藏
+            fetch('{% url "mall:remove_mark" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'product_id=' + productId
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('取消收藏成功', '商品已从收藏列表移除');
+                        icon.classList.remove('fa-solid', 'text-red-500');
+                        icon.classList.add('fa-regular');
+                    } else {
+                        showToast('取消收藏失败', data.message || '取消收藏失败，请重试', false);
+                    }
+                });
+        } else {
+            // 添加收藏
+            fetch('{% url "mall:add_mark" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'product_id=' + productId
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('收藏成功', '商品已添加到收藏列表');
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid', 'text-red-500');
+                    } else {
+                        showToast('收藏失败', data.message || '收藏失败，请重试', false);
+                    }
+                });
+        }
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM 加载完成，初始化功能...');
+        // 初始化全选功能
+        initSelectAll();
+
+        // 初始化批量操作功能
+        initBatchOperations();
+
+        // 初始化排序功能
+        initSorting();
+
+        // 初始化筛选功能
+        initFiltering();
+    });
+
+    // 初始化全选功能
+    function initSelectAll() {
+        // 选择全选复选框
+        const selectAllCheckbox = document.querySelector('.flex.items-center.space-x-4 input[type="checkbox"]');
+        console.log('全选复选框:', selectAllCheckbox);
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
+                console.log('全选复选框状态改变:', this.checked);
+                // 选择所有商品复选框
+                const checkboxes = document.querySelectorAll('.product-card input[type="checkbox"]');
+                console.log('商品复选框数量:', checkboxes.length);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+    }
+
+    // 初始化批量操作功能
+    function initBatchOperations() {
+        // 选择批量操作按钮
+        const batchButtonsContainer = document.querySelector('.px-6.py-4.bg-neutral-50 .flex.items-center.space-x-4');
+        console.log('批量操作按钮容器:', batchButtonsContainer);
+        if (batchButtonsContainer) {
+            const buttons = batchButtonsContainer.querySelectorAll('button');
+            let batchAddToCartBtn = null;
+            let batchDeleteBtn = null;
+
+            buttons.forEach(button => {
+                if (button.textContent.trim().includes('批量加入购物车')) {
+                    batchAddToCartBtn = button;
+                } else if (button.textContent.trim().includes('批量删除')) {
+                    batchDeleteBtn = button;
+                }
+            });
+
+            console.log('批量加入购物车按钮:', batchAddToCartBtn);
+            console.log('批量删除按钮:', batchDeleteBtn);
+
+            // 批量加入购物车
+            if (batchAddToCartBtn) {
+                batchAddToCartBtn.addEventListener('click', function () {
+                    console.log('点击批量加入购物车按钮');
+                    const selectedCheckboxes = document.querySelectorAll('.product-card input[type="checkbox"]:checked');
+                    console.log('选中的商品数量:', selectedCheckboxes.length);
+                    if (selectedCheckboxes.length === 0) {
+                        showToast('请选择商品', '请至少选择一件商品加入购物车', false);
+                        return;
+                    }
+
+                    const productIds = [];
+                    selectedCheckboxes.forEach(checkbox => {
+                        const productCard = checkbox.closest('.product-card');
+                        if (productCard) {
+                            // 查找加入购物车按钮
+                            const addToCartBtns = productCard.querySelectorAll('button');
+                            addToCartBtns.forEach(btn => {
+                                if (btn.textContent.includes('加入购物车')) {
+                                    const onclickAttr = btn.getAttribute('onclick');
+                                    const productIdMatch = onclickAttr.match(/addToCart\('([^']+)'\)/);
+                                    if (productIdMatch) {
+                                        productIds.push(productIdMatch[1]);
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    console.log('提取的商品 ID:', productIds);
+                    if (productIds.length > 0) {
+                        // 批量添加到购物车
+                        Promise.all(productIds.map(productId => {
+                            return fetch('{% url "mall:add_to_cart" %}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-CSRFToken': '{{ csrf_token }}'
+                                },
+                                body: 'product_id=' + productId + '&quantity=1'
+                            }).then(response => response.json());
+                        }))
+                            .then(results => {
+                                console.log('批量加入购物车结果:', results);
+                                const successCount = results.filter(result => result.status === 'success').length;
+                                if (successCount > 0) {
+                                    updateCartCount();
+                                    showToast('批量添加成功', `已成功将 ${successCount} 件商品加入购物车`);
+                                } else {
+                                    showToast('批量添加失败', '加入购物车失败，请重试', false);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('批量加入购物车出错：', error);
+                                showToast('网络异常', '网络异常，请稍后再试', false);
+                            });
+                    }
+                });
+            }
+
+            // 批量删除
+            if (batchDeleteBtn) {
+                batchDeleteBtn.addEventListener('click', function () {
+                    console.log('点击批量删除按钮');
+                    const selectedCheckboxes = document.querySelectorAll('.product-card input[type="checkbox"]:checked');
+                    console.log('选中的商品数量:', selectedCheckboxes.length);
+                    if (selectedCheckboxes.length === 0) {
+                        showToast('请选择商品', '请至少选择一件商品进行删除', false);
+                        return;
+                    }
+
+                    const productIds = [];
+                    selectedCheckboxes.forEach(checkbox => {
+                        const productCard = checkbox.closest('.product-card');
+                        if (productCard) {
+                            // 查找删除按钮
+                            const deleteBtns = productCard.querySelectorAll('button');
+                            deleteBtns.forEach(btn => {
+                                if (btn.textContent.includes('删除')) {
+                                    const onclickAttr = btn.getAttribute('onclick');
+                                    const productIdMatch = onclickAttr.match(/removeMark\('([^']+)'\)/);
+                                    if (productIdMatch) {
+                                        productIds.push(productIdMatch[1]);
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    console.log('提取的商品 ID:', productIds);
+                    if (productIds.length > 0) {
+                        // 批量删除
+                        Promise.all(productIds.map(productId => {
+                            return fetch('{% url "mall:remove_mark" %}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-CSRFToken': '{{ csrf_token }}'
+                                },
+                                body: 'product_id=' + productId
+                            }).then(response => response.json());
+                        }))
+                            .then(results => {
+                                console.log('批量删除结果:', results);
+                                const successCount = results.filter(result => result.status === 'success').length;
+                                if (successCount > 0) {
+                                    showToast('批量删除成功', `已成功删除 ${successCount} 件收藏商品`);
+                                    // 延迟刷新页面，让用户看到提示
+                                    setTimeout(() => {
+                                        location.reload();
+                                    }, 1000);
+                                } else {
+                                    showToast('批量删除失败', '删除收藏失败，请重试', false);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('批量删除出错：', error);
+                                showToast('网络异常', '网络异常，请稍后再试', false);
+                            });
+                    }
+                });
+            }
+        }
+    }
+
+    // 初始化排序功能
+    function initSorting() {
+        const sortSelect = document.querySelector('select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function () {
+                const sortBy = this.value;
+                // 这里可以根据需要实现排序逻辑
+                // 由于排序通常在服务器端实现，这里我们可以通过 URL 参数刷新页面
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('sort', sortBy);
+                window.location.href = currentUrl.toString();
+            });
+        }
+    }
+
+    // 初始化筛选功能
+    function initFiltering() {
+        // 选择所有筛选按钮
+        const filterButtons = document.querySelectorAll('.flex.space-x-4.mb-2.sm\:mb-0 button');
+        console.log('筛选按钮数量:', filterButtons.length);
+
+        if (filterButtons.length > 0) {
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    console.log('点击筛选按钮:', this.textContent.trim());
+
+                    // 移除所有筛选按钮的激活状态
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary/10', 'text-primary');
+                        btn.classList.add('bg-neutral-100', 'text-neutral-600');
+                    });
+
+                    // 添加当前按钮的激活状态
+                    this.classList.remove('bg-neutral-100', 'text-neutral-600');
+                    this.classList.add('bg-primary/10', 'text-primary');
+
+                    // 获取筛选条件
+                    const filterBy = this.textContent.trim();
+                    console.log('筛选条件:', filterBy);
+
+                    // 根据筛选条件刷新页面
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('filter', filterBy);
+                    window.location.href = currentUrl.toString();
+                });
+            });
+        }
+    }
+</script>
+
+<script>
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM 加载完成，初始化功能...');
+
+        // 初始化筛选功能
+        initFiltering();
+
+        // 初始化排序功能
+        initSorting();
+    });
+
+    // 初始化筛选功能
+    function initFiltering() {
+        console.log('初始化筛选功能...');
+        // 选择筛选按钮容器
+        const filterContainer = document.querySelector('.border-b.border-neutral-200 > .flex');
+        console.log('筛选按钮容器:', filterContainer);
+
+        if (filterContainer) {
+            const filterButtons = filterContainer.querySelectorAll('button');
+            console.log('筛选按钮数量:', filterButtons.length);
+
+            if (filterButtons.length > 0) {
+                // 高亮显示当前筛选按钮
+                const currentFilter = '{{ current_filter }}';
+                console.log('当前筛选条件:', currentFilter);
+
+                filterButtons.forEach(button => {
+                    const text = button.textContent.trim();
+                    console.log('筛选按钮文本:', text);
+
+                    // 设置按钮初始状态
+                    if (text === currentFilter || (currentFilter === 'all' && text === '全部收藏')) {
+                        button.classList.remove('bg-neutral-100', 'text-neutral-600');
+                        button.classList.add('bg-primary/10', 'text-primary');
+                    } else {
+                        button.classList.remove('bg-primary/10', 'text-primary');
+                        button.classList.add('bg-neutral-100', 'text-neutral-600');
+                    }
+
+                    // 添加点击事件监听器
+                    button.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        console.log('点击筛选按钮:', this.textContent.trim());
+
+                        // 移除所有筛选按钮的激活状态
+                        filterButtons.forEach(btn => {
+                            btn.classList.remove('bg-primary/10', 'text-primary');
+                            btn.classList.add('bg-neutral-100', 'text-neutral-600');
+                        });
+
+                        // 添加当前按钮的激活状态
+                        this.classList.remove('bg-neutral-100', 'text-neutral-600');
+                        this.classList.add('bg-primary/10', 'text-primary');
+
+                        // 获取筛选条件
+                        const filterBy = this.dataset.filter;
+                        console.log('筛选条件:', filterBy);
+
+                        // 根据筛选条件刷新页面
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.searchParams.set('filter', filterBy);
+                        console.log('刷新页面到:', currentUrl.toString());
+                        window.location.href = currentUrl.toString();
+                    });
+                });
+            }
+        } else {
+            console.error('未找到筛选按钮容器');
+        }
+    }
+
+    // 初始化排序功能
+    function initSorting() {
+        console.log('初始化排序功能...');
+        // 选择排序下拉菜单
+        const sortSelect = document.querySelector('.relative select');
+        console.log('排序下拉菜单:', sortSelect);
+
+        if (sortSelect) {
+            // 设置当前排序选项
+            const currentSort = '{{ current_sort }}';
+            console.log('当前排序方式:', currentSort);
+
+            // 遍历选项并设置选中状态
+            const options = sortSelect.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === currentSort) {
+                    options[i].selected = true;
+                    break;
+                }
+            }
+
+            sortSelect.addEventListener('change', function (event) {
+                event.preventDefault();
+                const sortBy = this.value;
+                console.log('排序方式:', sortBy);
+
+                // 根据排序方式刷新页面
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('sort', sortBy);
+                console.log('刷新页面到:', currentUrl.toString());
+                window.location.href = currentUrl.toString();
+            });
+        } else {
+            console.error('未找到排序下拉菜单');
+        }
+    }
+</script>
+{% endblock %}

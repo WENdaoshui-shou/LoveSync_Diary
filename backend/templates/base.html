@@ -10,6 +10,10 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <!-- Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -212,6 +216,23 @@
                     <span>发布动态</span>
                 </a>
 
+                <!-- 购物车图标 - 仅在商城页面显示 -->
+                {% if '/mall/' in request.path %}
+                <a href="{% url 'mall:mallcart' %}"
+                    class="relative text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
+                    <i class="fa-solid fa-shopping-cart text-xl"></i>
+                    <span
+                        class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center"
+                        id="cartCount">0</span>
+                </a>
+
+                <!-- 我的收藏图标 - 仅在商城页面显示 -->
+                <a href="{% url 'mall:mallmark' %}"
+                    class="text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
+                    <i class="fa-solid fa-heart text-xl"></i>
+                </a>
+                {% endif %}
+
                 <!-- 用户头像与下拉菜单 -->
                 <div class="relative" id="userDropdown">
                     <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer "
@@ -277,7 +298,16 @@
                     class="text-neutral-700 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-gamepad mr-3 w-5 text-center"></i>情侣游戏
                 </a>
+                {% if '/mall/' in request.path %}
                 <div class="border-t border-neutral-200 my-1"></div>
+                <a href="{% url 'mall:mallcart' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-shopping-cart mr-3 w-5 text-center"></i>购物车
+                </a>
+                <a href="{% url 'mall:mallmark' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
+                    <i class="fa-solid fa-heart mr-3 w-5 text-center"></i>我的收藏
+                </a>
+                <div class="border-t border-neutral-200 my-1"></div>
+                {% endif %}
                 <a href="{% url 'settings' %}" class="text-neutral-700 py-2 transition-custom flex items-center">
                     <i class="fa-solid fa-cog mr-3 w-5 text-center"></i>设置
                 </a>
@@ -301,34 +331,7 @@
 
     {% endblock %}
 
-    <!-- 消息提示区域 -->
-    {% if messages %}
-    <div class="container mx-auto px-4 py-4">
-        <div class="space-y-3">
-            {% for message in messages %}
-            <div
-                class="flex items-center justify-between px-5 py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl {% if message.tags %}{% if message.tags == 'error' %}bg-primary/10 text-red-600 border border-red-200{% elif message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-200{% else %}bg-secondary/10 text-purple-700 border border-purple-200{% endif %}{% else %}bg-neutral-100 text-neutral-700 border border-neutral-200{% endif %}">
-                <div class="flex items-center">
-                    {% if message.tags == 'error' %}
-                    <i class="fa-solid fa-circle-exclamation text-red-500 mr-3 text-lg"></i>
-                    {% elif message.tags == 'success' %}
-                    <i class="fa-solid fa-circle-check text-green-500 mr-3 text-lg"></i>
-                    {% elif message.tags == 'warning' %}
-                    <i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-3 text-lg"></i>
-                    {% else %}
-                    <i class="fa-solid fa-circle-info text-secondary-500 mr-3 text-lg"></i>
-                    {% endif %}
-                    <span class="font-semibold text-lg">{{ message }}</span>
-                </div>
-                <button class="text-neutral-400 hover:text-neutral-600 transition-colors focus:outline-none"
-                    onclick="this.parentElement.remove()">
-                    <i class="fa-solid fa-times text-lg"></i>
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
+
 
     <!-- 主要内容区域 -->
     {% block content %}
@@ -395,9 +398,6 @@
                 });
             }
         });
-        const userAvatar = document.getElementById('userAvatar');
-        const userOptions = document.getElementById('userOptions');
-        const userDropdown = document.getElementById('userDropdown');
 
         let closeTimer;
 
@@ -421,9 +421,7 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-            const moreButton = document.getElementById('moreButton');
-            const moreOptions = document.getElementById('moreOptions');
-            const moreDropdown = document.getElementById('moreDropdown');
+            // 使用之前声明的变量，避免重复声明
 
             let closeTimer;
 

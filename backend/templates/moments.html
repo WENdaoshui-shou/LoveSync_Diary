@@ -53,11 +53,11 @@
                             <p class="text-neutral-500 text-sm">动态</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-2xl font-bold text-primary">{{ followers_count }}</p>
+                            <p class="text-2xl font-bold text-primary">{{ followers_count | default:0 }}</p>
                             <p class="text-neutral-500 text-sm">粉丝</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-2xl font-bold text-primary">{{ following_count }}</p>
+                            <p class="text-2xl font-bold text-primary">{{ following_count | default:0 }}</p>
                             <p class="text-neutral-500 text-sm">关注</p>
                         </div>
                     </div>

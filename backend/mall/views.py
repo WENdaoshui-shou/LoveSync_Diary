@@ -2,77 +2,807 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods, require_POST
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core.cache import cache
 from django.conf import settings
-from .models import Product, CartItem
-from .serializers import ProductSerializer, CartItemSerializer, CartItemCreateSerializer
+from django.utils import timezone
+from django.db import transaction
+from django.db.models import F
+import json
+import hashlib
+import time
+import uuid
+
+from .models import (
+    Category, Product, ProductSKU, CartItem, Address, Order, OrderItem,
+    Payment, FlashSale, FlashSaleProduct, Coupon, UserCoupon, Logistics,
+    ProductMark, HomeBanner, ProductTag, ProductTagRelation, UserBehavior, RefundApplication
+)
+from .serializers import (
+    CategorySerializer, ProductSerializer, ProductSKUSerializer, CartItemSerializer, CartItemCreateSerializer,
+    AddressSerializer, OrderSerializer, OrderItemSerializer, PaymentSerializer, PaymentCreateSerializer,
+    FlashSaleSerializer, FlashSaleProductSerializer, CouponSerializer, UserCouponSerializer, LogisticsSerializer,
+    ProductMarkSerializer, HomeBannerSerializer, ProductTagSerializer, ProductTagRelationSerializer,
+    UserBehaviorSerializer, RefundApplicationSerializer, OrderCreateSerializer, CouponApplySerializer,
+    FlashSalePurchaseSerializer
+)
+
+
+# API视图集
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """商品分类视图集"""
+    queryset = Category.objects.filter(is_active=True)
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def tree(self, request):
+        """获取分类树形结构"""
+        categories = self.queryset
+        category_tree = []
+
+        def build_tree(parent_id=None):
+            """递归构建分类树"""
+            children = []
+            for category in categories.filter(parent_id=parent_id):
+                child = {
+                    'id': category.id,
+                    'name': category.name,
+                    'children': build_tree(category.id)
+                }
+                children.append(child)
+            return children
+
+        category_tree = build_tree()
+        return Response({'categories': category_tree})
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     """商品视图集"""
-    queryset = Product.objects.all()
+    queryset = Product.objects.filter(is_active=True)
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
-        """获取商品列表，支持按类别筛选"""
+        """获取商品列表，支持按类别、标签、情侣款筛选"""
         queryset = self.queryset
-        category = self.request.query_params.get('category')
-        
-        if category:
-            queryset = queryset.filter(category=category)
-        
+        category_id = self.request.query_params.get('category')
+        tag_id = self.request.query_params.get('tag')
+        is_couple = self.request.query_params.get('is_couple')
+
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        if tag_id:
+            queryset = queryset.filter(tags__tag_id=tag_id)
+        if is_couple == 'true':
+            queryset = queryset.filter(is_couple_product=True)
+
         return queryset
-    
+
     @action(detail=False, methods=['get'])
-    def categories(self, request):
-        """获取所有商品类别"""
-        categories = self.queryset.values_list('category', flat=True).distinct()
-        return Response({'categories': list(categories)})
+    def hot(self, request):
+        """获取热门商品"""
+        hot_products = self.queryset.order_by('-monthly_sales')[:10]
+        serializer = self.get_serializer(hot_products, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def couple(self, request):
+        """获取情侣款商品"""
+        couple_products = self.queryset.filter(is_couple_product=True)[:10]
+        serializer = self.get_serializer(couple_products, many=True)
+        return Response(serializer.data)
+
+
+class ProductSKUViewSet(viewsets.ModelViewSet):
+    """商品规格视图集"""
+    queryset = ProductSKU.objects.filter(is_active=True)
+    serializer_class = ProductSKUSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def by_product(self, request):
+        """根据商品ID获取规格"""
+        product_id = request.query_params.get('product_id')
+        if not product_id:
+            return Response({'error': '缺少product_id参数'}, status=status.HTTP_400_BAD_REQUEST)
+        skus = self.queryset.filter(product_id=product_id)
+        serializer = self.get_serializer(skus, many=True)
+        return Response(serializer.data)
 
 
 class CartItemViewSet(viewsets.ModelViewSet):
-    """购物车商品视图集"""
+    """购物车项视图集"""
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
-        """获取当前用户的购物车商品"""
+        """获取当前用户的购物车项"""
         return self.queryset.filter(user=self.request.user)
-    
+
     def get_serializer_class(self):
         """根据请求方法选择序列化器"""
         if self.action == 'create':
             return CartItemCreateSerializer
         return CartItemSerializer
-    
+
     def perform_create(self, serializer):
-        """创建购物车商品"""
+        """创建购物车项"""
         serializer.save(user=self.request.user)
-    
+
     @action(detail=False, methods=['get'])
     def count(self, request):
         """获取购物车商品数量"""
         count = self.get_queryset().count()
         return Response({'count': count})
-    
+
+    @action(detail=False, methods=['get'])
+    def selected(self, request):
+        """获取选中的购物车项"""
+        selected_items = self.get_queryset().filter(selected=True)
+        serializer = self.get_serializer(selected_items, many=True)
+        return Response(serializer.data)
+
     @action(detail=True, methods=['put'])
     def update_quantity(self, request, pk=None):
-        """更新购物车商品数量"""
+        """更新购物车项数量"""
         cart_item = self.get_object()
         quantity = request.data.get('quantity')
-        
+
         if quantity is not None:
             cart_item.quantity = quantity
             cart_item.save()
             return Response({'quantity': cart_item.quantity})
         return Response({'error': '缺少quantity参数'}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['put'])
+    def toggle_selected(self, request, pk=None):
+        """切换购物车项选中状态"""
+        cart_item = self.get_object()
+        cart_item.selected = not cart_item.selected
+        cart_item.save()
+        return Response({'selected': cart_item.selected})
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    """收货地址视图集"""
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的收货地址"""
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """创建收货地址"""
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['put'])
+    def set_default(self, request, pk=None):
+        """设置默认地址"""
+        address = self.get_object()
+        address.is_default = True
+        address.save()
+        return Response({'is_default': True})
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    """订单视图集"""
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的订单"""
+        return self.queryset.filter(user=self.request.user)
+
+    def get_serializer_class(self):
+        """根据请求方法选择序列化器"""
+        if self.action == 'create':
+            return OrderCreateSerializer
+        return OrderSerializer
+
+    def perform_create(self, serializer):
+        """创建订单"""
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['put'])
+    def cancel(self, request, pk=None):
+        """取消订单"""
+        order = self.get_object()
+        if order.status == 'pending':
+            order.status = 'cancelled'
+            order.save()
+            return Response({'status': 'cancelled'})
+        return Response({'error': '订单状态不允许取消'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['put'])
+    def confirm_receipt(self, request, pk=None):
+        """确认收货"""
+        order = self.get_object()
+        if order.status == 'shipped':
+            order.status = 'delivered'
+            order.delivered_at = timezone.now()
+            order.save()
+            return Response({'status': 'delivered'})
+        return Response({'error': '订单状态不允许确认收货'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    """支付视图集"""
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的支付记录"""
+        return self.queryset.filter(order__user=self.request.user)
+
+    def get_serializer_class(self):
+        """根据请求方法选择序列化器"""
+        if self.action == 'create':
+            return PaymentCreateSerializer
+        return PaymentSerializer
+
+    @action(detail=True, methods=['put'])
+    def refund(self, request, pk=None):
+        """申请退款"""
+        payment = self.get_object()
+        if payment.status == 'success':
+            refund_amount = request.data.get('refund_amount', payment.amount)
+            payment.refund_amount = refund_amount
+            payment.status = 'refunded'
+            payment.refunded_at = timezone.now()
+            payment.save()
+
+            # 更新订单状态
+            order = payment.order
+            order.status = 'refunded'
+            order.save()
+
+            return Response({'status': 'refunded', 'refund_amount': refund_amount})
+        return Response({'error': '支付状态不允许退款'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def create_payment(self, request):
+        """创建支付订单"""
+        try:
+            order_id = request.data.get('order_id')
+            payment_method = request.data.get('payment_method')
+            amount = request.data.get('amount')
+
+            if not order_id or not payment_method or not amount:
+                return Response({'error': '缺少必要参数'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 验证订单
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+            if order.status != 'pending':
+                return Response({'error': '订单状态不允许支付'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 创建支付记录
+            payment = Payment.objects.create(
+                order=order,
+                amount=amount,
+                method=payment_method,
+                status='pending'
+            )
+
+            # 模拟支付接口调用
+            if payment_method == 'wechat':
+                # 微信支付模拟
+                pay_url = f"/api/mall/payments/{payment.id}/wechat-pay"
+            elif payment_method == 'alipay':
+                # 支付宝模拟
+                pay_url = f"/api/mall/payments/{payment.id}/alipay"
+            else:
+                # 银行卡支付模拟
+                pay_url = f"/api/mall/payments/{payment.id}/card-pay"
+
+            return Response({
+                'success': True,
+                'payment_id': payment.id,
+                'pay_url': pay_url,
+                'order_number': order.order_number
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def wechat_pay(self, request, pk=None):
+        """微信支付模拟"""
+        payment = self.get_object()
+        
+        # 模拟微信支付接口返回
+        return Response({
+            'success': True,
+            'pay_url': 'weixin://pay?prepay_id=wx202501301234567890',
+            'qr_code': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+            'payment_id': payment.id
+        })
+
+    @action(detail=True, methods=['get'])
+    def alipay(self, request, pk=None):
+        """支付宝模拟"""
+        payment = self.get_object()
+        
+        # 模拟支付宝接口返回
+        return Response({
+            'success': True,
+            'pay_url': 'alipays://platformapi/startapp?appId=20000067&actionType=toAccount&goBack=YES',
+            'qr_code': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+            'payment_id': payment.id
+        })
+
+    @action(detail=True, methods=['get'])
+    def card_pay(self, request, pk=None):
+        """银行卡支付模拟"""
+        payment = self.get_object()
+        
+        # 模拟银行卡支付接口返回
+        return Response({
+            'success': True,
+            'pay_url': '/api/mall/payments/{}/card-form'.format(pk),
+            'payment_id': payment.id
+        })
+
+    @action(detail=True, methods=['post'])
+    def notify(self, request, pk=None):
+        """支付回调处理"""
+        payment = self.get_object()
+        
+        # 模拟支付回调
+        payment.status = 'success'
+        payment.transaction_id = f"TRX{int(timezone.now().timestamp())}{uuid.uuid4().hex[:8].upper()}"
+        payment.paid_at = timezone.now()
+        payment.save()
+
+        # 更新订单状态
+        order = payment.order
+        order.status = 'paid'
+        order.paid_at = timezone.now()
+        order.payment_method = payment.method
+        order.save()
+
+        return Response({'success': True, 'message': '支付成功'})
+
+    @action(detail=True, methods=['get'])
+    def query(self, request, pk=None):
+        """查询支付状态"""
+        payment = self.get_object()
+        
+        return Response({
+            'payment_id': payment.id,
+            'status': payment.status,
+            'amount': payment.amount,
+            'method': payment.method,
+            'created_at': payment.created_at,
+            'paid_at': payment.paid_at
+        })
+
+
+class FlashSaleViewSet(viewsets.ModelViewSet):
+    """秒杀活动视图集"""
+    queryset = FlashSale.objects.all()
+    serializer_class = FlashSaleSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def current(self, request):
+        """获取当前正在进行的秒杀活动"""
+        now = timezone.now()
+        current_sales = self.queryset.filter(
+            status=True,
+            start_time__lte=now,
+            end_time__gte=now
+        )
+        serializer = self.get_serializer(current_sales, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def purchase(self, request, pk=None):
+        """秒杀购买"""
+        flash_sale = self.get_object()
+        serializer = FlashSalePurchaseSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid():
+            data = serializer.validated_data
+            product_id = data['product_id']
+            quantity = data['quantity']
+
+            try:
+                with transaction.atomic():
+                    # 检查秒杀商品
+                    flash_product = FlashSaleProduct.objects.select_for_update().get(
+                        flash_sale=flash_sale,
+                        product_id=product_id
+                    )
+
+                    # 检查库存
+                    if flash_product.flash_stock < quantity:
+                        return Response({'error': '秒杀库存不足'}, status=status.HTTP_400_BAD_REQUEST)
+
+                    # 检查限购
+                    purchase_count, created = UserCoupon.objects.get_or_create(
+                        user=request.user,
+                        coupon=flash_product,
+                        defaults={'purchased_count': quantity}
+                    )
+                    if not created:
+                        if purchase_count.purchased_count + quantity > flash_product.limit_per_user:
+                            return Response({'error': '超过限购数量'}, status=status.HTTP_400_BAD_REQUEST)
+                        purchase_count.purchased_count += quantity
+                        purchase_count.save()
+
+                    # 扣减库存
+                    flash_product.flash_stock -= quantity
+                    flash_product.save()
+
+                    # 跳转到结算页面
+                    return Response({'success': True, 'product_id': product_id})
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CouponViewSet(viewsets.ModelViewSet):
+    """优惠券视图集"""
+    queryset = Coupon.objects.filter(is_active=True)
+    serializer_class = CouponSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def available(self, request):
+        """获取可领取的优惠券"""
+        now = timezone.now()
+        available_coupons = self.queryset.filter(
+            start_time__lte=now,
+            end_time__gte=now,
+            remaining_quantity__gt=0
+        )
+        serializer = self.get_serializer(available_coupons, many=True)
+        return Response(serializer.data)
+
+
+class UserCouponViewSet(viewsets.ModelViewSet):
+    """用户优惠券视图集"""
+    queryset = UserCoupon.objects.all()
+    serializer_class = UserCouponSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的优惠券"""
+        return self.queryset.filter(user=self.request.user)
+
+    @action(detail=False, methods=['post'])
+    def apply(self, request):
+        """领取优惠券"""
+        serializer = CouponApplySerializer(data=request.data)
+        if serializer.is_valid():
+            coupon_id = serializer.validated_data['coupon_id']
+            coupon = Coupon.objects.get(id=coupon_id)
+
+            try:
+                with transaction.atomic():
+                    # 检查是否已经领取
+                    if UserCoupon.objects.filter(user=request.user, coupon=coupon).exists():
+                        return Response({'error': '已经领取过该优惠券'}, status=status.HTTP_400_BAD_REQUEST)
+
+                    # 扣减优惠券库存
+                    if coupon.remaining_quantity <= 0:
+                        return Response({'error': '优惠券已领完'}, status=status.HTTP_400_BAD_REQUEST)
+                    coupon.remaining_quantity -= 1
+                    coupon.save()
+
+                    # 创建用户优惠券
+                    user_coupon = UserCoupon.objects.create(
+                        user=request.user,
+                        coupon=coupon
+                    )
+
+                    return Response({'success': True, 'coupon_id': user_coupon.id})
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogisticsViewSet(viewsets.ModelViewSet):
+    """物流视图集"""
+    queryset = Logistics.objects.all()
+    serializer_class = LogisticsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的物流信息"""
+        return self.queryset.filter(order__user=self.request.user)
+
+    @action(detail=True, methods=['get'])
+    def track(self, request, pk=None):
+        """查询物流轨迹"""
+        logistics = self.get_object()
+        if logistics.trajectory:
+            try:
+                trajectory = json.loads(logistics.trajectory)
+                return Response({'trajectory': trajectory})
+            except:
+                return Response({'trajectory': []})
+        return Response({'trajectory': []})
+
+    @action(detail=False, methods=['post'])
+    def create_logistics(self, request):
+        """创建物流订单"""
+        try:
+            order_id = request.data.get('order_id')
+            logistics_company = request.data.get('logistics_company')
+            logistics_no = request.data.get('logistics_no')
+
+            if not order_id or not logistics_company or not logistics_no:
+                return Response({'error': '缺少必要参数'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 验证订单
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+            if order.status not in ['paid', 'shipped']:
+                return Response({'error': '订单状态不允许创建物流'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 检查是否已存在物流信息
+            if hasattr(order, 'logistics'):
+                return Response({'error': '订单已存在物流信息'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 创建物流信息
+            logistics = Logistics.objects.create(
+                order=order,
+                logistics_company=logistics_company,
+                logistics_no=logistics_no,
+                status='shipped',
+                latest_status='【{}】您的订单已发货，请注意查收'.format(logistics_company)
+            )
+
+            # 更新订单状态
+            order.status = 'shipped'
+            order.logistics_company = logistics_company
+            order.logistics_no = logistics_no
+            order.shipped_at = timezone.now()
+            order.save()
+
+            # 生成初始物流轨迹
+            trajectory = [
+                {
+                    'time': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'status': '已发货',
+                    'description': '【{}】您的订单已发货，请注意查收'.format(logistics_company)
+                }
+            ]
+            logistics.trajectory = json.dumps(trajectory)
+            logistics.save()
+
+            return Response({
+                'success': True,
+                'logistics_id': logistics.id,
+                'logistics_no': logistics_no,
+                'order_number': order.order_number
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['put'])
+    def update_status(self, request, pk=None):
+        """更新物流状态"""
+        logistics = self.get_object()
+        
+        try:
+            new_status = request.data.get('status')
+            status_description = request.data.get('status_description')
+
+            if not new_status:
+                return Response({'error': '缺少状态参数'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 验证状态值
+            valid_statuses = [choice[0] for choice in Logistics.LOGISTICS_STATUS_CHOICES]
+            if new_status not in valid_statuses:
+                return Response({'error': '无效的状态值'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 更新物流状态
+            logistics.status = new_status
+            if status_description:
+                logistics.latest_status = status_description
+            logistics.save()
+
+            # 更新订单状态
+            order = logistics.order
+            if new_status == 'delivered':
+                order.status = 'delivered'
+                order.delivered_at = timezone.now()
+                order.save()
+
+            # 更新物流轨迹
+            if logistics.trajectory:
+                try:
+                    trajectory = json.loads(logistics.trajectory)
+                except:
+                    trajectory = []
+            else:
+                trajectory = []
+
+            # 添加新的轨迹记录
+            trajectory.append({
+                'time': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'status': dict(Logistics.LOGISTICS_STATUS_CHOICES).get(new_status),
+                'description': status_description or dict(Logistics.LOGISTICS_STATUS_CHOICES).get(new_status)
+            })
+
+            logistics.trajectory = json.dumps(trajectory)
+            logistics.save()
+
+            return Response({
+                'success': True,
+                'status': new_status,
+                'status_description': status_description
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def simulate_trajectory(self, request, pk=None):
+        """模拟物流轨迹"""
+        logistics = self.get_object()
+        
+        # 生成模拟物流轨迹
+        trajectory = [
+            {
+                'time': (timezone.now() - timezone.timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '已下单',
+                'description': '【{}】您的订单已创建，等待支付'.format(logistics.logistics_company)
+            },
+            {
+                'time': (timezone.now() - timezone.timedelta(days=1, hours=12)).strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '已支付',
+                'description': '【{}】您的订单已支付，等待发货'.format(logistics.logistics_company)
+            },
+            {
+                'time': (timezone.now() - timezone.timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '已发货',
+                'description': '【{}】您的订单已发货，请注意查收'.format(logistics.logistics_company)
+            },
+            {
+                'time': (timezone.now() - timezone.timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '运输中',
+                'description': '【{}】您的包裹正在运输途中'.format(logistics.logistics_company)
+            },
+            {
+                'time': (timezone.now() - timezone.timedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '运输中',
+                'description': '【{}】您的包裹已到达【{}】'.format(logistics.logistics_company, '北京转运中心')
+            },
+            {
+                'time': (timezone.now() - timezone.timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '派送中',
+                'description': '【{}】您的包裹正在派送中，快递员：【张三】，电话：【13800138000】'.format(logistics.logistics_company)
+            }
+        ]
+
+        # 如果状态是已送达，添加送达记录
+        if logistics.status == 'delivered':
+            trajectory.append({
+                'time': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '已送达',
+                'description': '【{}】您的包裹已送达，感谢您的使用'.format(logistics.logistics_company)
+            })
+
+        # 更新物流轨迹
+        logistics.trajectory = json.dumps(trajectory)
+        logistics.save()
+
+        return Response({'trajectory': trajectory})
+
+    @action(detail=False, methods=['get'])
+    def logistics_companies(self, request):
+        """获取物流公司列表"""
+        companies = [
+            {'id': 'SF', 'name': '顺丰速运'},
+            {'id': 'YT', 'name': '圆通快递'},
+            {'id': 'YD', 'name': '韵达快递'},
+            {'id': 'ZT', 'name': '中通快递'},
+            {'id': 'ST', 'name': '申通快递'},
+            {'id': 'EMS', 'name': 'EMS'},
+            {'id': 'JD', 'name': '京东物流'},
+            {'id': 'DD', 'name': '达达快递'}
+        ]
+        return Response({'companies': companies})
+
+    @action(detail=True, methods=['get'])
+    def status(self, request, pk=None):
+        """查询物流状态"""
+        logistics = self.get_object()
+        
+        return Response({
+            'logistics_id': logistics.id,
+            'logistics_no': logistics.logistics_no,
+            'logistics_company': logistics.logistics_company,
+            'status': logistics.status,
+            'status_text': dict(Logistics.LOGISTICS_STATUS_CHOICES).get(logistics.status),
+            'latest_status': logistics.latest_status,
+            'order_number': logistics.order.order_number,
+            'created_at': logistics.created_at,
+            'updated_at': logistics.updated_at
+        })
+
+
+class ProductMarkViewSet(viewsets.ModelViewSet):
+    """商品收藏视图集"""
+    queryset = ProductMark.objects.all()
+    serializer_class = ProductMarkSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的商品收藏"""
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """创建商品收藏"""
+        serializer.save(user=self.request.user)
+
+
+class HomeBannerViewSet(viewsets.ModelViewSet):
+    """首页轮播图视图集"""
+    queryset = HomeBanner.objects.filter(is_active=True)
+    serializer_class = HomeBannerSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        """获取当前有效的轮播图"""
+        now = timezone.now()
+        active_banners = self.queryset.filter(
+            start_time__lte=now,
+            end_time__gte=now
+        ).order_by('sort')
+        serializer = self.get_serializer(active_banners, many=True)
+        return Response(serializer.data)
+
+
+class ProductTagViewSet(viewsets.ModelViewSet):
+    """商品标签视图集"""
+    queryset = ProductTag.objects.filter(is_active=True)
+    serializer_class = ProductTagSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class UserBehaviorViewSet(viewsets.ModelViewSet):
+    """用户行为视图集"""
+    queryset = UserBehavior.objects.all()
+    serializer_class = UserBehaviorSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的行为记录"""
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """创建用户行为记录"""
+        serializer.save(user=self.request.user)
+
+
+class RefundApplicationViewSet(viewsets.ModelViewSet):
+    """退款申请视图集"""
+    queryset = RefundApplication.objects.all()
+    serializer_class = RefundApplicationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """获取当前用户的退款申请"""
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """创建退款申请"""
+        serializer.save(user=self.request.user)
+
+
+# Web视图函数
 
 # 推荐商品装饰器
 def recommend_view(func):
@@ -83,10 +813,10 @@ def recommend_view(func):
         # 存放用户访问商品的id列表，使用逗号分隔
         visited_ids = [gid for gid in c_id.split(',') if gid.strip()]
 
-        # 构建推荐商品列表（这里使用简单逻辑，实际项目中可根据需求优化）
+        # 构建推荐商品列表
         recommended_products = []
         if visited_ids:
-            # 从用户访问过的商品中推荐前3个（如果有）
+            # 从用户访问过的商品中推荐前5个
             recommended_products = Product.objects.filter(id__in=visited_ids[:5])
 
         # 将推荐商品添加到请求对象中
@@ -114,40 +844,85 @@ def recommend_view(func):
 # 购物商城页面
 @login_required
 @recommend_view
-def mall(request, recommended_products=None):
-    products = Product.objects.all()
-
-    # 如果装饰器提供了推荐商品，则使用它们
-    if recommended_products is None:
-        # 否则使用默认的随机推荐
+def mall(request):
+    """商城首页"""
+    # 获取推荐商品
+    recommended_products = getattr(request, 'recommended_products', [])
+    if not recommended_products:
         recommended_products = Product.objects.order_by('?')[:5]
 
-    hot_products = Product.objects.order_by('-monthly_sales')[:3]
+    # 获取热门商品
+    hot_products = Product.objects.order_by('-monthly_sales')[:6]
 
-    return render(request, 'mall.html', {
-        'products': products,
+    # 获取情侣款商品
+    couple_products = Product.objects.filter(is_couple_product=True).order_by('-created_at')[:6]
+
+    # 获取当前秒杀活动
+    now = timezone.now()
+    current_flash_sales = FlashSale.objects.filter(
+        status=True,
+        start_time__lte=now,
+        end_time__gte=now
+    )[:3]
+
+    # 获取首页轮播图
+    banners = HomeBanner.objects.filter(is_active=True).order_by('sort')[:5]
+
+    # 获取商品分类
+    categories = Category.objects.filter(is_active=True, parent__isnull=True)[:8]
+    
+    # 获取用户收藏的商品
+    user_marks = ProductMark.objects.filter(user=request.user).values_list('product_id', flat=True)
+
+    return render(request, 'mall/mall.html', {
         'recommended_products': recommended_products,
-        'hot_products': hot_products
+        'hot_products': hot_products,
+        'couple_products': couple_products,
+        'current_flash_sales': current_flash_sales,
+        'banners': banners,
+        'categories': categories,
+        'user': request.user,
+        'user_marks': user_marks
     })
 
 
 # 商品详情页面
+@login_required
 @recommend_view
 def product_detail(request, product_id):
-    """商品详情视图"""
+    """商品详情页面"""
     product = get_object_or_404(Product, id=product_id)
 
-    # 从请求对象中获取推荐商品
+    # 记录用户浏览行为
+    UserBehavior.objects.create(
+        user=request.user,
+        product=product,
+        behavior_type='view'
+    )
+
+    # 获取推荐商品
     recommended_products = getattr(request, 'recommended_products', [])
     if not recommended_products:
         recommended_products = Product.objects.order_by('-rating')[:5]
 
-    hot_products = Product.objects.order_by('-monthly_sales')[:3]
+    # 获取相关商品
+    related_products = Product.objects.filter(
+        category=product.category,
+        is_active=True
+    ).exclude(id=product_id)[:4]
 
-    return render(request, 'product_detail.html', {
+    # 获取商品规格
+    skus = ProductSKU.objects.filter(product=product, is_active=True)
+
+    # 检查是否已收藏
+    is_marked = ProductMark.objects.filter(user=request.user, product=product).exists()
+
+    return render(request, 'mall/product_detail.html', {
         'product': product,
         'recommended_products': recommended_products,
-        'hot_products': hot_products
+        'related_products': related_products,
+        'skus': skus,
+        'is_marked': is_marked
     })
 
 
@@ -155,188 +930,821 @@ def product_detail(request, product_id):
 @login_required
 @require_POST
 def add_to_cart(request):
+    """添加商品到购物车"""
     try:
-        # 1. 获取请求参数
+        # 获取请求参数
         product_id = request.POST.get('product_id')
+        sku_id = request.POST.get('sku_id')
         quantity = int(request.POST.get('quantity', 1))
 
-        # 2. 验证参数有效性
+        # 验证参数
         if not product_id or quantity <= 0:
-            return JsonResponse({
-                'status': 'error',
-                'message': '无效的商品ID或数量'
-            }, status=400)
+            return JsonResponse({'status': 'error', 'message': '无效的商品ID或数量'})
 
-        # 3. 获取商品并验证库存
+        # 获取商品
         product = get_object_or_404(Product, id=product_id)
-        if product.product_stock < quantity:
-            return JsonResponse({
-                'status': 'error',
-                'message': f'库存不足，当前仅剩余{product.product_stock}件'
-            }, status=400)
 
-        # 4. 同步数据库：创建或更新购物车记录
+        # 获取SKU（如果有）
+        sku = None
+        if sku_id:
+            sku = get_object_or_404(ProductSKU, id=sku_id, product=product)
+            # 检查SKU库存
+            if sku.stock < quantity:
+                return JsonResponse({'status': 'error', 'message': '库存不足'})
+        else:
+            # 检查商品库存
+            if product.product_stock < quantity:
+                return JsonResponse({'status': 'error', 'message': '库存不足'})
+
+        # 创建或更新购物车项
         cart_item, created = CartItem.objects.get_or_create(
             user=request.user,
             product=product,
+            sku=sku,
             defaults={'quantity': quantity}
         )
+
         if not created:
-            # 已存在则累加数量
+            # 更新数量
             cart_item.quantity += quantity
             cart_item.save()
 
-        # 5. 同步缓存：更新Redis缓存（提升读取速度）
+        # 记录用户行为
+        UserBehavior.objects.create(
+            user=request.user,
+            product=product,
+            behavior_type='add_cart'
+        )
+
+        # 更新缓存
         user_id = request.user.id
-        cart_key = f'user_cart:{user_id}'  # 缓存键格式：user_cart:用户ID
-        cart = cache.get(cart_key, {})  # 从缓存获取当前购物车
+        cart_key = f'user_cart:{user_id}'
+        cache.delete(cart_key)
 
-        # 更新缓存中的商品信息
-        cart[str(product_id)] = {
-            'id': product_id,
-            'name': product.name,
-            'price': str(product.price),
-            'quantity': cart_item.quantity,
-        }
-        cache.set(cart_key, cart, timeout=86400)  # 缓存1天
-
-        # 6. 扣减商品库存
-        product.product_stock -= quantity
-        product.save()
-
-        return JsonResponse({
-            'status': 'success',
-            'message': f'已将{product.name}加入购物车',
-            'cart_count': sum(item['quantity'] for item in cart.values())  # 购物车总数量
-        })
-
-    except ValueError:
-        return JsonResponse({
-            'status': 'error',
-            'message': '数量必须是有效数字'
-        }, status=400)
+        return JsonResponse({'status': 'success', 'message': '已添加到购物车'})
     except Exception as e:
-        return JsonResponse({
-            'status': 'error',
-            'message': f'操作失败：{str(e)}'
-        }, status=500)
-
-
-# 获取购物车商品总数
-@login_required
-def cart_count(request):
-    user_id = request.user.id
-    cart_key = f'user_cart:{user_id}'
-    cart = cache.get(cart_key, {})
-    count = sum(item['quantity'] for item in cart.values())
-    return JsonResponse({'count': count})
+        return JsonResponse({'status': 'error', 'message': str(e)})
 
 
 # 购物车页面
 @login_required
 def mallcart(request):
-    user_id = request.user.id
-    cart_key = f'user_cart:{user_id}'
-    cart = cache.get(cart_key)
-    # 缓存失效时从数据库加载并更新缓存
-    if cart:
-        cart_items = CartItem.objects.filter(user=request.user).select_related('product')
-        cart = {
-            str(item.product.id): {
-                'name': item.product.name,
-                'price': str(item.product.price),
-                'quantity': item.quantity,
-                'image': item.product.image.url
-            } for item in cart_items
-        }
-        print(cart)
-        cache.set(cart_key, cart, timeout=86400)
+    """购物车页面"""
+    # 获取用户购物车项
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product', 'sku')
 
-    return render(request, 'mallcart.html', {'cart_items': cart})
+    # 计算总价
+    total_price = 0
+    selected_count = 0
+    for item in cart_items:
+        if item.selected:
+            item_total = item.total_price
+            total_price += item_total
+            selected_count += 1
+
+    # 将购物车项转换为可序列化的字典列表
+    cart_items_data = []
+    for item in cart_items:
+        cart_item_data = {
+            'id': item.id,
+            'product_id': item.product.id,
+            'product_name': item.product.name,
+            'price': float(item.total_price / item.quantity),  # 单价
+            'quantity': item.quantity,
+            'selected': item.selected,
+            'style': item.sku.name if item.sku else '默认',
+            'total_price': float(item.total_price)
+        }
+        # 添加商品图片
+        if item.sku and item.sku.image:
+            cart_item_data['image'] = item.sku.image.url
+        elif item.product.main_image:
+            cart_item_data['image'] = item.product.main_image.url
+        else:
+            cart_item_data['image'] = ''
+        cart_items_data.append(cart_item_data)
+
+    # 获取推荐商品
+    # 从cookie中获取用户访问的商品id
+    c_id = request.COOKIES.get('rem', '')
+    visited_ids = [gid for gid in c_id.split(',') if gid.strip()]
+    
+    recommended_products = []
+    if visited_ids:
+        # 从用户访问过的商品中推荐
+        recommended_products = Product.objects.filter(id__in=visited_ids[:5])
+    
+    # 如果没有推荐商品，随机获取一些
+    if not recommended_products:
+        recommended_products = Product.objects.order_by('?')[:4]
+
+    return render(request, 'mall/mallcart.html', {
+        'cart_items': cart_items,
+        'cart_items_data': cart_items_data,
+        'total_price': total_price,
+        'selected_count': selected_count,
+        'recommended_products': recommended_products
+    })
 
 
 # 更新购物车
 @login_required
+@require_POST
 def update_cart(request):
-    if request.method == 'POST':
+    """更新购物车"""
+    try:
+        data = json.loads(request.body)
+        user = request.user
+
+        # 获取所有键作为字符串类型的购物车项ID
+        item_ids = list(data.keys())
+
+        # 删除数据库中存在但不在前端数据中的购物车项（即用户删除的商品）
+        user_cart_items = CartItem.objects.filter(user=user)
+        for cart_item in user_cart_items:
+            if str(cart_item.id) not in item_ids:
+                cart_item.delete()
+
+        # 更新前端发送的购物车项
+        for item_id, item_data in data.items():
+            try:
+                cart_item = CartItem.objects.get(id=item_id, user=user)
+                # 更新数量
+                if 'quantity' in item_data:
+                    cart_item.quantity = item_data['quantity']
+                # 更新选中状态
+                if 'selected' in item_data:
+                    cart_item.selected = item_data['selected']
+                cart_item.save()
+            except CartItem.DoesNotExist:
+                pass
+
+        # 清除缓存
+        cart_key = f'user_cart:{user.id}'
+        cache.delete(cart_key)
+
+        return JsonResponse({'status': 'success', 'message': '购物车已更新'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 删除购物车项
+@login_required
+@require_POST
+def delete_cart_item(request):
+    """删除购物车项"""
+    try:
+        item_id = request.POST.get('item_id')
+        cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+        cart_item.delete()
+
+        # 清除缓存
+        cart_key = f'user_cart:{request.user.id}'
+        cache.delete(cart_key)
+
+        return JsonResponse({'status': 'success', 'message': '已删除'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+
+
+
+# 结算页面
+@login_required
+def checkout(request):
+    """结算页面"""
+    # 检查是否是直接购买
+    direct_purchase = request.GET.get('direct_purchase') == 'true'
+    product_id = request.GET.get('product_id')
+    quantity = request.GET.get('quantity', 1)
+
+    # 如果是直接购买
+    if direct_purchase and product_id:
         try:
-            # 解析前端发送的JSON数据
-            import json
-            cart_data = json.loads(request.body)
-            user = request.user
-            cart_key = f'user_cart:{user.id}'
+            # 获取商品信息
+            product = get_object_or_404(Product, id=product_id)
+            # 创建一个临时的购物车项对象，用于在模板中显示
+            class TempCartItem:
+                def __init__(self, product, quantity):
+                    self.product = product
+                    self.quantity = int(quantity)
+                    self.price = product.price
+                    self.total_price = product.price * int(quantity)
+                    self.sku = None
 
-            # 获取用户当前所有购物车项
-            existing_items = {
-                item.product.id: item
-                for item in CartItem.objects.filter(user=user)
-            }
+            # 创建临时的购物车项
+            temp_item = TempCartItem(product, quantity)
+            selected_items = [temp_item]
 
-            # 处理前端发送的每个商品
-            for product_id, item_data in cart_data.items():
-                try:
-                    product_id_int = int(product_id)
-                    product = Product.objects.get(id=product_id_int)
+            # 计算商品总价
+            goods_total = temp_item.total_price
 
-                    # 检查商品是否已在购物车中
-                    if product_id_int in existing_items:
-                        # 更新现有商品数量
-                        cart_item = existing_items[product_id_int]
-                        cart_item.quantity = item_data['quantity']
-                        cart_item.save()
-                        del existing_items[product_id_int]
-                    else:
-                        # 添加新商品到购物车
-                        CartItem.objects.create(
-                            user=user,
-                            product=product,
-                            quantity=item_data['quantity']
-                        )
-                except (ValueError, Product.DoesNotExist):
-                    # 忽略无效的商品ID
-                    continue
+            # 计算运费
+            shipping_fee = 0 if goods_total >= 99 else 10
 
-            # 删除前端购物车中已不存在的商品
-            for remaining_item in existing_items.values():
-                remaining_item.delete()
+            # 计算订单总价
+            order_total = goods_total + shipping_fee
+        except Exception as e:
+            # 如果出现错误，重定向到购物车页面
+            return redirect('mall:mallcart')
+    else:
+        # 否则，获取选中的购物车项
+        selected_items = CartItem.objects.filter(user=request.user, selected=True).select_related('product', 'sku')
 
-            # 更新缓存
-            updated_items = CartItem.objects.filter(user=user).select_related('product')
-            updated_cart = {
-                str(item.product.id): {
-                    'name': item.product.name,
-                    'price': str(item.product.price),
-                    'quantity': item.quantity,
-                    'image': item.product.image.url
-                } for item in updated_items
-            }
-            cache.set(cart_key, updated_cart, timeout=86400)
+        if not selected_items:
+            return redirect('mall:mallcart')
 
-            return JsonResponse({
-                'success': True,
-                'message': '购物车已更新',
-                'item_count': updated_items.count()
+        # 计算商品总价
+        goods_total = 0
+        for item in selected_items:
+            goods_total += item.total_price
+
+        # 计算运费
+        shipping_fee = 0 if goods_total >= 99 else 10
+
+        # 计算订单总价
+        order_total = goods_total + shipping_fee
+
+    # 获取用户地址
+    addresses = Address.objects.filter(user=request.user)
+    default_address = addresses.filter(is_default=True).first()
+
+    # 获取可用优惠券
+    now = timezone.now()
+    available_coupons = UserCoupon.objects.filter(
+        user=request.user,
+        is_used=False,
+        coupon__end_time__gte=now
+    )
+
+    return render(request, 'mall/checkout.html', {
+        'selected_items': selected_items,
+        'goods_total': goods_total,
+        'shipping_fee': shipping_fee,
+        'order_total': order_total,
+        'addresses': addresses,
+        'default_address': default_address,
+        'available_coupons': available_coupons,
+        'direct_purchase': direct_purchase,
+        'product_id': product_id,
+        'quantity': quantity
+    })
+
+
+# 提交订单
+@login_required
+@require_POST
+def submit_order(request):
+    """提交订单"""
+    try:
+        # 获取订单信息
+        address_id = request.POST.get('address_id')
+        coupon_id = request.POST.get('coupon_id')
+        payment_method = request.POST.get('payment_method')
+
+        # 验证地址
+        address = get_object_or_404(Address, id=address_id, user=request.user)
+
+        # 获取选中的购物车项
+        selected_items = CartItem.objects.filter(user=request.user, selected=True).select_related('product', 'sku')
+
+        if not selected_items:
+            return JsonResponse({'status': 'error', 'message': '请选择商品'})
+
+        # 计算订单金额
+        goods_total = 0
+        order_items_data = []
+
+        # 先计算商品总价
+        for item in selected_items:
+            price = item.sku.price if item.sku else item.product.price
+            item_total = price * item.quantity
+            goods_total += item_total
+            order_items_data.append({
+                'item': item,
+                'price': price,
+                'item_total': item_total
             })
 
-        except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'message': '无效的JSON数据'}, status=400)
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+        # 计算运费和订单总价
+        shipping_fee = 0 if goods_total >= 99 else 10
+        order_total = goods_total + shipping_fee
 
-    # 处理非POST请求
-    return JsonResponse({'success': False, 'message': '仅支持POST请求'}, status=405)
+        # 应用优惠券
+        if coupon_id:
+            user_coupon = get_object_or_404(UserCoupon, id=coupon_id, user=request.user, is_used=False)
+            coupon = user_coupon.coupon
+            
+            # 计算优惠金额
+            if coupon.type == '满减券' and order_total >= coupon.min_spend:
+                order_total -= coupon.value
+            elif coupon.type == '折扣券' and order_total >= coupon.min_spend:
+                order_total *= (coupon.value / 10)
+            elif coupon.type == '现金券':
+                order_total -= coupon.value
+
+        with transaction.atomic():
+            # 创建订单
+            order = Order.objects.create(
+                user=request.user,
+                address=address,
+                payment_method=payment_method,
+                total_amount=max(0, order_total),
+                shipping_fee=shipping_fee
+            )
+
+            # 处理订单商品
+            for item_data in order_items_data:
+                item = item_data['item']
+                price = item_data['price']
+                item_total = item_data['item_total']
+
+                # 创建订单项
+                order_item = OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    sku=item.sku,
+                    quantity=item.quantity,
+                    price=price,
+                    total_price=item_total
+                )
+
+                # 扣减库存
+                if item.sku:
+                    item.sku.stock -= item.quantity
+                    item.sku.save()
+                else:
+                    item.product.product_stock -= item.quantity
+                    item.product.save()
+
+                # 记录用户购买行为
+                UserBehavior.objects.create(
+                    user=request.user,
+                    product=item.product,
+                    behavior_type='purchase'
+                )
+
+            # 更新优惠券状态
+            if coupon_id:
+                user_coupon.is_used = True
+                user_coupon.used_at = timezone.now()
+                user_coupon.used_order = order
+                user_coupon.save()
+
+            # 清空购物车中已下单的商品
+            selected_items.delete()
+
+            # 清除缓存
+            cart_key = f'user_cart:{request.user.id}'
+            cache.delete(cart_key)
+
+            # 跳转到支付页面
+            return JsonResponse({'status': 'success', 'order_id': order.id, 'order_number': order.order_number})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 订单列表页面
+@login_required
+def order_list(request):
+    """订单列表页面"""
+    # 获取订单状态
+    status = request.GET.get('status', 'all')
+
+    # 获取订单
+    orders = Order.objects.filter(user=request.user)
+
+    # 按状态筛选
+    if status != 'all':
+        orders = orders.filter(status=status)
+
+    # 排序
+    orders = orders.order_by('-created_at')
+
+    return render(request, 'mall/order_list.html', {
+        'orders': orders,
+        'status': status
+    })
+
+
+# 订单详情页面
+@login_required
+def order_detail(request, order_number):
+    """订单详情页面"""
+    order = get_object_or_404(Order, order_number=order_number, user=request.user)
+
+    # 获取物流信息
+    logistics = None
+    if order.logistics_no:
+        try:
+            logistics = Logistics.objects.get(order=order)
+        except Logistics.DoesNotExist:
+            pass
+
+    return render(request, 'mall/order_detail.html', {
+        'order': order,
+        'logistics': logistics
+    })
 
 
 # 收藏页面
 @login_required
 def mallmark(request):
-    return render(request, 'mallmark.html')
+    """商品收藏页面"""
+    # 获取排序和筛选参数
+    sort_by = request.GET.get('sort', 'created_at')
+    filter_by = request.GET.get('filter', 'all')
+    
+    # 构建查询集
+    marks = ProductMark.objects.filter(user=request.user).select_related('product')
+    
+    # 应用筛选
+    if filter_by == 'unavailable':
+        marks = marks.filter(product__is_active=False)
+    elif filter_by == 'price_drop':
+        # 实现降价提醒的逻辑
+        # 筛选出价格下降的商品（当前价格低于原价）
+        # 首先筛选出有原价记录的商品
+        # 然后筛选出当前价格低于原价的商品
+        # 正确使用 F 表达式语法
+        # 使用双下划线来引用关联模型的字段
+        marks = marks.filter(
+            product__old_price__gt=0,  # 确保有原价记录
+            product__price__lt=F('product__old_price')  # 当前价格低于原价
+        )
+    elif filter_by == 'all':
+        # 显示所有收藏
+        pass
+    # 默认显示所有收藏
+    
+    # 应用排序
+    if sort_by == 'created_at':
+        marks = marks.order_by('-created_at')
+    elif sort_by == 'price_asc':
+        marks = marks.order_by('product__price')
+    elif sort_by == 'price_desc':
+        marks = marks.order_by('-product__price')
+    elif sort_by == 'newest':
+        marks = marks.order_by('-product__created_at')
+    else:
+        marks = marks.order_by('-created_at')
+    
+    # 获取推荐商品
+    recommended_products = Product.objects.filter(is_active=True).order_by('-created_at')[:8]
+
+    return render(request, 'mall/mallmark.html', {
+        'marks': marks,
+        'recommended_products': recommended_products,
+        'current_sort': sort_by,
+        'current_filter': filter_by
+    })
 
 
-# 结算视图
+# 获取购物车数量
 @login_required
-def checkout(request, product_id=None):
-    user_id = request.user.id
-    cart_key = f'user_cart:{user_id}'
-    cart = cache.get(cart_key, {})
-    return render(request, 'checkout.html', {'cart_items': cart, 'product_id': product_id})
+def cart_count(request):
+    """获取购物车数量"""
+    try:
+        # 从缓存获取
+        user_id = request.user.id
+        cart_key = f'user_cart:{user_id}'
+        count = cache.get(cart_key)
+        
+        if count is None:
+            # 从数据库获取
+            count = CartItem.objects.filter(user=request.user).count()
+            # 缓存结果，有效期5分钟
+            cache.set(cart_key, count, 300)
+        
+        return JsonResponse({'status': 'success', 'count': count})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'count': 0, 'message': str(e)})
+
+# 获取收藏数量
+@login_required
+def mark_count(request):
+    """获取收藏数量"""
+    try:
+        # 从缓存获取
+        user_id = request.user.id
+        mark_key = f'user_mark:{user_id}'
+        count = cache.get(mark_key)
+        
+        if count is None:
+            # 从数据库获取
+            count = ProductMark.objects.filter(user=request.user).count()
+            # 缓存结果，有效期5分钟
+            cache.set(mark_key, count, 300)
+        
+        return JsonResponse({'status': 'success', 'count': count})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'count': 0, 'message': str(e)})
+
+# 添加收藏
+@login_required
+@require_POST
+def add_mark(request):
+    """添加收藏"""
+    try:
+        # 尝试从JSON数据中获取商品ID
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
+        else:
+            # 从表单数据中获取商品ID
+            product_id = request.POST.get('product_id')
+        
+        if not product_id:
+            return JsonResponse({'status': 'error', 'message': '商品ID不能为空'})
+            
+        product = get_object_or_404(Product, id=product_id)
+
+        # 检查是否已收藏
+        mark, created = ProductMark.objects.get_or_create(
+            user=request.user,
+            product=product
+        )
+
+        if created:
+            # 记录用户收藏行为
+            UserBehavior.objects.create(
+                user=request.user,
+                product=product,
+                behavior_type='mark'
+            )
+            # 清除缓存
+            user_id = request.user.id
+            mark_key = f'user_mark:{user_id}'
+            cache.delete(mark_key)
+            return JsonResponse({'status': 'success', 'message': '收藏成功'})
+        else:
+            return JsonResponse({'status': 'info', 'message': '已收藏'})
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'JSON数据解析失败'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 取消收藏
+@login_required
+@require_POST
+def remove_mark(request):
+    """取消收藏"""
+    try:
+        # 尝试从JSON数据中获取商品ID
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
+        else:
+            # 从表单数据中获取商品ID
+            product_id = request.POST.get('product_id')
+        
+        if not product_id:
+            return JsonResponse({'status': 'error', 'message': '商品ID不能为空'})
+            
+        product = get_object_or_404(Product, id=product_id)
+
+        mark = get_object_or_404(ProductMark, user=request.user, product=product)
+        mark.delete()
+
+        # 清除缓存
+        user_id = request.user.id
+        mark_key = f'user_mark:{user_id}'
+        cache.delete(mark_key)
+
+        return JsonResponse({'status': 'success', 'message': '已取消收藏'})
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'JSON数据解析失败'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 秒杀活动页面
+@login_required
+def flash_sale(request):
+    """秒杀活动页面"""
+    # 获取当前秒杀活动
+    now = timezone.now()
+    current_flash_sales = FlashSale.objects.filter(
+        status=True,
+        start_time__lte=now,
+        end_time__gte=now
+    )
+
+    # 获取即将开始的秒杀活动
+    upcoming_flash_sales = FlashSale.objects.filter(
+        status=True,
+        start_time__gt=now
+    ).order_by('start_time')[:3]
+
+    return render(request, 'mall/flash_sale.html', {
+        'current_flash_sales': current_flash_sales,
+        'upcoming_flash_sales': upcoming_flash_sales
+    })
+
+
+# 优惠券页面
+@login_required
+def coupon_list(request):
+    """优惠券页面"""
+    # 获取优惠券状态
+    status = request.GET.get('status', 'available')
+
+    now = timezone.now()
+    user_coupons = UserCoupon.objects.filter(user=request.user)
+
+    # 按状态筛选
+    if status == 'available':
+        # 未使用且未过期
+        user_coupons = user_coupons.filter(
+            is_used=False,
+            coupon__end_time__gte=now
+        )
+    elif status == 'used':
+        # 已使用
+        user_coupons = user_coupons.filter(is_used=True)
+    elif status == 'expired':
+        # 已过期
+        user_coupons = user_coupons.filter(
+            coupon__end_time__lt=now
+        )
+
+    # 获取可领取的优惠券
+    available_coupons = Coupon.objects.filter(
+        is_active=True,
+        start_time__lte=now,
+        end_time__gte=now,
+        remaining_quantity__gt=0
+    ).exclude(
+        id__in=UserCoupon.objects.filter(
+            user=request.user
+        ).values_list('coupon_id', flat=True)
+    )
+
+    return render(request, 'mall/coupon_list.html', {
+        'user_coupons': user_coupons,
+        'available_coupons': available_coupons,
+        'current_status': status
+    })
+
+
+# 地址管理页面
+@login_required
+def address_manage(request):
+    """地址管理页面"""
+    addresses = Address.objects.filter(user=request.user).order_by('-is_default', '-updated_at')
+
+    return render(request, 'mall/address_manage.html', {
+        'addresses': addresses
+    })
+
+
+# 添加地址
+@login_required
+@require_POST
+def add_address(request):
+    """添加地址"""
+    try:
+        # 获取地址信息
+        recipient = request.POST.get('recipient')
+        phone = request.POST.get('phone')
+        province = request.POST.get('province')
+        city = request.POST.get('city')
+        district = request.POST.get('district')
+        detail_address = request.POST.get('detail_address')
+        postal_code = request.POST.get('postal_code')
+        is_default = request.POST.get('is_default') == 'true'
+
+        # 创建地址
+        address = Address.objects.create(
+            user=request.user,
+            recipient=recipient,
+            phone=phone,
+            province=province,
+            city=city,
+            district=district,
+            detail_address=detail_address,
+            postal_code=postal_code,
+            is_default=is_default
+        )
+
+        return JsonResponse({'status': 'success', 'message': '地址添加成功'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 编辑地址
+@login_required
+@require_POST
+def edit_address(request):
+    """编辑地址"""
+    try:
+        address_id = request.POST.get('address_id')
+        address = get_object_or_404(Address, id=address_id, user=request.user)
+
+        # 更新地址信息
+        address.recipient = request.POST.get('recipient', address.recipient)
+        address.phone = request.POST.get('phone', address.phone)
+        address.province = request.POST.get('province', address.province)
+        address.city = request.POST.get('city', address.city)
+        address.district = request.POST.get('district', address.district)
+        address.detail_address = request.POST.get('detail_address', address.detail_address)
+        address.postal_code = request.POST.get('postal_code', address.postal_code)
+        address.is_default = request.POST.get('is_default') == 'true'
+        address.save()
+
+        return JsonResponse({'status': 'success', 'message': '地址更新成功'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 删除地址
+@login_required
+@require_POST
+def delete_address(request):
+    """删除地址"""
+    try:
+        address_id = request.POST.get('address_id')
+        address = get_object_or_404(Address, id=address_id, user=request.user)
+        address.delete()
+
+        return JsonResponse({'status': 'success', 'message': '地址删除成功'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 物流查询页面
+@login_required
+def logistics_track(request, order_number):
+    """物流查询页面"""
+    order = get_object_or_404(Order, order_number=order_number, user=request.user)
+
+    # 获取物流信息
+    logistics = None
+    trajectory = []
+
+    if order.logistics_no:
+        try:
+            logistics = Logistics.objects.get(order=order)
+            if logistics.trajectory:
+                try:
+                    trajectory = json.loads(logistics.trajectory)
+                except:
+                    pass
+        except Logistics.DoesNotExist:
+            pass
+
+    return render(request, 'mall/logistics_track.html', {
+        'order': order,
+        'logistics': logistics,
+        'trajectory': trajectory
+    })
+
+
+# 情侣专区页面
+@login_required
+def couple_zone(request):
+    """情侣专区页面"""
+    # 获取情侣款商品
+    couple_products = Product.objects.filter(
+        is_couple_product=True,
+        is_active=True
+    ).order_by('-created_at')[:12]
+
+    # 获取情侣主题分类
+    couple_categories = Category.objects.filter(
+        is_active=True
+    ).filter(
+        name__icontains='情侣'
+    )[:6]
+
+    return render(request, 'mall/couple_zone.html', {
+        'couple_products': couple_products,
+        'couple_categories': couple_categories
+    })
+
+
+# 搜索结果页面
+@login_required
+def search_result(request):
+    """搜索结果页面"""
+    # 获取搜索关键词
+    keyword = request.GET.get('keyword', '')
+
+    # 搜索商品
+    products = Product.objects.filter(
+        is_active=True,
+        name__icontains=keyword
+    ) | Product.objects.filter(
+        is_active=True,
+        description__icontains=keyword
+    )
+
+    # 去重
+    products = products.distinct().order_by('-created_at')
+
+    return render(request, 'mall/search_result.html', {
+        'products': products,
+        'keyword': keyword
+    })

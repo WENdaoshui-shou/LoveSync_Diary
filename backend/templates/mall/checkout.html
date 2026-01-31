@@ -1,0 +1,797 @@
+{% extends 'mall/mall_base.html' %}
+
+{% block title %}订单结算 - LoveSync{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+        .content-auto {
+            content-visibility: auto;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .transition-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bg-gradient-love {
+            background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.03);
+        }
+
+        .form-input-focus {
+            transition: all 0.3s ease;
+        }
+
+        .form-input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(255, 107, 139, 0.1), 0 10px 10px -5px rgba(255, 107, 139, 0.04);
+        }
+
+        .btn-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 107, 139, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 139, 0);
+            }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .product-card {
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block breadcrumb_items %}
+<li class="inline-flex items-center">
+    <a href="{% url 'mall:mallcart' %}" class="text-gray-500 hover:text-primary">
+        <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+        购物车
+    </a>
+</li>
+<li>
+    <div class="flex items-center">
+        <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+        <span class="text-neutral-800 font-medium text-sm text-primary">结算</span>
+    </div>
+</li>
+{% endblock %}
+
+{% block content_body %}
+<div class="py-4 relative z-10">
+    <!-- 进度指示器 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between max-w-3xl mx-auto">
+            <div class="flex flex-col items-center">
+                <div class="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mb-2">
+                    <i class="fa-solid fa-shopping-cart"></i>
+                </div>
+                <span class="text-sm font-medium">购物车</span>
+            </div>
+            <div class="flex-1 h-1 bg-gray-200 mx-2">
+                <div class="h-full bg-primary" style="width: 100%"></div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mb-2">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <span class="text-sm font-medium">收货地址</span>
+            </div>
+            <div class="flex-1 h-1 bg-gray-200 mx-2">
+                <div class="h-full bg-primary" style="width: 100%"></div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mb-2">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+                <span class="text-sm font-medium">支付方式</span>
+            </div>
+            <div class="flex-1 h-1 bg-gray-200 mx-2">
+                <div class="h-full bg-gray-200" style="width: 0%"></div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="h-10 w-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center mb-2">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-500">订单确认</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 左侧：订单摘要 -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- 收货地址 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-xl font-bold mb-4">收货地址</h2>
+
+                <div class="space-y-4">
+                    {% if addresses %}
+                    {% for address in addresses %}
+                    <div
+                        class="border {% if address.is_default %}border-primary bg-primary/5{% else %}border-gray-200{% endif %} rounded-lg p-4 flex items-start card-hover">
+                        <input type="radio" id="address{{ address.id }}" name="address" class="mt-1" {% if address.is_default %}checked{% endif %}>
+                        <label for="address{{ address.id }}" class="ml-3 flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-medium">{{ address.recipient }}</span>
+                                {% if address.is_default %}
+                                <span class="text-sm bg-primary/10 text-primary px-2 py-0.5 rounded">默认地址</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-gray-600">{{ address.province }}{{ address.city }}{{ address.district }}{{ address.detail_address }}</p>
+                            <p class="text-sm text-gray-600 mt-1">{{ address.phone }}</p>
+                        </label>
+                        <div class="flex space-x-2">
+                            <button class="text-gray-500 hover:text-primary transition-colors">
+                                <i class="fa-solid fa-pencil"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-red-500 transition-colors">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-gray-500">请添加收货地址</p>
+                    {% endif %}
+                    <button id="add-address-btn"
+                        class="w-full py-3 border border-dashed border-gray-300 rounded-lg text-gray-500 hover:text-primary hover:border-primary transition-colors flex items-center justify-center">
+                        <i class="fa-solid fa-plus mr-2"></i> 添加新地址
+                    </button>
+
+                    <!-- 下滑添加地址表单 -->
+                    <div id="address-form-container" class="hidden mt-4 border border-gray-200 rounded-lg p-4 bg-white">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">添加收货地址</h3>
+                            <button id="cancel-add-address" class="text-gray-500 hover:text-gray-700">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="address-form">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">收货人</label>
+                                    <input type="text" name="recipient"
+                                        class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                        placeholder="请输入收货人姓名">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">手机号码</label>
+                                    <input type="tel" name="phone"
+                                        class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                        placeholder="请输入手机号码">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">省份</label>
+                                <input type="text" name="province"
+                                    class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                    placeholder="请输入省份">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">城市</label>
+                                    <input type="text" name="city"
+                                        class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                        placeholder="请输入城市">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">区县</label>
+                                    <input type="text" name="district"
+                                        class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                        placeholder="请输入区县">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">详细地址</label>
+                                <input type="text" name="detail_address"
+                                    class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                    placeholder="请输入详细地址">
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">邮政编码</label>
+                                <input type="text" name="postal_code"
+                                    class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                    placeholder="请输入邮政编码">
+                            </div>
+                            <div class="mt-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="is_default" class="mr-2">
+                                    <span class="text-sm text-gray-700">设为默认地址</span>
+                                </label>
+                            </div>
+                            <div class="mt-6 flex space-x-3">
+                                <button type="button" id="cancel-add-address-btn"
+                                    class="flex-1 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                                <button type="submit"
+                                    class="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 支付方式 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-xl font-bold mb-4">支付方式</h2>
+
+                <div class="space-y-3">
+                    <div class="border border-primary rounded-lg p-4 flex items-center card-hover bg-primary/5">
+                        <input type="radio" id="payment1" name="payment" class="mt-1" checked>
+                        <label for="payment1" class="ml-3 flex-1 flex items-center">
+                            <i class="fa-brands fa-weixin text-xl text-green-500 mr-3"></i>
+                            <span>微信支付</span>
+                        </label>
+                    </div>
+
+                    <div
+                        class="border border-gray-200 rounded-lg p-4 flex items-center card-hover hover:border-primary">
+                        <input type="radio" id="payment2" name="payment" class="mt-1">
+                        <label for="payment2" class="ml-3 flex-1 flex items-center">
+                            <i class="fa-brands fa-alipay text-xl text-blue-500 mr-3"></i>
+                            <span>支付宝</span>
+                        </label>
+                    </div>
+
+                    <div
+                        class="border border-gray-200 rounded-lg p-4 flex items-center card-hover hover:border-primary">
+                        <input type="radio" id="payment3" name="payment" class="mt-1">
+                        <label for="payment3" class="ml-3 flex-1 flex items-center">
+                            <i class="fa-solid fa-credit-card text-xl text-gray-600 mr-3"></i>
+                            <span>银行卡</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 优惠券 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-xl font-bold mb-4">优惠券</h2>
+
+                <!-- 优惠券选择器 -->
+                <div id="coupon-selector" class="border border-gray-200 rounded-lg overflow-hidden">
+                    <!-- 优惠券选择按钮 -->
+                    <div class="p-4 flex items-center justify-between card-hover cursor-pointer" id="coupon-toggle">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-ticket text-primary mr-3"></i>
+                            <span id="selected-coupon-text">选择优惠券</span>
+                        </div>
+                        <div class="flex items-center text-gray-500">
+                            <span>{{ available_coupons.count }}张可用</span>
+                            <i class="fa-solid fa-angle-down ml-2 transition-transform duration-300"
+                                id="coupon-icon"></i>
+                        </div>
+                    </div>
+
+                    <!-- 优惠券列表 -->
+                    <div id="coupon-list" class="hidden border-t border-gray-200">
+                        {% if available_coupons %}
+                        {% for user_coupon in available_coupons %}
+                        {% with coupon=user_coupon.coupon %}
+                        <div class="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="coupon" value="{{ user_coupon.id }}" class="mr-3">
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="font-medium">{{ coupon.name }}</h3>
+                                        <span class="text-primary font-bold">
+                                            {% if coupon.type == '折扣券' %}
+                                            {{ coupon.value }}折
+                                            {% else %}
+                                            ¥{{ coupon.value }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        {% if coupon.min_spend > 0 %}
+                                        满{{ coupon.min_spend }}元可用
+                                        {% else %}
+                                        无门槛
+                                        {% endif %}
+                                        · 有效期至 {{ coupon.end_time|date:'Y-m-d' }}
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                        {% endwith %}
+                        {% endfor %}
+                        <!-- 不使用优惠券选项 -->
+                        <div class="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="coupon" value="" checked class="mr-3">
+                                <div class="flex-1">
+                                    <h3 class="font-medium">不使用优惠券</h3>
+                                </div>
+                            </label>
+                        </div>
+                        {% else %}
+                        <div class="p-4 text-center text-gray-500">
+                            暂无可用优惠券
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单备注 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-xl font-bold mb-4">订单备注</h2>
+
+                <textarea placeholder="如有特殊需求，请在此备注..."
+                    class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                    rows="3"></textarea>
+            </div>
+        </div>
+
+        <!-- 右侧：订单摘要 -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                <h2 class="text-xl font-bold mb-4">订单摘要</h2>
+
+                <!-- 商品列表 -->
+                <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide mb-6">
+                    {% for item in selected_items %}
+                    <div class="flex space-x-3 pb-4 border-b border-gray-100">
+                        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}"
+                            class="w-20 h-20 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h3 class="font-medium">{{ item.product.name }}</h3>
+                            {% if item.sku %}
+                            <p class="text-sm text-gray-500 mt-1">规格: {{ item.sku.name }}</p>
+                            {% endif %}
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="font-medium">¥{{ item.sku.price}}</span>
+                                <span class="text-gray-500">x{{ item.quantity }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- 价格摘要 -->
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">商品总价</span>
+                        <span id="goods-total">¥{{ goods_total }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">优惠券</span>
+                        <span class="text-red-500" id="coupon-discount">-¥0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">运费</span>
+                        <span id="shipping-fee">¥{{ shipping_fee }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">税费</span>
+                        <span>¥0.00</span>
+                    </div>
+                    <div class="pt-3 border-t border-gray-100 flex justify-between font-bold">
+                        <span>实付款</span>
+                        <span class="text-xl text-primary" id="actual-payment">¥{{ order_total }}</span>
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <button id="place-order-btn"
+                    class="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors mt-6 shadow-md hover:shadow-lg flex items-center justify-center">
+                    <span>提交订单</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+
+                <p class="text-xs text-gray-400 mt-3 text-center">
+                    点击"提交订单"，即表示您同意我们的<a href="#" class="text-primary">服务条款</a>和<a href="#"
+                        class="text-primary">隐私政策</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 等待DOM加载完成
+    document.addEventListener('DOMContentLoaded', function () {
+        // 添加新地址表单
+        const addAddressBtn = document.getElementById('add-address-btn');
+        const addressFormContainer = document.getElementById('address-form-container');
+        const cancelAddAddress = document.getElementById('cancel-add-address');
+        const cancelAddAddressBtn = document.getElementById('cancel-add-address-btn');
+        const addressForm = document.getElementById('address-form');
+
+        if (addAddressBtn && addressFormContainer) {
+            addAddressBtn.addEventListener('click', function () {
+                addressFormContainer.classList.toggle('hidden');
+            });
+
+            if (cancelAddAddress) {
+                cancelAddAddress.addEventListener('click', function () {
+                    addressFormContainer.classList.add('hidden');
+                });
+            }
+
+            if (cancelAddAddressBtn) {
+                cancelAddAddressBtn.addEventListener('click', function () {
+                    addressFormContainer.classList.add('hidden');
+                });
+            }
+        }
+
+        // 地址表单提交
+        if (addressForm) {
+            addressForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // 获取表单数据
+                const formData = new FormData(addressForm);
+                const addressData = {};
+                formData.forEach((value, key) => {
+                    if (key === 'is_default') {
+                        addressData[key] = value === 'on';
+                    } else {
+                        addressData[key] = value;
+                    }
+                });
+
+                // 表单验证
+                if (!addressData.recipient || !addressData.phone || !addressData.detail_address) {
+                    showToast('请填写完整信息', '收货人、手机号码和详细地址不能为空', false);
+                    return;
+                }
+
+                try {
+                    // 获取CSRF令牌
+                    const csrfToken = getCSRFToken();
+
+                    // 提交表单
+                    const response = await fetch('{% url "mall:add_address" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: new URLSearchParams(addressData)
+                    });
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast('添加成功', '地址已成功添加', true);
+                        // 隐藏表单
+                        addressFormContainer.classList.add('hidden');
+                        // 重置表单
+                        addressForm.reset();
+                        // 刷新页面或更新地址列表
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showToast('添加失败', result.message, false);
+                    }
+                } catch (error) {
+                    console.error('添加地址失败:', error);
+                    showToast('添加失败', '网络错误，请稍后重试', false);
+                }
+            });
+        }
+
+        // 提交订单
+        const placeOrderBtn = document.getElementById('place-order-btn');
+        const orderSuccessModal = document.getElementById('order-success-modal');
+        const closeSuccessModal = document.getElementById('close-success-modal');
+
+        if (placeOrderBtn) {
+            placeOrderBtn.addEventListener('click', async function () {
+                // 获取选中的地址
+                const selectedAddress = document.querySelector('input[name="address"]:checked');
+                if (!selectedAddress) {
+                    showToast('提示', '请选择收货地址', false);
+                    return;
+                }
+                const addressId = selectedAddress.value;
+
+                // 获取选中的支付方式
+                const selectedPayment = document.querySelector('input[name="payment"]:checked');
+                if (!selectedPayment) {
+                    showToast('提示', '请选择支付方式', false);
+                    return;
+                }
+                const paymentMethod = selectedPayment.id === 'payment1' ? 'wechat' : (selectedPayment.id === 'payment2' ? 'alipay' : 'card');
+
+                // 获取选中的优惠券
+                const selectedCoupon = document.querySelector('input[name="coupon"]:checked');
+                const couponId = selectedCoupon ? selectedCoupon.value : '';
+
+                // 显示加载状态
+                placeOrderBtn.disabled = true;
+                placeOrderBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>提交中...';
+
+                try {
+                    // 获取CSRF令牌
+                    const csrfToken = getCSRFToken();
+
+                    // 准备订单数据
+                    const orderData = {
+                        address_id: addressId,
+                        payment_method: paymentMethod
+                    };
+
+                    if (couponId) {
+                        orderData.coupon_id = couponId;
+                    }
+
+                    // 提交订单
+                    const response = await fetch('{% url "mall:submit_order" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: new URLSearchParams(orderData)
+                    });
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        // 显示成功模态框
+                        if (orderSuccessModal) {
+                            orderSuccessModal.classList.remove('hidden');
+                            orderSuccessModal.classList.add('flex');
+                        }
+                    } else {
+                        showToast('提交失败', result.message, false);
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.innerHTML = '提交订单';
+                    }
+                } catch (error) {
+                    console.error('提交订单失败:', error);
+                    showToast('提交失败', '网络错误，请稍后重试', false);
+                    placeOrderBtn.disabled = false;
+                    placeOrderBtn.innerHTML = '提交订单';
+                }
+            });
+        }
+
+        if (closeSuccessModal) {
+            closeSuccessModal.addEventListener('click', function () {
+                if (orderSuccessModal) {
+                    orderSuccessModal.classList.add('hidden');
+                    orderSuccessModal.classList.remove('flex');
+                    // 跳转到订单列表页面
+                    window.location.href = '{% url "mall:order_list" %}';
+                }
+            });
+        }
+
+        // 地址选择功能
+        const addressRadios = document.querySelectorAll('input[name="address"]');
+        addressRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                // 移除所有地址的选中样式
+                document.querySelectorAll('[name="address"]').forEach(radio => {
+                    const addressElement = radio.closest('div');
+                    addressElement.classList.remove('border-primary', 'bg-primary/5');
+                    addressElement.classList.add('border-gray-200');
+                });
+                // 添加当前选中地址的样式
+                const selectedAddress = this.closest('div');
+                selectedAddress.classList.remove('border-gray-200');
+                selectedAddress.classList.add('border-primary', 'bg-primary/5');
+            });
+        });
+
+        // 支付方式选择功能
+        const paymentRadios = document.querySelectorAll('input[name="payment"]');
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                // 移除所有支付方式的选中样式
+                document.querySelectorAll('[name="payment"]').forEach(radio => {
+                    const paymentElement = radio.closest('div');
+                    paymentElement.classList.remove('border-primary', 'bg-primary/5');
+                    paymentElement.classList.add('border-gray-200');
+                });
+                // 添加当前选中支付方式的样式
+                const selectedPayment = this.closest('div');
+                selectedPayment.classList.remove('border-gray-200');
+                selectedPayment.classList.add('border-primary', 'bg-primary/5');
+            });
+        });
+
+        // 优惠券选择功能
+        const couponToggle = document.getElementById('coupon-toggle');
+        const couponList = document.getElementById('coupon-list');
+        const couponIcon = document.getElementById('coupon-icon');
+        const selectedCouponText = document.getElementById('selected-coupon-text');
+        const couponDiscount = document.getElementById('coupon-discount');
+        const actualPayment = document.getElementById('actual-payment');
+        const goodsTotalElement = document.getElementById('goods-total');
+        const shippingFeeElement = document.getElementById('shipping-fee');
+
+        // 展开/收起优惠券列表
+        if (couponToggle) {
+            couponToggle.addEventListener('click', function () {
+                couponList.classList.toggle('hidden');
+                couponIcon.classList.toggle('rotate-180');
+            });
+        }
+
+        // 选择优惠券
+        const couponRadios = document.querySelectorAll('input[name="coupon"]');
+        couponRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                const couponId = this.value;
+                const goodsTotal = parseFloat(goodsTotalElement.textContent.replace('¥', ''));
+                const shippingFee = parseFloat(shippingFeeElement.textContent.replace('¥', ''));
+                let discount = 0;
+
+                if (couponId) {
+                    // 这里可以根据优惠券ID获取优惠券详情并计算折扣
+                    // 由于我们没有后端API来获取优惠券详情，这里使用模拟数据
+                    // 实际项目中应该通过API获取优惠券详情
+                    const couponLabel = this.closest('label');
+                    const couponName = couponLabel.querySelector('h3').textContent;
+                    const couponValueText = couponLabel.querySelector('.text-primary').textContent;
+
+                    // 更新选中优惠券文本
+                    selectedCouponText.textContent = couponName;
+
+                    // 计算折扣金额
+                    if (couponValueText.includes('折')) {
+                        // 折扣券
+                        const discountRate = parseFloat(couponValueText) / 10;
+                        discount = goodsTotal * (1 - discountRate);
+                    } else {
+                        // 满减券或现金券
+                        discount = parseFloat(couponValueText.replace('¥', ''));
+                    }
+                } else {
+                    // 不使用优惠券
+                    selectedCouponText.textContent = '选择优惠券';
+                }
+
+                // 计算实付款
+                const orderTotal = goodsTotal + shippingFee - discount;
+                const finalTotal = Math.max(0, orderTotal);
+
+                // 更新显示
+                couponDiscount.textContent = `-¥${discount.toFixed(2)}`;
+                actualPayment.textContent = `¥${finalTotal.toFixed(2)}`;
+
+                // 收起优惠券列表
+                couponList.classList.add('hidden');
+                couponIcon.classList.remove('rotate-180');
+            });
+        });
+
+
+
+        // 提交订单功能
+        placeOrderBtn.addEventListener('click', async function () {
+            // 获取选中的地址
+            const selectedAddress = document.querySelector('input[name="address"]:checked');
+            if (!selectedAddress) {
+                showToast('请选择收货地址', '请先选择一个收货地址', false);
+                return;
+            }
+
+            // 获取选中的支付方式
+            const selectedPayment = document.querySelector('input[name="payment"]:checked');
+            if (!selectedPayment) {
+                showToast('请选择支付方式', '请先选择一个支付方式', false);
+                return;
+            }
+
+            // 获取订单备注
+            const orderNote = document.querySelector('textarea[placeholder="如有特殊需求，请在此备注..."]').value;
+
+            try {
+                // 模拟订单提交成功
+                showToast('订单提交中', '正在处理您的订单...', true);
+
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // 显示成功模态框
+                if (orderSuccessModal) {
+                    orderSuccessModal.classList.remove('hidden');
+                    orderSuccessModal.classList.add('flex');
+                }
+
+                showToast('订单提交成功', '您的订单已成功提交', true);
+            } catch (error) {
+                console.error('订单提交失败:', error);
+                showToast('订单提交失败', '网络错误，请稍后重试', false);
+            }
+        });
+    });
+</script>
+
+
+
+<!-- 订单成功模态框 -->
+<div id="order-success-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-check text-green-500 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">订单提交成功</h3>
+        <p class="text-gray-500 mb-6">您的订单已成功提交，请尽快完成支付</p>
+        <div class="flex space-x-3">
+            <a href="{% url 'mall:mall' %}"
+                class="flex-1 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">继续购物</a>
+            <a href="{% url 'mall:order_list' %}"
+                class="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">查看订单</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

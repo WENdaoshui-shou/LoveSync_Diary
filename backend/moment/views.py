@@ -453,9 +453,16 @@ def moments_view(request):
                 messages.error(request, f'发布失败: {str(e)}')
                 return redirect('moments')
     
+    # 获取粉丝数和关注数
+    from user.models import Follow
+    followers_count = Follow.objects.filter(following=request.user, is_deleted=False).count()
+    following_count = Follow.objects.filter(follower=request.user, is_deleted=False).count()
+    
     return render(request, 'moments.html', {
         'moments': moments,
-        'user': request.user
+        'user': request.user,
+        'followers_count': followers_count,
+        'following_count': following_count
     })
 
 
