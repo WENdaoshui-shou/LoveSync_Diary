@@ -4,7 +4,7 @@
 
 {% block extra_css %}
 <style type="text/tailwindcss">
-    @layer utilities {
+  @layer utilities {
         .order-detail-card {
             transition: all 0.3s ease;
         }
@@ -42,704 +42,705 @@
 
 {% block breadcrumb_items %}
 <li class="inline-flex items-center">
-    <a href="{% url 'mall:order_list' %}" class="text-gray-500 hover:text-primary text-sm font-medium">
-        <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
-        我的订单
-    </a>
+  <a href="{% url 'mall:order_list' %}" class="text-gray-500 hover:text-primary text-sm font-medium">
+    <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+    我的订单
+  </a>
 </li>
 <li>
-    <div class="flex items-center">
-        <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
-        <span class="text-neutral-800 font-medium text-sm text-primary">订单详情</span>
-    </div>
+  <div class="flex items-center">
+    <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+    <span class="text-neutral-800 font-medium text-sm text-primary">订单详情</span>
+  </div>
 </li>
 {% endblock %}
 
 {% block content_body %}
 <div class="py-8">
 
-    {% if order %}
-    <!-- 订单状态 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
-        <div class="mb-6">
-            <h2 class="text-xl font-bold mb-2">订单状态</h2>
-            <p class="text-gray-500">订单编号：{{ order.order_number }}</p>
-        </div>
+  {% if order %}
+  <!-- 订单状态 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
+    <div class="mb-6">
+      <h2 class="text-xl font-bold mb-2">订单状态</h2>
+      <p class="text-gray-500">订单编号：{{ order.order_number }}</p>
+    </div>
 
-        <!-- 订单状态流转进度条 -->
-        <div class="mb-8">
-            <div class="flex justify-between mb-2">
-                <div class="flex flex-col items-center">
-                    <div
-                        class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
+    <!-- 订单状态流转进度条 -->
+    <div class="mb-8">
+      <div class="flex justify-between mb-2">
+        <div class="flex flex-col items-center">
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
                         {% if order.status == 'pending' or order.status == 'paid' or order.status == 'shipped' or order.status == 'delivered' %}bg-primary text-white{% else %}bg-gray-200 text-gray-500{% endif %}">
-                        <i class="fa-solid fa-clock"></i>
-                    </div>
-                    <span
-                        class="text-sm 
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <span
+            class="text-sm 
                         {% if order.status == 'pending' %}text-primary font-medium{% else %}text-gray-500{% endif %}">待付款</span>
-                </div>
-                <div class="flex-1 mx-2 relative">
-                    <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200"></div>
-                    <div
-                        class="absolute top-4 left-0 h-1 bg-primary 
+        </div>
+        <div class="flex-1 mx-2 relative">
+          <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200"></div>
+          <div
+            class="absolute top-4 left-0 h-1 bg-primary 
                         {% if order.status == 'pending' %}w-0{% elif order.status == 'paid' or order.status == 'shipped' or order.status == 'delivered' %}w-full{% endif %}">
-                    </div>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div
-                        class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
+          </div>
+        </div>
+        <div class="flex flex-col items-center">
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
                         {% if order.status == 'paid' or order.status == 'shipped' or order.status == 'delivered' %}bg-primary text-white{% else %}bg-gray-200 text-gray-500{% endif %}">
-                        <i class="fa-solid fa-box"></i>
-                    </div>
-                    <span
-                        class="text-sm 
+            <i class="fa-solid fa-box"></i>
+          </div>
+          <span
+            class="text-sm 
                         {% if order.status == 'paid' %}text-primary font-medium{% else %}text-gray-500{% endif %}">待发货</span>
-                </div>
-                <div class="flex-1 mx-2 relative">
-                    <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200"></div>
-                    <div
-                        class="absolute top-4 left-0 h-1 bg-primary 
+        </div>
+        <div class="flex-1 mx-2 relative">
+          <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200"></div>
+          <div
+            class="absolute top-4 left-0 h-1 bg-primary 
                         {% if order.status == 'pending' or order.status == 'paid' %}w-0{% elif order.status == 'shipped' or order.status == 'delivered' %}w-full{% endif %}">
-                    </div>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div
-                        class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
+          </div>
+        </div>
+        <div class="flex flex-col items-center">
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
                         {% if order.status == 'shipped' or order.status == 'delivered' %}bg-primary text-white{% else %}bg-gray-200 text-gray-500{% endif %}">
-                        <i class="fa-solid fa-truck"></i>
-                    </div>
-                    <span
-                        class="text-sm 
+            <i class="fa-solid fa-truck"></i>
+          </div>
+          <span
+            class="text-sm 
                         {% if order.status == 'shipped' %}text-primary font-medium{% else %}text-gray-500{% endif %}">待收货</span>
-                </div>
-                <div class="flex-1 mx-2 relative">
-                    <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200"></div>
-                    <div
-                        class="absolute top-4 left-0 h-1 bg-primary 
+        </div>
+        <div class="flex-1 mx-2 relative">
+          <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200"></div>
+          <div
+            class="absolute top-4 left-0 h-1 bg-primary 
                         {% if order.status == 'pending' or order.status == 'paid' or order.status == 'shipped' %}w-0{% elif order.status == 'delivered' %}w-full{% endif %}">
-                    </div>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div
-                        class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
+          </div>
+        </div>
+        <div class="flex flex-col items-center">
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center mb-2 
                         {% if order.status == 'delivered' %}bg-primary text-white{% else %}bg-gray-200 text-gray-500{% endif %}">
-                        <i class="fa-solid fa-check-circle"></i>
-                    </div>
-                    <span
-                        class="text-sm 
+            <i class="fa-solid fa-check-circle"></i>
+          </div>
+          <span
+            class="text-sm 
                         {% if order.status == 'delivered' %}text-primary font-medium{% else %}text-gray-500{% endif %}">已完成</span>
-                </div>
-            </div>
         </div>
+      </div>
+    </div>
 
-        <!-- 支付倒计时（仅待付款状态显示） -->
-        {% if order.status == 'pending' %}
-        <div class="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <i class="fa-solid fa-clock text-yellow-500 mr-3"></i>
-                    <span class="text-yellow-700">请在 <span id="paymentCountdown" class="font-bold">24:00:00</span>
-                        内完成支付</span>
-                </div>
-                <span class="text-sm text-yellow-600">超时订单将自动取消</span>
-            </div>
+    <!-- 支付倒计时（仅待付款状态显示） -->
+    {% if order.status == 'pending' %}
+    <div class="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <i class="fa-solid fa-clock text-yellow-500 mr-3"></i>
+          <span class="text-yellow-700">请在 <span id="paymentCountdown" class="font-bold">24:00:00</span>
+            内完成支付</span>
         </div>
-        {% endif %}
+        <span class="text-sm text-yellow-600">超时订单将自动取消</span>
+      </div>
+    </div>
+    {% endif %}
 
-        <!-- 订单状态显示 -->
-        <div class="flex items-center justify-center">
-            <span class="px-8 py-3 rounded-full text-lg font-medium 
+    <!-- 订单状态显示 -->
+    <div class="flex items-center justify-center">
+      <span class="px-8 py-3 rounded-full text-lg font-medium 
                 {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
                 {% elif order.status == 'paid' %}bg-blue-100 text-blue-800
                 {% elif order.status == 'shipped' %}bg-green-100 text-green-800
                 {% elif order.status == 'delivered' %}bg-purple-100 text-purple-800
                 {% elif order.status == 'cancelled' %}bg-gray-100 text-gray-800{% endif %}">
-                {{ order.get_status_display }}
-            </span>
-        </div>
+        {{ order.get_status_display }}
+      </span>
     </div>
+  </div>
 
-    <!-- 收货地址 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
-        <h2 class="text-xl font-bold mb-4">收货信息</h2>
-        <div class="flex items-start">
-            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
-                <i class="fa-solid fa-map-marker-alt text-primary"></i>
-            </div>
-            <div class="flex-1">
-                <div class="flex items-center mb-2">
-                    <h3 class="font-medium mr-4">{{ order.address.recipient|default:"未填写" }}</h3>
-                    <span>{{ order.address.phone|default:"未填写" }}</span>
-                </div>
-                <p class="text-gray-600">
-                    {{ order.address.province|default:"" }}{{ order.address.city|default:"" }}{{
-                    order.address.district|default:"" }}{{ order.address.detail_address|default:"未填写" }}
-                </p>
-            </div>
+  <!-- 收货地址 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
+    <h2 class="text-xl font-bold mb-4">收货信息</h2>
+    <div class="flex items-start">
+      <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
+        <i class="fa-solid fa-map-marker-alt text-primary"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center mb-2">
+          <h3 class="font-medium mr-4">{{ order.address.recipient|default:"未填写" }}</h3>
+          <span>{{ order.address.phone|default:"未填写" }}</span>
         </div>
-    </div>
-
-    <!-- 订单商品 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
-        <h2 class="text-xl font-bold mb-4">订单商品</h2>
-        <div class="space-y-4">
-            {% for item in order.items.all %}
-            <div class="flex space-x-4 pb-4 border-b border-gray-100 last:border-0">
-                {% if item.product.main_image and item.product.main_image.url %}
-                <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}"
-                    class="w-24 h-24 object-cover rounded-lg">
-                {% else %}
-                <img src="https://picsum.photos/id/26/200/200" alt="{{ item.product.name }}"
-                    class="w-24 h-24 object-cover rounded-lg">
-                {% endif %}
-                <div class="flex-1">
-                    <h3 class="font-medium text-gray-900">{{ item.product.name|default:"未知商品" }}</h3>
-                    {% if item.sku %}
-                    <p class="text-sm text-gray-500 mt-1">规格：{{ item.sku.name }}</p>
-                    {% endif %}
-                    <!-- 商品属性详情 -->
-                    <div class="text-sm text-gray-500 mt-1">
-                        {% if item.product.material %}
-                        <span class="mr-4">材质：{{ item.product.material }}</span>
-                        {% endif %}
-                        {% if item.product.size %}
-                        <span class="mr-4">尺寸：{{ item.product.size }}</span>
-                        {% endif %}
-                        {% if item.product.color %}
-                        <span>颜色：{{ item.product.color }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="text-primary font-bold">¥{{ item.price|floatformat:2 }}</span>
-                        <span class="text-gray-500">x{{ item.quantity }}</span>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <p class="text-gray-500 text-center py-4">暂无订单商品</p>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- 物流信息 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
-        <h2 class="text-xl font-bold mb-4">物流信息</h2>
-        {% if order.status == 'pending' %}
-        <!-- 待付款状态下的物流信息占位 -->
-        <div class="flex items-center justify-center p-8 border border-dashed border-gray-200 rounded-lg bg-gray-50">
-            <div class="text-center">
-                <i class="fa-solid fa-truck text-gray-300 text-3xl mb-4"></i>
-                <p class="text-gray-500">支付完成后生成物流单号</p>
-                <p class="text-sm text-gray-400 mt-2">订单支付成功后，我们将尽快为您安排发货</p>
-            </div>
-        </div>
-        {% elif order.status == 'paid' %}
-        <!-- 已付款状态下的物流信息占位 -->
-        <div class="flex items-center justify-center p-8 border border-dashed border-gray-200 rounded-lg bg-gray-50">
-            <div class="text-center">
-                <i class="fa-solid fa-box text-gray-300 text-3xl mb-4"></i>
-                <p class="text-gray-500">商家正在准备发货</p>
-                <p class="text-sm text-gray-400 mt-2">请耐心等待，我们将尽快为您安排发货</p>
-            </div>
-        </div>
-        {% elif order.status == 'shipped' or order.status == 'delivered' %}
-        <!-- 已发货或已完成状态下的物流信息 -->
-        {% if order.logistics %}
-        <div class="flex items-start">
-            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
-                <i class="fa-solid fa-truck text-primary"></i>
-            </div>
-            <div class="flex-1">
-                <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
-                    <h3 class="font-medium">{{ order.logistics.logistics_company|default:"未知物流公司" }}</h3>
-                    <span class="text-gray-500 mt-1 md:mt-0">运单号：{{ order.logistics.logistics_no|default:"暂无" }}</span>
-                </div>
-                <p class="text-gray-600 mb-4">{{ order.logistics.latest_status|default:"暂无物流更新" }}</p>
-                <a href="{% url 'mall:logistics_track' order.order_number %}"
-                    class="text-primary hover:underline inline-flex items-center">
-                    <span>查看物流轨迹</span>
-                    <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
-                </a>
-            </div>
-        </div>
-        {% else %}
-        <p class="text-gray-500 flex items-center">
-            <i class="fa-solid fa-info-circle mr-2"></i>暂无物流信息
+        <p class="text-gray-600">
+          {{ order.address.province|default:"" }}{{ order.address.city|default:"" }}{{ order.address.district|default:""}}{{ order.address.detail_address|default:"未填写" }}
         </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 订单商品 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
+    <h2 class="text-xl font-bold mb-4">订单商品</h2>
+    <div class="space-y-4">
+      {% for item in order.items.all %}
+      <div class="flex space-x-4 pb-4 border-b border-gray-100 last:border-0">
+        {% if item.product.main_image and item.product.main_image.url %}
+        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}"
+          class="w-24 h-24 object-cover rounded-lg">
+        {% else %}
+        <img src="https://picsum.photos/id/26/200/200" alt="{{ item.product.name }}"
+          class="w-24 h-24 object-cover rounded-lg">
         {% endif %}
-        {% elif order.status == 'cancelled' %}
-        <!-- 已取消状态下的物流信息占位 -->
-        <div class="flex items-center justify-center p-8 border border-dashed border-gray-200 rounded-lg bg-gray-50">
-            <div class="text-center">
-                <i class="fa-solid fa-times-circle text-gray-300 text-3xl mb-4"></i>
-                <p class="text-gray-500">订单已取消</p>
-                <p class="text-sm text-gray-400 mt-2">物流服务已停止</p>
-            </div>
+        <div class="flex-1">
+          <h3 class="font-medium text-gray-900">{{ item.product.name|default:"未知商品" }}</h3>
+          <!-- 商品规格信息 -->
+          {% if item.sku %}
+          <p class="text-sm text-gray-500 mt-1">规格：{{ item.sku.name }}</p>
+          {% elif item.specs %}
+          <p class="text-sm text-gray-500 mt-1">规格：{{ item.specs }}</p>
+          {% elif item.product.specs %}
+          <p class="text-sm text-gray-500 mt-1">规格：{{ item.product.specs }}</p>
+          {% else %}
+          <p class="text-sm text-gray-500 mt-1">规格：标准规格</p>
+          {% endif %}
+          <!-- 商品属性详情 -->
+          <div class="text-sm text-gray-500 mt-1">
+            {% if item.product.material %}
+            <span class="mr-4">材质：{{ item.product.material }}</span>
+            {% endif %}
+            {% if item.product.size %}
+            <span class="mr-4">尺寸：{{ item.product.size }}</span>
+            {% endif %}
+            {% if item.product.color %}
+            <span>颜色：{{ item.product.color }}</span>
+            {% endif %}
+          </div>
+          <div class="flex justify-between items-center mt-2">
+            <span class="text-primary font-bold">¥{{ item.price|floatformat:2 }}</span>
+            <span class="text-gray-500">x{{ item.quantity }}</span>
+          </div>
         </div>
-        {% endif %}
+      </div>
+      {% empty %}
+      <p class="text-gray-500 text-center py-4">暂无订单商品</p>
+      {% endfor %}
     </div>
+  </div>
 
-    <!-- 订单详情 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
-        <h2 class="text-xl font-bold mb-4">订单详情</h2>
-        <div class="space-y-3">
-            <div class="flex justify-between">
-                <span class="text-gray-500">下单时间</span>
-                <span>{{ order.created_at|date:'Y-m-d H:i:s'|default:"未知" }}</span>
-            </div>
-            {% if order.paid_at %}
-            <div class="flex justify-between">
-                <span class="text-gray-500">支付时间</span>
-                <span>{{ order.paid_at|date:'Y-m-d H:i:s' }}</span>
-            </div>
-            {% endif %}
-            {% if order.shipped_at %}
-            <div class="flex justify-between">
-                <span class="text-gray-500">发货时间</span>
-                <span>{{ order.shipped_at|date:'Y-m-d H:i:s' }}</span>
-            </div>
-            {% endif %}
-            {% if order.delivered_at %}
-            <div class="flex justify-between">
-                <span class="text-gray-500">收货时间</span>
-                <span>{{ order.delivered_at|date:'Y-m-d H:i:s' }}</span>
-            </div>
-            {% endif %}
-            <div class="flex justify-between">
-                <span class="text-gray-500">支付方式</span>
-                <span>{{ order.get_payment_method_display|default:"未选择" }}</span>
-            </div>
-            {% if order.remark %}
-            <div class="flex justify-between">
-                <span class="text-gray-500">用户备注</span>
-                <span class="text-gray-700">{{ order.remark }}</span>
-            </div>
-            {% else %}
-            <div class="flex justify-between">
-                <span class="text-gray-500">用户备注</span>
-                <span class="text-gray-400">无备注</span>
-            </div>
-            {% endif %}
-
-            <!-- 发票信息 -->
-            <div class="flex justify-between">
-                <span class="text-gray-500">发票信息</span>
-                <div class="flex items-center">
-                    {% if order.invoice_type %}
-                    <span class="text-gray-700 mr-2">{{ order.get_invoice_type_display }}</span>
-                    {% if order.invoice_status == 'issued' %}
-                    <span class="text-green-500">已开具</span>
-                    {% else %}
-                    <span class="text-yellow-500">待开具</span>
-                    {% endif %}
-                    {% else %}
-                    <span class="text-gray-400 mr-2">未申请发票</span>
-                    <a href="#" class="text-primary hover:underline text-sm">申请发票</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+  <!-- 物流信息 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
+    <h2 class="text-xl font-bold mb-4">物流信息</h2>
+    {% if order.status == 'pending' %}
+    <!-- 待付款状态下的物流信息占位 -->
+    <div class="flex items-center justify-center p-8 border border-dashed border-gray-200 rounded-lg bg-gray-50">
+      <div class="text-center">
+        <i class="fa-solid fa-truck text-gray-300 text-3xl mb-4"></i>
+        <p class="text-gray-500">支付完成后生成物流单号</p>
+        <p class="text-sm text-gray-400 mt-2">订单支付成功后，我们将尽快为您安排发货</p>
+      </div>
     </div>
-
-    <!-- 价格明细 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
-        <h2 class="text-xl font-bold mb-4">价格明细</h2>
-        <div class="space-y-3">
-            <div class="flex justify-between">
-                <span class="text-gray-500">商品总价</span>
-                <span>¥{{ order.total_amount }}</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-500">运费</span>
-                <span>¥{{ order.shipping_fee|floatformat:2 }}</span>
-            </div>
-            <div class="pt-3 border-t border-gray-100 flex justify-between font-bold text-lg">
-                <span>实付款</span>
-                <span class="text-primary">¥{{ order.total_amount|floatformat:2 }}</span>
-            </div>
-        </div>
+    {% elif order.status == 'paid' %}
+    <!-- 已付款状态下的物流信息占位 -->
+    <div class="flex items-center justify-center p-8 border border-dashed border-gray-200 rounded-lg bg-gray-50">
+      <div class="text-center">
+        <i class="fa-solid fa-box text-gray-300 text-3xl mb-4"></i>
+        <p class="text-gray-500">商家正在准备发货</p>
+        <p class="text-sm text-gray-400 mt-2">请耐心等待，我们将尽快为您安排发货</p>
+      </div>
     </div>
-
-    <!-- 订单操作记录 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
-        <h2 class="text-xl font-bold mb-4">订单操作记录</h2>
-        <div class="space-y-4">
-            <!-- 订单创建记录 -->
-            <div class="flex items-start">
-                <div
-                    class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
-                    <i class="fa-solid fa-check text-green-600 text-xs"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-center">
-                        <p class="font-medium text-gray-800">订单创建成功</p>
-                        <span class="text-sm text-gray-500">{{ order.created_at|date:'Y-m-d H:i:s' }}</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-1">您的订单已成功创建，等待支付</p>
-                </div>
-            </div>
-
-            <!-- 订单支付记录（如果已支付） -->
-            {% if order.paid_at %}
-            <div class="flex items-start">
-                <div
-                    class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
-                    <i class="fa-solid fa-check text-green-600 text-xs"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-center">
-                        <p class="font-medium text-gray-800">订单支付成功</p>
-                        <span class="text-sm text-gray-500">{{ order.paid_at|date:'Y-m-d H:i:s' }}</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-1">您已成功支付订单，我们将尽快为您安排发货</p>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- 订单发货记录（如果已发货） -->
-            {% if order.shipped_at %}
-            <div class="flex items-start">
-                <div
-                    class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
-                    <i class="fa-solid fa-check text-green-600 text-xs"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-center">
-                        <p class="font-medium text-gray-800">订单已发货</p>
-                        <span class="text-sm text-gray-500">{{ order.shipped_at|date:'Y-m-d H:i:s' }}</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-1">您的订单已发货，请注意查收</p>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- 订单完成记录（如果已完成） -->
-            {% if order.delivered_at %}
-            <div class="flex items-start">
-                <div
-                    class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
-                    <i class="fa-solid fa-check text-green-600 text-xs"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-center">
-                        <p class="font-medium text-gray-800">订单已完成</p>
-                        <span class="text-sm text-gray-500">{{ order.delivered_at|date:'Y-m-d H:i:s' }}</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-1">您的订单已完成，感谢您的购买</p>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- 订单取消记录（如果已取消） -->
-            {% if order.status == 'cancelled' %}
-            <div class="flex items-start">
-                <div
-                    class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
-                    <i class="fa-solid fa-times text-gray-600 text-xs"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-center">
-                        <p class="font-medium text-gray-800">订单已取消</p>
-                        <span class="text-sm text-gray-500">{{ order.updated_at|date:'Y-m-d H:i:s' }}</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-1">您的订单已取消</p>
-                </div>
-            </div>
-            {% endif %}
+    {% elif order.status == 'shipped' or order.status == 'delivered' %}
+    <!-- 已发货或已完成状态下的物流信息 -->
+    {% if order.logistics %}
+    <div class="flex items-start">
+      <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 flex-shrink-0">
+        <i class="fa-solid fa-truck text-primary"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
+          <h3 class="font-medium">{{ order.logistics.logistics_company|default:"未知物流公司" }}</h3>
+          <span class="text-gray-500 mt-1 md:mt-0">运单号：{{ order.logistics.logistics_no|default:"暂无" }}</span>
         </div>
-    </div>
-
-    <!-- 操作按钮 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 order-detail-card">
-        <div class="flex flex-wrap justify-center gap-4">
-            {% if order.status == 'pending' %}
-            <button id="payBtn" data-order-id="{{ order.id }}"
-                class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-credit-card mr-2"></i>立即支付
-            </button>
-            <button id="cancelBtn" data-order-id="{{ order.id }}"
-                class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-times mr-2"></i>取消订单
-            </button>
-            <button id="editAddressBtn" data-order-id="{{ order.id }}"
-                class="px-8 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-map-marker-alt mr-2"></i>修改地址
-            </button>
-            <button id="editItemsBtn" data-order-id="{{ order.id }}"
-                class="px-8 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-edit mr-2"></i>修改商品
-            </button>
-            {% elif order.status == 'shipped' %}
-            <button id="confirmReceiptBtn" data-order-id="{{ order.id }}"
-                class="px-8 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-check mr-2"></i>确认收货
-            </button>
-            <a href="{% url 'mall:logistics_track' order.order_number %}"
-                class="px-8 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-truck mr-2"></i>查看物流
-            </a>
-            {% elif order.status == 'delivered' %}
-            <a href="{% url 'mall:order_review' order.id %}"
-                class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-comment mr-2"></i>评价商品
-            </a>
-            {% endif %}
-            <button id="contactServiceBtn"
-                class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-headset mr-2"></i>联系客服
-            </button>
-            <button id="feedbackBtn"
-                class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-comment-dots mr-2"></i>问题反馈
-            </button>
-        </div>
+        <p class="text-gray-600 mb-4">{{ order.logistics.latest_status|default:"暂无物流更新" }}</p>
+        <a href="{% url 'mall:logistics_track' order.order_number %}"
+          class="text-primary hover:underline inline-flex items-center">
+          <span>查看物流轨迹</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+        </a>
+      </div>
     </div>
     {% else %}
-    <!-- 订单不存在 -->
-    <div class="bg-white rounded-xl shadow-sm p-16 text-center">
-        <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center rounded-full bg-gray-100">
-            <i class="fa-solid fa-exclamation-circle text-4xl text-gray-400"></i>
-        </div>
-        <h3 class="text-xl font-medium mb-4">订单不存在</h3>
-        <p class="text-gray-500 mb-6">您查询的订单不存在或已被删除</p>
-        <a href="{% url 'mall:order_list' %}"
-            class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors inline-flex items-center">
-            <i class="fa-solid fa-arrow-left mr-2"></i>返回订单列表
-        </a>
+    <p class="text-gray-500 flex items-center">
+      <i class="fa-solid fa-info-circle mr-2"></i>暂无物流信息
+    </p>
+    {% endif %}
+    {% elif order.status == 'cancelled' %}
+    <!-- 已取消状态下的物流信息占位 -->
+    <div class="flex items-center justify-center p-8 border border-dashed border-gray-200 rounded-lg bg-gray-50">
+      <div class="text-center">
+        <i class="fa-solid fa-times-circle text-gray-300 text-3xl mb-4"></i>
+        <p class="text-gray-500">订单已取消</p>
+        <p class="text-sm text-gray-400 mt-2">物流服务已停止</p>
+      </div>
     </div>
     {% endif %}
+  </div>
+
+  <!-- 订单详情 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
+    <h2 class="text-xl font-bold mb-4">订单详情</h2>
+    <div class="space-y-3">
+      <div class="flex justify-between">
+        <span class="text-gray-500">下单时间</span>
+        <span>{{ order.created_at|date:'Y-m-d H:i:s'|default:"未知" }}</span>
+      </div>
+      {% if order.paid_at %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">支付时间</span>
+        <span>{{ order.paid_at|date:'Y-m-d H:i:s' }}</span>
+      </div>
+      {% endif %}
+      {% if order.shipped_at %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">发货时间</span>
+        <span>{{ order.shipped_at|date:'Y-m-d H:i:s' }}</span>
+      </div>
+      {% endif %}
+      {% if order.delivered_at %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">收货时间</span>
+        <span>{{ order.delivered_at|date:'Y-m-d H:i:s' }}</span>
+      </div>
+      {% endif %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">支付方式</span>
+        <span>{{ order.get_payment_method_display|default:"未选择" }}</span>
+      </div>
+      {% if order.remark %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">用户备注</span>
+        <span class="text-gray-700">{{ order.remark }}</span>
+      </div>
+      {% else %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">用户备注</span>
+        <span class="text-gray-400">无备注</span>
+      </div>
+      {% endif %}
+
+      <!-- 发票信息 -->
+      <div class="flex justify-between">
+        <span class="text-gray-500">发票信息</span>
+        <div class="flex items-center">
+          {% if order.invoice_type %}
+          <span class="text-gray-700 mr-2">{{ order.get_invoice_type_display }}</span>
+          {% if order.invoice_status == 'issued' %}
+          <span class="text-green-500">已开具</span>
+          {% else %}
+          <span class="text-yellow-500">待开具</span>
+          {% endif %}
+          {% else %}
+          <span class="text-gray-400 mr-2">未申请发票</span>
+          <a href="#" class="text-primary hover:underline text-sm">申请发票</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 价格明细 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
+    <h2 class="text-xl font-bold mb-4">价格明细</h2>
+    <div class="space-y-3">
+      <div class="flex justify-between">
+        <span class="text-gray-500">商品总价</span>
+        <span>¥{{ order.total_amount }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">运费</span>
+        <span>¥{{ order.shipping_fee|floatformat:2 }}</span>
+      </div>
+      <div class="pt-3 border-t border-gray-100 flex justify-between font-bold text-lg">
+        <span>实付款</span>
+        <span class="text-primary">¥{{ order.total_amount|floatformat:2 }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 订单操作记录 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-8 order-detail-card">
+    <h2 class="text-xl font-bold mb-4">订单操作记录</h2>
+    <div class="space-y-4">
+      <!-- 订单创建记录 -->
+      <div class="flex items-start">
+        <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-check text-green-600 text-xs"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-center">
+            <p class="font-medium text-gray-800">订单创建成功</p>
+            <span class="text-sm text-gray-500">{{ order.created_at|date:'Y-m-d H:i:s' }}</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">您的订单已成功创建，等待支付</p>
+        </div>
+      </div>
+
+      <!-- 订单支付记录（如果已支付） -->
+      {% if order.paid_at %}
+      <div class="flex items-start">
+        <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-check text-green-600 text-xs"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-center">
+            <p class="font-medium text-gray-800">订单支付成功</p>
+            <span class="text-sm text-gray-500">{{ order.paid_at|date:'Y-m-d H:i:s' }}</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">您已成功支付订单，我们将尽快为您安排发货</p>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- 订单发货记录（如果已发货） -->
+      {% if order.shipped_at %}
+      <div class="flex items-start">
+        <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-check text-green-600 text-xs"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-center">
+            <p class="font-medium text-gray-800">订单已发货</p>
+            <span class="text-sm text-gray-500">{{ order.shipped_at|date:'Y-m-d H:i:s' }}</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">您的订单已发货，请注意查收</p>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- 订单完成记录（如果已完成） -->
+      {% if order.delivered_at %}
+      <div class="flex items-start">
+        <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-check text-green-600 text-xs"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-center">
+            <p class="font-medium text-gray-800">订单已完成</p>
+            <span class="text-sm text-gray-500">{{ order.delivered_at|date:'Y-m-d H:i:s' }}</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">您的订单已完成，感谢您的购买</p>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- 订单取消记录（如果已取消） -->
+      {% if order.status == 'cancelled' %}
+      <div class="flex items-start">
+        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-times text-gray-600 text-xs"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-center">
+            <p class="font-medium text-gray-800">订单已取消</p>
+            <span class="text-sm text-gray-500">{{ order.updated_at|date:'Y-m-d H:i:s' }}</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">您的订单已取消</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 操作按钮 -->
+  <div class="bg-white rounded-xl shadow-sm p-6 order-detail-card">
+    <div class="flex flex-wrap justify-center gap-4">
+      {% if order.status == 'pending' %}
+      <button id="payBtn" data-order-id="{{ order.id }}"
+        class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-credit-card mr-2"></i>立即支付
+      </button>
+      <button id="cancelBtn" data-order-id="{{ order.id }}"
+        class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-times mr-2"></i>取消订单
+      </button>
+      <button id="editAddressBtn" data-order-id="{{ order.id }}"
+        class="px-8 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-map-marker-alt mr-2"></i>修改地址
+      </button>
+      <button id="editItemsBtn" data-order-id="{{ order.id }}"
+        class="px-8 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-edit mr-2"></i>修改商品
+      </button>
+      {% elif order.status == 'shipped' %}
+      <button id="confirmReceiptBtn" data-order-id="{{ order.id }}"
+        class="px-8 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-check mr-2"></i>确认收货
+      </button>
+      <a href="{% url 'mall:logistics_track' order.order_number %}"
+        class="px-8 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-truck mr-2"></i>查看物流
+      </a>
+      {% elif order.status == 'delivered' %}
+      <a href="{% url 'mall:order_review' order.id %}"
+        class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-comment mr-2"></i>评价商品
+      </a>
+      {% endif %}
+      <button id="contactServiceBtn"
+        class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-headset mr-2"></i>联系客服
+      </button>
+      <button id="feedbackBtn"
+        class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
+        <i class="fa-solid fa-comment-dots mr-2"></i>问题反馈
+      </button>
+    </div>
+  </div>
+  {% else %}
+  <!-- 订单不存在 -->
+  <div class="bg-white rounded-xl shadow-sm p-16 text-center">
+    <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center rounded-full bg-gray-100">
+      <i class="fa-solid fa-exclamation-circle text-4xl text-gray-400"></i>
+    </div>
+    <h3 class="text-xl font-medium mb-4">订单不存在</h3>
+    <p class="text-gray-500 mb-6">您查询的订单不存在或已被删除</p>
+    <a href="{% url 'mall:order_list' %}"
+      class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors inline-flex items-center">
+      <i class="fa-solid fa-arrow-left mr-2"></i>返回订单列表
+    </a>
+  </div>
+  {% endif %}
 </div>
 
 {% endblock content_body %}
 
 {% block extra_js %}
 <script>
-    // 获取CSRF Token
-    function getCsrfToken() {
-        let token = '';
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [name, value] = cookie.trim().split('=');
-            if (name === 'csrftoken') {
-                token = value;
-                break;
-            }
-        }
-        return token;
+  // 获取CSRF Token
+  function getCsrfToken() {
+    let token = '';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'csrftoken') {
+        token = value;
+        break;
+      }
     }
+    return token;
+  }
 
-    // 页面加载完成后执行
-    document.addEventListener('DOMContentLoaded', function () {
-        // 确认收货功能
-        const confirmReceiptBtn = document.getElementById('confirmReceiptBtn');
-        if (confirmReceiptBtn) {
-            confirmReceiptBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const orderId = this.getAttribute('data-order-id');
+  // 页面加载完成后执行
+  document.addEventListener('DOMContentLoaded', function () {
+    // 确认收货功能
+    const confirmReceiptBtn = document.getElementById('confirmReceiptBtn');
+    if (confirmReceiptBtn) {
+      confirmReceiptBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const orderId = this.getAttribute('data-order-id');
 
-                if (confirm('确认已收到商品吗？确认后订单状态将变为已完成，无法修改！')) {
-                    // 调用确认收货API
-                    fetch(`/mall/order/${orderId}/confirm_receipt/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCsrfToken()
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                showToast('操作成功', '已确认收货', true);
-                                // 1.5秒后刷新页面
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            } else {
-                                showToast('操作失败', data.message || '确认收货失败，请稍后重试', false);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('确认收货失败:', error);
-                            showToast('操作失败', '网络异常，请稍后重试', false);
-                        });
-                }
-            });
-        }
-
-        // 立即支付功能
-        const payBtn = document.getElementById('payBtn');
-        if (payBtn) {
-            payBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const orderId = this.getAttribute('data-order-id');
-
-                // 跳转到支付页面
-                window.location.href = `/mall/order/${orderId}/payment/`;
-                // 如果支付功能还没开发，可临时提示
-                // showToast('提示', '支付功能正在开发中，敬请期待', true);
-            });
-        }
-
-        // 取消订单功能
-        const cancelBtn = document.getElementById('cancelBtn');
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const orderId = this.getAttribute('data-order-id');
-
-                if (confirm('确定要取消订单吗？取消后将无法恢复！')) {
-                    // 调用取消订单API
-                    fetch(`/mall/order/${orderId}/cancel/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCsrfToken()
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                showToast('操作成功', '订单已取消', true);
-                                // 1.5秒后跳转到订单列表
-                                setTimeout(() => {
-                                    window.location.href = "{% url 'mall:order_list' %}";
-                                }, 1500);
-                            } else {
-                                showToast('操作失败', data.message || '取消订单失败，请稍后重试', false);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('取消订单失败:', error);
-                            showToast('操作失败', '网络异常，请稍后重试', false);
-                        });
-                }
-            });
-        }
-
-        // 修改地址功能
-        const editAddressBtn = document.getElementById('editAddressBtn');
-        if (editAddressBtn) {
-            editAddressBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const orderId = this.getAttribute('data-order-id');
-                // 这里可以添加修改地址的逻辑，比如打开地址选择弹窗
-                showToast('提示', '修改地址功能正在开发中', true);
-            });
-        }
-
-        // 修改商品功能
-        const editItemsBtn = document.getElementById('editItemsBtn');
-        if (editItemsBtn) {
-            editItemsBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const orderId = this.getAttribute('data-order-id');
-                // 这里可以添加修改商品的逻辑，比如打开商品修改弹窗
-                showToast('提示', '修改商品功能正在开发中', true);
-            });
-        }
-
-        // 联系客服功能
-        const contactServiceBtn = document.getElementById('contactServiceBtn');
-        if (contactServiceBtn) {
-            contactServiceBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                // 这里可以添加联系客服的逻辑，比如打开客服聊天窗口
-                showToast('提示', '客服功能正在开发中，您可以通过电话 400-123-4567 联系我们', true);
-            });
-        }
-
-        // 问题反馈功能
-        const feedbackBtn = document.getElementById('feedbackBtn');
-        if (feedbackBtn) {
-            feedbackBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                // 这里可以添加问题反馈的逻辑，比如打开反馈表单
-                showToast('提示', '问题反馈功能正在开发中', true);
-            });
-        }
-    });
-
-    // 支付倒计时功能
-    function startPaymentCountdown() {
-        const countdownElement = document.getElementById('paymentCountdown');
-        if (!countdownElement) return;
-
-        // 计算支付截止时间（订单创建时间 + 30分钟）
-        const orderCreatedAt = new Date('{{ order.created_at.isoformat }}');
-        const paymentDeadline = new Date(orderCreatedAt.getTime() + 30 * 60 * 1000);
-
-        let interval;
-
-        function updateCountdown() {
-            const now = new Date();
-            const timeLeft = paymentDeadline - now;
-
-            if (timeLeft <= 0) {
-                countdownElement.textContent = '00:00:00';
-                clearInterval(interval);
-                // 倒计时结束，触发取消订单
-                cancelOrderAfterTimeout();
-                return;
-            }
-
-            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-            countdownElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        // 立即更新一次
-        updateCountdown();
-
-        // 每秒更新一次
-        interval = setInterval(updateCountdown, 1000);
-    }
-
-    // 倒计时结束后取消订单
-    function cancelOrderAfterTimeout() {
-        const orderId = document.getElementById('cancelBtn')?.getAttribute('data-order-id');
-        if (!orderId) return;
-
-        // 调用取消订单API
-        fetch(`/mall/api/orders/${orderId}/cancel/`, {
-            method: 'PUT',
+        if (confirm('确认已收到商品吗？确认后订单状态将变为已完成，无法修改！')) {
+          // 调用确认收货API
+          fetch(`/mall/order/${orderId}/confirm_receipt/`, {
+            method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCsrfToken()
             }
-        })
+          })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'cancelled') {
-                    showToast('提示', '支付超时，订单已自动取消', true);
-                    // 1.5秒后跳转到订单列表
-                    setTimeout(() => {
-                        window.location.href = "{% url 'mall:order_list' %}";
-                    }, 1500);
-                }
+              if (data.success) {
+                showToast('操作成功', '已确认收货', true);
+                // 1.5秒后刷新页面
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+              } else {
+                showToast('操作失败', data.message || '确认收货失败，请稍后重试', false);
+              }
             })
             .catch(error => {
-                console.error('自动取消订单失败:', error);
+              console.error('确认收货失败:', error);
+              showToast('操作失败', '网络异常，请稍后重试', false);
             });
-    }
-
-    // 获取CSRF Token
-    function getCsrfToken() {
-        let token = '';
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [name, value] = cookie.trim().split('=');
-            if (name === 'csrftoken') {
-                token = value;
-                break;
-            }
         }
-        return token;
+      });
     }
 
-    // 页面加载完成后启动倒计时
-    window.addEventListener('load', startPaymentCountdown);
+    // 立即支付功能
+    const payBtn = document.getElementById('payBtn');
+    if (payBtn) {
+      payBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const orderId = this.getAttribute('data-order-id');
+
+        // 跳转到支付页面
+        window.location.href = `/mall/order/${orderId}/payment/`;
+        // 如果支付功能还没开发，可临时提示
+        // showToast('提示', '支付功能正在开发中，敬请期待', true);
+      });
+    }
+
+    // 取消订单功能
+    const cancelBtn = document.getElementById('cancelBtn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const orderId = this.getAttribute('data-order-id');
+
+        if (confirm('确定要取消订单吗？取消后将无法恢复！')) {
+          // 调用取消订单API
+          fetch(`/mall/order/${orderId}/cancel/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCsrfToken()
+            }
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                showToast('操作成功', '订单已取消', true);
+                // 1.5秒后跳转到订单列表
+                setTimeout(() => {
+                  window.location.href = "{% url 'mall:order_list' %}";
+                }, 1500);
+              } else {
+                showToast('操作失败', data.message || '取消订单失败，请稍后重试', false);
+              }
+            })
+            .catch(error => {
+              console.error('取消订单失败:', error);
+              showToast('操作失败', '网络异常，请稍后重试', false);
+            });
+        }
+      });
+    }
+
+    // 修改地址功能
+    const editAddressBtn = document.getElementById('editAddressBtn');
+    if (editAddressBtn) {
+      editAddressBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const orderId = this.getAttribute('data-order-id');
+        // 这里可以添加修改地址的逻辑，比如打开地址选择弹窗
+        showToast('提示', '修改地址功能正在开发中', true);
+      });
+    }
+
+    // 修改商品功能
+    const editItemsBtn = document.getElementById('editItemsBtn');
+    if (editItemsBtn) {
+      editItemsBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const orderId = this.getAttribute('data-order-id');
+        // 这里可以添加修改商品的逻辑，比如打开商品修改弹窗
+        showToast('提示', '修改商品功能正在开发中', true);
+      });
+    }
+
+    // 联系客服功能
+    const contactServiceBtn = document.getElementById('contactServiceBtn');
+    if (contactServiceBtn) {
+      contactServiceBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        // 这里可以添加联系客服的逻辑，比如打开客服聊天窗口
+        showToast('提示', '客服功能正在开发中，您可以通过电话 400-123-4567 联系我们', true);
+      });
+    }
+
+    // 问题反馈功能
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    if (feedbackBtn) {
+      feedbackBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        // 这里可以添加问题反馈的逻辑，比如打开反馈表单
+        showToast('提示', '问题反馈功能正在开发中', true);
+      });
+    }
+  });
+
+  // 支付倒计时功能
+  function startPaymentCountdown() {
+    const countdownElement = document.getElementById('paymentCountdown');
+    if (!countdownElement) return;
+
+    // 计算支付截止时间（订单创建时间 + 30分钟）
+    const orderCreatedAt = new Date('{{ order.created_at.isoformat }}');
+    const paymentDeadline = new Date(orderCreatedAt.getTime() + 30 * 60 * 1000);
+
+    let interval;
+
+    function updateCountdown() {
+      const now = new Date();
+      const timeLeft = paymentDeadline - now;
+
+      if (timeLeft <= 0) {
+        countdownElement.textContent = '00:00:00';
+        clearInterval(interval);
+        // 倒计时结束，触发取消订单
+        cancelOrderAfterTimeout();
+        return;
+      }
+
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      countdownElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // 立即更新一次
+    updateCountdown();
+
+    // 每秒更新一次
+    interval = setInterval(updateCountdown, 1000);
+  }
+
+  // 倒计时结束后取消订单
+  function cancelOrderAfterTimeout() {
+    const orderId = document.getElementById('cancelBtn')?.getAttribute('data-order-id');
+    if (!orderId) return;
+
+    // 调用取消订单API
+    fetch(`/mall/api/orders/${orderId}/cancel/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'cancelled') {
+          showToast('提示', '支付超时，订单已自动取消', true);
+          // 1.5秒后跳转到订单列表
+          setTimeout(() => {
+            window.location.href = "{% url 'mall:order_list' %}";
+          }, 1500);
+        }
+      })
+      .catch(error => {
+        console.error('自动取消订单失败:', error);
+      });
+  }
+
+  // 获取CSRF Token
+  function getCsrfToken() {
+    let token = '';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'csrftoken') {
+        token = value;
+        break;
+      }
+    }
+    return token;
+  }
+
+  // 页面加载完成后启动倒计时
+  window.addEventListener('load', startPaymentCountdown);
 </script>
 {% endblock %}
