@@ -1178,6 +1178,12 @@ def checkout(request):
         coupon__end_time__gte=now
     )
 
+    # 计算真正可用的优惠券数量（满足最低消费条件）
+    truly_available_count = 0
+    for user_coupon in available_coupons:
+        if user_coupon.coupon.min_spend <= order_total:
+            truly_available_count += 1
+
     return render(request, 'mall/checkout.html', {
         'selected_items': selected_items,
         'goods_total': goods_total,
@@ -1186,6 +1192,7 @@ def checkout(request):
         'addresses': addresses,
         'default_address': default_address,
         'available_coupons': available_coupons,
+        'truly_available_count': truly_available_count,
         'direct_purchase': direct_purchase,
         'product_id': product_id,
         'quantity': quantity
@@ -1232,17 +1239,49 @@ def submit_order(request):
         order_total = goods_total + shipping_fee
 
         # 应用优惠券
+        discount_amount = 0
+        used_coupon = None
+        
         if coupon_id:
-            user_coupon = get_object_or_404(UserCoupon, id=coupon_id, user=request.user, is_used=False)
-            coupon = user_coupon.coupon
-            
-            # 计算优惠金额
-            if coupon.type == '满减券' and order_total >= coupon.min_spend:
-                order_total -= coupon.value
-            elif coupon.type == '折扣券' and order_total >= coupon.min_spend:
-                order_total *= (coupon.value / 10)
-            elif coupon.type == '现金券':
-                order_total -= coupon.value
+            try:
+                user_coupon = UserCoupon.objects.select_related('coupon').get(
+                    id=coupon_id, 
+                    user=request.user, 
+                    is_used=False
+                )
+                coupon = user_coupon.coupon
+                
+                # 验证优惠券有效期
+                if timezone.now() > coupon.end_time:
+                    return JsonResponse({'status': 'error', 'message': '优惠券已过期'})
+                
+                # 验证使用条件
+                if coupon.min_spend > 0 and order_total < coupon.min_spend:
+                    return JsonResponse({'status': 'error', 'message': f'订单金额未达到优惠券使用条件（满{coupon.min_spend}元）'})
+                
+                # 计算优惠金额
+                if coupon.type == '满减券':
+                    discount_amount = coupon.value
+                    order_total -= discount_amount
+                elif coupon.type == '折扣券':
+                    discount_amount = order_total * (1 - coupon.value / 10)
+                    order_total *= (coupon.value / 10)
+                elif coupon.type == '现金券':
+                    discount_amount = coupon.value
+                    order_total -= discount_amount
+                else:
+                    return JsonResponse({'status': 'error', 'message': '优惠券类型错误'})
+                
+                # 确保订单金额不小于0
+                if order_total < 0:
+                    discount_amount += order_total
+                    order_total = 0
+                
+                used_coupon = user_coupon
+            except UserCoupon.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': '优惠券不存在或已使用'})
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': f'优惠券使用失败: {str(e)}'})
 
         with transaction.atomic():
             # 创建订单
@@ -1252,6 +1291,14 @@ def submit_order(request):
                 payment_method=payment_method,
                 total_amount=max(0, order_total),
                 shipping_fee=shipping_fee
+            )
+
+            # 创建支付记录
+            payment = Payment.objects.create(
+                order=order,
+                amount=max(0, order_total),
+                method=payment_method,
+                status='pending'
             )
 
             # 处理订单商品
@@ -1286,11 +1333,24 @@ def submit_order(request):
                 )
 
             # 更新优惠券状态
-            if coupon_id:
-                user_coupon.is_used = True
-                user_coupon.used_at = timezone.now()
-                user_coupon.used_order = order
-                user_coupon.save()
+            if used_coupon:
+                used_coupon.is_used = True
+                used_coupon.used_at = timezone.now()
+                used_coupon.used_order = order
+                used_coupon.save()
+                
+                # 记录优惠券使用日志
+                try:
+                    from django.db import connection
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "INSERT INTO coupon_usage_log (user_id, coupon_id, order_id, discount_amount, created_at) "
+                            "VALUES (%s, %s, %s, %s, %s)",
+                            [request.user.id, used_coupon.coupon.id, order.id, discount_amount, timezone.now()]
+                        )
+                except Exception:
+                    # 日志记录失败不影响订单提交
+                    pass
 
             # 清空购物车中已下单的商品
             selected_items.delete()
@@ -1336,11 +1396,19 @@ def order_detail(request, order_number):
 
     # 获取物流信息
     logistics = None
-    if order.logistics_no:
-        try:
-            logistics = Logistics.objects.get(order=order)
-        except Logistics.DoesNotExist:
-            pass
+    try:
+        logistics = Logistics.objects.get(order=order)
+    except Logistics.DoesNotExist:
+        pass
+    
+    # 根据物流状态更新订单状态
+    if logistics:
+        if logistics.status == 'shipped' and order.status == 'paid':
+            order.status = 'shipped'
+            order.save()
+        elif logistics.status == 'delivered' and order.status == 'shipped':
+            order.status = 'delivered'
+            order.save()
 
     return render(request, 'mall/order_detail.html', {
         'order': order,
@@ -1440,6 +1508,74 @@ def mark_count(request):
         return JsonResponse({'status': 'success', 'count': count})
     except Exception as e:
         return JsonResponse({'status': 'error', 'count': 0, 'message': str(e)})
+
+
+# 订单评价页面
+@login_required
+def order_review(request, order_id):
+    """订单评价页面"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # 检查订单状态是否允许评价
+    if order.status != 'delivered':
+        return redirect('mall:order_detail', order_number=order.order_number)
+    
+    # 获取订单商品
+    order_items = order.items.all()
+    
+    if request.method == 'POST':
+        # 处理评价提交
+        for item in order_items:
+            rating = request.POST.get(f'rating_{item.id}')
+            comment = request.POST.get(f'comment_{item.id}')
+            
+            if rating and comment:
+                # 这里可以添加评价保存逻辑
+                # 例如创建ProductReview对象
+                pass
+        
+        # 显示成功提示并跳转
+        messages.success(request, '评价成功！')
+        return redirect('mall:order_detail', order_number=order.order_number)
+    
+    return render(request, 'mall/order_review.html', {
+        'order': order,
+        'order_items': order_items
+    })
+
+# 获取优惠券详情
+@login_required
+def get_coupon_detail(request, coupon_id):
+    """获取优惠券详情"""
+    try:
+        user_coupon = UserCoupon.objects.select_related('coupon').get(
+            id=coupon_id,
+            user=request.user,
+            is_used=False
+        )
+        coupon = user_coupon.coupon
+        
+        # 验证优惠券是否在有效期内
+        if timezone.now() > coupon.end_time:
+            return JsonResponse({'status': 'error', 'message': '优惠券已过期'})
+        
+        return JsonResponse({
+            'status': 'success',
+            'data': {
+                'id': user_coupon.id,
+                'coupon_id': coupon.id,
+                'name': coupon.name,
+                'type': coupon.type,
+                'value': float(coupon.value),
+                'min_spend': float(coupon.min_spend),
+                'end_time': coupon.end_time.strftime('%Y-%m-%d'),
+                'is_valid': timezone.now() <= coupon.end_time
+            }
+        })
+    except UserCoupon.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': '优惠券不存在或已使用'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
 
 # 添加收藏
 @login_required
@@ -1613,7 +1749,6 @@ def add_address(request):
         city = request.POST.get('city')
         district = request.POST.get('district')
         detail_address = request.POST.get('detail_address')
-        postal_code = request.POST.get('postal_code')
         is_default = request.POST.get('is_default') == 'true'
 
         # 创建地址
@@ -1625,7 +1760,6 @@ def add_address(request):
             city=city,
             district=district,
             detail_address=detail_address,
-            postal_code=postal_code,
             is_default=is_default
         )
 
@@ -1650,7 +1784,6 @@ def edit_address(request):
         address.city = request.POST.get('city', address.city)
         address.district = request.POST.get('district', address.district)
         address.detail_address = request.POST.get('detail_address', address.detail_address)
-        address.postal_code = request.POST.get('postal_code', address.postal_code)
         address.is_default = request.POST.get('is_default') == 'true'
         address.save()
 

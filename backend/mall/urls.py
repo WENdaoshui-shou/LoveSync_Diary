@@ -8,9 +8,9 @@ from .views import (
     UserBehaviorViewSet, RefundApplicationViewSet,
     # Web视图函数
     mall, product_detail, add_to_cart, cart_count, mark_count, mallcart, update_cart, mallmark, checkout,
-    delete_cart_item, submit_order, order_list, order_detail, add_mark, remove_mark,
+    delete_cart_item, submit_order, order_list, order_detail, add_mark, remove_mark, order_review,
     flash_sale, coupon_list, address_manage, add_address, edit_address, delete_address,
-    logistics_track, couple_zone, search_result
+    logistics_track, couple_zone, search_result,get_coupon_detail
 )
 
 app_name = 'mall'
@@ -55,6 +55,7 @@ web_urlpatterns = [
     path('submit-order/', submit_order, name='submit_order'),
     path('orders/', order_list, name='order_list'),
     path('order/<str:order_number>/', order_detail, name='order_detail'),
+    path('order/<int:order_id>/review/', order_review, name='order_review'),
     
     # 收藏
     path('mark/', mallmark, name='mallmark'),
@@ -72,6 +73,9 @@ web_urlpatterns = [
     path('add-address/', add_address, name='add_address'),
     path('edit-address/', edit_address, name='edit_address'),
     path('delete-address/', delete_address, name='delete_address'),
+    
+    # 优惠券
+    path('coupon-detail/<int:coupon_id>/', get_coupon_detail, name='get_coupon_detail'),
     
     # 物流
     path('logistics/<str:order_number>/', logistics_track, name='logistics_track'),

@@ -183,7 +183,7 @@
                     {% for address in addresses %}
                     <div
                         class="border {% if address.is_default %}border-primary bg-primary/5{% else %}border-gray-200{% endif %} rounded-lg p-4 flex items-start card-hover">
-                        <input type="radio" id="address{{ address.id }}" name="address" class="mt-1" {% if address.is_default %}checked{% endif %}>
+                        <input type="radio" id="address{{ address.id }}" name="address" value="{{ address.id }}" class="mt-1" {% if address.is_default %}checked{% endif %}>
                         <label for="address{{ address.id }}" class="ml-3 flex-1">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="font-medium">{{ address.recipient }}</span>
@@ -191,14 +191,16 @@
                                 <span class="text-sm bg-primary/10 text-primary px-2 py-0.5 rounded">默认地址</span>
                                 {% endif %}
                             </div>
-                            <p class="text-sm text-gray-600">{{ address.province }}{{ address.city }}{{ address.district }}{{ address.detail_address }}</p>
                             <p class="text-sm text-gray-600 mt-1">{{ address.phone }}</p>
+                            <p class="text-sm text-gray-600">{{ address.province }}{{ address.city }}{{ address.district }}{{ address.detail_address }}</p>
                         </label>
                         <div class="flex space-x-2">
-                            <button class="text-gray-500 hover:text-primary transition-colors">
+                            <button class="text-gray-500 hover:text-primary transition-colors edit-address-btn"
+                                data-address-id="{{ address.id }}">
                                 <i class="fa-solid fa-pencil"></i>
                             </button>
-                            <button class="text-gray-500 hover:text-red-500 transition-colors">
+                            <button class="text-gray-500 hover:text-red-500 transition-colors delete-address-btn"
+                                data-address-id="{{ address.id }}">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -212,15 +214,17 @@
                         <i class="fa-solid fa-plus mr-2"></i> 添加新地址
                     </button>
 
-                    <!-- 下滑添加地址表单 -->
+                    <!-- 下滑添加/修改地址表单 -->
                     <div id="address-form-container" class="hidden mt-4 border border-gray-200 rounded-lg p-4 bg-white">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold">添加收货地址</h3>
+                            <h3 class="text-lg font-bold" id="address-form-title">添加收货地址</h3>
                             <button id="cancel-add-address" class="text-gray-500 hover:text-gray-700">
                                 <i class="fa-solid fa-times"></i>
                             </button>
                         </div>
                         <form id="address-form">
+                            <!-- 隐藏字段，用于存储地址ID（修改时使用） -->
+                            <input type="hidden" name="address_id" id="address_id">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">收货人</label>
@@ -260,12 +264,6 @@
                                 <input type="text" name="detail_address"
                                     class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                                     placeholder="请输入详细地址">
-                            </div>
-                            <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">邮政编码</label>
-                                <input type="text" name="postal_code"
-                                    class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                                    placeholder="请输入邮政编码">
                             </div>
                             <div class="mt-4">
                                 <label class="flex items-center">
@@ -320,7 +318,6 @@
             <!-- 优惠券 -->
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h2 class="text-xl font-bold mb-4">优惠券</h2>
-
                 <!-- 优惠券选择器 -->
                 <div id="coupon-selector" class="border border-gray-200 rounded-lg overflow-hidden">
                     <!-- 优惠券选择按钮 -->
@@ -330,7 +327,7 @@
                             <span id="selected-coupon-text">选择优惠券</span>
                         </div>
                         <div class="flex items-center text-gray-500">
-                            <span>{{ available_coupons.count }}张可用</span>
+                            <span>{{ truly_available_count }}张可用</span>
                             <i class="fa-solid fa-angle-down ml-2 transition-transform duration-300"
                                 id="coupon-icon"></i>
                         </div>
@@ -341,6 +338,36 @@
                         {% if available_coupons %}
                         {% for user_coupon in available_coupons %}
                         {% with coupon=user_coupon.coupon %}
+                        {% if coupon.min_spend > order_total %}
+                        <div class="p-4 border-b border-gray-100 bg-gray-50 opacity-70">
+                            <label class="flex items-center cursor-not-allowed">
+                                <input type="radio" name="coupon" value="{{ user_coupon.id }}" class="mr-3" disabled>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="font-medium text-gray-500">{{ coupon.name }}</h3>
+                                        <span class="text-gray-400 font-bold">
+                                            {% if coupon.type == '折扣券' %}
+                                            {{ coupon.value }}折
+                                            {% else %}
+                                            ¥{{ coupon.value }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-400 mt-1">
+                                        {% if coupon.min_spend > 0 %}
+                                        满{{ coupon.min_spend }}元可用
+                                        {% else %}
+                                        无门槛
+                                        {% endif %}
+                                        · 有效期至 {{ coupon.end_time|date:'Y-m-d' }}
+                                    </p>
+                                    <p class="text-sm text-red-400 mt-1">
+                                        订单金额不足，无法使用
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                        {% else %}
                         <div class="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                             <label class="flex items-center cursor-pointer">
                                 <input type="radio" name="coupon" value="{{ user_coupon.id }}" class="mr-3">
@@ -366,6 +393,7 @@
                                 </div>
                             </label>
                         </div>
+                        {% endif %}
                         {% endwith %}
                         {% endfor %}
                         <!-- 不使用优惠券选项 -->
@@ -511,12 +539,17 @@
                     return;
                 }
 
+                // 确定是添加还是修改
+                const isEdit = !!addressData.address_id;
+
                 try {
                     // 获取CSRF令牌
                     const csrfToken = getCSRFToken();
 
+                    const url = isEdit ? '{% url "mall:edit_address" %}' : '{% url "mall:add_address" %}';
+
                     // 提交表单
-                    const response = await fetch('{% url "mall:add_address" %}', {
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
@@ -527,21 +560,25 @@
 
                     const result = await response.json();
                     if (result.status === 'success') {
-                        showToast('添加成功', '地址已成功添加', true);
+                        showToast(isEdit ? '修改成功' : '添加成功', isEdit ? '地址已成功修改' : '地址已成功添加', true);
                         // 隐藏表单
                         addressFormContainer.classList.add('hidden');
                         // 重置表单
                         addressForm.reset();
+                        // 清除地址ID
+                        addressIdInput.value = '';
+                        // 恢复表单标题
+                        addressFormTitle.textContent = '添加收货地址';
                         // 刷新页面或更新地址列表
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
                     } else {
-                        showToast('添加失败', result.message, false);
+                        showToast(isEdit ? '修改失败' : '添加失败', result.message, false);
                     }
                 } catch (error) {
-                    console.error('添加地址失败:', error);
-                    showToast('添加失败', '网络错误，请稍后重试', false);
+                    console.error(isEdit ? '修改地址失败:' : '添加地址失败:', error);
+                    showToast(isEdit ? '修改失败' : '添加失败', '网络错误，请稍后重试', false);
                 }
             });
         }
@@ -667,6 +704,75 @@
             });
         });
 
+        // 地址修改功能
+        const editAddressBtns = document.querySelectorAll('.edit-address-btn');
+        const addressFormTitle = document.getElementById('address-form-title');
+        const addressIdInput = document.getElementById('address_id');
+
+        editAddressBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const addressId = this.getAttribute('data-address-id');
+                const addressElement = this.closest('.border');
+
+                // 显示表单容器
+                addressFormContainer.classList.remove('hidden');
+                // 修改表单标题
+                addressFormTitle.textContent = '修改收货地址';
+                // 设置地址ID
+                addressIdInput.value = addressId;
+
+                // 提取原地址信息
+                const recipient = addressElement.querySelector('.font-medium').textContent;
+                const phone = addressElement.querySelector('.text-sm.text-gray-600').textContent;
+                const addressText = addressElement.querySelectorAll('.text-sm.text-gray-600')[1].textContent;
+
+                // 填充表单
+                addressForm.querySelector('input[name="recipient"]').value = recipient;
+                addressForm.querySelector('input[name="phone"]').value = phone;
+
+                // 这里简化处理，实际项目中可能需要更复杂的地址解析
+                // 暂时只填充详细地址
+                addressForm.querySelector('input[name="detail_address"]').value = addressText;
+            });
+        });
+
+        // 地址删除功能
+        const deleteAddressBtns = document.querySelectorAll('.delete-address-btn');
+        deleteAddressBtns.forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const addressId = this.getAttribute('data-address-id');
+
+                try {
+                    // 获取CSRF令牌
+                    const csrfToken = getCSRFToken();
+
+                    // 调用删除地址API
+                    const response = await fetch('{% url "mall:delete_address" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: new URLSearchParams({ address_id: addressId })
+                    });
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast('删除成功', '地址已成功删除', true);
+                        // 刷新页面
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showToast('删除失败', result.message, false);
+                    }
+                } catch (error) {
+                    console.error('删除地址失败:', error);
+                    showToast('删除失败', '网络错误，请稍后重试', false);
+                }
+            });
+        });
+
         // 优惠券选择功能
         const couponToggle = document.getElementById('coupon-toggle');
         const couponList = document.getElementById('coupon-list');
@@ -688,31 +794,56 @@
         // 选择优惠券
         const couponRadios = document.querySelectorAll('input[name="coupon"]');
         couponRadios.forEach(radio => {
-            radio.addEventListener('change', function () {
+            radio.addEventListener('change', async function () {
                 const couponId = this.value;
                 const goodsTotal = parseFloat(goodsTotalElement.textContent.replace('¥', ''));
                 const shippingFee = parseFloat(shippingFeeElement.textContent.replace('¥', ''));
                 let discount = 0;
+                let couponName = '';
 
                 if (couponId) {
-                    // 这里可以根据优惠券ID获取优惠券详情并计算折扣
-                    // 由于我们没有后端API来获取优惠券详情，这里使用模拟数据
-                    // 实际项目中应该通过API获取优惠券详情
-                    const couponLabel = this.closest('label');
-                    const couponName = couponLabel.querySelector('h3').textContent;
-                    const couponValueText = couponLabel.querySelector('.text-primary').textContent;
+                    try {
+                        // 通过API获取优惠券详情
+                        const response = await fetch(`/mall/coupon-detail/${couponId}/`);
+                        const result = await response.json();
 
-                    // 更新选中优惠券文本
-                    selectedCouponText.textContent = couponName;
+                        if (result.status === 'success') {
+                            const couponData = result.data;
+                            couponName = couponData.name;
 
-                    // 计算折扣金额
-                    if (couponValueText.includes('折')) {
-                        // 折扣券
-                        const discountRate = parseFloat(couponValueText) / 10;
-                        discount = goodsTotal * (1 - discountRate);
-                    } else {
-                        // 满减券或现金券
-                        discount = parseFloat(couponValueText.replace('¥', ''));
+                            // 验证使用条件
+                            const orderTotalBeforeDiscount = goodsTotal + shippingFee;
+                            if (couponData.min_spend > 0 && orderTotalBeforeDiscount < couponData.min_spend) {
+                                showToast('提示', `订单金额未达到优惠券使用条件（满${couponData.min_spend}元）`, false);
+                                // 重置为不使用优惠券
+                                document.querySelector('input[name="coupon"][value=""]').checked = true;
+                                selectedCouponText.textContent = '选择优惠券';
+                            } else {
+                                // 计算折扣金额
+                                if (couponData.type === '折扣券') {
+                                    // 折扣券
+                                    const discountRate = couponData.value / 10;
+                                    discount = goodsTotal * (1 - discountRate);
+                                } else if (couponData.type === '满减券' || couponData.type === '现金券') {
+                                    // 满减券或现金券
+                                    discount = couponData.value;
+                                }
+
+                                // 更新选中优惠券文本
+                                selectedCouponText.textContent = couponName;
+                            }
+                        } else {
+                            showToast('提示', result.message, false);
+                            // 重置为不使用优惠券
+                            document.querySelector('input[name="coupon"][value=""]').checked = true;
+                            selectedCouponText.textContent = '选择优惠券';
+                        }
+                    } catch (error) {
+                        console.error('获取优惠券详情失败:', error);
+                        showToast('提示', '获取优惠券详情失败，请稍后重试', false);
+                        // 重置为不使用优惠券
+                        document.querySelector('input[name="coupon"][value=""]').checked = true;
+                        selectedCouponText.textContent = '选择优惠券';
                     }
                 } else {
                     // 不使用优惠券

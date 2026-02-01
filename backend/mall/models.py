@@ -166,7 +166,6 @@ class Address(models.Model):
     city = models.CharField(max_length=50, verbose_name='城市')
     district = models.CharField(max_length=50, verbose_name='区县')
     detail_address = models.CharField(max_length=200, verbose_name='详细地址')
-    postal_code = models.CharField(max_length=20, blank=True, null=True, verbose_name='邮政编码')
     is_default = models.BooleanField(default=False, verbose_name='是否默认地址')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
