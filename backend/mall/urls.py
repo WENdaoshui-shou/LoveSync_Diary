@@ -10,7 +10,7 @@ from .views import (
     mall, product_detail, add_to_cart, cart_count, mark_count, mallcart, update_cart, mallmark, checkout,
     delete_cart_item, submit_order, order_list, order_detail, add_mark, remove_mark, order_review,
     flash_sale, coupon_list, address_manage, add_address, edit_address, delete_address,
-    logistics_track, couple_zone, search_result,get_coupon_detail
+    logistics_track, couple_zone, search_result,get_coupon_detail, refresh_recommended
 )
 
 app_name = 'mall'
@@ -79,6 +79,9 @@ web_urlpatterns = [
     
     # 物流
     path('logistics/<str:order_number>/', logistics_track, name='logistics_track'),
+    
+    # 推荐商品
+    path('api/recommended/refresh/', refresh_recommended, name='refresh_recommended'),
 ]
 
 urlpatterns = [

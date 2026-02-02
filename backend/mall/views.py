@@ -11,11 +11,12 @@ from django.core.cache import cache
 from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import F, Avg
+from django.db.models import F, Avg, Sum, Case, When, IntegerField, FloatField
 import json
 import hashlib
 import time
 import uuid
+import os
 
 from .models import (
     Category, Product, ProductSKU, CartItem, Address, Order, OrderItem,
@@ -852,8 +853,158 @@ def mall(request):
     if not recommended_products:
         recommended_products = Product.objects.order_by('?')[:5]
 
-    # 获取热门商品
-    hot_products = Product.objects.order_by('-monthly_sales')[:6]
+    # 获取热卖商品类型参数
+    hot_type = request.GET.get('hot_type', '30d')
+    valid_hot_types = ['7d', '30d', 'new']
+    if hot_type not in valid_hot_types:
+        hot_type = '30d'
+
+    # 定义热卖商品描述
+    hot_desc_map = {
+        '7d': '近7天热卖',
+        '30d': '近30天热卖',
+        'new': '新品热卖'
+    }
+    hot_desc = hot_desc_map.get(hot_type, '近30天热卖')
+
+    # 获取缓存过期时间
+    HOT_PRODUCTS_CACHE_TTL = int(os.getenv('HOT_PRODUCTS_CACHE_TTL', 3600))
+    HOT_PRODUCTS_EMPTY_TTL = int(os.getenv('HOT_PRODUCTS_EMPTY_TTL', 600))
+
+    # 尝试从热卖商品缓存获取数据
+    cache_key = f'hot_products:{hot_type}'
+    hot_products_data = None
+
+    try:
+        from django.core.cache import caches
+        hot_products_cache = caches['hot_products']
+        hot_products_data = hot_products_cache.get(cache_key)
+    except Exception as e:
+        print(f"Redis缓存读取失败: {e}")
+        # Redis连接失败，降级为数据库查询
+        hot_products_data = None
+
+    if hot_products_data:
+        # 缓存命中
+        hot_products = hot_products_data
+    else:
+        # 缓存未命中，从数据库查询
+        # 计算时间范围
+        now = timezone.now()
+        if hot_type == '7d':
+            start_date = now - timezone.timedelta(days=7)
+        elif hot_type == '30d' or hot_type == 'new':
+            start_date = now - timezone.timedelta(days=30)
+        else:
+            start_date = now - timezone.timedelta(days=30)
+
+        # 定义有效订单状态
+        valid_order_statuses = ['paid', 'shipped', 'delivered', 'completed']
+
+        # 基础查询集：过滤上架且有库存的商品
+        base_products = Product.objects.filter(
+            is_active=True,
+            product_stock__gt=0
+        )
+
+        # 根据hot_type获取商品
+        if hot_type == 'new':
+            # 新品热卖：近30天上架的商品
+            new_products = base_products.filter(
+                created_at__gte=start_date
+            )
+            # 统计销量
+            hot_products_queryset = new_products.annotate(
+                real_sales=Sum(
+                    Case(
+                        When(
+                            orderitem__order__status__in=valid_order_statuses,
+                            then=F('orderitem__quantity')
+                        ),
+                        default=0,
+                        output_field=IntegerField()
+                    )
+                )
+            ).annotate(
+                composite_score=Case(
+                    When(
+                        real_sales__gt=0,
+                        then=F('real_sales') * 0.7 + F('rating') * 0.3
+                    ),
+                    default=0,
+                    output_field=FloatField()
+                )
+            ).order_by('-composite_score')[:6]
+        else:
+            # 近7天或30天热卖
+            hot_products_queryset = base_products.annotate(
+                real_sales=Sum(
+                    Case(
+                        When(
+                            orderitem__order__status__in=valid_order_statuses,
+                            orderitem__order__created_at__gte=start_date,
+                            then=F('orderitem__quantity')
+                        ),
+                        default=0,
+                        output_field=IntegerField()
+                    )
+                )
+            ).annotate(
+                composite_score=Case(
+                    When(
+                        real_sales__gt=0,
+                        then=F('real_sales') * 0.7 + F('rating') * 0.3
+                    ),
+                    default=0,
+                    output_field=FloatField()
+                )
+            ).order_by('-composite_score')[:6]
+
+        # 将查询集转换为字典列表
+        hot_products = []
+        for i, product in enumerate(hot_products_queryset):
+            # 为商品添加rank_tag属性
+            if i == 0:
+                rank_tag = 'first'
+            elif i == 1:
+                rank_tag = 'second'
+            elif i == 2:
+                rank_tag = 'third'
+            else:
+                rank_tag = 'normal'
+
+            # 构建商品字典
+            product_dict = {
+                'id': str(product.id),
+                'name': product.name,
+                'price': float(product.price),
+                'rating': product.rating,
+                'stock': product.product_stock,
+                'is_on_sale': product.is_active,
+                'real_sales': product.real_sales if hasattr(product, 'real_sales') else 0,
+                'composite_score': product.composite_score if hasattr(product, 'composite_score') else 0,
+                'rank_tag': rank_tag,
+                'main_image': product.main_image.url if product.main_image else '',
+                'created_at': product.created_at.isoformat() if product.created_at else None,
+                'is_new': product.is_new,
+                'old_price': float(product.old_price)
+            }
+            hot_products.append(product_dict)
+
+        # 缓存数据到热卖商品缓存
+        try:
+            from django.core.cache import caches
+            hot_products_cache = caches['hot_products']
+            if hot_products:
+                # 正常数据缓存
+                hot_products_cache.set(cache_key, hot_products, HOT_PRODUCTS_CACHE_TTL)
+            else:
+                # 空数据缓存
+                hot_products_cache.set(cache_key, hot_products, HOT_PRODUCTS_EMPTY_TTL)
+        except Exception as e:
+            print(f"Redis缓存写入失败: {e}")
+            # Redis连接失败，忽略缓存写入错误
+            pass
 
     # 获取情侣款商品
     couple_products = Product.objects.filter(is_couple_product=True).order_by('-created_at')[:6]
@@ -878,6 +1029,8 @@ def mall(request):
     return render(request, 'mall/mall.html', {
         'recommended_products': recommended_products,
         'hot_products': hot_products,
+        'hot_type': hot_type,
+        'hot_desc': hot_desc,
         'couple_products': couple_products,
         'current_flash_sales': current_flash_sales,
         'banners': banners,
@@ -988,7 +1141,13 @@ def add_to_cart(request):
         # 更新缓存
         user_id = request.user.id
         cart_key = f'user_cart:{user_id}'
-        cache.delete(cart_key)
+        try:
+            from django.core.cache import caches
+            mall_cache = caches['mall_cache']
+            mall_cache.delete(cart_key)
+        except Exception as e:
+            print(f"Redis缓存操作失败: {e}")
+            cache.delete(cart_key)
 
         return JsonResponse({'status': 'success', 'message': '已添加到购物车'})
     except Exception as e:
@@ -1090,7 +1249,13 @@ def update_cart(request):
 
         # 清除缓存
         cart_key = f'user_cart:{user.id}'
-        cache.delete(cart_key)
+        try:
+            from django.core.cache import caches
+            mall_cache = caches['mall_cache']
+            mall_cache.delete(cart_key)
+        except Exception as e:
+            print(f"Redis缓存操作失败: {e}")
+            cache.delete(cart_key)
 
         return JsonResponse({'status': 'success', 'message': '购物车已更新'})
     except Exception as e:
@@ -1109,11 +1274,54 @@ def delete_cart_item(request):
 
         # 清除缓存
         cart_key = f'user_cart:{request.user.id}'
-        cache.delete(cart_key)
+        try:
+            from django.core.cache import caches
+            mall_cache = caches['mall_cache']
+            mall_cache.delete(cart_key)
+        except Exception as e:
+            print(f"Redis缓存操作失败: {e}")
+            cache.delete(cart_key)
 
         return JsonResponse({'status': 'success', 'message': '已删除'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 刷新推荐商品
+@login_required
+def refresh_recommended(request):
+    """刷新推荐商品"""
+    try:
+        # 随机获取5个商品作为新的推荐
+        recommended_products = Product.objects.filter(is_active=True).order_by('?')[:5]
+
+        # 获取用户收藏的商品
+        user_marks = ProductMark.objects.filter(user=request.user).values_list('product_id', flat=True)
+
+        # 构建商品数据
+        products_data = []
+        for product in recommended_products:
+            products_data.append({
+                'id': product.id,
+                'name': product.name,
+                'price': product.price,
+                'rating': product.rating,
+                'main_image': product.main_image.url if product.main_image else None,
+                'is_marked': product.id in user_marks,
+                'is_new': product.is_new
+            })
+
+        return JsonResponse({
+            'success': True,
+            'products': products_data
+        })
+    except Exception as e:
+        print(f"刷新推荐商品失败: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })
+
 
 
 
@@ -1366,7 +1574,13 @@ def submit_order(request):
 
             # 清除缓存
             cart_key = f'user_cart:{request.user.id}'
-            cache.delete(cart_key)
+            try:
+                from django.core.cache import caches
+                mall_cache = caches['mall_cache']
+                mall_cache.delete(cart_key)
+            except Exception as e:
+                print(f"Redis缓存操作失败: {e}")
+                cache.delete(cart_key)
 
             # 跳转到支付页面
             return JsonResponse({'status': 'success', 'order_id': order.id, 'order_number': order.order_number})
@@ -1486,13 +1700,28 @@ def cart_count(request):
         # 从缓存获取
         user_id = request.user.id
         cart_key = f'user_cart:{user_id}'
-        count = cache.get(cart_key)
+        count = None
+        
+        # 尝试使用商城缓存
+        try:
+            from django.core.cache import caches
+            mall_cache = caches['mall_cache']
+            count = mall_cache.get(cart_key)
+        except Exception as e:
+            print(f"Redis缓存读取失败: {e}")
+            count = cache.get(cart_key)
         
         if count is None:
             # 从数据库获取
             count = CartItem.objects.filter(user=request.user).count()
             # 缓存结果，有效期5分钟
-            cache.set(cart_key, count, 300)
+            try:
+                from django.core.cache import caches
+                mall_cache = caches['mall_cache']
+                mall_cache.set(cart_key, count, 300)
+            except Exception as e:
+                print(f"Redis缓存写入失败: {e}")
+                cache.set(cart_key, count, 300)
         
         return JsonResponse({'status': 'success', 'count': count})
     except Exception as e:
@@ -1506,13 +1735,28 @@ def mark_count(request):
         # 从缓存获取
         user_id = request.user.id
         mark_key = f'user_mark:{user_id}'
-        count = cache.get(mark_key)
+        count = None
+        
+        # 尝试使用商城缓存
+        try:
+            from django.core.cache import caches
+            mall_cache = caches['mall_cache']
+            count = mall_cache.get(mark_key)
+        except Exception as e:
+            print(f"Redis缓存读取失败: {e}")
+            count = cache.get(mark_key)
         
         if count is None:
             # 从数据库获取
             count = ProductMark.objects.filter(user=request.user).count()
             # 缓存结果，有效期5分钟
-            cache.set(mark_key, count, 300)
+            try:
+                from django.core.cache import caches
+                mall_cache = caches['mall_cache']
+                mall_cache.set(mark_key, count, 300)
+            except Exception as e:
+                print(f"Redis缓存写入失败: {e}")
+                cache.set(mark_key, count, 300)
         
         return JsonResponse({'status': 'success', 'count': count})
     except Exception as e:
@@ -1628,7 +1872,13 @@ def add_mark(request):
             # 清除缓存
             user_id = request.user.id
             mark_key = f'user_mark:{user_id}'
-            cache.delete(mark_key)
+            try:
+                from django.core.cache import caches
+                mall_cache = caches['mall_cache']
+                mall_cache.delete(mark_key)
+            except Exception as e:
+                print(f"Redis缓存操作失败: {e}")
+                cache.delete(mark_key)
             return JsonResponse({'status': 'success', 'message': '收藏成功'})
         else:
             return JsonResponse({'status': 'info', 'message': '已收藏'})
@@ -1663,7 +1913,13 @@ def remove_mark(request):
         # 清除缓存
         user_id = request.user.id
         mark_key = f'user_mark:{user_id}'
-        cache.delete(mark_key)
+        try:
+            from django.core.cache import caches
+            mall_cache = caches['mall_cache']
+            mall_cache.delete(mark_key)
+        except Exception as e:
+            print(f"Redis缓存操作失败: {e}")
+            cache.delete(mark_key)
 
         return JsonResponse({'status': 'success', 'message': '已取消收藏'})
     except json.JSONDecodeError:

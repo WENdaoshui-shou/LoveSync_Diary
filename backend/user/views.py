@@ -264,6 +264,17 @@ def add_collection(request):
             )
             
             if created:
+                # 清除缓存
+                try:
+                    from django.core.cache import caches
+                    master_cache = caches['master_cache']  # 使用社区缓存数据库 1
+                    user_id = request.user.id
+                    # 清除收藏列表缓存（包括API和页面缓存）
+                    master_cache.delete_pattern(f'user:collections:{user_id}*')
+                    master_cache.delete_pattern(f'user:collections:page:{user_id}*')
+                except Exception as e:
+                    print(f"缓存清除失败: {e}")
+                
                 return JsonResponse({'success': True, 'message': '收藏成功'})
             else:
                 return JsonResponse({'success': False, 'message': '已收藏'})
@@ -300,6 +311,17 @@ def remove_collection(request):
             
             if collection:
                 collection.delete()
+                # 清除缓存
+                try:
+                    from django.core.cache import caches
+                    master_cache = caches['master_cache']  # 使用社区缓存数据库 1
+                    user_id = request.user.id
+                    # 清除收藏列表缓存（包括API和页面缓存）
+                    master_cache.delete_pattern(f'user:collections:{user_id}*')
+                    master_cache.delete_pattern(f'user:collections:page:{user_id}*')
+                except Exception as e:
+                    print(f"缓存清除失败: {e}")
+                
                 return JsonResponse({'success': True, 'message': '取消收藏成功'})
             else:
                 return JsonResponse({'success': False, 'message': '未收藏'})
@@ -319,6 +341,24 @@ def get_collections(request):
             content_type = request.GET.get('content_type')
             page = request.GET.get('page', 1)
             page_size = 10
+            
+            # 生成缓存键
+            user_id = request.user.id
+            if content_type:
+                cache_key = f'user:collections:{user_id}:{content_type}:{page}'
+            else:
+                cache_key = f'user:collections:{user_id}:all:{page}'
+            
+            # 尝试从缓存获取
+            cached_result = None
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']  # 使用社区缓存数据库 1
+                cached_result = master_cache.get(cache_key)
+                if cached_result:
+                    return JsonResponse(cached_result)
+            except Exception as e:
+                print(f"缓存读取失败: {e}")
             
             # 查询条件
             query = Collection.objects.filter(user=request.user)
@@ -383,7 +423,8 @@ def get_collections(request):
                     except Place.DoesNotExist:
                         pass  # 地点不存在，跳过
             
-            return JsonResponse({
+            # 构建响应数据
+            response_data = {
                 'success': True,
                 'moments': moments,
                 'places': places,
@@ -391,7 +432,17 @@ def get_collections(request):
                 'has_previous': page_obj.has_previous(),
                 'current_page': page_obj.number,
                 'total_pages': paginator.num_pages
-            })
+            }
+            
+            # 缓存结果，有效期5分钟
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']  # 使用社区缓存数据库 1
+                master_cache.set(cache_key, response_data, 300)
+            except Exception as e:
+                print(f"缓存写入失败: {e}")
+            
+            return JsonResponse(response_data)
             
         except Exception as e:
             return JsonResponse({'success': False, 'message': f'获取收藏列表失败：{str(e)}'})
@@ -403,6 +454,21 @@ def get_collections(request):
 def collections(request):
     """收藏页面"""
     try:
+        # 生成缓存键
+        user_id = request.user.id
+        cache_key = f'user:collections:page:{user_id}'
+        
+        # 尝试从缓存获取
+        cached_context = None
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']  # 使用社区缓存数据库 1
+            cached_context = master_cache.get(cache_key)
+            if cached_context:
+                return render(request, 'user/collections.html', cached_context)
+        except Exception as e:
+            print(f"缓存读取失败: {e}")
+        
         # 获取用户收藏的动态
         moment_collections = Collection.objects.filter(
             user=request.user,
@@ -471,6 +537,14 @@ def collections(request):
             'places': places,
             'unread_count': unread_count
         }
+        
+        # 缓存结果，有效期5分钟
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']  # 使用社区缓存数据库 1
+            master_cache.set(cache_key, context, 300)
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
         
         return render(request, 'user/collections.html', context)
         

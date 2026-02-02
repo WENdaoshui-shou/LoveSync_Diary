@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import MomentViewSet, TagViewSet, LikeViewSet, FavoriteViewSet, community_view, moments_view, hot_moments_view, hot_ranking, share_moment, delete_moment, unshare_moment, moment_share_view, load_more_moments
+from .views import MomentViewSet, TagViewSet, LikeViewSet, community_view, moments_view, hot_moments_view, hot_ranking, share_moment, delete_moment, unshare_moment, moment_share_view, load_more_moments
 
 app_name = 'moment'
 
@@ -9,7 +9,7 @@ api_router = DefaultRouter()
 api_router.register(r'moments', MomentViewSet, basename='moment')
 api_router.register(r'tags', TagViewSet, basename='tag')
 api_router.register(r'likes', LikeViewSet, basename='like')
-api_router.register(r'favorites', FavoriteViewSet, basename='favorite')
+
 
 # Web视图路由
 web_urlpatterns = [

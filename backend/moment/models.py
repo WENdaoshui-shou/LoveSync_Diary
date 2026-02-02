@@ -71,14 +71,4 @@ class Like(models.Model):
         return f'{self.user.username} 点赞了 {self.moment}'
 
 
-# 收藏
-class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_favorites')
-    moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name='moment_favorites')
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ('user', 'moment')  # 确保每个用户只能收藏一次
-
-    def __str__(self):
-        return f'{self.user.username} 收藏了 {self.moment}'

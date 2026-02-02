@@ -470,9 +470,22 @@
                 <div class="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
                     <h2 class="font-semibold text-lg flex items-center">
                         <i class="fa-solid fa-fire text-red-500 mr-2"></i>
-                        热卖商品排行榜
+                        {{ hot_desc }}
                     </h2>
-                    <a href="#" class="text-primary hover:text-primary/80 text-sm transition-custom">查看全部</a>
+                    <div class="flex space-x-2">
+                        <a href="?hot_type=7d"
+                            class="px-3 py-1 text-sm rounded-full transition-custom {% if hot_type == '7d' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                            7天热卖
+                        </a>
+                        <a href="?hot_type=30d"
+                            class="px-3 py-1 text-sm rounded-full transition-custom {% if hot_type == '30d' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                            30天热卖
+                        </a>
+                        <a href="?hot_type=new"
+                            class="px-3 py-1 text-sm rounded-full transition-custom {% if hot_type == 'new' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                            新品热卖
+                        </a>
+                    </div>
                 </div>
 
                 <div class="p-4">
@@ -482,18 +495,18 @@
                         <a href="{% url 'mall:product_detail' product.id %}"
                             class="flex items-center p-2 hover:bg-neutral-50 rounded-lg transition-custom">
                             <div
-                                class="w-8 h-8 rounded-full {% if forloop.counter0 == 0 %}bg-red-500{% elif forloop.counter0 == 1 %}bg-red-400{% else %}bg-orange-500{% endif %} text-white flex items-center justify-center font-bold mr-4">
+                                class="w-8 h-8 rounded-full {% if product.rank_tag == 'first' %}bg-red-500{% elif product.rank_tag == 'second' %}bg-red-400{% elif product.rank_tag == 'third' %}bg-orange-500{% else %}bg-gray-500{% endif %} text-white flex items-center justify-center font-bold mr-4">
                                 {{ forloop.counter }}
                             </div>
                             <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}"
+                                <img src="{{ product.main_image }}" alt="{{ product.name }}"
                                     class="w-full h-full object-cover">
                             </div>
                             <div class="ml-4 flex-grow">
                                 <h3 class="font-medium text-sm line-clamp-1">{{ product.name }}</h3>
                                 <div class="flex items-center mt-1">
                                     <div class="flex items-center text-yellow-400">
-                                        {% with ''|center:product.rating|make_list as range %}
+                                        {% with ''|center:product.rating|floatformat:0|make_list as range %}
                                         {% for _ in range %}
                                         <i class="fa-solid fa-star text-xs"></i>
                                         {% endfor %}
@@ -503,8 +516,8 @@
                                         {% endif %}
                                         <span class="text-neutral-600 text-xs ml-1">{{ product.rating }}</span>
                                     </div>
-                                    <span class="text-neutral-500 text-xs ml-2">月销
-                                        {{ product.monthly_sales|floatformat:0 }}</span>
+                                    <span class="text-neutral-500 text-xs ml-2">销量
+                                        {{ product.real_sales }}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -584,13 +597,14 @@
         <div class="mb-12">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-neutral-800">猜你喜欢</h2>
-                <a href="#" class="text-primary font-medium hover:underline flex items-center">
+                <a href="#" id="refreshRecommended" class="text-primary font-medium hover:underline flex items-center">
                     换一批 <i class="fa-solid fa-refresh ml-1"></i>
                 </a>
             </div>
 
 
-            <div class="grid grid-cols-1 sm:grid-cols-2     md:grid-cols-3 lg:grid-cols-5 gap-5">
+            <div id="recommendedProductsGrid"
+                class="grid grid-cols-1 sm:grid-cols-2     md:grid-cols-3 lg:grid-cols-5 gap-5">
                 {% for product in recommended_products %}
                 <a href="{% url 'mall:product_detail' product.id %}"
                     class="bg-white rounded-xl overflow-hidden shadow-sm product-card" data-id="{{ product.id }}">
@@ -685,11 +699,15 @@
                     <div class="bg-white rounded-xl overflow-hidden shadow-sm product-card" data-id="{{ product.id }}">
                         <div class="relative">
                             {% if product.main_image %}
-                            <img src="{{ product.main_image.url }}" alt="{{ product.name }}"
+                            <img src="{{ product.main_image }}" alt="{{ product.name }}"
                                 class="w-full h-64 object-cover">
                             {% else %}
                             <img src="https://picsum.photos/id/1011/300/300" alt="{{ product.name }}"
                                 class="w-full h-64 object-cover">
+                            {% endif %}
+                            {% if product.is_new %}
+                            <div class="absolute top-3 left-3 bg-secondary text-white text-xs px-2 py-1 rounded">新品
+                            </div>
                             {% endif %}
                             {% if product.id in user_marks %}
                             <button
@@ -1259,5 +1277,139 @@
     // 初始化倒计时
     updateCountdown();
     setInterval(updateCountdown, 1000);
+
+    // 猜你喜欢 - 换一批功能
+    document.addEventListener('DOMContentLoaded', function () {
+        const refreshButton = document.getElementById('refreshRecommended');
+        const productsGrid = document.getElementById('recommendedProductsGrid');
+
+        if (refreshButton && productsGrid) {
+            refreshButton.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // 显示加载状态
+                refreshButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> 加载中...';
+                refreshButton.style.pointerEvents = 'none';
+
+                // 发送请求获取新的推荐商品
+                fetch('/mall/api/recommended/refresh/', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('网络请求失败');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // 清空现有商品
+                            productsGrid.innerHTML = '';
+
+                            // 添加新商品
+                            data.products.forEach(product => {
+                                const productCard = document.createElement('a');
+                                productCard.href = `/mall/product/${product.id}/`;
+                                productCard.className = 'bg-white rounded-xl overflow-hidden shadow-sm product-card';
+                                productCard.setAttribute('data-id', product.id);
+
+                                // 构建商品卡片内容
+                                let cardContent = `
+                                <div class="relative">
+                                    <img src="${product.main_image || 'https://picsum.photos/id/1011/300/300'}" alt="${product.name}"
+                                        class="w-full h-48 object-cover">
+                            `;
+
+                                // 检查是否已收藏
+                                if (product.is_marked) {
+                                    cardContent += `
+                                    <button
+                                        class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-primary transition-custom add-to-favorite">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                `;
+                                } else {
+                                    cardContent += `
+                                    <button
+                                        class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-neutral-500 hover:text-primary transition-custom add-to-favorite">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                `;
+                                }
+
+                                // 检查是否是新品
+                                if (product.is_new) {
+                                    cardContent += `
+                                    <div class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">新品
+                                    </div>
+                                `;
+                                }
+
+                                cardContent += `
+                                </div>
+                                <div class="p-3">
+                                    <h3 class="font-medium text-neutral-800 text-sm line-clamp-2">${product.name}</h3>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <span class="text-primary font-bold">¥${product.price}</span>
+                                        <div class="flex items-center text-yellow-400 text-xs">
+                                            <i class="fa-solid fa-star"></i>
+                                            <span class="text-neutral-500 ml-1">${product.rating}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+
+                                productCard.innerHTML = cardContent;
+                                productsGrid.appendChild(productCard);
+                            });
+
+                            // 为新添加的收藏按钮绑定事件
+                            document.querySelectorAll('.add-to-favorite').forEach(btn => {
+                                btn.addEventListener('click', async function (e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    const productCard = this.closest('.product-card');
+                                    const productId = productCard ? productCard.dataset.id : this.getAttribute('data-id');
+
+                                    if (!productId) {
+                                        showToast('参数错误', '商品ID无效', false);
+                                        return;
+                                    }
+
+                                    try {
+                                        // 尝试添加收藏
+                                        const success = await toggleFavorite(productId);
+
+                                        if (success) {
+                                            // 更新按钮样式为已收藏状态
+                                            this.innerHTML = '<i class="fa-solid fa-heart text-primary"></i>';
+                                            showToast('收藏成功', '商品已添加到收藏夹');
+                                        }
+                                    } catch (error) {
+                                        console.error('收藏操作失败:', error);
+                                    }
+                                });
+                            });
+                        } else {
+                            console.error('获取推荐商品失败:', data.message);
+                            showToast('加载失败', '获取推荐商品失败，请重试', false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('错误:', error);
+                        showToast('网络错误', '获取推荐商品失败，请检查网络连接', false);
+                    })
+                    .finally(() => {
+                        // 恢复按钮状态
+                        refreshButton.innerHTML = '换一批 <i class="fa-solid fa-refresh ml-1"></i>';
+                        refreshButton.style.pointerEvents = 'auto';
+                    });
+            });
+        }
+    });
 </script>
 {% endblock %}

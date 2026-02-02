@@ -7,8 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, F
 from django.utils import timezone
-from .models import Moment, Tag, Like, Favorite, Comment
-from .serializers import MomentSerializer, TagSerializer, LikeSerializer, FavoriteSerializer
+from .models import Moment, Tag, Like, Comment
+from .serializers import MomentSerializer, TagSerializer, LikeSerializer
+from user.models import Collection
 
 
 class MomentViewSet(viewsets.ModelViewSet):
@@ -31,6 +32,21 @@ class MomentViewSet(viewsets.ModelViewSet):
         filter_type = request.query_params.get('filter', 'latest')
         search_term = request.query_params.get('search', '')
         topic_id = request.query_params.get('topic', '')
+        page = int(request.query_params.get('page', 1))
+        
+        # 生成缓存键
+        cache_key = f'moment:list:{filter_type}:{search_term}:{topic_id}:{page}'
+        cached_result = None
+        
+        # 尝试从缓存获取
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            cached_result = master_cache.get(cache_key)
+            if cached_result:
+                return Response(cached_result)
+        except Exception as e:
+            print(f"缓存读取失败: {e}")
         
         # 基础查询：只查询分享的动态
         queryset = Moment.objects.filter(is_shared=True)
@@ -76,17 +92,46 @@ class MomentViewSet(viewsets.ModelViewSet):
                 queryset = Moment.objects.filter(id__in=[m.id for m in moments_list]).order_by(preserved)
         
         # 分页处理
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        page_obj = self.paginate_queryset(queryset)
+        if page_obj is not None:
+            serializer = self.get_serializer(page_obj, many=True)
+            paginated_response = self.get_paginated_response(serializer.data)
+            # 缓存结果，有效期5分钟
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']
+                master_cache.set(cache_key, paginated_response.data, 300)
+            except Exception as e:
+                print(f"缓存写入失败: {e}")
+            return paginated_response
         
         serializer = self.get_serializer(queryset, many=True)
+        # 缓存结果，有效期5分钟
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            master_cache.set(cache_key, serializer.data, 300)
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
     def hot_moments(self, request):
         """获取热门动态排行"""
+        # 生成缓存键
+        cache_key = 'hot:moments:7days'
+        cached_result = None
+        
+        # 尝试从缓存获取
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            cached_result = master_cache.get(cache_key)
+            if cached_result:
+                return Response(cached_result)
+        except Exception as e:
+            print(f"缓存读取失败: {e}")
+        
         # 计算热度分数：点赞数 * 1.0 + 评论数 * 0.5 + 收藏数 * 0.8
         # 只显示最近7天的动态
         one_week_ago = timezone.now() - timezone.timedelta(days=7)
@@ -98,22 +143,60 @@ class MomentViewSet(viewsets.ModelViewSet):
         ).order_by('-hot_score')[:20]  # 取前20条热门动态
         
         serializer = MomentSerializer(hot_moments, many=True)
-        return Response({
+        
+        # 构建响应数据
+        response_data = {
             'message': '获取热门动态成功',
             'hot_moments': serializer.data
-        }, status=status.HTTP_200_OK)
+        }
+        
+        # 缓存结果，有效期5分钟
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            master_cache.set(cache_key, response_data, 300)
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
+        
+        return Response(response_data, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['get'])
     def hot_favorites(self, request):
         """获取热门收藏排行"""
+        # 生成缓存键
+        cache_key = 'hot:favorites'
+        cached_result = None
+        
+        # 尝试从缓存获取
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            cached_result = master_cache.get(cache_key)
+            if cached_result:
+                return Response(cached_result)
+        except Exception as e:
+            print(f"缓存读取失败: {e}")
+        
         # 按收藏数排序获取热门动态
         hot_favorites = Moment.objects.order_by('-favorites')[:20]  # 取前20条热门收藏
         
         serializer = MomentSerializer(hot_favorites, many=True)
-        return Response({
+        
+        # 构建响应数据
+        response_data = {
             'message': '获取热门收藏成功',
             'hot_favorites': serializer.data
-        }, status=status.HTTP_200_OK)
+        }
+        
+        # 缓存结果，有效期5分钟
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            master_cache.set(cache_key, response_data, 300)
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
+        
+        return Response(response_data, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):
@@ -129,6 +212,25 @@ class MomentViewSet(viewsets.ModelViewSet):
             moment.save()
             moment.refresh_from_db()  # 刷新数据
             
+            # 清除缓存
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']
+                # 清除社区动态列表缓存
+                master_cache.delete_pattern('community:*')
+                master_cache.delete_pattern('moment:list:*')
+                # 清除用户收藏列表缓存
+                user_id = request.user.id
+                master_cache.delete(f'user:favorites:{user_id}')
+                # 清除用户收藏页面缓存
+                master_cache.delete_pattern(f'user:collections:{user_id}*')
+                master_cache.delete_pattern(f'user:collections:page:{user_id}*')
+                # 清除热门动态和热门收藏缓存
+                master_cache.delete('hot:moments:7days')
+                master_cache.delete('hot:favorites')
+            except Exception as e:
+                print(f"缓存清除失败: {e}")
+            
             return Response({
                 'message': '点赞成功',
                 'likes': moment.likes,
@@ -142,6 +244,16 @@ class MomentViewSet(viewsets.ModelViewSet):
             moment.save()
             moment.refresh_from_db()  # 刷新数据
             
+            # 清除缓存
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']
+                # 清除社区动态列表缓存
+                master_cache.delete_pattern('community:*')
+                master_cache.delete_pattern('moment:list:*')
+            except Exception as e:
+                print(f"缓存清除失败: {e}")
+            
             return Response({
                 'message': '取消点赞成功',
                 'likes': moment.likes,
@@ -154,7 +266,11 @@ class MomentViewSet(viewsets.ModelViewSet):
         moment = self.get_object()
         
         # 检查是否已经收藏
-        favorite, created = Favorite.objects.get_or_create(user=request.user, moment=moment)
+        collection, created = Collection.objects.get_or_create(
+            user=request.user,
+            content_type='moment',
+            object_id=moment.id
+        )
         
         if created:
             # 增加收藏数
@@ -162,17 +278,55 @@ class MomentViewSet(viewsets.ModelViewSet):
             moment.save()
             moment.refresh_from_db()  # 刷新数据
             
+            # 清除缓存
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']
+                # 清除社区动态列表缓存
+                master_cache.delete_pattern('community:*')
+                master_cache.delete_pattern('moment:list:*')
+                # 清除用户收藏列表缓存
+                user_id = request.user.id
+                master_cache.delete(f'user:favorites:{user_id}')
+                # 清除用户收藏页面缓存
+                master_cache.delete_pattern(f'user:collections:{user_id}*')
+                master_cache.delete_pattern(f'user:collections:page:{user_id}*')
+                # 清除热门动态和热门收藏缓存
+                master_cache.delete('hot:moments:7days')
+                master_cache.delete('hot:favorites')
+            except Exception as e:
+                print(f"缓存清除失败: {e}")
+            
             return Response({
                 'message': '收藏成功',
                 'favorites': moment.favorites
             }, status=status.HTTP_200_OK)
         else:
             # 已收藏，取消收藏
-            favorite.delete()
+            collection.delete()
             # 减少收藏数
             moment.favorites = F('favorites') - 1
             moment.save()
             moment.refresh_from_db()  # 刷新数据
+            
+            # 清除缓存
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']
+                # 清除社区动态列表缓存
+                master_cache.delete_pattern('community:*')
+                master_cache.delete_pattern('moment:list:*')
+                # 清除用户收藏列表缓存
+                user_id = request.user.id
+                master_cache.delete(f'user:favorites:{user_id}')
+                # 清除用户收藏页面缓存
+                master_cache.delete_pattern(f'user:collections:{user_id}*')
+                master_cache.delete_pattern(f'user:collections:page:{user_id}*')
+                # 清除热门动态和热门收藏缓存
+                master_cache.delete('hot:moments:7days')
+                master_cache.delete('hot:favorites')
+            except Exception as e:
+                print(f"缓存清除失败: {e}")
             
             return Response({
                 'message': '取消收藏成功',
@@ -190,19 +344,59 @@ class MomentViewSet(viewsets.ModelViewSet):
     def is_favorited(self, request, pk=None):
         """检查当前用户是否已收藏该动态"""
         moment = self.get_object()
-        is_favorited = Favorite.objects.filter(user=request.user, moment=moment).exists()
+        is_favorited = Collection.objects.filter(user=request.user, content_type='moment', object_id=moment.id).exists()
         return Response({'is_favorited': is_favorited}, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['get'])
     def user_favorites(self, request):
         """获取当前用户收藏的动态"""
-        user_favorites = Favorite.objects.filter(user=request.user).order_by('-created_at')
-        moments = [fav.moment for fav in user_favorites]
+        # 生成缓存键
+        user_id = request.user.id
+        cache_key = f'user:favorites:{user_id}'
+        cached_result = None
+        
+        print(f"[DEBUG] 调用 user_favorites 方法，用户ID: {user_id}, 缓存键: {cache_key}")
+        
+        # 尝试从缓存获取
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            print(f"[DEBUG] 尝试从缓存获取数据，缓存后端: master_cache")
+            cached_result = master_cache.get(cache_key)
+            if cached_result:
+                print(f"[DEBUG] 缓存命中，返回缓存数据")
+                return Response(cached_result)
+            else:
+                print(f"[DEBUG] 缓存未命中，从数据库查询")
+        except Exception as e:
+            print(f"[ERROR] 缓存读取失败: {e}")
+        
+        # 从数据库查询
+        print(f"[DEBUG] 从数据库查询收藏动态")
+        user_collections = Collection.objects.filter(user=request.user, content_type='moment').order_by('-created_at')
+        moment_ids = [collection.object_id for collection in user_collections]
+        moments = Moment.objects.filter(id__in=moment_ids).order_by('-created_at')
+        print(f"[DEBUG] 查询到 {len(moments)} 条收藏动态")
         serializer = MomentSerializer(moments, many=True)
-        return Response({
+        
+        # 构建响应数据
+        response_data = {
             'message': '获取收藏动态成功',
             'favorites': serializer.data
-        }, status=status.HTTP_200_OK)
+        }
+        
+        # 缓存结果，有效期5分钟
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            print(f"[DEBUG] 尝试写入缓存，缓存键: {cache_key}, 有效期: 300秒")
+            result = master_cache.set(cache_key, response_data, 300)
+            print(f"[DEBUG] 缓存写入结果: {result}")
+        except Exception as e:
+            print(f"[ERROR] 缓存写入失败: {e}")
+        
+        print(f"[DEBUG] 返回响应数据")
+        return Response(response_data, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['post'])
     def comment(self, request, pk=None):
@@ -225,6 +419,16 @@ class MomentViewSet(viewsets.ModelViewSet):
         moment.comments = F('comments') + 1
         moment.save()
         moment.refresh_from_db()  # 刷新数据
+        
+        # 清除缓存
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            # 清除社区动态列表缓存
+            master_cache.delete_pattern('community:*')
+            master_cache.delete_pattern('moment:list:*')
+        except Exception as e:
+            print(f"缓存清除失败: {e}")
         
         return Response({
                 'message': '评论成功',
@@ -354,23 +558,38 @@ class LikeViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
 
 
-class FavoriteViewSet(viewsets.ModelViewSet):
-    """收藏视图集"""
-    queryset = Favorite.objects.all()
-    serializer_class = FavoriteSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        """只返回当前用户的收藏记录"""
-        return self.queryset.filter(user=self.request.user)
+
 
 
 # 社区视图（Web）
 @login_required
 def community_view(request):
     """社区页面"""
-    # 获取所有分享的动态，按时间倒序排列，限制初始加载数量为10条
-    moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[:10]
+    # 生成缓存键
+    cache_key = 'community:latest:1'
+    moments = None
+    
+    # 尝试从缓存获取
+    try:
+        from django.core.cache import caches
+        master_cache = caches['master_cache']
+        cached_moments = master_cache.get(cache_key)
+        if cached_moments:
+            moments = cached_moments
+    except Exception as e:
+        print(f"缓存读取失败: {e}")
+    
+    # 从数据库查询
+    if moments is None:
+        # 获取所有分享的动态，按时间倒序排列，限制初始加载数量为10条
+        moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[:10]
+        # 缓存结果，有效期5分钟
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            master_cache.set(cache_key, moments, 300)
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
     
     # 获取未读消息计数
     try:
@@ -647,6 +866,20 @@ def load_more_moments(request):
     page_size = 10
     filter_type = request.GET.get('filter', 'latest')  # 默认为最新
     
+    # 生成缓存键
+    cache_key = f'community:{filter_type}:{page}'
+    cached_result = None
+    
+    # 尝试从缓存获取
+    try:
+        from django.core.cache import caches
+        master_cache = caches['master_cache']
+        cached_result = master_cache.get(cache_key)
+        if cached_result:
+            return JsonResponse(cached_result)
+    except Exception as e:
+        print(f"缓存读取失败: {e}")
+    
     # 计算偏移量
     offset = (page - 1) * page_size
     
@@ -712,10 +945,21 @@ def load_more_moments(request):
     # 检查是否还有更多数据
     has_more = total_count > offset + page_size
     
-    return JsonResponse({
+    # 构建响应数据
+    response_data = {
         'success': True,
         'moments': moments_data,
         'has_more': has_more,
         'page': page,
         'page_size': page_size
-    })
+    }
+    
+    # 缓存结果，有效期5分钟
+    try:
+        from django.core.cache import caches
+        master_cache = caches['master_cache']
+        master_cache.set(cache_key, response_data, 300)
+    except Exception as e:
+        print(f"缓存写入失败: {e}")
+    
+    return JsonResponse(response_data)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Moment, MomentImage, Comment, Tag, Like, Favorite
+from .models import Moment, MomentImage, Comment, Tag, Like
 from core.serializers import UserSerializer
 
 
@@ -83,15 +83,4 @@ class LikeSerializer(serializers.ModelSerializer):
         return Like.objects.create(**validated_data)
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
-    """收藏序列化器"""
-    user = UserSerializer(read_only=True)
-    moment = MomentSerializer(read_only=True)
-    
-    class Meta:
-        model = Favorite
-        fields = ['id', 'user', 'moment', 'created_at']
-    
-    def create(self, validated_data):
-        """创建收藏记录"""
-        return Favorite.objects.create(**validated_data)
+

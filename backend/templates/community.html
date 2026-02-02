@@ -207,11 +207,13 @@
                 <i class="fa-solid fa-house w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>双人日记</span>
             </a>
+            {% if user.is_authenticated %}
             <a href="{% url 'user:user_profile' username=user.username %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1">
                 <i class="fa-solid fa-id-card w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span>主页</span>
             </a>
+            {% endif %}
             <a href="{% url 'message:list' %}"
                 class="flex items-center space-x-3 text-neutral-700 hover:text-primary hover:bg-neutral-50 px-2 py-3 rounded-r-lg transition-all duration-200 group hover:translate-x-1 relative">
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>

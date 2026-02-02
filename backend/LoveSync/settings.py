@@ -193,10 +193,60 @@ DATABASES = {
     }
 }
 
+# Redis连接配置
+REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+
+# 缓存数据库配置
+REDIS_DB_DEFAULT = os.getenv('REDIS_DB_DEFAULT', '0')
+REDIS_DB_USER_SESSIONS = os.getenv('REDIS_DB_USER_SESSIONS', '0')  # 用户会话缓存数据库
+REDIS_DB_MATSER = os.getenv('REDIS_DB_matser', '1')         # 用户数据社区等主要模块的数据库
+REDIS_DB_MALL_CACHE = os.getenv('REDIS_DB_MALL_CACHE', '2')     # 商城的缓存数据库（所有商城相关缓存）
+
+# 商城相关缓存使用商城缓存数据库
+REDIS_DB_HOT_PRODUCTS = os.getenv('REDIS_DB_HOT_PRODUCTS', REDIS_DB_MALL_CACHE)   # 热卖商品缓存数据库
+REDIS_DB_PRODUCT_CACHE = os.getenv('REDIS_DB_PRODUCT_CACHE', REDIS_DB_MALL_CACHE)  # 商品详情缓存数据库
+
+# 缓存配置
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/0",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_DEFAULT}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "hot_products": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_HOT_PRODUCTS}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "user_sessions": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_USER_SESSIONS}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "mall_cache": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_MALL_CACHE}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "product_cache": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_PRODUCT_CACHE}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "master_cache": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_MATSER}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -286,9 +336,9 @@ VERIFY_CODE_EXPIRE = 60
 
 
 # 会话配置
-# 使用数据库存储session，确保服务器重启后会话仍然有效
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-# SESSION_CACHE_ALIAS = 'default'  # 不再使用缓存存储
+# 使用Redis存储session，提高性能
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'user_sessions'  # 使用用户会话缓存后端
 SESSION_COOKIE_AGE = 3600 * 24 * 7  # 会话有效期7天，与"记住我"功能对应
 SESSION_COOKIE_NAME = 'lovesync_session'  # 自定义会话cookie名称
 SESSION_COOKIE_SECURE = False  # 开发环境使用HTTP，生产环境应设置为True

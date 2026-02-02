@@ -77,6 +77,7 @@ class Product(models.Model):
     product_stock = models.IntegerField(default=0, verbose_name='库存')
     is_active = models.BooleanField(default=True, verbose_name='是否上架')
     is_couple_product = models.BooleanField(default=False, verbose_name='是否情侣款')
+    is_new = models.BooleanField(default=True, verbose_name='是否新品')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
 
