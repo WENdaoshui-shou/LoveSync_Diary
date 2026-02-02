@@ -866,6 +866,39 @@
 
 
 
+        // 关闭模态框功能
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', function () {
+                if (orderSuccessModal) {
+                    orderSuccessModal.classList.add('hidden');
+                    orderSuccessModal.classList.remove('flex');
+                    // 重置模态框状态
+                    const modalLoading = document.getElementById('modal-loading');
+                    const modalSuccess = document.getElementById('modal-success');
+                    if (modalLoading && modalSuccess) {
+                        modalLoading.classList.remove('hidden');
+                        modalSuccess.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // 点击模态框外部关闭模态框
+        orderSuccessModal.addEventListener('click', function (e) {
+            if (e.target === orderSuccessModal) {
+                orderSuccessModal.classList.add('hidden');
+                orderSuccessModal.classList.remove('flex');
+                // 重置模态框状态
+                const modalLoading = document.getElementById('modal-loading');
+                const modalSuccess = document.getElementById('modal-success');
+                if (modalLoading && modalSuccess) {
+                    modalLoading.classList.remove('hidden');
+                    modalSuccess.classList.add('hidden');
+                }
+            }
+        });
+
         // 提交订单功能
         placeOrderBtn.addEventListener('click', async function () {
             // 获取选中的地址
@@ -889,18 +922,38 @@
                 // 模拟订单提交成功
                 showToast('订单提交中', '正在处理您的订单...', true);
 
-                // 模拟网络延迟
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                // 显示成功模态框
+                // 显示模态框（默认显示加载状态）
                 if (orderSuccessModal) {
                     orderSuccessModal.classList.remove('hidden');
                     orderSuccessModal.classList.add('flex');
                 }
 
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // 隐藏加载状态，显示成功状态
+                const modalLoading = document.getElementById('modal-loading');
+                const modalSuccess = document.getElementById('modal-success');
+                if (modalLoading && modalSuccess) {
+                    modalLoading.classList.add('hidden');
+                    modalSuccess.classList.remove('hidden');
+                }
+
                 showToast('订单提交成功', '您的订单已成功提交', true);
             } catch (error) {
                 console.error('订单提交失败:', error);
+                // 隐藏模态框
+                if (orderSuccessModal) {
+                    orderSuccessModal.classList.add('hidden');
+                    orderSuccessModal.classList.remove('flex');
+                    // 重置模态框状态
+                    const modalLoading = document.getElementById('modal-loading');
+                    const modalSuccess = document.getElementById('modal-success');
+                    if (modalLoading && modalSuccess) {
+                        modalLoading.classList.remove('hidden');
+                        modalSuccess.classList.add('hidden');
+                    }
+                }
                 showToast('订单提交失败', '网络错误，请稍后重试', false);
             }
         });
@@ -911,17 +964,28 @@
 
 <!-- 订单成功模态框 -->
 <div id="order-success-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 text-center">
-        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa-solid fa-check text-green-500 text-2xl"></i>
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 text-center relative">
+        <!-- 关闭按钮 -->
+        <button id="close-modal-btn" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-times"></i>
+        </button>
+        <!-- 加载状态 -->
+        <div id="modal-loading" class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
         </div>
-        <h3 class="text-xl font-bold mb-2">订单提交成功</h3>
-        <p class="text-gray-500 mb-6">您的订单已成功提交，请尽快完成支付</p>
-        <div class="flex space-x-3">
-            <a href="{% url 'mall:mall' %}"
-                class="flex-1 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">继续购物</a>
-            <a href="{% url 'mall:order_list' %}"
-                class="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">查看订单</a>
+        <!-- 成功状态 -->
+        <div id="modal-success" class="hidden">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-check text-green-500 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">订单提交成功</h3>
+            <p class="text-gray-500 mb-6">您的订单已成功提交，请尽快完成支付</p>
+            <div class="flex space-x-3">
+                <a href="{% url 'mall:mall' %}"
+                    class="flex-1 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">继续购物</a>
+                <a href="{% url 'mall:order_list' %}"
+                    class="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">查看订单</a>
+            </div>
         </div>
     </div>
 </div>

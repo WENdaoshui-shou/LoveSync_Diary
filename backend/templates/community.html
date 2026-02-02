@@ -592,10 +592,10 @@
                             </div>
 
                             <!-- 状态标签：优化样式 -->
-                            <span
+                            <span id="statusIndicator"
                                 class="text-xs bg-white/15 backdrop-blur-sm px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-green-300 animate-pulse"></span>
-                                在线
+                                <span id="statusDot" class="w-2 h-2 rounded-full bg-green-300 animate-pulse"></span>
+                                <span id="statusText">在线</span>
                             </span>
                         </div>
                     </div>
@@ -2026,6 +2026,26 @@
 
     // 初始化聊天会话
     function initChatSession() {
+        // 获取状态相关元素
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const statusIndicator = document.getElementById('statusIndicator');
+
+        // 更新状态显示函数
+        function updateStatus(isOnline) {
+            if (isOnline) {
+                // 在线状态
+                statusDot.className = 'w-2 h-2 rounded-full bg-green-300 animate-pulse';
+                statusText.textContent = '在线';
+                statusIndicator.classList.remove('opacity-75');
+            } else {
+                // 离线状态
+                statusDot.className = 'w-2 h-2 rounded-full bg-gray-400';
+                statusText.textContent = '离线';
+                statusIndicator.classList.add('opacity-75');
+            }
+        }
+
         fetch('/AI/chat/init/', {
             method: 'POST',
             headers: {
@@ -2035,6 +2055,9 @@
         })
             .then(response => response.json())
             .then(data => {
+                // 根据API响应更新状态
+                updateStatus(data.success === true);
+
                 if (data.success) {
                     sessionId = data.session_id;
                     addMessage(data.response, 'assistant');
@@ -2045,6 +2068,8 @@
             })
             .catch(error => {
                 console.error('初始化聊天会话失败:', error);
+                // 网络错误时显示离线状态
+                updateStatus(false);
                 // 网络错误时显示友好消息
                 addMessage('小助手暂时连接不上，请检查网络后重试~', 'assistant');
             });
@@ -3449,7 +3474,6 @@
             // 恢复后清除保存的位置
             localStorage.removeItem('community_scroll_position');
         }
-
         // 初始化分享功能
         initShareFunctionality();
     });

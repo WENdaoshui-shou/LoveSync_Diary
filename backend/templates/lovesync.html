@@ -1397,7 +1397,6 @@
 
     // 删除评论功能
     function deleteComment(element, noteId, commentId) {
-        if (confirm('确定要删除这条评论吗？')) {
             fetch(`/api/note/notes/${noteId}/delete_comment/${commentId}/`, {
                 method: 'DELETE',
                 credentials: 'same-origin',
@@ -1439,7 +1438,6 @@
                     console.error('删除评论失败:', error);
                     alert(`删除失败：${error.message}`);
                 });
-        }
     }
 
     // 评论点赞功能
@@ -1570,7 +1568,6 @@
 
     // 删除回复功能
     function deleteReply(element, noteId, replyId) {
-        if (confirm('确定要删除这条回复吗？')) {
             const deleteUrl = `/api/note/notes/${noteId}/delete_comment/${replyId}/`;
 
             fetch(deleteUrl, {
@@ -1614,7 +1611,6 @@
                     console.error('删除回复失败:', error);
                     alert(`删除失败：${error.message}`);
                 });
-        }
     }
 
     // 渲染评论

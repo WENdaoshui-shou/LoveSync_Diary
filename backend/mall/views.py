@@ -4,13 +4,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.views.decorators.http import require_http_methods, require_POST
 from django.http import JsonResponse, HttpResponse
 from django.core.cache import cache
 from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Avg
 import json
 import hashlib
 import time
@@ -19,7 +20,7 @@ import uuid
 from .models import (
     Category, Product, ProductSKU, CartItem, Address, Order, OrderItem,
     Payment, FlashSale, FlashSaleProduct, Coupon, UserCoupon, Logistics,
-    ProductMark, HomeBanner, ProductTag, ProductTagRelation, UserBehavior, RefundApplication
+    ProductMark, HomeBanner, ProductTag, ProductTagRelation, UserBehavior, RefundApplication, ProductReview
 )
 from .serializers import (
     CategorySerializer, ProductSerializer, ProductSKUSerializer, CartItemSerializer, CartItemCreateSerializer,
@@ -917,12 +918,20 @@ def product_detail(request, product_id):
     # 检查是否已收藏
     is_marked = ProductMark.objects.filter(user=request.user, product=product).exists()
 
+    # 获取商品评论
+    reviews = ProductReview.objects.filter(product=product, is_approved=True).order_by('-created_at')[:10]
+
+    # 计算平均评分
+    average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+
     return render(request, 'mall/product_detail.html', {
         'product': product,
         'recommended_products': recommended_products,
         'related_products': related_products,
         'skus': skus,
-        'is_marked': is_marked
+        'is_marked': is_marked,
+        'reviews': reviews,
+        'average_rating': average_rating
     })
 
 
@@ -1528,14 +1537,21 @@ def order_review(request, order_id):
         for item in order_items:
             rating = request.POST.get(f'rating_{item.id}')
             comment = request.POST.get(f'comment_{item.id}')
+            images = request.POST.get(f'images_{item.id}', '')
+            is_anonymous = request.POST.get(f'anonymous_{item.id}', 'false') == 'true'
             
             if rating and comment:
-                # 这里可以添加评价保存逻辑
-                # 例如创建ProductReview对象
-                pass
+                # 保存评价
+                ProductReview.objects.create(
+                    user=request.user,
+                    product=item.product,
+                    order_item=item,
+                    rating=rating,
+                    comment=comment,
+                    images=images,
+                    is_anonymous=is_anonymous
+                )
         
-        # 显示成功提示并跳转
-        messages.success(request, '评价成功！')
         return redirect('mall:order_detail', order_number=order.order_number)
     
     return render(request, 'mall/order_review.html', {

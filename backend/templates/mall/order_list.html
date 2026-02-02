@@ -143,7 +143,7 @@
                             class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors">
                             <i class="fa-solid fa-eye mr-1"></i>查看详情
                         </a>
-                        <a href="#"
+                        <a href="{% url 'mall:order_review' order.id %}"
                             class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
                             <i class="fa-solid fa-comment mr-1"></i>评价
                         </a>
@@ -235,14 +235,12 @@
         confirmReceiptBtns.forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
-                if (confirm('确认已收到商品吗？')) {
-                    // 这里可以添加确认收货的API调用
-                    showToast('操作成功', '已确认收货', true);
-                    // 刷新页面
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                }
+                // 这里可以添加确认收货的API调用
+                showToast('操作成功', '已确认收货', true);
+                // 刷新页面
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             });
         });
 
@@ -255,14 +253,8 @@
             });
         });
 
-        // 评价功能
-        const reviewBtns = getElementsContainingText('a', '评价');
-        reviewBtns.forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                showToast('提示', '评价功能正在开发中', true);
-            });
-        });
+        // 评价功能 - 已实现，无需阻止默认行为
+        // 移除阻止评价按钮的代码，让用户能够正常跳转到评价页面
     });
 </script>
 {% endblock %}

@@ -956,9 +956,7 @@
 <script>
     // 取消情侣请求
     function cancelRequest() {
-        if (confirm('确定要取消这个情侣邀请吗？')) {
-            window.location.href = "{% url 'couple_web:cancel_request' %}";
-        }
+        window.location.href = "{% url 'couple_web:cancel_request' %}";
     }
 
     // 复制邀请码

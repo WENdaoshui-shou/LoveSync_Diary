@@ -542,6 +542,64 @@ class UserBehavior(models.Model):
         ordering = ['-created_at']
 
 
+class ProductReview(models.Model):
+    """商品评论模型"""
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='reviews', 
+        verbose_name='用户'
+    )
+    product = models.ForeignKey(
+        Product, 
+        on_delete=models.CASCADE, 
+        related_name='reviews', 
+        verbose_name='商品'
+    )
+    order_item = models.ForeignKey(
+        OrderItem, 
+        on_delete=models.CASCADE, 
+        related_name='review', 
+        verbose_name='订单项'
+    )
+    rating = models.PositiveIntegerField(
+        choices=[(1, '1星'), (2, '2星'), (3, '3星'), (4, '4星'), (5, '5星')], 
+        verbose_name='评分'
+    )
+    comment = models.TextField(verbose_name='评论内容')
+    images = models.ImageField(
+        upload_to='mall_images/product/review_images/', 
+        max_length=500, 
+        blank=True, 
+        null=True, 
+        verbose_name='评论图片'
+    )
+    is_anonymous = models.BooleanField(
+        default=False, 
+        verbose_name='是否匿名'
+    )
+    is_approved = models.BooleanField(
+        default=True, 
+        verbose_name='是否审核通过'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name='创建时间'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, 
+        verbose_name='更新时间'
+    )
+
+    def __str__(self):
+        return f'{self.user.username} 对 {self.product.name} 的评价'
+
+    class Meta:
+        verbose_name = '商品评论'
+        verbose_name_plural = '商品评论'
+        ordering = ['-created_at']
+
+
 class RefundApplication(models.Model):
     """退款申请模型"""
     REFUND_STATUS_CHOICES = (

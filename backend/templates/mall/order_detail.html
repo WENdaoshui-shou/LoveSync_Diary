@@ -332,8 +332,11 @@
               <div class="flex items-center">
                 <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
                 <div class="flex-1">
-                  <p class="text-sm">{% if order.logistics %}{{ order.logistics.latest_status|default:"订单已创建" }}{%else%}订单已创建{% endif %}</p>
-                  <p class="text-xs text-gray-500">{% if order.logistics %}{{ order.logistics.updated_at|date:'Y-m-dH:i:s' }}{% else %}{{ order.created_at|date:'Y-m-d H:i:s' }}{%endif %}</p>
+                  <p class="text-sm">{% if order.logistics %}{{ order.logistics.latest_status|default:"订单已创建"
+                    }}{%else%}订单已创建{% endif %}</p>
+                  <p class="text-xs text-gray-500">{% if order.logistics %}{{
+                    order.logistics.updated_at|date:'Y-m-dH:i:s' }}{% else %}{{ order.created_at|date:'Y-m-d H:i:s'
+                    }}{%endif %}</p>
                 </div>
               </div>
               {% if order.logistics %}
@@ -674,32 +677,30 @@
         e.preventDefault();
         const orderId = this.getAttribute('data-order-id');
 
-        if (confirm('确定要取消订单吗？取消后将无法恢复！')) {
-          // 调用取消订单API
-          fetch(`/mall/order/${orderId}/cancel/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': getCsrfToken()
+        // 调用取消订单API
+        fetch(`/mall/api/orders/${orderId}/cancel/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+          }
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'cancelled') {
+              showToast('操作成功', '订单已取消', true);
+              // 1.5秒后跳转到订单列表
+              setTimeout(() => {
+                window.location.href = "{% url 'mall:order_list' %}";
+              }, 1500);
+            } else {
+              showToast('操作失败', data.error || '取消订单失败，请稍后重试', false);
             }
           })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                showToast('操作成功', '订单已取消', true);
-                // 1.5秒后跳转到订单列表
-                setTimeout(() => {
-                  window.location.href = "{% url 'mall:order_list' %}";
-                }, 1500);
-              } else {
-                showToast('操作失败', data.message || '取消订单失败，请稍后重试', false);
-              }
-            })
-            .catch(error => {
-              console.error('取消订单失败:', error);
-              showToast('操作失败', '网络异常，请稍后重试', false);
-            });
-        }
+          .catch(error => {
+            console.error('取消订单失败:', error);
+            showToast('操作失败', '网络异常，请稍后重试', false);
+          });
       });
     }
 
