@@ -353,6 +353,14 @@ class FlashSale(models.Model):
     end_time = models.DateTimeField(verbose_name='结束时间')
     status = models.BooleanField(default=False, verbose_name='活动状态')
     description = models.TextField(blank=True, null=True, verbose_name='活动描述')
+    cover_image = models.ImageField(
+        upload_to='mall_images/active/',
+        blank=True,
+        null=True,
+        verbose_name='活动封面'
+    )
+    need_countdown = models.BooleanField(default=True, verbose_name='是否需要倒计时')
+    is_vip_only = models.BooleanField(default=False, verbose_name='是否仅VIP可见')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     def __str__(self):

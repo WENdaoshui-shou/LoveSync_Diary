@@ -233,6 +233,7 @@ CACHES = {
     "mall_cache": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_MALL_CACHE}",
+        "KEY_PREFIX": "",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

@@ -1,0 +1,234 @@
+{% extends 'mall/mall_base.html' %}
+
+{% block title %}{{ category.name }} - LoveSync 情侣商城{% endblock %}
+
+{% block extra_css %}
+<style type="text/tailwindcss">
+    @layer utilities {
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li>
+    <div class="flex items-center">
+        <i class="fa-solid fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+        <span class="text-neutral-800 font-medium text-sm text-primary">{{ category.name }}</span>
+    </div>
+</li>
+{% endblock %}
+
+{% block content_body %}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+    <!-- 商品列表 -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-12">
+        {% if products %}
+        {% for product in products %}
+        <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden">
+            <a href="{% url 'mall:product_detail' product.id %}" class="block">
+                <!-- 商品图片 -->
+                <div class="aspect-square bg-gray-50 relative overflow-hidden">
+                    {% if product.main_image %}
+                    <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                        <i class="fa-solid fa-box text-4xl text-gray-300"></i>
+                    </div>
+                    {% endif %}
+                    <!-- 新品标签 -->
+                    {% if product.is_new %}
+                    <div class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">新品
+                    </div>
+                    {% endif %}
+                    <!-- 折扣标签 -->
+                    {% if product.old_price > product.price and product.discount > 0 %}
+                    <span
+                        class="absolute top-2 right-2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+                        {{ product.discount }}%OFF
+                    </span>
+                    {% endif %}
+                </div>
+                <!-- 商品信息 -->
+                <div class="p-4">
+                    <h3 class="text-sm font-medium text-neutral-800 mb-2 line-clamp-2">{{ product.name }}</h3>
+                    <div class="flex items-center mb-2">
+                        <span class="text-primary font-bold">¥{{ product.price }}</span>
+                        {% if product.old_price > product.price %}
+                        <span class="text-neutral-400 text-xs line-through ml-2">¥{{ product.old_price }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center text-yellow-400 text-xs">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= product.rating %} <i class="fa-solid fa-star"></i>
+                                {% else %}
+                                <i class="fa-regular fa-star"></i>
+                                {% endif %}
+                                {% endfor %}
+                                <span class="text-neutral-500 ml-1">({{ product.rating }})</span>
+                        </div>
+                        <!-- 收藏按钮 -->
+                        <button class="collect-btn text-neutral-400 hover:text-primary transition-colors"
+                            data-product-id="{{ product.id }}">
+                            {% if product.id in user_marks %}
+                            <i class="fa-solid fa-heart"></i>
+                            {% else %}
+                            <i class="fa-regular fa-heart"></i>
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-span-full text-center py-16">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                <i class="fa-solid fa-box-open text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-neutral-700 mb-2">暂无商品</h3>
+            <p class="text-neutral-500 mb-6">该分类下暂无商品，敬请期待</p>
+            <a href="{% url 'mall:mall' %}"
+                class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                <i class="fa-solid fa-arrow-left mr-2"></i>
+                返回首页
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 推荐商品 -->
+    {% if recommended_products %}
+    <div class="mb-12">
+        <h2 class="text-xl font-bold text-neutral-800 mb-6 flex items-center">
+            <i class="fa-solid fa-thumbs-up text-primary mr-2"></i>
+            猜你喜欢
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {% for product in recommended_products %}
+            <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden">
+                <a href="{% url 'mall:product_detail' product.id %}" class="block">
+                    <!-- 商品图片 -->
+                    <div class="aspect-square bg-gray-50 relative overflow-hidden">
+                        {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}"
+                            class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                            <i class="fa-solid fa-box text-4xl text-gray-300"></i>
+                        </div>
+                        {% endif %}
+                        <!-- 新品标签 -->
+                        {% if product.is_new %}
+                        <span
+                            class="absolute top-2 right-2 bg-primary text-white text-xs font-medium px-2 py-1 rounded-full">新品</span>
+                        {% endif %}
+                    </div>
+                    <!-- 商品信息 -->
+                    <div class="p-4">
+                        <h3 class="text-sm font-medium text-neutral-800 mb-2 line-clamp-2">{{ product.name }}</h3>
+                        <div class="flex items-center mb-2">
+                            <span class="text-primary font-bold">¥{{ product.price }}</span>
+                            {% if product.old_price > product.price %}
+                            <span class="text-neutral-400 text-xs line-through ml-2">¥{{ product.old_price }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-yellow-400 text-xs">
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= product.rating %} <i class="fa-solid fa-star"></i>
+                                    {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <span class="text-neutral-500 ml-1">({{ product.rating }})</span>
+                            </div>
+                            <!-- 收藏按钮 -->
+                            <button class="collect-btn text-neutral-400 hover:text-primary transition-colors"
+                                data-product-id="{{ product.id }}">
+                                {% if product.id in user_marks %}
+                                <i class="fa-solid fa-heart"></i>
+                                {% else %}
+                                <i class="fa-regular fa-heart"></i>
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</main>
+
+<script>
+    // 收藏功能
+    document.addEventListener('DOMContentLoaded', function () {
+        const collectBtns = document.querySelectorAll('.collect-btn');
+
+        collectBtns.forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                const icon = this.querySelector('i');
+
+                // 切换收藏状态
+                if (icon.classList.contains('fa-regular')) {
+                    // 添加收藏
+                    fetch("{% url 'mall:add_mark' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: `product_id=${productId}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                icon.classList.remove('fa-regular');
+                                icon.classList.add('fa-solid');
+                                icon.classList.add('text-primary');
+                            }
+                        });
+                } else {
+                    // 取消收藏
+                    fetch("{% url 'mall:remove_mark' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: `product_id=${productId}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                icon.classList.remove('fa-solid');
+                                icon.classList.remove('text-primary');
+                                icon.classList.add('fa-regular');
+                            }
+                        });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -990,7 +990,6 @@ def mall(request):
                 'old_price': float(product.old_price)
             }
             hot_products.append(product_dict)
-
         # 缓存数据到热卖商品缓存
         try:
             from django.core.cache import caches
@@ -1011,17 +1010,60 @@ def mall(request):
 
     # 获取当前秒杀活动
     now = timezone.now()
-    current_flash_sales = FlashSale.objects.filter(
-        status=True,
-        start_time__lte=now,
-        end_time__gte=now
-    )[:3]
+    # 尝试从缓存获取
+    cache_key = f'mall_active:{now.year}:{now.month}:{now.day}:{request.user.is_vip if hasattr(request.user, "is_vip") else "false"}'
+    current_flash_sales = None
+    
+    try:
+        from django.core.cache import caches
+        cache = caches['mall_cache']
+        current_flash_sales = cache.get(cache_key)
+    except Exception as e:
+        print(f"缓存读取失败: {e}")
+    
+    if current_flash_sales is None:
+        # 构建查询
+        query = FlashSale.objects.filter(
+            status=True,
+            start_time__lte=now,
+            end_time__gte=now
+        )
+        
+        # 根据用户VIP状态筛选
+        if not hasattr(request.user, "is_vip") or not request.user.is_vip:
+            query = query.filter(is_vip_only=False)
+        
+        current_flash_sales = query[:3]
+        
+        # 缓存结果
+        try:
+            from django.core.cache import caches
+            cache = caches['mall_cache']
+            cache.set(cache_key, current_flash_sales, 3600)  # 缓存1小时
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
 
     # 获取首页轮播图
     banners = HomeBanner.objects.filter(is_active=True).order_by('sort')[:5]
 
-    # 获取商品分类
-    categories = Category.objects.filter(is_active=True, parent__isnull=True)[:8]
+    # 获取商品分类（顶级分类及其子分类）
+    top_categories = Category.objects.filter(is_active=True, parent__isnull=True).order_by('sort')[:8]
+    # 为每个顶级分类获取子分类
+    categories_with_children = []
+    for category in top_categories:
+        category_dict = {
+            'id': category.id,
+            'name': category.name,
+            'icon': category.icon.url if category.icon else '',
+            'children': [
+                {
+                    'id': child.id,
+                    'name': child.name
+                }
+                for child in category.children.filter(is_active=True).order_by('sort')[:5]
+            ]
+        }
+        categories_with_children.append(category_dict)
     
     # 获取用户收藏的商品
     user_marks = ProductMark.objects.filter(user=request.user).values_list('product_id', flat=True)
@@ -1034,7 +1076,7 @@ def mall(request):
         'couple_products': couple_products,
         'current_flash_sales': current_flash_sales,
         'banners': banners,
-        'categories': categories,
+        'categories': categories_with_children,
         'user': request.user,
         'user_marks': user_marks
     })
@@ -1321,6 +1363,283 @@ def refresh_recommended(request):
             'success': False,
             'message': str(e)
         })
+
+
+# 清除活动缓存的函数
+def clear_flash_sale_cache():
+    """清除活动缓存"""
+    try:
+        from django.core.cache import caches
+        from datetime import datetime
+        cache = caches['mall_cache']
+        # 清除当前日期的活动缓存
+        now = datetime.now()
+        # 清除不同类型活动的缓存，统一在mall_active键名下
+        cache_keys = [
+            # 首页活动列表缓存
+            f'mall_active:{now.year}:{now.month}:{now.day}:false',
+            f'mall_active:{now.year}:{now.month}:{now.day}:true',
+            # 活动详情页缓存
+            f'mall_active:flash:{now.year}:{now.month}:{now.day}:false',
+            f'mall_active:flash:{now.year}:{now.month}:{now.day}:true',
+            f'mall_active:new:{now.year}:{now.month}:{now.day}:false',
+            f'mall_active:new:{now.year}:{now.month}:{now.day}:true',
+            f'mall_active:vip:{now.year}:{now.month}:{now.day}:false',
+            f'mall_active:vip:{now.year}:{now.month}:{now.day}:true'
+        ]
+        for cache_key in cache_keys:
+            cache.delete(cache_key)
+            print(f"已清除活动缓存: {cache_key}")
+    except Exception as e:
+        print(f"清除活动缓存失败: {e}")
+
+# 分类商品页面
+@login_required
+def category_products(request, category_id):
+    """分类商品页面"""
+    # 获取分类
+    category = get_object_or_404(Category, id=category_id, is_active=True)
+    
+    # 获取分类下的商品
+    products_queryset = Product.objects.filter(
+        is_active=True,
+        category=category,
+        product_stock__gt=0
+    ).order_by('-created_at')[:20]
+    
+    # 为商品添加discount属性
+    products = []
+    for product in products_queryset:
+        if product.old_price > product.price:
+            product.discount = int((1 - product.price / product.old_price) * 100)
+        else:
+            product.discount = 0
+        products.append(product)
+    
+    # 获取推荐商品
+    recommended_queryset = Product.objects.filter(
+        is_active=True,
+        product_stock__gt=0
+    ).exclude(category=category).order_by('?')[:5]
+    
+    # 为推荐商品添加discount属性
+    recommended_products = []
+    for product in recommended_queryset:
+        if product.old_price > product.price:
+            product.discount = int((1 - product.price / product.old_price) * 100)
+        else:
+            product.discount = 0
+        recommended_products.append(product)
+    
+    # 获取用户收藏的商品
+    user_marks = ProductMark.objects.filter(user=request.user).values_list('product_id', flat=True)
+    
+    return render(request, 'mall/category_products.html', {
+        'category': category,
+        'products': products,
+        'recommended_products': recommended_products,
+        'user_marks': user_marks,
+        'user': request.user
+    })
+
+
+# 新品商品页面
+@login_required
+def new_products(request):
+    """新品商品页面"""
+    # 获取新品商品
+    now = timezone.now()
+    # 尝试从缓存获取
+    cache_key = f'mall_active:new:{now.year}:{now.month}:{now.day}:{request.user.is_vip if hasattr(request.user, "is_vip") else "false"}'
+    products = None
+    recommended_products = None
+    user_marks = None
+    
+    try:
+        from django.core.cache import caches
+        cache = caches['mall_cache']
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            products = cached_data['products']
+            recommended_products = cached_data['recommended']
+            user_marks = cached_data['user_marks']
+    except Exception as e:
+        print(f"缓存读取失败: {e}")
+    
+    if products is None or recommended_products is None:
+        products_queryset = Product.objects.filter(
+            is_active=True,
+            is_new=True,
+            product_stock__gt=0
+        ).order_by('-created_at')[:20]
+        
+        # 为商品添加discount属性（新品不显示折扣）
+        products = []
+        for product in products_queryset:
+            # 新品不显示折扣
+            product.discount = 0
+            products.append(product)
+        
+        # 获取推荐商品
+        recommended_queryset = Product.objects.filter(
+            is_active=True,
+            product_stock__gt=0
+        ).exclude(is_new=True).order_by('?')[:5]
+        
+        # 为推荐商品添加discount属性
+        recommended_products = []
+        for product in recommended_queryset:
+            if product.old_price > product.price:
+                product.discount = int((1 - product.price / product.old_price) * 100)
+            else:
+                product.discount = 0
+            recommended_products.append(product)
+        
+        # 获取用户收藏的商品
+        user_marks = ProductMark.objects.filter(user=request.user).values_list('product_id', flat=True)
+        
+        # 缓存结果
+        try:
+            from django.core.cache import caches
+            cache = caches['mall_cache']
+            cache.set(cache_key, {
+                'products': products,
+                'recommended': recommended_products,
+                'user_marks': user_marks
+            }, 3600)  # 缓存1小时
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
+    
+    # 创建一个虚拟的分类对象用于模板显示
+    class VirtualCategory:
+        def __init__(self):
+            self.id = 0
+            self.name = "新品上市"
+            self.icon = None
+    
+    virtual_category = VirtualCategory()
+    
+    return render(request, 'mall/category_products.html', {
+        'category': virtual_category,
+        'products': products,
+        'recommended_products': recommended_products,
+        'user_marks': user_marks,
+        'user': request.user
+    })
+
+
+# VIP专属活动页面
+@login_required
+def vip_products(request):
+    """VIP专属活动页面"""
+    now = timezone.now()
+    # 尝试从缓存获取
+    cache_key = f'mall_active:vip:{now.year}:{now.month}:{now.day}:{request.user.is_vip if hasattr(request.user, "is_vip") else "false"}'
+    products = None
+    recommended_products = None
+    user_marks = None
+    vip_activity = None
+    
+    try:
+        from django.core.cache import caches
+        cache = caches['mall_cache']
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            products = cached_data['products']
+            recommended_products = cached_data['recommended']
+            user_marks = cached_data['user_marks']
+            vip_activity = cached_data['activity']
+    except Exception as e:
+        print(f"缓存读取失败: {e}")
+    
+    if products is None or recommended_products is None:
+        try:
+            # 获取ID为3的活动（VIP专属活动）
+            vip_activity = FlashSale.objects.get(id=3, status=True)
+            
+            # 获取活动关联的商品
+            flash_sale_product_ids = FlashSaleProduct.objects.filter(
+                flash_sale=vip_activity
+            ).values_list('product_id', flat=True)
+            
+            # 获取商品详情
+            products_queryset = Product.objects.filter(
+                id__in=flash_sale_product_ids,
+                is_active=True,
+                product_stock__gt=0
+            ).order_by('-created_at')[:20]
+            
+            # 为商品添加discount属性
+            products = []
+            for product in products_queryset:
+                if product.old_price > product.price:
+                    product.discount = int((1 - product.price / product.old_price) * 100)
+                else:
+                    product.discount = 0
+                products.append(product)
+            
+            # 获取推荐商品
+            recommended_queryset = Product.objects.filter(
+                is_active=True,
+                product_stock__gt=0
+            ).exclude(id__in=[p.id for p in products]).order_by('?')[:5]
+            
+            # 为推荐商品添加discount属性
+            recommended_products = []
+            for product in recommended_queryset:
+                if product.old_price > product.price:
+                    product.discount = int((1 - product.price / product.old_price) * 100)
+                else:
+                    product.discount = 0
+                recommended_products.append(product)
+            
+            # 获取用户收藏的商品
+            user_marks = ProductMark.objects.filter(user=request.user).values_list('product_id', flat=True)
+            
+            # 缓存结果
+            try:
+                from django.core.cache import caches
+                cache = caches['mall_cache']
+                cache.set(cache_key, {
+                    'products': products,
+                    'recommended': recommended_products,
+                    'user_marks': user_marks,
+                    'activity': vip_activity
+                }, 3600)  # 缓存1小时
+            except Exception as e:
+                print(f"缓存写入失败: {e}")
+        except FlashSale.DoesNotExist:
+            # 如果活动不存在，显示空页面
+            products = []
+            recommended_products = []
+            user_marks = []
+            vip_activity = None
+    
+    # 创建一个虚拟的分类对象用于模板显示
+    class VirtualCategory:
+        def __init__(self, name):
+            self.id = 0
+            self.name = name
+            self.icon = None
+    
+    if vip_activity:
+        virtual_category = VirtualCategory(vip_activity.name)
+    else:
+        class VirtualCategory:
+            def __init__(self):
+                self.id = 0
+                self.name = "VIP专属"
+                self.icon = None
+        
+        virtual_category = VirtualCategory()
+    
+    return render(request, 'mall/category_products.html', {
+        'category': virtual_category,
+        'products': products,
+        'recommended_products': recommended_products,
+        'user_marks': user_marks,
+        'user': request.user
+    })
 
 
 
@@ -1934,21 +2253,98 @@ def flash_sale(request):
     """秒杀活动页面"""
     # 获取当前秒杀活动
     now = timezone.now()
-    current_flash_sales = FlashSale.objects.filter(
-        status=True,
-        start_time__lte=now,
-        end_time__gte=now
-    )
+    # 尝试从缓存获取
+    cache_key = f'mall_active:flash:{now.year}:{now.month}:{now.day}:{request.user.is_vip if hasattr(request.user, "is_vip") else "false"}'
+    flash_sale_products = None
+    recommended_products = None
+    user_marks = None
+    
+    try:
+        from django.core.cache import caches
+        cache = caches['mall_cache']
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            flash_sale_products = cached_data['products']
+            recommended_products = cached_data['recommended']
+            user_marks = cached_data['user_marks']
+    except Exception as e:
+        print(f"缓存读取失败: {e}")
+    
+    if flash_sale_products is None or recommended_products is None:
+        current_flash_sales = FlashSale.objects.filter(
+            status=True,
+            start_time__lte=now,
+            end_time__gte=now
+        )
 
-    # 获取即将开始的秒杀活动
-    upcoming_flash_sales = FlashSale.objects.filter(
-        status=True,
-        start_time__gt=now
-    ).order_by('start_time')[:3]
+        # 获取秒杀商品
+        flash_sale_products = []
+        if current_flash_sales:
+            # 从当前活动中获取所有秒杀商品
+            flash_sale_product_ids = FlashSaleProduct.objects.filter(
+                flash_sale__in=current_flash_sales
+            ).values_list('product_id', flat=True)
+            
+            # 获取商品详情
+            products_queryset = Product.objects.filter(
+                id__in=flash_sale_product_ids,
+                is_active=True,
+                product_stock__gt=0
+            ).order_by('-created_at')[:20]
+            
+            # 为商品添加discount属性
+            for product in products_queryset:
+                if product.old_price > product.price:
+                    product.discount = int((1 - product.price / product.old_price) * 100)
+                else:
+                    product.discount = 0
+                flash_sale_products.append(product)
 
-    return render(request, 'mall/flash_sale.html', {
-        'current_flash_sales': current_flash_sales,
-        'upcoming_flash_sales': upcoming_flash_sales
+        # 获取推荐商品
+        recommended_queryset = Product.objects.filter(
+            is_active=True,
+            product_stock__gt=0
+        ).exclude(id__in=[p.id for p in flash_sale_products]).order_by('?')[:5]
+        
+        # 为推荐商品添加discount属性
+        recommended_products = []
+        for product in recommended_queryset:
+            if product.old_price > product.price:
+                product.discount = int((1 - product.price / product.old_price) * 100)
+            else:
+                product.discount = 0
+            recommended_products.append(product)
+
+        # 获取用户收藏的商品
+        user_marks = ProductMark.objects.filter(user=request.user).values_list('product_id', flat=True)
+        
+        # 缓存结果
+        try:
+            from django.core.cache import caches
+            cache = caches['mall_cache']
+            cache.set(cache_key, {
+                'products': flash_sale_products,
+                'recommended': recommended_products,
+                'user_marks': user_marks
+            }, 3600)  # 缓存1小时
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
+
+    # 创建一个虚拟的分类对象用于模板显示
+    class VirtualCategory:
+        def __init__(self):
+            self.id = 0
+            self.name = "秒杀活动"
+            self.icon = None
+
+    virtual_category = VirtualCategory()
+
+    return render(request, 'mall/category_products.html', {
+        'category': virtual_category,
+        'products': flash_sale_products,
+        'recommended_products': recommended_products,
+        'user_marks': user_marks,
+        'user': request.user
     })
 
 

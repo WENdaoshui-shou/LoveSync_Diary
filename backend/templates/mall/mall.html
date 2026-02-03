@@ -170,298 +170,39 @@
 
         <!-- 物品分类导航区 -->
         <div class="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8">
-            <!-- 衣服分类 -->
+            {% for category in categories %}
             <div class="relative group">
-                <a href="#"
+                <a href="{% url 'mall:category_products' category.id %}"
                     class="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer">
                     <div
                         class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
-                        <i
-                            class="fa-solid fa-tshirt text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
+                        {% if category.icon %}
+                        <img src="{{ category.icon.url }}" alt="{{ category.name }}"
+                            class="w-8 h-8 object-contain transition-transform duration-300 group-hover:rotate-6">
+                        {% else %}
+                        <i class="fa-solid fa-box text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
+                        {% endif %}
                     </div>
-                    <span class="text-sm font-medium">衣服</span>
+                    <span class="text-sm font-medium">{{ category.name }}</span>
                 </a>
                 <!-- 二级导航 -->
+                {% if category.children and category.children|length > 0 %}
                 <div
                     class="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:scale-100 scale-95 origin-top">
                     <div class="p-1">
-                        <a href="#"
+                        {% for child in category.children %}
+                        <a href="{% url 'mall:category_products' child.id %}"
                             class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
                             <i
                                 class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">上衣</span>
+                            <span class="flex-1">{{ child.name }}</span>
                         </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">裤子</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">裙子</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">外套</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">内衣</span>
-                        </a>
+                        {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
-
-            <!-- 零食分类 -->
-            <div class="relative group">
-                <a href="#"
-                    class="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer">
-                    <div
-                        class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
-                        <i
-                            class="fa-solid fa-cookie-bite text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
-                    </div>
-                    <span class="text-sm font-medium">零食</span>
-                </a>
-                <!-- 二级导航 -->
-                <div
-                    class="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:scale-100 scale-95 origin-top">
-                    <div class="p-1">
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">饼干糕点</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">坚果炒货</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">糖果巧克力</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">肉干海鲜</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">果脯蜜饯</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 酒水分类 -->
-            <div class="relative group">
-                <a href="#"
-                    class="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer">
-                    <div
-                        class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
-                        <i
-                            class="fa-solid fa-wine-glass text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
-                    </div>
-                    <span class="text-sm font-medium">酒水</span>
-                </a>
-                <!-- 二级导航 -->
-                <div
-                    class="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:scale-100 scale-95 origin-top">
-                    <div class="p-1">
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">白酒</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">红酒</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">啤酒</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">洋酒</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">饮料</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 药品分类 -->
-            <div class="relative group">
-                <a href="#"
-                    class="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer">
-                    <div
-                        class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
-                        <i
-                            class="fa-solid fa-capsules text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
-                    </div>
-                    <span class="text-sm font-medium">药品</span>
-                </a>
-                <!-- 二级导航 -->
-                <div
-                    class="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:scale-100 scale-95 origin-top">
-                    <div class="p-1">
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">感冒药</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">退烧药</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">胃药</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">消炎药</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">外用药</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 家电分类 -->
-            <div class="relative group">
-                <a href="#"
-                    class="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer">
-                    <div
-                        class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
-                        <i class="fa-solid fa-tv text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
-                    </div>
-                    <span class="text-sm font-medium">家电</span>
-                </a>
-                <!-- 二级导航 -->
-                <div
-                    class="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:scale-100 scale-95 origin-top">
-                    <div class="p-1">
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">厨房电器</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">清洁电器</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">个人护理</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">生活电器</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">智能家居</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 数码分类 -->
-            <div class="relative group">
-                <a href="#"
-                    class="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer">
-                    <div
-                        class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
-                        <i
-                            class="fa-solid fa-mobile-screen-button text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
-                    </div>
-                    <span class="text-sm font-medium">数码</span>
-                </a>
-                <!-- 二级导航 -->
-                <div
-                    class="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:scale-100 scale-95 origin-top">
-                    <div class="p-1">
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">手机</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">电脑</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">配件</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">摄影器材</span>
-                        </a>
-                        <a href="#"
-                            class="block px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all duration-200 flex items-center group/item">
-                            <i
-                                class="fa-solid fa-chevron-right text-xs mr-2 text-neutral-400 group-hover/item:text-primary transition-colors"></i>
-                            <span class="flex-1">影音设备</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
         <!-- 热卖商品排行榜 -->
@@ -540,14 +281,15 @@
         <!-- 促销区域 -->
         <section class="mb-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div
-                    class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg relative">
-                    <img src="https://picsum.photos/600/300?random=6" alt="限时折扣"
+                {% for flash_sale in current_flash_sales %}
+                <div class="rounded-2xl overflow-hidden shadow-lg relative">
+                    <img src="{{ flash_sale.cover_image.url }}" alt="{{ flash_sale.name }}"
                         class="w-full h-64 object-cover opacity-70">
                     <div class="absolute inset-0 flex flex-col justify-center p-8">
-                        <h3 class="text-white text-2xl font-bold mb-2">限时特惠</h3>
-                        <p class="text-white/90 mb-4">精选商品，低至3折起</p>
-                        <div class="flex space-x-2 mb-6 countdown" data-endtime="2025-12-31T23:59:59">
+                        <h3 class="text-white text-2xl font-bold mb-2">{{ flash_sale.name }}</h3>
+                        <p class="text-white/90 mb-4">{{ flash_sale.description }}</p>
+                        {% if flash_sale.need_countdown %}
+                        <div class="flex space-x-2 mb-6 countdown" data-endtime="{{ flash_sale.end_time.isoformat }}">
                             <div
                                 class="bg-white/20 backdrop-blur-sm rounded-lg w-12 h-12 flex flex-col items-center justify-center">
                                 <span class="text-white font-bold text-lg days">00</span>
@@ -569,27 +311,21 @@
                                 <span class="text-white/80 text-xs">秒</span>
                             </div>
                         </div>
-                        <button
+                        <a href="{% url 'mall:flash_sale' %}"
                             class="bg-white text-primary font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
                             <span>立即抢购</span>
                             <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl overflow-hidden shadow-lg relative">
-                    <img src="https://picsum.photos/600/300?random=7" alt="会员专享"
-                        class="w-full h-64 object-cover opacity-70">
-                    <div class="absolute inset-0 flex flex-col justify-center p-8">
-                        <h3 class="text-white text-2xl font-bold mb-2">会员专享</h3>
-                        <p class="text-white/90 mb-4">会员日额外9折，满减优惠</p>
-                        <button
-                            class="bg-white text-green-600 font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
-                            <span>了解详情</span>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'mall:new_products' %}"
+                            class="bg-white text-primary font-medium py-2 px-6 rounded-lg btn-hover scale-hover inline-flex items-center w-fit">
+                            <span>查看新品</span>
                             <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
+                {% endfor %}
             </div>
         </section>
 
@@ -761,7 +497,8 @@
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-12">
         <div class="grid md:grid-cols-2 gap-0">
             <div class="relative h-[400px]">
-                <img src="https://picsum.photos/id/1067/600/400" alt="情侣故事" class="w-full h-full object-cover">
+                <img src="https://wendaoshuishou.oss-cn-chengdu.aliyuncs.com/mall_images/active/brand_story_img.jpg"
+                    alt="品牌故事" class="w-full h-full object-cover">
             </div>
             <div class="p-8 md:p-12 flex flex-col justify-center">
                 <h2 class="text-2xl md:text-3xl font-bold mb-4 text-neutral-800">我们的品牌故事</h2>

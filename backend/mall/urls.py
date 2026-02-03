@@ -10,7 +10,7 @@ from .views import (
     mall, product_detail, add_to_cart, cart_count, mark_count, mallcart, update_cart, mallmark, checkout,
     delete_cart_item, submit_order, order_list, order_detail, add_mark, remove_mark, order_review,
     flash_sale, coupon_list, address_manage, add_address, edit_address, delete_address,
-    logistics_track, couple_zone, search_result,get_coupon_detail, refresh_recommended
+    logistics_track, couple_zone, search_result,get_coupon_detail, refresh_recommended, category_products, new_products, vip_products
 )
 
 app_name = 'mall'
@@ -39,6 +39,7 @@ web_urlpatterns = [
     # 首页与商品
     path('', mall, name='mall'),
     path('product/<uuid:product_id>/', product_detail, name='product_detail'),
+    path('category/<int:category_id>/', category_products, name='category_products'),
     path('search/', search_result, name='search_result'),
     path('couple-zone/', couple_zone, name='couple_zone'),
     
@@ -64,6 +65,12 @@ web_urlpatterns = [
     
     # 秒杀
     path('flash-sale/', flash_sale, name='flash_sale'),
+    
+    # 新品
+    path('new-products/', new_products, name='new_products'),
+    
+    # VIP专属
+    path('vip/', vip_products, name='vip_products'),
     
     # 优惠券
     path('coupons/', coupon_list, name='coupon_list'),
