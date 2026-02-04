@@ -193,6 +193,7 @@ class Order(models.Model):
         ('shipped', '已发货'),
         ('delivered', '已收货'),
         ('cancelled', '已取消'),
+        ('refunding', '退款中'),
         ('refunded', '已退款'),
     )
     order_number = models.CharField(

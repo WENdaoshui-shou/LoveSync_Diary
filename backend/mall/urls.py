@@ -10,7 +10,8 @@ from .views import (
     mall, product_detail, add_to_cart, cart_count, mark_count, mallcart, update_cart, mallmark, checkout,
     delete_cart_item, submit_order, order_list, order_detail, add_mark, remove_mark, order_review,
     flash_sale, coupon_list, address_manage, add_address, edit_address, delete_address,
-    logistics_track, couple_zone, search_result,get_coupon_detail, refresh_recommended, category_products, new_products, vip_products
+    logistics_track, couple_zone, search_result,get_coupon_detail, refresh_recommended, category_products, new_products, vip_products,
+    process_payment, refund_apply, submit_refund
 )
 
 app_name = 'mall'
@@ -54,8 +55,11 @@ web_urlpatterns = [
     # 订单
     path('checkout/', checkout, name='checkout'),
     path('submit-order/', submit_order, name='submit_order'),
+    path('process-payment/', process_payment, name='process_payment'),
     path('orders/', order_list, name='order_list'),
     path('order/<str:order_number>/', order_detail, name='order_detail'),
+    path('order/<str:order_number>/refund/', refund_apply, name='refund_apply'),
+    path('submit-refund/', submit_refund, name='submit_refund'),
     path('order/<int:order_id>/review/', order_review, name='order_review'),
     
     # 收藏

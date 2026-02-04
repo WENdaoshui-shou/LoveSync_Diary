@@ -102,10 +102,30 @@ class Profile(models.Model):
     def couple_days(self):
         """计算相恋天数"""
         from django.utils import timezone
+        from couple.models import CoupleRelation
+        
+        # 首先尝试从CoupleRelation模型中获取相恋日期
+        if self.couple:
+            try:
+                # 查找包含当前用户和其情侣的CoupleRelation记录
+                relation = CoupleRelation.objects.filter(
+                    (models.Q(user1=self.user) & models.Q(user2=self.couple.user)) |
+                    (models.Q(user1=self.couple.user) & models.Q(user2=self.user))
+                ).first()
+                
+                if relation and relation.relationship_start_date:
+                    now = timezone.now().date()
+                    delta = now - relation.relationship_start_date
+                    return delta.days
+            except Exception as e:
+                print(f"获取CoupleRelation记录失败: {e}")
+        
+        # 如果没有找到CoupleRelation记录，回退到使用couple_joined_at
         if self.couple_joined_at:
             now = timezone.now()
             delta = now - self.couple_joined_at
             return delta.days
+        
         return None
 
     class Meta:

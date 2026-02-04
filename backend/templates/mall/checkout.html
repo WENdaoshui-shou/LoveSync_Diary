@@ -183,7 +183,8 @@
                     {% for address in addresses %}
                     <div
                         class="border {% if address.is_default %}border-primary bg-primary/5{% else %}border-gray-200{% endif %} rounded-lg p-4 flex items-start card-hover">
-                        <input type="radio" id="address{{ address.id }}" name="address" value="{{ address.id }}" class="mt-1" {% if address.is_default %}checked{% endif %}>
+                        <input type="radio" id="address{{ address.id }}" name="address" value="{{ address.id }}"
+                            class="mt-1" {% if address.is_default %}checked{% endif %}>
                         <label for="address{{ address.id }}" class="ml-3 flex-1">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="font-medium">{{ address.recipient }}</span>
@@ -621,7 +622,10 @@
                     // 准备订单数据
                     const orderData = {
                         address_id: addressId,
-                        payment_method: paymentMethod
+                        payment_method: paymentMethod,
+                        direct_purchase: '{{ direct_purchase|lower }}',
+                        product_id: '{{ product_id }}',
+                        quantity: '{{ quantity }}'
                     };
 
                     if (couponId) {

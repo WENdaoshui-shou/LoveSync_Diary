@@ -54,6 +54,14 @@
                 class="px-6 py-2 rounded-full {% if status == 'cancelled' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
                 <i class="fa-solid fa-times-circle mr-2"></i>已取消
             </a>
+            <a href="{% url 'mall:order_list' %}?status=refunding"
+                class="px-6 py-2 rounded-full {% if status == 'refunding' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
+                <i class="fa-solid fa-hourglass-half mr-2"></i>退款中
+            </a>
+            <a href="{% url 'mall:order_list' %}?status=refunded"
+                class="px-6 py-2 rounded-full {% if status == 'refunded' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
+                <i class="fa-solid fa-undo mr-2"></i>已退款
+            </a>
         </div>
     </div>
 
@@ -249,12 +257,79 @@
         payBtns.forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
-                showToast('提示', '支付功能正在开发中', true);
+                // 获取订单编号
+                const orderCard = this.closest('.order-card-hover');
+                const orderNumber = orderCard.querySelector('.font-medium').textContent.trim();
+
+                // 显示加载状态
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>支付中...';
+                this.disabled = true;
+
+                // 获取CSRF令牌
+                function getCSRFToken() {
+                    let token = null;
+                    // 首先尝试从cookie中获取
+                    const cookieValue = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('csrftoken='))
+                        ?.split('=')[1];
+                    if (cookieValue) {
+                        token = cookieValue;
+                    } else {
+                        // 如果cookie中没有，尝试从input元素中获取
+                        const csrfElement = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                        if (csrfElement) {
+                            token = csrfElement.value;
+                        }
+                    }
+                    return token;
+                }
+
+                // 构建请求数据
+                const formData = new FormData();
+                formData.append('order_number', orderNumber);
+                formData.append('payment_method', 'wechat');
+
+                // 发送支付请求
+                fetch('{% url "mall:process_payment" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 恢复按钮状态
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+
+                        if (data.status === 'success') {
+                            // 显示支付成功提示
+                            showToast('支付成功', data.message || '您的订单已支付成功', true);
+
+                            // 刷新页面，更新订单状态
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // 显示支付失败提示
+                            showToast('支付失败', data.message || '支付处理失败，请稍后重试', false);
+                        }
+                    })
+                    .catch(error => {
+                        // 恢复按钮状态
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+
+                        // 显示错误提示
+                        showToast('支付失败', '网络错误，请稍后重试', false);
+                        console.error('支付请求失败:', error);
+                    });
             });
         });
 
-        // 评价功能 - 已实现，无需阻止默认行为
-        // 移除阻止评价按钮的代码，让用户能够正常跳转到评价页面
     });
 </script>
 {% endblock %}

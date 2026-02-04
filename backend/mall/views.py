@@ -235,6 +235,44 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({'status': 'delivered'})
         return Response({'error': '订单状态不允许确认收货'}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['put'])
+    def refund(self, request, pk=None):
+        """申请退款"""
+        order = self.get_object()
+        if order.status in ['paid', 'shipped', 'delivered']:
+            # 查找订单对应的支付记录
+            payment = Payment.objects.filter(order=order, status='success').first()
+            if payment:
+                # 检查是否超过售后有效期
+                if order.delivered_at:
+                    import datetime
+                    delivered_date = order.delivered_at.date()
+                    now_date = timezone.now().date()
+                    if (now_date - delivered_date).days > 7:
+                        return Response({'error': '商品已超过7天售后有效期'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                # 更新支付记录
+                refund_amount = request.data.get('refund_amount', payment.amount)
+                
+                # 创建退款申请记录
+                from .models import RefundApplication
+                refund_reason = request.data.get('reason', '用户申请退款')
+                RefundApplication.objects.create(
+                    user=request.user,
+                    order=order,
+                    refund_amount=refund_amount,
+                    reason=refund_reason,
+                    status='pending'
+                )
+                
+                # 更新订单状态为退款中
+                order.status = 'refunding'
+                order.save()
+                
+                return Response({'status': 'refunding', 'refund_amount': refund_amount})
+            return Response({'error': '未找到有效的支付记录'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': '订单状态不允许退款'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PaymentViewSet(viewsets.ModelViewSet):
     """支付视图集"""
@@ -1655,8 +1693,12 @@ def checkout(request):
     product_id = request.GET.get('product_id')
     quantity = request.GET.get('quantity', 1)
 
-    # 如果是直接购买
+    # 如果是直接购买，将信息存储在会话中
     if direct_purchase and product_id:
+        request.session['direct_purchase'] = {
+            'product_id': product_id,
+            'quantity': quantity
+        }
         try:
             # 获取商品信息
             product = get_object_or_404(Product, id=product_id)
@@ -1685,7 +1727,10 @@ def checkout(request):
             # 如果出现错误，重定向到购物车页面
             return redirect('mall:mallcart')
     else:
-        # 否则，获取选中的购物车项
+        # 否则，清除会话中的直接购买信息
+        if 'direct_purchase' in request.session:
+            del request.session['direct_purchase']
+        # 获取选中的购物车项
         selected_items = CartItem.objects.filter(user=request.user, selected=True).select_related('product', 'sku')
 
         if not selected_items:
@@ -1745,30 +1790,62 @@ def submit_order(request):
         address_id = request.POST.get('address_id')
         coupon_id = request.POST.get('coupon_id')
         payment_method = request.POST.get('payment_method')
+        # 获取直接购买的商品信息
+        direct_purchase = request.POST.get('direct_purchase') == 'true'
+        product_id = request.POST.get('product_id')
+        quantity = request.POST.get('quantity', 1)
 
         # 验证地址
         address = get_object_or_404(Address, id=address_id, user=request.user)
 
-        # 获取选中的购物车项
-        selected_items = CartItem.objects.filter(user=request.user, selected=True).select_related('product', 'sku')
-
-        if not selected_items:
-            return JsonResponse({'status': 'error', 'message': '请选择商品'})
-
-        # 计算订单金额
-        goods_total = 0
         order_items_data = []
+        goods_total = 0
+        selected_items = None
 
-        # 先计算商品总价
-        for item in selected_items:
-            price = item.sku.price if item.sku else item.product.price
-            item_total = price * item.quantity
-            goods_total += item_total
+        if direct_purchase and product_id:
+            # 处理直接购买的情况
+            quantity = int(quantity)
+            
+            # 获取商品信息
+            product = get_object_or_404(Product, id=product_id)
+            
+            # 计算商品总价
+            price = product.price
+            item_total = price * quantity
+            goods_total = item_total
+            
+            # 创建临时的购物车项对象，用于后续处理
+            class TempCartItem:
+                def __init__(self, product, quantity):
+                    self.product = product
+                    self.quantity = quantity
+                    self.sku = None
+
+            temp_item = TempCartItem(product, quantity)
             order_items_data.append({
-                'item': item,
+                'item': temp_item,
                 'price': price,
                 'item_total': item_total
             })
+        else:
+            # 处理购物车购买的情况
+            # 获取选中的购物车项
+            selected_items = CartItem.objects.filter(user=request.user, selected=True).select_related('product', 'sku')
+
+            if not selected_items:
+                return JsonResponse({'status': 'error', 'message': '请选择商品'})
+
+            # 计算订单金额
+            # 先计算商品总价
+            for item in selected_items:
+                price = item.sku.price if item.sku else item.product.price
+                item_total = price * item.quantity
+                goods_total += item_total
+                order_items_data.append({
+                    'item': item,
+                    'price': price,
+                    'item_total': item_total
+                })
 
         # 计算运费和订单总价
         shipping_fee = 0 if goods_total >= 99 else 10
@@ -1889,7 +1966,8 @@ def submit_order(request):
                     pass
 
             # 清空购物车中已下单的商品
-            selected_items.delete()
+            if selected_items:
+                selected_items.delete()
 
             # 清除缓存
             cart_key = f'user_cart:{request.user.id}'
@@ -1912,13 +1990,13 @@ def submit_order(request):
 def order_list(request):
     """订单列表页面"""
     # 获取订单状态
-    status = request.GET.get('status', 'all')
+    status = request.GET.get('status')
 
     # 获取订单
     orders = Order.objects.filter(user=request.user)
 
     # 按状态筛选
-    if status != 'all':
+    if status:
         orders = orders.filter(status=status)
 
     # 排序
@@ -2080,6 +2158,138 @@ def mark_count(request):
         return JsonResponse({'status': 'success', 'count': count})
     except Exception as e:
         return JsonResponse({'status': 'error', 'count': 0, 'message': str(e)})
+
+
+# 处理订单支付
+@login_required
+@require_POST
+def process_payment(request):
+    """处理订单支付"""
+    try:
+        # 获取订单编号
+        order_number = request.POST.get('order_number')
+        payment_method = request.POST.get('payment_method', 'wechat')
+        
+        if not order_number:
+            return JsonResponse({'status': 'error', 'message': '缺少订单编号'})
+        
+        # 获取订单
+        order = get_object_or_404(Order, order_number=order_number, user=request.user)
+        
+        # 检查订单状态
+        if order.status != 'pending':
+            return JsonResponse({'status': 'error', 'message': '订单状态不允许支付'})
+        
+        # 更新订单状态
+        order.status = 'paid'
+        order.payment_method = payment_method
+        order.paid_at = timezone.now()
+        order.save()
+        
+        # 更新支付记录
+        payment = Payment.objects.filter(order=order).first()
+        if payment:
+            payment.status = 'success'
+            payment.transaction_id = f"TRX{int(timezone.now().timestamp())}{uuid.uuid4().hex[:8].upper()}"
+            payment.paid_at = timezone.now()
+            payment.save()
+        else:
+            # 如果没有支付记录，创建一个
+            Payment.objects.create(
+                order=order,
+                amount=order.total_amount,
+                method=payment_method,
+                status='success',
+                transaction_id=f"TRX{int(timezone.now().timestamp())}{uuid.uuid4().hex[:8].upper()}",
+                paid_at=timezone.now()
+            )
+        
+        # 清除缓存
+        cart_key = f'user_cart:{request.user.id}'
+        try:
+            from django.core.cache import caches
+            mall_cache = caches['mall_cache']
+            mall_cache.delete(cart_key)
+        except Exception as e:
+            print(f"Redis缓存操作失败: {e}")
+            cache.delete(cart_key)
+        
+        return JsonResponse({'status': 'success', 'message': '支付成功', 'order_number': order.order_number})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# 退款申请页面
+@login_required
+def refund_apply(request, order_number):
+    """退款申请页面"""
+    order = get_object_or_404(Order, order_number=order_number, user=request.user)
+    
+    # 检查订单状态是否允许退款
+    if order.status not in ['paid', 'shipped', 'delivered']:
+        messages.error(request, '该订单状态不允许申请退款')
+        return redirect('mall:order_detail', order_number=order.order_number)
+    
+    # 检查是否超过售后有效期
+    if order.delivered_at:
+        delivered_date = order.delivered_at.date()
+        now_date = timezone.now().date()
+        if (now_date - delivered_date).days > 7:
+            messages.error(request, '商品已超过7天售后有效期')
+            return redirect('mall:order_detail', order_number=order.order_number)
+    
+    return render(request, 'mall/refund_apply.html', {
+        'order': order
+    })
+
+
+# 提交退款申请
+@login_required
+@require_POST
+def submit_refund(request):
+    """提交退款申请"""
+    try:
+        order_id = request.POST.get('order_id')
+        reason = request.POST.get('reason')
+        refund_amount = request.POST.get('refund_amount')
+        
+        if not order_id or not reason:
+            return JsonResponse({'status': 'error', 'message': '缺少必要参数'})
+        
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        
+        # 检查订单状态是否允许退款
+        if order.status not in ['paid', 'shipped', 'delivered']:
+            return JsonResponse({'status': 'error', 'message': '该订单状态不允许申请退款'})
+        
+        # 检查是否超过售后有效期
+        if order.delivered_at:
+            delivered_date = order.delivered_at.date()
+            now_date = timezone.now().date()
+            if (now_date - delivered_date).days > 7:
+                return JsonResponse({'status': 'error', 'message': '商品已超过7天售后有效期'})
+        
+        # 查找订单对应的支付记录
+        payment = Payment.objects.filter(order=order, status='success').first()
+        if not payment:
+            return JsonResponse({'status': 'error', 'message': '未找到有效的支付记录'})
+        
+        # 创建退款申请记录
+        RefundApplication.objects.create(
+            user=request.user,
+            order=order,
+            refund_amount=refund_amount or order.total_amount,
+            reason=reason,
+            status='pending'
+        )
+        
+        # 更新订单状态为退款中
+        order.status = 'refunding'
+        order.save()
+        
+        return JsonResponse({'status': 'success', 'message': '退款申请已提交，请等待审核'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
 
 
 # 订单评价页面

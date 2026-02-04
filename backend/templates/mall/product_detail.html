@@ -354,101 +354,110 @@
     </div>
 </div>
 
-  <!-- 商品评论 -->
-  <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+<!-- 商品评论 -->
+<div class="bg-white rounded-xl shadow-sm p-6 mb-8">
     <h2 class="text-xl font-bold mb-4">商品评论</h2>
-    
+
     <!-- 评论统计 -->
     <div class="flex items-center mb-6">
-      <div class="mr-8">
-        <div class="flex items-end">
-          <span class="text-3xl font-bold text-primary">{{ average_rating|floatformat:1 }}</span>
-          <span class="text-gray-500 ml-2 mb-1">/ 5.0</span>
+        <div class="mr-8">
+            <div class="flex items-end">
+                <span class="text-3xl font-bold text-primary">{{ average_rating|floatformat:1 }}</span>
+                <span class="text-gray-500 ml-2 mb-1">/ 5.0</span>
+            </div>
+            <div class="flex items-center text-yellow-400 mt-1">
+                {% with full_stars=average_rating|floatformat:0|add:0 %}
+                {% for _ in ""|center:full_stars %}
+                <i class="fa-solid fa-star"></i>
+                {% endfor %}
+                {% endwith %}
+                {% if average_rating|floatformat:1|slice:"-2:" == ".5" %}
+                <i class="fa-solid fa-star-half-stroke"></i>
+                {% endif %}
+            </div>
         </div>
-        <div class="flex items-center text-yellow-400 mt-1">
-          {% with full_stars=average_rating|floatformat:0|add:0 %}
-          {% for _ in ""|center:full_stars %}
-          <i class="fa-solid fa-star"></i>
-          {% endfor %}
-          {% endwith %}
-          {% if average_rating|floatformat:1|slice:"-2:" == ".5" %}
-          <i class="fa-solid fa-star-half-stroke"></i>
-          {% endif %}
+        <div class="flex-1">
+            {% for i in "54321" %}
+            <div class="flex items-center mb-1">
+                <span class="text-sm text-gray-500 w-12">{{ i }}星</span>
+                <div class="flex-1 h-2 bg-gray-200 rounded-full mr-2">
+                    <div class="h-2 bg-yellow-400 rounded-full"style="width: {{ i }}%"></div>
+                </div>
+                <span class="text-sm text-gray-500">{{ i }}%</span>
+            </div>
+            {% endfor %}
         </div>
-      </div>
-      <div class="flex-1">
-        {% for i in "54321" %}
-        <div class="flex items-center mb-1">
-          <span class="text-sm text-gray-500 w-12">{{ i }}星</span>
-          <div class="flex-1 h-2 bg-gray-200 rounded-full mr-2">
-            <div class="h-2 bg-yellow-400 rounded-full"style="width: {{ i }}%"></div>
-          </div>
-          <span class="text-sm text-gray-500">{{ i }}%</span>
-        </div>
-        {% endfor %}
-      </div>
     </div>
-    
+
     <!-- 评论列表 -->
     <div class="space-y-6">
-      {% for review in reviews %}
-      <div class="border-b border-gray-100 pb-6 last:border-0">
-        <div class="flex items-start">
-          <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-4 flex-shrink-0">
-            {% if review.is_anonymous %}
-            <i class="fa-solid fa-user-secret text-gray-500"></i>
-            {% else %}
-            <i class="fa-solid fa-user text-gray-500"></i>
-            {% endif %}
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center">
-                <span class="font-medium mr-2">
-                  {% if review.is_anonymous %}
-                  匿名用户
-                  {% else %}
-                  {{ review.user.username|slice:':3' }}***
-                  {% endif %}
-                </span>
-                <div class="flex items-center text-yellow-400 text-xs">
-                  {% for _ in ""|center:review.rating %}
-                  <i class="fa-solid fa-star"></i>
-                  {% endfor %}
+        {% for review in reviews %}
+        <div class="border-b border-gray-100 pb-6 last:border-0">
+            <div class="flex items-start">
+                <div class="w-10 h-10 rounded-full overflow-hidden mr-4 flex-shrink-0">
+                    {% if review.is_anonymous %}
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <i class="fa-solid fa-user-secret text-gray-500"></i>
+                    </div>
+                    {% else %}
+                    {% if review.user.profile.userAvatar %}
+                    <img src="{{ review.user.profile.userAvatar.url }}" alt="{{ review.user.username }}"
+                        class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-gray-500"></i>
+                    </div>
+                    {% endif %}
+                    {% endif %}
                 </div>
-              </div>
-              <span class="text-sm text-gray-500">{{ review.created_at|date:'Y-m-d H:i:s' }}</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">
+                                {% if review.is_anonymous %}
+                                匿名评论
+                                {% else %}
+                                {{ review.user.name|slice:':3' }}***
+                                {% endif %}
+                            </span>
+                            <div class="flex items-center text-yellow-400 text-xs">
+                                {% for _ in ""|center:review.rating %}
+                                <i class="fa-solid fa-star"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-500">{{ review.created_at|date:'Y-m-d H:i:s' }}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">{{ review.comment }}</p>
+                    {% if review.images %}
+                    <div class="flex space-x-2">
+                        {% for image in review.images %}
+                        {% if image %}
+                        <img src="{{ image }}" alt="评论图片" class="w-20 h-20 object-cover rounded-lg">
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            <p class="text-gray-700 mb-3">{{ review.comment }}</p>
-            {% if review.images %}
-            <div class="flex space-x-2">
-              {% for image in review.images %}
-              {% if image %}
-              <img src="{{ image }}" alt="评论图片" class="w-20 h-20 object-cover rounded-lg">
-              {% endif %}
-              {% endfor %}
-            </div>
-            {% endif %}
-          </div>
         </div>
-      </div>
-      {% empty %}
-      <div class="text-center py-10">
-        <i class="fa-solid fa-comment-dots text-gray-300 text-4xl mb-4"></i>
-        <p class="text-gray-500">暂无评论，快来成为第一个评论的人吧！</p>
-      </div>
-      {% endfor %}
+        {% empty %}
+        <div class="text-center py-10">
+            <i class="fa-solid fa-comment-dots text-gray-300 text-4xl mb-4"></i>
+            <p class="text-gray-500">暂无评论，快来成为第一个评论的人吧！</p>
+        </div>
+        {% endfor %}
     </div>
-    
+
     <!-- 查看更多评论 -->
     {% if reviews.count >= 10 %}
     <div class="text-center mt-8">
-      <button class="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors">
-        查看更多评论
-      </button>
+        <button class="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors">
+            查看更多评论
+        </button>
     </div>
     {% endif %}
-  </div>
+</div>
 
 <script>
     // 1. 获取CSRF令牌（通用方法，保留）
