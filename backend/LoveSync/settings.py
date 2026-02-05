@@ -114,7 +114,7 @@ LOGGING = {
         # 新增：错误日志写入文件（关键！能看到详细报错）
         'file': {
             'class': 'logging.FileHandler',
-            'filename': '/var/log/django_error.log',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django_error.log'),
             'formatter': 'colored',
             'level': 'ERROR',  # 只记录错误日志
         },

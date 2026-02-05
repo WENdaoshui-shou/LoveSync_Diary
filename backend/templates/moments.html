@@ -418,24 +418,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // 移动端菜单切换
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        menuToggle.addEventListener('click', function () {
-            if (mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('hidden');
-                setTimeout(() => {
-                    mobileMenu.classList.add('translate-y-0', 'opacity-100');
-                }, 50);
-            } else {
-                mobileMenu.classList.remove('translate-y-0', 'opacity-100');
-                setTimeout(() => {
-                    mobileMenu.classList.add('hidden');
-                }, 200);
-            }
-        });
-
         // 发布动态表单提交
         const postForm = document.getElementById('postForm');
         if (postForm) {
@@ -498,26 +480,8 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // 更新UI - 使用currentBtn获取正确的卡片
-                            const momentCard = currentBtn.closest('.post-card');
-                            const shareBtn = currentBtn;
-
-                            shareBtn.classList.remove('text-blue-500', 'hover:bg-blue-50', 'share-btn');
-                            shareBtn.classList.add('text-gray-400', 'cursor-not-allowed', 'opacity-50');
-                            shareBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> 已分享';
-
-                            // 更新data属性
-                            shareBtn.setAttribute('data-is-shared', 'true');
-
-                            // 更新菜单中的按钮
-                            const menuBtn = currentBtn;
-                            menuBtn.classList.remove('share-btn');
-                            menuBtn.classList.add('unshare-btn');
-                            menuBtn.classList.remove('text-blue-500', 'hover:bg-blue-50');
-                            menuBtn.classList.add('text-yellow-500', 'hover:bg-yellow-50');
-                            menuBtn.innerHTML = '<i class="fa-solid fa-undo mr-2"></i> 取消分享';
-
                             closeModal();
+                            window.location.reload();
                         } else {
                             alert(data.error || '分享失败，请重试');
                             btn.disabled = false;
@@ -543,9 +507,6 @@
             'cancel-delete-btn',
             'confirm-delete-btn',
             (momentId, btn, modal, closeModal, currentBtn, currentCard) => {
-                // 确保只操作要删除的动态卡片
-                const targetCard = currentCard;
-
                 fetch(`/moments/${momentId}/delete/`, {
                     method: 'DELETE',
                     headers: {
@@ -554,21 +515,8 @@
                 })
                     .then(response => {
                         if (response.ok) {
-                            // 从DOM中移除动态卡片
-                            if (targetCard && targetCard.classList.contains('post-card')) {
-                                // 直接移除卡片，不添加动画效果，避免影响其他卡片
-                                targetCard.remove();
-                                closeModal();
-
-                                // 更新动态数量
-                                const momentsCountElement = document.getElementById('moments-count');
-                                if (momentsCountElement) {
-                                    const currentCount = parseInt(momentsCountElement.textContent);
-                                    momentsCountElement.textContent = currentCount - 1;
-                                }
-                            } else {
-                                closeModal();
-                            }
+                            closeModal();
+                            window.location.reload();
                         } else {
                             throw new Error('删除失败');
                         }
@@ -602,27 +550,8 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // 更新UI - 使用currentBtn获取正确的卡片
-                            const momentCard = currentBtn.closest('.post-card');
-                            const unshareBtn = currentBtn;
-
-                            // 切换按钮状态
-                            unshareBtn.classList.remove('text-yellow-500', 'hover:bg-yellow-50', 'unshare-btn');
-                            unshareBtn.classList.add('text-blue-500', 'hover:bg-blue-50', 'share-btn');
-                            unshareBtn.innerHTML = '<i class="fa-solid fa-share-alt mr-2"></i> 分享到社区';
-
-                            // 更新data属性
-                            unshareBtn.setAttribute('data-is-shared', 'false');
-
-                            // 如果是在社区页面，移除该动态
-                            if (window.location.pathname === '/community/') {
-                                momentCard.classList.add('opacity-0');
-                                setTimeout(() => {
-                                    momentCard.remove();
-                                }, 300);
-                            }
-
                             closeModal();
+                            window.location.reload();
                         } else {
                             alert(data.error || '取消分享失败，请重试');
                             btn.disabled = false;

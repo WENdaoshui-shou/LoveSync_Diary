@@ -737,6 +737,22 @@ def share_moment(request, moment_id):
         moment = Moment.objects.get(id=moment_id, user=request.user)
         moment.is_shared = True
         moment.save()
+        
+        # 清除相关缓存
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            # 清除动态列表缓存
+            master_cache.delete_pattern('moment:list:*')
+            # 清除热门动态缓存
+            master_cache.delete_pattern('hot:moments:*')
+            # 清除热门收藏缓存
+            master_cache.delete('hot:favorites')
+            # 清除社区页面缓存
+            master_cache.delete_pattern('community:*')
+        except Exception as cache_error:
+            print(f"缓存清除失败: {cache_error}")
+        
         return JsonResponse({'success': True, 'message': '动态分享成功'})
     except Moment.DoesNotExist:
         return JsonResponse({'success': False, 'message': '动态不存在或无权操作'})
@@ -754,6 +770,22 @@ def delete_moment(request, moment_id):
     try:
         moment = Moment.objects.get(id=moment_id, user=request.user)
         moment.delete()
+        
+        # 清除相关缓存
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            # 清除动态列表缓存
+            master_cache.delete_pattern('moment:list:*')
+            # 清除热门动态缓存
+            master_cache.delete_pattern('hot:moments:*')
+            # 清除热门收藏缓存
+            master_cache.delete('hot:favorites')
+            # 清除社区页面缓存
+            master_cache.delete_pattern('community:*')
+        except Exception as cache_error:
+            print(f"缓存清除失败: {cache_error}")
+        
         return JsonResponse({'success': True, 'message': '动态删除成功'})
     except Moment.DoesNotExist:
         return JsonResponse({'success': False, 'message': '动态不存在或无权操作'})
@@ -772,6 +804,22 @@ def unshare_moment(request, moment_id):
         moment = Moment.objects.get(id=moment_id, user=request.user)
         moment.is_shared = False
         moment.save()
+        
+        # 清除相关缓存
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            # 清除动态列表缓存
+            master_cache.delete_pattern('moment:list:*')
+            # 清除热门动态缓存
+            master_cache.delete_pattern('hot:moments:*')
+            # 清除热门收藏缓存
+            master_cache.delete('hot:favorites')
+            # 清除社区页面缓存
+            master_cache.delete_pattern('community:*')
+        except Exception as cache_error:
+            print(f"缓存清除失败: {cache_error}")
+        
         return JsonResponse({'success': True, 'message': '取消分享成功'})
     except Moment.DoesNotExist:
         return JsonResponse({'success': False, 'message': '动态不存在或无权操作'})
@@ -836,8 +884,6 @@ def hot_ranking(request):
         'current_time_range': current_time_range,
         'time_ranges': time_ranges
     }
-    print("热门动态排行榜数据：")
-    print(hot_posts_with_rank)
     
     return render(request, 'community/hot_ranking.html', context)
 
