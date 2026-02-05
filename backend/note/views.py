@@ -353,6 +353,7 @@ def lovesync(request):
         # 尝试从CoupleRelation获取更准确的相恋天数
         try:
             from couple.models import CoupleRelation
+            from django.db import models
             if couple_id:
                 relation = CoupleRelation.objects.filter(
                     (models.Q(user1=request.user) & models.Q(user2__id=couple_id)) |
