@@ -21,15 +21,20 @@ class NoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """获取日记列表，支持按用户筛选"""
+        """获取日记列表，支持按用户筛选，默认返回当前用户的所有日记和对方用户的已分享日记"""
         queryset = self.queryset.order_by('-created_at')
         user_id = self.request.query_params.get('user_id')
         
         if user_id:
+            # 如果指定了用户ID，只返回该用户的日记
             queryset = queryset.filter(user_id=user_id)
         else:
-            # 默认只显示当前用户的日记
-            queryset = queryset.filter(user=self.request.user)
+            # 默认返回当前用户的所有日记和对方用户的已分享日记
+            current_user = self.request.user
+            queryset = queryset.filter(
+                Q(user=current_user) | 
+                Q(is_shared=True)  # 只显示已分享的日记
+            )
         
         return queryset
     

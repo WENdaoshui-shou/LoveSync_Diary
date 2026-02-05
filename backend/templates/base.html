@@ -144,7 +144,7 @@
             </a>
 
             <!-- 桌面端导航菜单 -->
-            <nav class="hidden md:flex items-center space-x-4 flex-shrink-0 mx-auto">
+            <nav class="hidden md:flex items-center space-x-4 flex-shrink-0">
                 <a href="{% url 'community' %}"
                     class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 border-b-2 border-transparent hover:border-primary whitespace-nowrap">爱享公社</a>
                 <a href="{% url 'moments' %}"
@@ -187,25 +187,25 @@
             <div class="flex items-center gap-4 flex-wrap justify-end flex-shrink-0">
                 <!-- 内容过滤器 -->
                 <div
-                    class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex flex-wrap items-center gap-2 hover-scale min-w-[300px] justify-end">
+                    class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex flex-wrap items-center gap-2 hover-scale min-w-[200px] md:min-w-[300px] justify-end">
                     <div class="flex space-x-1 flex-shrink-0">
                         <button
-                            class="filter-btn active px-3 py-1.5 rounded-full bg-primary text-white text-sm font-medium"
+                            class="filter-btn active px-2 md:px-3 py-1.5 rounded-full bg-primary text-white text-sm font-medium"
                             data-filter="recommended">
                             推荐
                         </button>
                         <button
-                            class="filter-btn px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
+                            class="filter-btn px-2 md:px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
                             data-filter="latest">
                             最新
                         </button>
                         <button
-                            class="filter-btn px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
+                            class="filter-btn px-2 md:px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
                             data-filter="popular">
                             热门
                         </button>
                     </div>
-                    <div class="relative flex-grow min-w-[150px]">
+                    <div class="relative flex-grow min-w-[120px] md:min-w-[150px]">
                         <input type="text" id="searchInput" placeholder="搜索..."
                             class="w-full pl-8 pr-3 py-1.5 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
                         <div class="absolute left-3 top-1/2 -translate-y-1/2">
@@ -218,11 +218,15 @@
                 </div>
 
                 <!-- 用户操作区 -->
-                <div class="flex items-center space-x-3 flex-shrink-0">
+                <div class="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
                     <a href="{% url 'moments' %}" id="createPostLink"
-                        class="hidden md:flex items-center space-x-1 px-4 py-1.5 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg text-sm">
+                        class="hidden md:flex items-center space-x-1 px-3 md:px-4 py-1.5 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg text-sm">
                         <i class="fa-solid fa-pencil"></i>
-                        <span>发布动态</span>
+                        <span class="hidden lg:inline">发布动态</span>
+                    </a>
+                    <a href="{% url 'moments' %}" id="createPostLinkMobile"
+                        class="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md">
+                        <i class="fa-solid fa-pencil"></i>
                     </a>
 
                     <!-- 购物车图标 - 仅在商城页面显示 -->

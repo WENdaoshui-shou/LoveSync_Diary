@@ -111,6 +111,13 @@ LOGGING = {
             'formatter': 'colored',
             'stream': 'ext://sys.stdout',
         },
+        # 新增：错误日志写入文件（关键！能看到详细报错）
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/django_error.log',
+            'formatter': 'colored',
+            'level': 'ERROR',  # 只记录错误日志
+        },
     },
     'formatters': {
         'colored': {
@@ -123,19 +130,24 @@ LOGGING = {
                 'ERROR': 'red',
                 'CRITICAL': 'red,bg_white',
             },
-            'datefmt': '%Y-%m-%d %H:%M:%S',  # 统一时间格式
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],  # 同时输出到控制台+文件
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            'propagate': False,  # 关键修改：禁止日志向上传播
+            'propagate': False,
         },
-        # 处理django.server的日志（避免重复输出请求日志）
         'django.server': {
             'handlers': ['console'],
             'level': 'INFO',
+            'propagate': False,
+        },
+        # 新增：记录自己代码的错误（比如verify_code视图）
+        '': {
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
             'propagate': False,
         },
     },
