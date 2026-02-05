@@ -100,8 +100,7 @@
                 <div class="mb-4 md:mb-0">
                     <h2 class="text-2xl font-bold text-neutral-800 mb-1">我们的爱情日记</h2>
                     <p class="text-neutral-600">已共同记录 <span class="text-primary font-semibold">{{ total_notes }}</span>
-                        篇日记 · 相恋 <span class="text-primary font-semibold" id="days-together"
-                            data-joined-date="{{ user.profile.couple_joined_at }}"></span> 天</p>
+                        篇日记 · 相恋 <span class="text-primary font-semibold">{{ days_together }}</span> 天</p>
                 </div>
 
                 <div class="flex space-x-4">
@@ -172,10 +171,12 @@
 
         <!-- 时间轴双视角布局 -->
         <div class="relative">
-            <!-- 时间轴分割线 -->
+            <!-- 时间轴分割线（仅在有日记时显示） -->
+            {% if grouped_notes %}
             <div
                 class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-200 transform -translate-x-1/2">
             </div>
+            {% endif %}
 
             <!-- 时间轴条目 -->
             <div class="space-y-12">
@@ -350,22 +351,6 @@
     </div>
 </main>
 
-<!-- 页脚 -->
-<footer class="bg-white border-t border-neutral-200 py-8">
-    <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-gradient-love rounded-full text-white">
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <span class="text-lg font-bold">LoveSync</span>
-            </div>
-            <div class="text-neutral-500 text-sm">
-                &copy; 2025 LoveSync. 每篇日记都是一棵树，年轮里藏着我们的故事
-            </div>
-        </div>
-    </div>
-</footer>
 
 <!-- 日记编辑模态框 -->
 <div id="new-diary-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
@@ -410,8 +395,8 @@
                 <div class="flex items-center justify-between">
                     <label class="block text-sm font-medium text-neutral-700">分享给TA</label>
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="share-with-partner" name="share_with_partner" class="sr-only peer"
-                            checked>
+                        <input type="checkbox" id="share-with-partner" name="share_with_partner" value="1"
+                            class="sr-only peer" checked>
                         <div id="share-toggle"
                             class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
                         </div>
@@ -1285,51 +1270,11 @@
         return cookieValue ? cookieValue.pop() : '';
     }
 
-    // 初始化相恋天数显示
+    // 初始化相恋天数显示 - 已移至后端计算
     function initDaysTogether() {
-        const daysTogetherElement = document.getElementById('days-together');
-        if (!daysTogetherElement) return;
-
-        const joinedDateStr = daysTogetherElement.dataset.joinedDate;
-        if (!joinedDateStr) {
-            daysTogetherElement.textContent = '0';
-            return;
-        }
-
-        // 尝试解析日期，处理不同格式
-        let joinedDate;
-        try {
-            // 处理 ISO 格式日期
-            joinedDate = new Date(joinedDateStr);
-
-            // 检查日期是否有效
-            if (isNaN(joinedDate.getTime())) {
-                // 尝试其他格式解析
-                const dateParts = joinedDateStr.split(/[-/]/);
-                if (dateParts.length === 3) {
-                    // 尝试 YYYY-MM-DD 格式
-                    joinedDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-                }
-            }
-        } catch (error) {
-            console.error('日期解析错误:', error);
-            daysTogetherElement.textContent = '0';
-            return;
-        }
-
-        // 再次检查日期是否有效
-        if (isNaN(joinedDate.getTime())) {
-            daysTogetherElement.textContent = '0';
-            return;
-        }
-
-        const today = new Date();
-
-        // 计算两个日期之间的天数差
-        const timeDiff = Math.abs(today.getTime() - joinedDate.getTime());
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-        daysTogetherElement.textContent = daysDiff;
+        // 相恋天数现在由后端计算并直接传递到模板
+        // 此函数保留仅作兼容处理
+        return;
     }
 
     // 初始化协作编辑选项
@@ -1397,47 +1342,47 @@
 
     // 删除评论功能
     function deleteComment(element, noteId, commentId) {
-            fetch(`/api/note/notes/${noteId}/delete_comment/${commentId}/`, {
-                method: 'DELETE',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken()
+        fetch(`/api/note/notes/${noteId}/delete_comment/${commentId}/`, {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                return response.json();
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.message === '评论删除成功') {
-                        // 移除主评论DOM（包含其下所有二级回复）
-                        const commentDiv = element.closest('.comment-slide');
-                        if (commentDiv) commentDiv.remove();
+            .then(data => {
+                if (data.message === '评论删除成功') {
+                    // 移除主评论DOM（包含其下所有二级回复）
+                    const commentDiv = element.closest('.comment-slide');
+                    if (commentDiv) commentDiv.remove();
 
-                        // 更新评论数（后端已返回所有评论数，含一级+二级）
-                        const diaryCard = element.closest('.diary-card-hover');
-                        if (diaryCard) {
-                            const responseBtn = diaryCard.querySelector('.response-btn');
-                            const countSpan = responseBtn.querySelector('span');
-                            if (countSpan) {
-                                const newCount = Math.max(0, parseInt(data.comments || 0));
-                                if (newCount > 0) {
-                                    countSpan.textContent = newCount;
-                                } else {
-                                    countSpan.remove(); // 无评论时移除数字
-                                }
+                    // 更新评论数（后端已返回所有评论数，含一级+二级）
+                    const diaryCard = element.closest('.diary-card-hover');
+                    if (diaryCard) {
+                        const responseBtn = diaryCard.querySelector('.response-btn');
+                        const countSpan = responseBtn.querySelector('span');
+                        if (countSpan) {
+                            const newCount = Math.max(0, parseInt(data.comments || 0));
+                            if (newCount > 0) {
+                                countSpan.textContent = newCount;
+                            } else {
+                                countSpan.remove(); // 无评论时移除数字
                             }
                         }
-                        alert('评论删除成功！');
                     }
-                })
-                .catch(error => {
-                    console.error('删除评论失败:', error);
-                    alert(`删除失败：${error.message}`);
-                });
+                    alert('评论删除成功！');
+                }
+            })
+            .catch(error => {
+                console.error('删除评论失败:', error);
+                alert(`删除失败：${error.message}`);
+            });
     }
 
     // 评论点赞功能
@@ -1568,49 +1513,49 @@
 
     // 删除回复功能
     function deleteReply(element, noteId, replyId) {
-            const deleteUrl = `/api/note/notes/${noteId}/delete_comment/${replyId}/`;
+        const deleteUrl = `/api/note/notes/${noteId}/delete_comment/${replyId}/`;
 
-            fetch(deleteUrl, {
-                method: 'DELETE',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken()
+        fetch(deleteUrl, {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                return response.json();
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.message === '评论删除成功') {
-                        // 移除回复DOM元素
-                        const replyDiv = element.closest('.reply-item');
-                        if (replyDiv) replyDiv.remove();
+            .then(data => {
+                if (data.message === '评论删除成功') {
+                    // 移除回复DOM元素
+                    const replyDiv = element.closest('.reply-item');
+                    if (replyDiv) replyDiv.remove();
 
-                        // 更新评论数（后端已返回所有评论数，含一级+二级）
-                        const diaryCard = element.closest('.diary-card-hover');
-                        if (diaryCard) {
-                            const responseBtn = diaryCard.querySelector('.response-btn');
-                            const countSpan = responseBtn.querySelector('span');
-                            if (countSpan) {
-                                const newCount = Math.max(0, parseInt(data.comments || 0));
-                                if (newCount > 0) {
-                                    countSpan.textContent = newCount;
-                                } else {
-                                    countSpan.remove(); // 无评论时移除数字
-                                }
+                    // 更新评论数（后端已返回所有评论数，含一级+二级）
+                    const diaryCard = element.closest('.diary-card-hover');
+                    if (diaryCard) {
+                        const responseBtn = diaryCard.querySelector('.response-btn');
+                        const countSpan = responseBtn.querySelector('span');
+                        if (countSpan) {
+                            const newCount = Math.max(0, parseInt(data.comments || 0));
+                            if (newCount > 0) {
+                                countSpan.textContent = newCount;
+                            } else {
+                                countSpan.remove(); // 无评论时移除数字
                             }
                         }
-                        alert('回复删除成功！');
                     }
-                })
-                .catch(error => {
-                    console.error('删除回复失败:', error);
-                    alert(`删除失败：${error.message}`);
-                });
+                    alert('回复删除成功！');
+                }
+            })
+            .catch(error => {
+                console.error('删除回复失败:', error);
+                alert(`删除失败：${error.message}`);
+            });
     }
 
     // 渲染评论

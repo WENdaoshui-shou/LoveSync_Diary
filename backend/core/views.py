@@ -488,7 +488,6 @@ def settings_view(request, setting_type=None):
             elif setting_type == 'notifications':
                 # 获取表单数据
                 profile.notification_sound = request.POST.get('notification_sound') == 'on'
-                profile.notification_vibration = request.POST.get('notification_vibration') == 'on'
                 profile.do_not_disturb = request.POST.get('do_not_disturb') == 'on'
                 profile.couple_messages = request.POST.get('couple_messages') == 'on'
                 profile.community_messages = request.POST.get('community_messages') == 'on'
@@ -523,15 +522,7 @@ def settings_view(request, setting_type=None):
                 
                 profile.save()
                 messages.success(request, '账号安全设置更新成功')
-            # 处理外观设置
-            elif setting_type == 'appearance':
-                # 获取表单数据
-                profile.theme = request.POST.get('theme', 'light')
-                profile.font_size = request.POST.get('font_size', 'medium')
-                profile.interface_style = request.POST.get('interface_style', 'modern')
-                
-                profile.save()
-                messages.success(request, '外观设置更新成功')
+
         except Exception as e:
             messages.error(request, f'设置更新失败: {str(e)}')
         

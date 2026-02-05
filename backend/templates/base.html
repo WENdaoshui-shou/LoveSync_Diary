@@ -133,30 +133,31 @@
     <!-- 导航栏 -->
     {% block navigation %}
     <header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm py-3">
-        <div class="container mx-auto px-4 flex items-center justify-between">
+        <div class="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4">
             <!-- 品牌标识 -->
-            <a href="{% url 'index' %}" class="flex items-center space-x-2">
+            <a href="{% url 'index' %}" class="flex items-center space-x-2 flex-shrink-0">
                 <div
                     class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
                     <i class="fa-solid fa-heart text-xl"></i>
                 </div>
                 <span class="text-xl font-bold text-neutral-800 tracking-tight">LoveSync</span>
             </a>
+
             <!-- 桌面端导航菜单 -->
-            <nav class="hidden md:flex items-center space-x-6">
+            <nav class="hidden md:flex items-center space-x-4 flex-shrink-0 mx-auto">
                 <a href="{% url 'community' %}"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">爱享公社</a>
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 border-b-2 border-transparent hover:border-primary whitespace-nowrap">爱享公社</a>
                 <a href="{% url 'moments' %}"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心动轨迹</a>
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 border-b-2 border-transparent hover:border-primary whitespace-nowrap">心动轨迹</a>
                 <a href="{% url 'photo_album' %}"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">心跳相簿</a>
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 border-b-2 border-transparent hover:border-primary whitespace-nowrap">心跳相簿</a>
                 <a href="{% url 'lovesync' %}"
-                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-1 py-2 border-b-2 border-transparent hover:border-primary">双人日记</a>
+                    class="text-neutral-700 hover:text-primary transition-custom font-medium px-2 py-2 border-b-2 border-transparent hover:border-primary whitespace-nowrap">双人日记</a>
 
                 <!-- 更多下拉菜单 -->
                 <div class="relative" id="moreDropdown">
                     <button
-                        class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-1 py-2"
+                        class="text-neutral-700 hover:text-primary transition-custom font-medium flex items-center px-2 py-2 whitespace-nowrap"
                         id="moreButton">
                         更多 <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
                     </button>
@@ -182,86 +183,90 @@
                 </div>
             </nav>
 
-            <!-- 内容过滤器 -->
-            <div
-                class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex justify-between items-center hover-scale">
-                <div class="flex space-x-2">
-                    <button class="filter-btn active px-4 py-2 rounded-full bg-primary text-white text-sm font-medium"
-                        data-filter="recommended">
-                        推荐
-                    </button>
-                    <button
-                        class="filter-btn px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
-                        data-filter="latest">
-                        最新
-                    </button>
-                    <button
-                        class="filter-btn px-4 py-2 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
-                        data-filter="popular">
-                        热门
-                    </button>
-                </div>
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="LoveSync: 搜索..."
-                        class="pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
-                    <div class="absolute left-4 top-1/2 -translate-y-1/2">
-                        <i id="search-icon" class="fa-solid fa-search text-neutral-400"></i>
-                        <div id="search-loading"
-                            class="hidden inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary">
+            <!-- 内容过滤器和用户操作区容器 -->
+            <div class="flex items-center gap-4 flex-wrap justify-end flex-shrink-0">
+                <!-- 内容过滤器 -->
+                <div
+                    class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-2 flex flex-wrap items-center gap-2 hover-scale min-w-[300px] justify-end">
+                    <div class="flex space-x-1 flex-shrink-0">
+                        <button
+                            class="filter-btn active px-3 py-1.5 rounded-full bg-primary text-white text-sm font-medium"
+                            data-filter="recommended">
+                            推荐
+                        </button>
+                        <button
+                            class="filter-btn px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
+                            data-filter="latest">
+                            最新
+                        </button>
+                        <button
+                            class="filter-btn px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-custom"
+                            data-filter="popular">
+                            热门
+                        </button>
+                    </div>
+                    <div class="relative flex-grow min-w-[150px]">
+                        <input type="text" id="searchInput" placeholder="搜索..."
+                            class="w-full pl-8 pr-3 py-1.5 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2">
+                            <i id="search-icon" class="fa-solid fa-search text-neutral-400"></i>
+                            <div id="search-loading"
+                                class="hidden inline-block animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-primary">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 用户操作区 -->
-            <div class="flex items-center space-x-4">
-                <a href="{% url 'moments' %}" id="createPostLink"
-                    class="hidden md:flex items-center space-x-2 px-5 py-2 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg">
-                    <i class="fa-solid fa-pencil"></i>
-                    <span>发布动态</span>
-                </a>
+                <!-- 用户操作区 -->
+                <div class="flex items-center space-x-3 flex-shrink-0">
+                    <a href="{% url 'moments' %}" id="createPostLink"
+                        class="hidden md:flex items-center space-x-1 px-4 py-1.5 rounded-full bg-gradient-love text-white hover:opacity-90 transition-custom shadow-md hover:shadow-lg text-sm">
+                        <i class="fa-solid fa-pencil"></i>
+                        <span>发布动态</span>
+                    </a>
 
-                <!-- 购物车图标 - 仅在商城页面显示 -->
-                {% if '/mall/' in request.path %}
-                <a href="{% url 'mall:mallcart' %}"
-                    class="relative text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
-                    <i class="fa-solid fa-shopping-cart text-xl"></i>
-                    <span
-                        class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center"
-                        id="cartCount">0</span>
-                </a>
+                    <!-- 购物车图标 - 仅在商城页面显示 -->
+                    {% if '/mall/' in request.path %}
+                    <a href="{% url 'mall:mallcart' %}"
+                        class="relative text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                        <span
+                            class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center"
+                            id="cartCount">0</span>
+                    </a>
 
-                <!-- 我的收藏图标 - 仅在商城页面显示 -->
-                <a href="{% url 'mall:mallmark' %}"
-                    class="text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
-                    <i class="fa-solid fa-heart text-xl"></i>
-                </a>
-                {% endif %}
+                    <!-- 我的收藏图标 - 仅在商城页面显示 -->
+                    <a href="{% url 'mall:mallmark' %}"
+                        class="text-neutral-700 hover:text-primary transition-custom p-2 rounded-full hover:bg-neutral-100">
+                        <i class="fa-solid fa-heart"></i>
+                    </a>
+                    {% endif %}
 
-                <!-- 用户头像与下拉菜单 -->
-                <div class="relative" id="userDropdown">
-                    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary cursor-pointer "
-                        id="userAvatar">
-                        <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+                    <!-- 用户头像与下拉菜单 -->
+                    <div class="relative" id="userDropdown">
+                        <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary cursor-pointer "
+                            id="userAvatar">
+                            <img src="{{ user.profile.userAvatar.url }}" alt="用户头像" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
+                            id="userOptions">
+                            <a href="{% url 'settings' %}"
+                                class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
+                                <i class="fa-solid fa-cog mr-2 w-5 text-center"></i>设置
+                            </a>
+                            <div class="border-t border-neutral-200 my-1"></div>
+                            <a href="{% url 'logout' %}"
+                                class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
+                                <i class="fa-solid fa-sign-out mr-2 w-5 text-center"></i>退出登录
+                            </a>
+                        </div>
                     </div>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 hidden"
-                        id="userOptions">
-                        <a href="{% url 'settings' %}"
-                            class="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-cog mr-2 w-5 text-center"></i>设置
-                        </a>
-                        <div class="border-t border-neutral-200 my-1"></div>
-                        <a href="{% url 'logout' %}"
-                            class="block px-4 py-2 text-red-500 hover:bg-red-50 transition-custom flex items-center">
-                            <i class="fa-solid fa-sign-out mr-2 w-5 text-center"></i>退出登录
-                        </a>
-                    </div>
+
+                    <!-- 移动端菜单按钮 -->
+                    <button class="md:hidden text-neutral-700 focus:outline-none p-2">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                 </div>
-
-                <!-- 移动端菜单按钮 -->
-                <button class="md:hidden text-neutral-700 focus:outline-none" id="menu-toggle">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
             </div>
         </div>
 

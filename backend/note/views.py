@@ -213,13 +213,21 @@ def lovesync(request):
 
         user_id = request.user.id
         couple_id = None
+        couple_joined_at = None
+        
         try:
+            # 获取情侣信息
             couple_user = request.user.profile.couple
             if couple_user and hasattr(couple_user, 'user') and couple_user.user:
                 couple_id = couple_user.user.id
-        except (AttributeError, Exception):
+            # 获取情侣关系建立时间
+            if hasattr(request.user.profile, 'couple_joined_at') and request.user.profile.couple_joined_at:
+                couple_joined_at = request.user.profile.couple_joined_at
+        except (AttributeError, Exception) as e:
+            print(f"获取情侣信息失败: {e}")
             couple_user = None
             couple_id = None
+            couple_joined_at = None
         
         # 检查用户是否绑定情侣，未绑定则重定向到情侣设置页面
         if not couple_id:
@@ -227,6 +235,7 @@ def lovesync(request):
             messages.error(request, '请先绑定情侣关系，才能使用双人日记功能')
             return redirect('couple_web:couple')
 
+        # 显示自己的所有日记和对方的共享日记
         base_filters = Q(user_id=user_id)
         if couple_id:
             base_filters |= Q(user_id=couple_id, is_shared=True)
@@ -267,7 +276,11 @@ def lovesync(request):
             if query_date and date_key == target_date:
                 date_title = date_key.strftime("%Y-%m-%d")
             else:
-                if date_key.year == current_year:
+                if date_key == today:
+                    date_title = "今天"
+                elif date_key == today - timedelta(days=1):
+                    date_title = "昨天"
+                elif date_key.year == current_year:
                     date_title = date_key.strftime("%m月%d日")
                 else:
                     date_title = date_key.strftime("%Y年%m月%d日")
@@ -278,6 +291,7 @@ def lovesync(request):
                 'notes': notes
             })
 
+        # 修复：包括情侣双方的所有日记
         mood_counts = Note.objects.filter(base_filters).values('mood').annotate(count=Count('mood')).order_by('-count')
         mood_count_dict = {mood[0]: 0 for mood in Note.MOOD_CHOICES}
         for item in mood_counts:
@@ -287,6 +301,7 @@ def lovesync(request):
         week_start_sh = today_sh - timedelta(days=today_sh.weekday())
         week_start_datetime = SHANGHAI_TZ.localize(datetime.combine(week_start_sh, datetime.min.time()))
         
+        # 修复：包括情侣双方的所有日记
         weekly_mood_counts = Note.objects.filter(base_filters, created_at__gte=week_start_datetime).values('mood').annotate(count=Count('mood'))
         weekly_mood_dict = {mood[0]: 0 for mood in Note.MOOD_CHOICES}
         for item in weekly_mood_counts:
@@ -306,8 +321,10 @@ def lovesync(request):
             })
         mood_stats.sort(key=lambda x: x['count'], reverse=True)
 
-        user_notes_count = filtered_notes.filter(user_id=user_id).count()
-        partner_notes_count = filtered_notes.filter(user_id=couple_id).count() if couple_id else 0
+        # 修复：计算情侣双方的所有日记数量
+        user_notes_count = Note.objects.filter(user_id=user_id).count()
+        partner_notes_count = Note.objects.filter(user_id=couple_id).count() if couple_id else 0
+        total_notes = user_notes_count + partner_notes_count
 
         monthly_stats = {}
         for note in all_notes:
@@ -322,16 +339,44 @@ def lovesync(request):
             monthly_stats[month_key]['count'] += 1
         monthly_list = sorted(monthly_stats.values(), key=lambda x: (x['year'], x['month']), reverse=True)
 
+        # 计算相恋天数
+        days_together = 0
+        if couple_joined_at:
+            try:
+                now = timezone.now()
+                delta = now - couple_joined_at
+                days_together = delta.days
+            except Exception as e:
+                print(f"计算相恋天数失败: {e}")
+                days_together = 0
+        
+        # 尝试从CoupleRelation获取更准确的相恋天数
+        try:
+            from couple.models import CoupleRelation
+            if couple_id:
+                relation = CoupleRelation.objects.filter(
+                    (models.Q(user1=request.user) & models.Q(user2__id=couple_id)) |
+                    (models.Q(user1__id=couple_id) & models.Q(user2=request.user))
+                ).first()
+                if relation and relation.relationship_start_date:
+                    now = timezone.now().date()
+                    delta = now - relation.relationship_start_date
+                    days_together = delta.days
+        except Exception as e:
+            print(f"从CoupleRelation获取相恋天数失败: {e}")
+
         context = {
             'grouped_notes': formatted_groups,
             'mood_stats': mood_stats,
             'monthly_stats': monthly_list,
-            'total_notes': filtered_notes.count(),
+            'total_notes': total_notes,
             'user_notes_count': user_notes_count,
             'partner_notes_count': partner_notes_count,
             'query_date': query_date,
             'target_date': target_date,
             'couple_id': couple_id,
+            'couple_joined_at': couple_joined_at,
+            'days_together': days_together,
         }
 
         return render(request, 'lovesync.html', context)

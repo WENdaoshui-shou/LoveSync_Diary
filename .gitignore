@@ -49,3 +49,7 @@ temp/
 backend/LoveSync/settings.py
 
 newenv/
+
+
+[core]
+  autocrlf = true

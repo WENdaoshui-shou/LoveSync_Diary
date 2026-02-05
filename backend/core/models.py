@@ -29,6 +29,36 @@ LOCATION_CHOICES = [
     ('天津市', '天津市'),
     ('重庆市', '重庆市'),
     ('上海市', '上海市'),
+    ('河北省', '河北省'),
+    ('山西省', '山西省'),
+    ('辽宁省', '辽宁省'),
+    ('吉林省', '吉林省'),
+    ('黑龙江省', '黑龙江省'),
+    ('江苏省', '江苏省'),
+    ('浙江省', '浙江省'),
+    ('安徽省', '安徽省'),
+    ('福建省', '福建省'),
+    ('江西省', '江西省'),
+    ('山东省', '山东省'),
+    ('河南省', '河南省'),
+    ('湖北省', '湖北省'),
+    ('湖南省', '湖南省'),
+    ('广东省', '广东省'),
+    ('海南省', '海南省'),
+    ('四川省', '四川省'),
+    ('贵州省', '贵州省'),
+    ('云南省', '云南省'),
+    ('陕西省', '陕西省'),
+    ('甘肃省', '甘肃省'),
+    ('青海省', '青海省'),
+    ('台湾省', '台湾省'),
+    ('内蒙古自治区', '内蒙古自治区'),
+    ('广西壮族自治区', '广西壮族自治区'),
+    ('西藏自治区', '西藏自治区'),
+    ('宁夏回族自治区', '宁夏回族自治区'),
+    ('新疆维吾尔自治区', '新疆维吾尔自治区'),
+    ('香港特别行政区', '香港特别行政区'),
+    ('澳门特别行政区', '澳门特别行政区'),
 ]
 
 
@@ -65,7 +95,6 @@ class Profile(models.Model):
     
     # 通知设置
     notification_sound = models.BooleanField(default=True, verbose_name='开启通知声音')
-    notification_vibration = models.BooleanField(default=True, verbose_name='开启震动提醒')
     do_not_disturb = models.BooleanField(default=False, verbose_name='夜间免打扰')
     couple_messages = models.BooleanField(default=True, verbose_name='情侣消息通知')
     community_messages = models.BooleanField(default=True, verbose_name='社区消息通知')
@@ -90,10 +119,7 @@ class Profile(models.Model):
     login_notification = models.BooleanField(default=True, verbose_name='登录通知')
     session_management = models.BooleanField(default=True, verbose_name='会话管理')
     
-    # 外观设置
-    theme = models.CharField(max_length=20, choices=[('light', '浅色主题'), ('dark', '深色主题'), ('system', '跟随系统')], default='light', verbose_name='主题')
-    font_size = models.CharField(max_length=20, choices=[('small', '小'), ('medium', '中'), ('large', '大')], default='medium', verbose_name='字体大小')
-    interface_style = models.CharField(max_length=20, choices=[('modern', '现代'), ('classic', '经典')], default='modern', verbose_name='界面风格')
+
 
     def __str__(self):
         return f"{self.user.username} 的个人设置"
