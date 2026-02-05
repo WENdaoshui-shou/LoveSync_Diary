@@ -24,8 +24,8 @@ class Moment(models.Model):
 
     def get_hot_score(self):
         """计算热度值"""
-        # 热度计算公式：点赞权重2，评论权重3，浏览权重1
-        return self.likes * 2 + self.comments * 3 + self.view_count * 1
+        # 热度计算公式：点赞权重1.0，评论权重2.0，收藏权重1.5，浏览权重0.1
+        return self.likes * 1.0 + self.comments * 2.0 + self.favorites * 1.5 + self.view_count * 0.1
 
     class Meta:
         verbose_name = '社区动态'

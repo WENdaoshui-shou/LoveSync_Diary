@@ -118,8 +118,11 @@ class MomentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def hot_moments(self, request):
         """获取热门动态排行"""
+        # 获取时间范围参数
+        time_range = request.GET.get('time_range', '7days')
+        
         # 生成缓存键
-        cache_key = 'hot:moments:7days'
+        cache_key = f'hot:moments:{time_range}'
         cached_result = None
         
         # 尝试从缓存获取
@@ -132,14 +135,19 @@ class MomentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(f"缓存读取失败: {e}")
         
-        # 计算热度分数：点赞数 * 1.0 + 评论数 * 0.5 + 收藏数 * 0.8
-        # 只显示最近7天的动态
-        one_week_ago = timezone.now() - timezone.timedelta(days=7)
+        # 根据时间范围计算起始时间
+        if time_range == '7days':
+            start_time = timezone.now() - timezone.timedelta(days=7)
+        elif time_range == '30days':
+            start_time = timezone.now() - timezone.timedelta(days=30)
+        else:  # all
+            start_time = timezone.datetime.min
         
+        # 计算热度分数：与get_hot_score方法一致
         hot_moments = Moment.objects.filter(
-            created_at__gte=one_week_ago
+            created_at__gte=start_time
         ).annotate(
-            hot_score=F('likes') * 1.0 + F('comments') * 0.5 + F('favorites') * 0.8
+            hot_score=F('likes') * 1.0 + F('comments') * 2.0 + F('favorites') * 1.5 + F('view_count') * 0.1
         ).order_by('-hot_score')[:20]  # 取前20条热门动态
         
         serializer = MomentSerializer(hot_moments, many=True)
@@ -147,7 +155,8 @@ class MomentViewSet(viewsets.ModelViewSet):
         # 构建响应数据
         response_data = {
             'message': '获取热门动态成功',
-            'hot_moments': serializer.data
+            'hot_moments': serializer.data,
+            'time_range': time_range
         }
         
         # 缓存结果，有效期5分钟
@@ -787,9 +796,23 @@ def hot_ranking(request):
     if current_time_range == '7days':
         start_date = timezone.now() - timezone.timedelta(days=7)
         moments = moments.filter(created_at__gte=start_date)
+        # 如果7天内没有数据，自动使用30天
+        if not moments.exists():
+            current_time_range = '30days'
+            start_date = timezone.now() - timezone.timedelta(days=30)
+            moments = Moment.objects.filter(is_shared=True, created_at__gte=start_date)
+            # 如果30天内也没有数据，使用全部
+            if not moments.exists():
+                current_time_range = 'all'
+                moments = Moment.objects.filter(is_shared=True)
     elif current_time_range == '30days':
         start_date = timezone.now() - timezone.timedelta(days=30)
         moments = moments.filter(created_at__gte=start_date)
+        # 如果30天内没有数据，使用全部
+        if not moments.exists():
+            current_time_range = 'all'
+            moments = Moment.objects.filter(is_shared=True)
+    # 'all' 不需要时间筛选
     
     # 按热度值排序
     # 先获取所有动态，然后计算热度值并排序
@@ -813,6 +836,8 @@ def hot_ranking(request):
         'current_time_range': current_time_range,
         'time_ranges': time_ranges
     }
+    print("热门动态排行榜数据：")
+    print(hot_posts_with_rank)
     
     return render(request, 'community/hot_ranking.html', context)
 
