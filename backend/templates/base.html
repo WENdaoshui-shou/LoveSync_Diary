@@ -204,7 +204,12 @@
                 <div class="relative">
                     <input type="text" id="searchInput" placeholder="LoveSync: 搜索..."
                         class="pl-10 pr-4 py-2 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                        <i id="search-icon" class="fa-solid fa-search text-neutral-400"></i>
+                        <div id="search-loading"
+                            class="hidden inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -487,13 +492,10 @@
             });
 
             // 监听搜索图标点击
-            const searchIcon = searchInput.nextElementSibling;
-            if (searchIcon && searchIcon.classList.contains('fa-search')) {
-                searchIcon.parentElement.addEventListener('click', function (e) {
-                    // 确保点击的是搜索图标而不是输入框
-                    if (e.target === searchIcon) {
-                        performSearch();
-                    }
+            const searchIcon = document.getElementById('search-icon');
+            if (searchIcon) {
+                searchIcon.addEventListener('click', function (e) {
+                    performSearch();
                 });
             }
         }
@@ -502,19 +504,62 @@
             const searchTerm = searchInput.value.trim();
             if (searchTerm) {
                 // 添加搜索中状态
-                const searchIcon = searchInput.nextElementSibling;
-                if (searchIcon && searchIcon.classList.contains('fa-search')) {
-                    searchIcon.classList.remove('fa-search');
-                    searchIcon.classList.add('fa-spinner', 'fa-spin');
+                const searchIcon = document.getElementById('search-icon');
+                const searchLoading = document.getElementById('search-loading');
+                if (searchIcon && searchLoading) {
+                    searchIcon.classList.add('hidden');
+                    searchLoading.classList.remove('hidden');
                 }
 
                 // 检查当前页面是否是社区页面
                 if (window.location.pathname.includes('/community/')) {
                     // 在社区页面，调用搜索函数
                     if (typeof searchMoments === 'function') {
-                        searchMoments(searchTerm);
-                        // 清空搜索框
-                        searchInput.value = '';
+                        // 直接调用搜索函数
+                        const searchPromise = searchMoments(searchTerm);
+
+                        // 检查是否返回了Promise
+                        if (searchPromise && typeof searchPromise.then === 'function') {
+                            // 即使返回了Promise，也添加一个最小延迟，确保用户能看到加载过程
+                            const startTime = Date.now();
+                            searchPromise.finally(() => {
+                                const elapsedTime = Date.now() - startTime;
+                                const minDelay = 500; // 最小显示时间：500ms
+
+                                if (elapsedTime < minDelay) {
+                                    // 如果搜索完成得太快，等待剩余时间
+                                    setTimeout(() => {
+                                        // 清空搜索框
+                                        searchInput.value = '';
+                                        // 恢复搜索图标
+                                        if (searchIcon && searchLoading) {
+                                            searchIcon.classList.remove('hidden');
+                                            searchLoading.classList.add('hidden');
+                                        }
+                                    }, minDelay - elapsedTime);
+                                } else {
+                                    // 搜索时间足够长，直接恢复图标
+                                    // 清空搜索框
+                                    searchInput.value = '';
+                                    // 恢复搜索图标
+                                    if (searchIcon && searchLoading) {
+                                        searchIcon.classList.remove('hidden');
+                                        searchLoading.classList.add('hidden');
+                                    }
+                                }
+                            });
+                        } else {
+                            // 如果没有返回Promise，延迟一下再恢复图标，确保用户能看到加载过程
+                            setTimeout(() => {
+                                // 清空搜索框
+                                searchInput.value = '';
+                                // 恢复搜索图标
+                                if (searchIcon && searchLoading) {
+                                    searchIcon.classList.remove('hidden');
+                                    searchLoading.classList.add('hidden');
+                                }
+                            }, 500); // 增加延迟时间到500ms
+                        }
                     } else {
                         // 如果没有searchMoments函数，刷新页面并添加搜索参数
                         window.location.href = `/community/?search=${encodeURIComponent(searchTerm)}`;
@@ -523,14 +568,6 @@
                     // 在其他页面，重定向到社区页面并添加搜索参数
                     window.location.href = `/community/?search=${encodeURIComponent(searchTerm)}`;
                 }
-
-                // 恢复搜索图标
-                setTimeout(() => {
-                    if (searchIcon && searchIcon.classList.contains('fa-spinner')) {
-                        searchIcon.classList.remove('fa-spinner', 'fa-spin');
-                        searchIcon.classList.add('fa-search');
-                    }
-                }, 500);
             }
         }
 

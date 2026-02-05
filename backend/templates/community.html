@@ -1014,7 +1014,9 @@
                 })
                 .finally(() => {
                     // 隐藏加载指示器
-                    loadingIndicator.classList.add('hidden');
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
 
                     // 重新初始化点赞评论功能
                     if (typeof initLikeCommentFunctionality === 'function') {
@@ -1389,16 +1391,22 @@
                     });
                 } else {
                     // 没有内容时显示提示
-                    noMoreContent.classList.remove('hidden');
+                    if (noMoreContent) {
+                        noMoreContent.classList.remove('hidden');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error searching moments:', error);
-                noMoreContent.classList.remove('hidden');
+                if (noMoreContent) {
+                    noMoreContent.classList.remove('hidden');
+                }
             })
             .finally(() => {
                 // 隐藏加载指示器
-                loadingIndicator.classList.add('hidden');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
 
                 // 重新初始化点赞评论功能
                 if (typeof initLikeCommentFunctionality === 'function') {
@@ -1831,17 +1839,21 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const noMoreContent = document.getElementById('no-more-content');
 
-        if (!momentsContainer) return;
+        if (!momentsContainer) return Promise.resolve();
 
         // 显示加载指示器
-        loadingIndicator.classList.remove('hidden');
-        noMoreContent.classList.add('hidden');
+        if (loadingIndicator) {
+            loadingIndicator.classList.remove('hidden');
+        }
+        if (noMoreContent) {
+            noMoreContent.classList.add('hidden');
+        }
 
         // 清空当前内容
         momentsContainer.innerHTML = '';
 
         // 发送请求获取搜索结果
-        fetch(`/api/moment/moments/?search=${encodeURIComponent(searchTerm)}`, {
+        return fetch(`/api/moment/moments/?search=${encodeURIComponent(searchTerm)}`, {
             credentials: 'same-origin',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')
@@ -2003,7 +2015,9 @@
             })
             .finally(() => {
                 // 隐藏加载指示器
-                loadingIndicator.classList.add('hidden');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
 
                 // 重新初始化点赞评论功能
                 if (typeof initLikeCommentFunctionality === 'function') {
@@ -2627,7 +2641,53 @@
                 // 渲染一级评论，二级回复嵌套在对应一级评论下
                 data.comments.forEach(comment => {
                     if (comment.parent_id === null) { // 只渲染一级评论
-                        const commentElement = renderComment(comment);
+                        const commentElement = document.createElement('div');
+                        commentElement.className = 'flex space-x-3 comment-item';
+                        commentElement.setAttribute('data-comment-id', comment.id);
+
+                        // 构建头像
+                        let avatarHtml = '';
+                        if (comment.user.avatar) {
+                            avatarHtml = `<img src="${comment.user.avatar}" alt="用户头像" class="w-8 h-8 rounded-full object-cover">`;
+                        } else {
+                            avatarHtml = `<div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center"><i class="fa fa-user text-neutral-400"></i></div>`;
+                        }
+
+                        // 构建评论内容
+                        commentElement.innerHTML = `
+                            <div class="flex-shrink-0">
+                                ${avatarHtml}
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-neutral-100 rounded-2xl px-4 py-2">
+                                    <div class="flex justify-between items-start">
+                                        <div class="font-medium text-neutral-900 text-sm">
+                                            ${comment.user.name}
+                                            ${comment.user.vip && comment.user.vip.is_active ? `<a href="/vip/" class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium" style="background: ${comment.user.vip.level_color}; color: ${comment.user.vip.level_text_color}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                                <i class="fa-solid fa-crown text-xs mr-0.5"></i>
+                                                ${comment.user.vip.level_display}
+                                            </a>` : ''}
+                                        </div>
+                                    </div>
+                                    <p class="text-neutral-800 mt-1 break-words">${comment.content}</p>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <span class="text-xs text-neutral-500">${new Date(comment.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                                        <div class="flex space-x-3">
+                                            <button class="text-neutral-400 hover:text-primary transition-colors text-xs flex items-center space-x-1 reply-btn" data-comment-id="${comment.id}">
+                                                <i class="fa-regular fa-comment"></i>
+                                                <span>回复</span>
+                                            </button>
+                                            <button class="text-neutral-400 hover:text-primary transition-colors text-xs flex items-center space-x-1 like-comment-btn" data-comment-id="${comment.id}">
+                                                <i class="fa-regular fa-heart"></i>
+                                                <span>${comment.likes}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        // 添加到评论列表
                         commentsList.appendChild(commentElement);
                     }
                 });
@@ -2922,9 +2982,14 @@
             replyBtn.addEventListener('click', function () {
                 const commentId = this.getAttribute('data-comment-id');
                 const replyInput = div.querySelector(`.reply-input-container[data-comment-id="${commentId}"]`);
-                replyInput.classList.toggle('hidden');
-                if (!replyInput.classList.contains('hidden')) {
-                    replyInput.querySelector('.reply-textarea').focus();
+                if (replyInput) {
+                    replyInput.classList.toggle('hidden');
+                    if (!replyInput.classList.contains('hidden')) {
+                        const textarea = replyInput.querySelector('.reply-textarea');
+                        if (textarea) {
+                            textarea.focus();
+                        }
+                    }
                 }
             });
         }
@@ -2943,10 +3008,12 @@
         if (replySubmitBtn) {
             replySubmitBtn.addEventListener('click', function () {
                 const replyTextarea = div.querySelector('.reply-textarea');
+                if (!replyTextarea) return;
                 const content = replyTextarea.value.trim();
                 if (!content) return;
 
                 const postCard = div.closest('.post-card');
+                if (!postCard) return;
                 const momentId = postCard.getAttribute('data-moment-id');
                 const parentId = comment.id;
 
@@ -2954,7 +3021,10 @@
 
                 // 清空并隐藏回复输入框
                 replyTextarea.value = '';
-                div.querySelector('.reply-input-container').classList.add('hidden');
+                const replyInputContainer = div.querySelector('.reply-input-container');
+                if (replyInputContainer) {
+                    replyInputContainer.classList.add('hidden');
+                }
             });
         }
 
@@ -2968,6 +3038,7 @@
                     if (!content) return;
 
                     const postCard = div.closest('.post-card');
+                    if (!postCard) return;
                     const momentId = postCard.getAttribute('data-moment-id');
                     const parentId = comment.id;
 
@@ -2975,7 +3046,10 @@
 
                     // 清空并隐藏回复输入框
                     this.value = '';
-                    div.querySelector('.reply-input-container').classList.add('hidden');
+                    const replyInputContainer = div.querySelector('.reply-input-container');
+                    if (replyInputContainer) {
+                        replyInputContainer.classList.add('hidden');
+                    }
                 }
             });
         }
@@ -2995,9 +3069,14 @@
             btn.addEventListener('click', function () {
                 const replyId = this.getAttribute('data-reply-id');
                 const replyInput = div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"]`);
-                replyInput.classList.toggle('hidden');
-                if (!replyInput.classList.contains('hidden')) {
-                    replyInput.querySelector('.reply-reply-textarea').focus();
+                if (replyInput) {
+                    replyInput.classList.toggle('hidden');
+                    if (!replyInput.classList.contains('hidden')) {
+                        const textarea = replyInput.querySelector('.reply-reply-textarea');
+                        if (textarea) {
+                            textarea.focus();
+                        }
+                    }
                 }
             });
         });
@@ -3007,7 +3086,9 @@
         replyReplyCancelBtns.forEach(btn => {
             btn.addEventListener('click', function () {
                 const replyInput = this.closest('.reply-reply-input-container');
-                replyInput.classList.add('hidden');
+                if (replyInput) {
+                    replyInput.classList.add('hidden');
+                }
             });
         });
 
@@ -3017,10 +3098,12 @@
             btn.addEventListener('click', function () {
                 const replyId = this.getAttribute('data-reply-id');
                 const replyTextarea = div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"] .reply-reply-textarea`);
+                if (!replyTextarea) return;
                 const content = replyTextarea.value.trim();
                 if (!content) return;
 
                 const postCard = div.closest('.post-card');
+                if (!postCard) return;
                 const momentId = postCard.getAttribute('data-moment-id');
                 const parentId = replyId;
 
@@ -3028,7 +3111,10 @@
 
                 // 清空并隐藏回复输入框
                 replyTextarea.value = '';
-                div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"]`).classList.add('hidden');
+                const replyInputContainer = div.querySelector(`.reply-reply-input-container[data-reply-id="${replyId}"]`);
+                if (replyInputContainer) {
+                    replyInputContainer.classList.add('hidden');
+                }
             });
         });
 
@@ -3036,7 +3122,9 @@
         const replyDeleteBtns = div.querySelectorAll('.reply-delete-btn');
         replyDeleteBtns.forEach(btn => {
             btn.addEventListener('click', function () {
-                const momentId = this.closest('.post-card').getAttribute('data-moment-id');
+                const postCard = this.closest('.post-card');
+                if (!postCard) return;
+                const momentId = postCard.getAttribute('data-moment-id');
                 const replyId = this.getAttribute('data-reply-id');
                 deleteReply(this, momentId, replyId);
             });
@@ -3107,7 +3195,9 @@
                 if (data.message === '评论成功') {
                     // 更新评论数
                     const commentBtn = postCard.querySelector('.comment-btn span');
-                    commentBtn.textContent = data.comments;
+                    if (commentBtn) {
+                        commentBtn.textContent = data.comments;
+                    }
 
                     // 重新加载评论以显示最新的回复
                     loadComments(momentId, postCard);
@@ -3128,7 +3218,10 @@
         if (loading || noMoreData) return;
 
         loading = true;
-        document.getElementById('loading-indicator').classList.remove('hidden');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.classList.remove('hidden');
+        }
 
         // 实加载更多
         fetch(`/moment/load-more/?page=${page}`)
@@ -3146,21 +3239,31 @@
                         // 检查是否还有更多数据
                         if (!data.has_more) {
                             noMoreData = true;
-                            document.getElementById('no-more-content').classList.remove('hidden');
+                            const noMoreContent = document.getElementById('no-more-content');
+                            if (noMoreContent) {
+                                noMoreContent.classList.remove('hidden');
+                            }
                         }
                     } else {
                         noMoreData = true;
-                        document.getElementById('no-more-content').classList.remove('hidden');
+                        const noMoreContent = document.getElementById('no-more-content');
+                        if (noMoreContent) {
+                            noMoreContent.classList.remove('hidden');
+                        }
                     }
                 }
 
                 loading = false;
-                document.getElementById('loading-indicator').classList.add('hidden');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
             })
             .catch(error => {
                 console.error('加载更多动态失败:', error);
                 loading = false;
-                document.getElementById('loading-indicator').classList.add('hidden');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
             });
     }
 
