@@ -339,7 +339,7 @@
                             class="inline-block px-4 py-1 bg-white rounded-full shadow-sm text-neutral-600 font-medium cursor-pointer"
                             onclick="toggleQueryForm(this)">
                             <i class="fa-solid fa-calendar-day mr-2"></i>
-                            {{ grouped_notes.date_title }} <!-- 动态日期标题：今天/昨天/具体日期 -->
+                            {% now "Y年m月d日" %} <!-- 动态日期标题：今天/昨天/具体日期 -->
                         </span>
                     </div>
                     <p class="text-neutral-500">还没有日记哦，开始记录你们的故事吧～</p>
