@@ -52,84 +52,112 @@ def lovesync_index(request):
 @csrf_exempt
 def ChatInitView(request):
     """初始化社区智能体会话"""
-    # 第一步调试：记录请求进入
-    logger.error(f"===== 开始初始化社区智能体会话 =====")
-    logger.error(f"请求方法: {request.method}")
+    # 强制终端输出（兜底调试）
+    print("===== 进入ChatInitView函数 =====")
+    print(f"请求方法: {request.method}")
     
+    # 分支1：非POST请求 → 明确返回
     if request.method != 'POST':
-        logger.error(f"初始化失败：请求方法不是POST，实际为{request.method}")
+        print("===== 请求方法不是POST =====")
         return JsonResponse({
             "success": False,
             "error": "仅支持POST方法"
         }, status=405)
 
+    # 分支2：client未初始化 → 明确返回
     if not client:
-        logger.error(f"初始化失败：智能体客户端未初始化（client={client}）")
+        print("===== client未初始化 =====")
+        logger.error("初始化失败：智能体客户端未初始化")
         return JsonResponse({
             "success": False,
             "error": "智能体客户端未初始化"
         }, status=500)
 
+    # 主逻辑：用try-except完全包裹，确保任何异常都有返回
     try:
         # 生成会话ID
         session_id = str(uuid.uuid4())
+        print(f"===== 生成session_id: {session_id} =====")
         logger.error(f"生成会话ID成功：{session_id}")
 
-        # 初始化消息列表（包含系统提示）
+        # 初始化消息列表
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-        logger.error(f"初始化消息列表成功，系统提示长度：{len(SYSTEM_PROMPT)}")
-        logger.error(f"初始消息列表内容：{messages}")
+        logger.error(f"初始化消息列表成功，系统提示：{SYSTEM_PROMPT[:50]}...")
 
-        # 获取初始欢迎语（调用正确的响应函数）
-        logger.error(f"开始调用AI获取初始欢迎语...")
-        initial_response = get_ai_response(messages)  
-        logger.error(f"AI响应结果：{initial_response if initial_response else 'None'}")
-        
+        # 调用AI响应（加固：即使内部抛异常，也强制返回None并捕获）
+        try:
+            initial_response = get_ai_response(messages)  
+            print(f"===== AI响应结果: {initial_response} =====")
+            logger.error(f"AI响应结果：{initial_response if initial_response else 'None'}")
+        except Exception as ai_e:
+            # 捕获get_ai_response内部的所有异常
+            print(f"===== get_ai_response抛出异常: {str(ai_e)} =====")
+            logger.error(f"调用AI失败：{str(ai_e)}")
+            initial_response = None
+
+        # 分支3：AI响应为空 → 明确返回
         if not initial_response:
-            logger.error(f"初始化失败：AI返回空响应（initial_response=None）")
+            logger.error("初始化失败：AI返回空响应")
             return JsonResponse({
                 "success": False,
                 "error": "智能体初始化失败"
             }, status=500)
 
-        # 保存消息到数据库
-        logger.error(f"开始保存会话到数据库，session_id={session_id}")
-        chat_session = ChatSession.objects.create(
-            id=session_id,
-            completed=False
-        )
-        logger.error(f"ChatSession创建成功：{chat_session.id}")
-        
-        # 保存系统提示
-        sys_msg = ChatMessage.objects.create(
-            session=chat_session,
-            role="system",
-            content=SYSTEM_PROMPT
-        )
-        logger.error(f"系统提示消息保存成功：{sys_msg.id}")
-        
-        # 保存初始回复
-        ass_msg = ChatMessage.objects.create(
-            session=chat_session,
-            role="assistant",
-            content=initial_response
-        )
-        logger.error(f"初始回复消息保存成功：{ass_msg.id}")
+        # 数据库操作（单独捕获数据库异常）
+        try:
+            # 保存会话到数据库
+            chat_session = ChatSession.objects.create(
+                id=session_id,
+                completed=False
+            )
+            # 保存系统提示
+            ChatMessage.objects.create(
+                session=chat_session,
+                role="system",
+                content=SYSTEM_PROMPT
+            )
+            # 保存初始回复
+            ChatMessage.objects.create(
+                session=chat_session,
+                role="assistant",
+                content=initial_response
+            )
+            logger.error("数据库保存成功")
+        except Exception as db_e:
+            print(f"===== 数据库操作异常: {str(db_e)} =====")
+            logger.error(f"数据库保存失败：{str(db_e)}")
+            # 数据库失败也返回明确的错误响应
+            return JsonResponse({
+                "success": False,
+                "error": "数据库保存失败"
+            }, status=500)
 
-        # 存入缓存
-        cache_key = f"community_chat_{session_id}"
-        cache_data = {
-            "messages": messages + [{"role": "assistant", "content": initial_response}], 
-            "completed": False
-        }
-        logger.error(f"开始存入缓存，key={cache_key}，数据长度：{len(str(cache_data))}")
-        
-        cache.set(cache_key, cache_data, 3600)
-        # 验证缓存是否写入成功
-        cache_check = cache.get(cache_key)
-        logger.error(f"缓存写入验证：{'成功' if cache_check else '失败'}")
+        # 缓存操作（单独捕获缓存异常）
+        try:
+            cache_key = f"community_chat_{session_id}"
+            cache_data = {
+                "messages": messages + [{"role": "assistant", "content": initial_response}], 
+                "completed": False
+            }
+            cache.set(cache_key, cache_data, 3600)
+            # 验证缓存
+            if not cache.get(cache_key):
+                raise Exception("缓存写入后读取为空")
+            logger.error("缓存写入成功")
+        except Exception as cache_e:
+            print(f"===== 缓存操作异常: {str(cache_e)} =====")
+            logger.error(f"缓存保存失败：{str(cache_e)}")
+            # 缓存失败仍返回成功（降级处理），或根据需求返回错误
+            return JsonResponse({
+                "success": True,
+                "session_id": session_id,
+                "response": initial_response,
+                "completed": False,
+                "warning": "缓存保存失败，会话仅在数据库中生效"
+            })
 
-        logger.error(f"会话初始化成功，session_id={session_id}")
+        # 分支4：所有操作成功 → 明确返回
+        print(f"===== 会话初始化成功，session_id={session_id} =====")
         return JsonResponse({
             "success": True,
             "session_id": session_id,
@@ -137,18 +165,25 @@ def ChatInitView(request):
             "completed": False
         })
 
+    # 分支5：主逻辑所有未捕获的异常 → 明确返回
     except Exception as e:
-        # 记录完整异常信息（包括堆栈）
         import traceback
         error_trace = traceback.format_exc()
-        logger.error(f"社区智能体初始化失败: {str(e)}")
-        logger.error(f"异常完整堆栈：\n{error_trace}")
+        print(f"===== 主逻辑异常: {str(e)} =====")
+        print(f"===== 异常堆栈: {error_trace} =====")
+        logger.error(f"社区智能体初始化失败: {str(e)}\n堆栈: {error_trace}")
         return JsonResponse({
             "success": False,
             "error": "初始化会话失败"
         }, status=500)
+    
+    # 终极兜底：确保即使所有分支都漏了，也有返回（防御性编程）
+    print("===== 触发终极兜底返回 =====")
+    return JsonResponse({
+        "success": False,
+        "error": "系统异常，请求未处理"
+    }, status=500)
 
-# 消息处理视图
 @csrf_exempt
 def ChatMessageView(request):
     """处理社区智能体的聊天消息"""
