@@ -73,7 +73,7 @@ def ChatInitView(request):
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
         # 获取初始欢迎语（调用正确的响应函数）
-        initial_response = get_ai_response(messages)  # 修正：调用get_ai_response而非自身
+        initial_response = get_ai_response(messages)  
         if not initial_response:
             return JsonResponse({
                 "success": False,
