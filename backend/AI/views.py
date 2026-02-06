@@ -10,7 +10,7 @@ from django.utils import timezone
 from openai import OpenAI, APIError, AuthenticationError, RateLimitError
 import time
 from .PROMPT import *
-from .models import ChatSession, ChatMessage
+from .models import *
 import configparser
 
 config = configparser.ConfigParser()
