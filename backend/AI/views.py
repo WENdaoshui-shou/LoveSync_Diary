@@ -49,17 +49,22 @@ def lovesync_index(request):
     return render(request, 'lovesync-AI.html')
 
 
-# 智能体初始化视图
 @csrf_exempt
 def ChatInitView(request):
     """初始化社区智能体会话"""
+    # 第一步调试：记录请求进入
+    logger.error(f"===== 开始初始化社区智能体会话 =====")
+    logger.error(f"请求方法: {request.method}")
+    
     if request.method != 'POST':
+        logger.error(f"初始化失败：请求方法不是POST，实际为{request.method}")
         return JsonResponse({
             "success": False,
             "error": "仅支持POST方法"
         }, status=405)
 
     if not client:
+        logger.error(f"初始化失败：智能体客户端未初始化（client={client}）")
         return JsonResponse({
             "success": False,
             "error": "智能体客户端未初始化"
@@ -68,42 +73,63 @@ def ChatInitView(request):
     try:
         # 生成会话ID
         session_id = str(uuid.uuid4())
+        logger.error(f"生成会话ID成功：{session_id}")
 
         # 初始化消息列表（包含系统提示）
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        logger.error(f"初始化消息列表成功，系统提示长度：{len(SYSTEM_PROMPT)}")
+        logger.error(f"初始消息列表内容：{messages}")
 
         # 获取初始欢迎语（调用正确的响应函数）
+        logger.error(f"开始调用AI获取初始欢迎语...")
         initial_response = get_ai_response(messages)  
+        logger.error(f"AI响应结果：{initial_response if initial_response else 'None'}")
+        
         if not initial_response:
+            logger.error(f"初始化失败：AI返回空响应（initial_response=None）")
             return JsonResponse({
                 "success": False,
                 "error": "智能体初始化失败"
             }, status=500)
 
         # 保存消息到数据库
+        logger.error(f"开始保存会话到数据库，session_id={session_id}")
         chat_session = ChatSession.objects.create(
             id=session_id,
             completed=False
         )
-        # 保存系统提示和初始回复
-        ChatMessage.objects.create(
+        logger.error(f"ChatSession创建成功：{chat_session.id}")
+        
+        # 保存系统提示
+        sys_msg = ChatMessage.objects.create(
             session=chat_session,
             role="system",
             content=SYSTEM_PROMPT
         )
-        ChatMessage.objects.create(
+        logger.error(f"系统提示消息保存成功：{sys_msg.id}")
+        
+        # 保存初始回复
+        ass_msg = ChatMessage.objects.create(
             session=chat_session,
             role="assistant",
             content=initial_response
         )
+        logger.error(f"初始回复消息保存成功：{ass_msg.id}")
 
         # 存入缓存
-        cache.set(
-            f"community_chat_{session_id}",
-            {"messages": messages + [{"role": "assistant", "content": initial_response}], "completed": False},
-            3600
-        )
+        cache_key = f"community_chat_{session_id}"
+        cache_data = {
+            "messages": messages + [{"role": "assistant", "content": initial_response}], 
+            "completed": False
+        }
+        logger.error(f"开始存入缓存，key={cache_key}，数据长度：{len(str(cache_data))}")
+        
+        cache.set(cache_key, cache_data, 3600)
+        # 验证缓存是否写入成功
+        cache_check = cache.get(cache_key)
+        logger.error(f"缓存写入验证：{'成功' if cache_check else '失败'}")
 
+        logger.error(f"会话初始化成功，session_id={session_id}")
         return JsonResponse({
             "success": True,
             "session_id": session_id,
@@ -112,12 +138,15 @@ def ChatInitView(request):
         })
 
     except Exception as e:
+        # 记录完整异常信息（包括堆栈）
+        import traceback
+        error_trace = traceback.format_exc()
         logger.error(f"社区智能体初始化失败: {str(e)}")
+        logger.error(f"异常完整堆栈：\n{error_trace}")
         return JsonResponse({
             "success": False,
             "error": "初始化会话失败"
         }, status=500)
-
 
 # 消息处理视图
 @csrf_exempt
