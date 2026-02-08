@@ -13,11 +13,6 @@ from .PROMPT import *
 from .models import *
 import configparser
 
-config = configparser.ConfigParser()
-config_path = os.path.join(os.path.dirname(__file__), '..', 'config.ini')
-config.read(config_path, encoding="utf-8")
-
-
 # 阿里云百炼API配置
 DASHSCOPE_API_KEY = os.environ.get('DASHSCOPE_API_KEY')
 DASHSCOPE_BASE_URL = os.environ.get('DASHSCOPE_BASE_URL')
