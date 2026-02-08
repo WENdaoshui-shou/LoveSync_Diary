@@ -19,9 +19,9 @@ config.read(config_path, encoding="utf-8")
 
 
 # 阿里云百炼API配置
-DASHSCOPE_API_KEY = config.get("AI", "DASHSCOPE_API_KEY")
-DASHSCOPE_BASE_URL = config.get("AI", "DASHSCOPE_BASE_URL")
-DASHSCOPE_MODEL = config.get("AI", "DASHSCOPE_MODEL")  
+DASHSCOPE_API_KEY = os.environ.get('DASHSCOPE_API_KEY')
+DASHSCOPE_BASE_URL = os.environ.get('DASHSCOPE_BASE_URL')
+DASHSCOPE_MODEL = os.environ.get('DASHSCOPE_MODEL') 
 
 # 会话配置
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
