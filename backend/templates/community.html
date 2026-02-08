@@ -67,6 +67,29 @@
                     display: block;
                 }
             }
+            
+            /* 移动端菜单按钮样式优化 */
+            #mobileMenuButton {
+                position: fixed;
+                left: 16px;
+                top: 80px;
+                z-index: 50;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: white;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #FF6B8B;
+                transition: all 0.3s ease;
+            }
+            
+            #mobileMenuButton:hover {
+                transform: scale(1.05);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
 
             #sidebar.sidebar-collapsed .sidebar-title {
                 display: none;
@@ -163,6 +186,9 @@
             .main-content {
                 transition: all 0.3s ease;
                 padding-left: 256px;
+                min-height: 100vh;
+                padding-top: 24px;
+                padding-bottom: 16px;
             }
 
             .main-content.sidebar-collapsed {
@@ -172,6 +198,7 @@
             @media (max-width: 767px) {
                 .main-content {
                     padding-left: 0;
+                    padding-right: 0;
                 }
                 
                 .main-content.sidebar-collapsed {
@@ -186,6 +213,14 @@
                 
                 .main-content.sidebar-collapsed {
                     padding-left: 72px;
+                }
+            }
+            
+            /* 容器响应式调整 */
+            @media (max-width: 767px) {
+                .container {
+                    padding-left: 16px;
+                    padding-right: 16px;
                 }
             }
             
@@ -218,6 +253,22 @@
                 /* 动态内容调整 */
                 .post-card {
                     margin-bottom: 1.5rem;
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+                
+                .post-card > div {
+                    padding: 16px;
+                }
+                
+                /* 动态图片网格调整 */
+                .post-card .grid {
+                    gap: 4px;
+                }
+                
+                .post-card .grid img {
+                    height: 80px;
+                    border-radius: 8px;
                 }
                 
                 /* 右侧内容区调整 */
@@ -230,6 +281,16 @@
                     padding-top: 0.75rem;
                     padding-bottom: 0.75rem;
                 }
+                
+                /* 交互按钮调整 */
+                .like-btn, .comment-btn, .share-btn {
+                    padding: 8px 0;
+                }
+                
+                /* 评论区域调整 */
+                .comment-section {
+                    padding: 12px;
+                }
             }
             
             @media (min-width: 768px) and (max-width: 1023px) {
@@ -240,6 +301,145 @@
                 
                 .md\:w-1\/4 {
                     width: 30%;
+                }
+                
+                /* 动态卡片调整 */
+                .post-card {
+                    margin-bottom: 1.5rem;
+                }
+                
+                .post-card > div {
+                    padding: 20px;
+                }
+            }
+            
+            /* 触摸设备优化 */
+            @media (hover: none) and (pointer: coarse) {
+                /* 交互按钮最小高度调整 */
+                .like-btn, .comment-btn, .share-btn {
+                    min-height: 44px;
+                    display: flex;
+                    align-items: center;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                }
+                
+                .filter-btn {
+                    min-height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 8px 16px;
+                }
+                
+                /* 评论提交按钮调整 */
+                .comment-submit {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                /* 侧边栏切换按钮调整 */
+                #toggleSidebar, #mobileMenuButton {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                /* 输入框调整 */
+                .comment-input {
+                    min-height: 44px;
+                    padding: 12px 48px 12px 16px;
+                }
+                
+                /* 标签调整 */
+                .tag-link {
+                    padding: 8px 12px;
+                    border-radius: 20px;
+                }
+                
+                /* 分享按钮调整 */
+                .share-btn {
+                    min-height: 44px;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                }
+                
+                /* 导航链接调整 */
+                #sidebar a {
+                    min-height: 48px;
+                    display: flex;
+                    align-items: center;
+                    padding: 12px 16px;
+                }
+                
+                /* 提交按钮调整 */
+                #submitContactForm {
+                    min-height: 48px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+            
+            /* 右侧内容区响应式调整 */
+            @media (max-width: 767px) {
+                /* 右侧内容区卡片调整 */
+                .w-full.md\:w-1\/4 > div {
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+                
+                /* 成就系统入口调整 */
+                .bg-white.rounded-xl {
+                    padding: 16px;
+                }
+                
+                /* 热门话题、推荐关注等模块调整 */
+                .space-y-3, .space-y-4 {
+                    gap: 12px;
+                }
+                
+                /* 应用下载模块调整 */
+                .bg-gradient-love {
+                    padding: 16px;
+                    border-radius: 12px;
+                }
+                
+                /* 聊天窗口调整 */
+                .chat-widget {
+                    max-width: 90%;
+                    right: 5%;
+                    left: 5%;
+                }
+                
+                .chat-messages {
+                    height: 300px;
+                }
+            }
+            
+            /* 中等屏幕调整 */
+            @media (min-width: 768px) and (max-width: 1023px) {
+                /* 右侧内容区卡片调整 */
+                .w-full.md\:w-1\/4 > div {
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+                
+                /* 成就系统入口调整 */
+                .bg-white.rounded-xl {
+                    padding: 20px;
+                }
+                
+                /* 聊天窗口调整 */
+                .chat-widget {
+                    max-width: 300px;
                 }
             }
 
