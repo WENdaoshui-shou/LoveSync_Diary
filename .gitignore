@@ -46,7 +46,7 @@ tmp/
 temp/
 
 # 配置文件
-backend/LoveSync/settings.py
+LoveSync/settings.py
 
 newenv/
 
