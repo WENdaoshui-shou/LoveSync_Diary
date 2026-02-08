@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import MomentViewSet, TagViewSet, LikeViewSet, community_view, moments_view, hot_moments_view, hot_ranking, share_moment, delete_moment, unshare_moment, moment_share_view, load_more_moments
+from .views import MomentViewSet, TagViewSet, LikeViewSet, moments_view, hot_moments_view, hot_ranking, share_moment, delete_moment, unshare_moment, moment_share_view, load_more_moments
 
 app_name = 'moment'
 
@@ -13,7 +13,6 @@ api_router.register(r'likes', LikeViewSet, basename='like')
 
 # Web视图路由
 web_urlpatterns = [
-    path('community/', community_view, name='community'),
     path('moments/', moments_view, name='moments'),
     path('hot-moments/', hot_moments_view, name='hot_moments'),
     path('hot-ranking/', hot_ranking, name='hot_ranking'),

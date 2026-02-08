@@ -4,7 +4,7 @@ from .views import (
     CustomTokenObtainPairView, RegisterViewSet, ProfileViewSet, LoginViewSet,
     settings_view, message_view
 )
-
+from core.views import community_view
 app_name = 'core'
 
 # API路由
@@ -22,4 +22,5 @@ urlpatterns = [
     path('settings/<str:setting_type>/', settings_view, name='settings'),
     path('settings/', settings_view, name='settings'),
     path('message/', message_view, name='message'),
+    path('community/', community_view, name='community'),
 ]

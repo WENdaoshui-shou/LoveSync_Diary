@@ -7,10 +7,12 @@ from core.views import (
     settings_view, verify_code,
     share_place_view
 )
-from moment.views import community_view, moments_view, hot_moments_view, share_moment, delete_moment, unshare_moment
+
+from core.views import community_view
+from moment.views import  moments_view, hot_moments_view, share_moment, delete_moment, unshare_moment
+from moment.views import  moments_view, hot_moments_view, share_moment, delete_moment, unshare_moment
 from photo.views import photo_album, delete_photo, download_photo
 from note.views import lovesync
-
 from mall.views import (
     mall, product_detail, add_to_cart, cart_count, 
     mallcart, update_cart, mallmark, checkout
@@ -23,6 +25,17 @@ urlpatterns = [
     path('register/', register_view, name='register'),
     path('logout/', logout_view, name='logout'),
     path('verify_code/', verify_code, name='verify_code'),
+
+
+    # 社区应用路由
+    path('community/', community_view, name='community'),
+
+    # 设置路由
+    path('settings/<str:setting_type>/', settings_view, name='settings'),
+    path('settings/', settings_view, name='settings'),
+
+    # 消息应用路由
+
     path('settings/<str:setting_type>/', settings_view, name='settings'),
     path('settings/', settings_view, name='settings'),
     path('message/', include('message.urls')),
@@ -32,7 +45,6 @@ urlpatterns = [
     
     # 直接映射常用视图，保持向后兼容性
     # Moment应用视图
-    path('community/', community_view, name='community'),
     path('moments/', moments_view, name='moments'),
     path('hot-moments/', hot_moments_view, name='hot_moments'),
 
@@ -94,8 +106,8 @@ web_urlpatterns = [
     path('vip/', include('vip.urls', namespace='vip_web')),
     path('user/', include('user.urls', namespace='user')),
     path('articles/', include('articles.urls')),
-    path('history/', include('history.urls', namespace='history')),  # 添加历史应用路由
-    path('collab/', include('collab.urls', namespace='collab')),  # 添加协作功能路由
+    path('history/', include('history.urls', namespace='history')),  
+    path('collab/', include('collab.urls', namespace='collab')),  
 ]
 
 # 将API路由和Web视图路由添加到主URL列表中

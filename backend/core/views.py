@@ -18,6 +18,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from .models import User, Profile, VerificationCode
 from .serializers import UserSerializer, ProfileSerializer, CustomTokenObtainPairSerializer, RegisterSerializer
+from moment.models import Moment
 
 
 
@@ -218,12 +219,14 @@ class IndexView(TemplateView):
             
             # 获取热门标签
             from moment.models import Tag
-            popular_tags = Tag.objects.annotate(moment_count=models.Count('moments')).order_by('-moment_count')[:10]
+            from django.db.models import Count
+            popular_tags = Tag.objects.annotate(moment_count=Count('moments')).order_by('-moment_count')[:10]
             
             # 添加到上下文
             context['moments'] = moments_data
             context['popular_tags'] = popular_tags
-            context['has_dynamic_content'] = True
+            # 只要有标签或动态，就显示动态内容部分
+            context['has_dynamic_content'] = bool(moments_data) or bool(popular_tags)
             
         except Exception as e:
             print(f"Error loading dynamic content: {e}")
@@ -292,6 +295,51 @@ def login_view(request):
     return render(request, 'login.html')
 
 
+# 验证码生成视图
+def verify_code(request):
+    """生成验证码图片"""
+    # 生成4位随机验证码
+    code = ''.join(random.choices('0123456789', k=4))
+    
+    # 将验证码存储到session中
+    request.session['verify_code'] = code
+    
+    # 创建验证码图片
+    width, height = 120, 40
+    image = Image.new('RGB', (width, height), (255, 255, 255))
+    draw = ImageDraw.Draw(image)
+    
+    # 绘制干扰线
+    for _ in range(5):
+        x1 = random.randint(0, width)
+        y1 = random.randint(0, height)
+        x2 = random.randint(0, width)
+        y2 = random.randint(0, height)
+        draw.line((x1, y1, x2, y2), fill=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), width=1)
+    
+    # 绘制验证码文本
+    try:
+        # 尝试使用系统字体
+        font = ImageFont.truetype('arial.ttf', 24)
+    except:
+        # 如果系统字体不可用，使用默认字体
+        font = ImageFont.load_default()
+    
+    # 绘制每个字符
+    for i, char in enumerate(code):
+        x = 20 + i * 20
+        y = random.randint(5, 15)
+        draw.text((x, y), char, font=font, fill=(random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)))
+    
+    # 保存图片到内存
+    buffer = BytesIO()
+    image.save(buffer, 'PNG')
+    buffer.seek(0)
+    
+    # 返回图片响应
+    return HttpResponse(buffer.getvalue(), content_type='image/png')
+
+
 # 注册视图
 def register_view(request):
     if request.method == 'POST':
@@ -356,6 +404,7 @@ def logout_view(request):
     return redirect('login')
 
 
+# 分享地点视图
 def share_place_view(request, place_id):
     """地点分享视图 - 无需登录即可访问"""
     from couple.models import CouplePlace
@@ -531,46 +580,103 @@ def settings_view(request, setting_type=None):
     return render(request, 'settings.html', {'setting_type': setting_type})
 
 
-# 验证码生成视图
-def verify_code(request):
-    """生成验证码图片"""
-    # 生成4位随机验证码
-    code = ''.join(random.choices('0123456789', k=4))
+# 社区视图（Web）
+@login_required
+def community_view(request):
+    """社区页面"""
+    # 生成缓存键
+    cache_key = 'community:latest:1'
+    moments = None
     
-    # 将验证码存储到session中
-    request.session['verify_code'] = code
-    
-    # 创建验证码图片
-    width, height = 120, 40
-    image = Image.new('RGB', (width, height), (255, 255, 255))
-    draw = ImageDraw.Draw(image)
-    
-    # 绘制干扰线
-    for _ in range(5):
-        x1 = random.randint(0, width)
-        y1 = random.randint(0, height)
-        x2 = random.randint(0, width)
-        y2 = random.randint(0, height)
-        draw.line((x1, y1, x2, y2), fill=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), width=1)
-    
-    # 绘制验证码文本
+    # 尝试从缓存获取
     try:
-        # 尝试使用系统字体
-        font = ImageFont.truetype('arial.ttf', 24)
-    except:
-        # 如果系统字体不可用，使用默认字体
-        font = ImageFont.load_default()
+        from django.core.cache import caches
+        master_cache = caches['master_cache']
+        cached_moments = master_cache.get(cache_key)
+        if cached_moments:
+            moments = cached_moments
+    except Exception as e:
+        print(f"缓存读取失败123: {e}")
     
-    # 绘制每个字符
-    for i, char in enumerate(code):
-        x = 20 + i * 20
-        y = random.randint(5, 15)
-        draw.text((x, y), char, font=font, fill=(random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)))
+    # 从数据库查询
+    if moments is None:
+        # 获取所有分享的动态，按时间倒序排列，限制初始加载数量为10条
+        moments = Moment.objects.filter(is_shared=True, user__isnull=False).order_by('-created_at')[:50]
+        # 缓存结果，有效期5分钟
+        try:
+            from django.core.cache import caches
+            master_cache = caches['master_cache']
+            # 只缓存有效的动态（确保user存在且id不为空）
+            valid_moments = []
+            for m in moments:
+                try:
+                    if m.user and hasattr(m.user, 'id') and m.user.id:
+                        valid_moments.append(m)
+                except Exception:
+                    # 跳过无效对象
+                    pass
+            if valid_moments:
+                master_cache.set(cache_key, valid_moments, 180)
+            else:
+                master_cache.set(cache_key, [], 180)
+        except Exception as e:
+            print(f"缓存写入失败: {e}")
+    else:
+        try:
+            if isinstance(moments, list):
+                # 过滤出有效的Moment对象（具有user属性且id不为空的对象）
+                valid_moments = []
+                for m in moments:
+                    try:
+                        if hasattr(m, 'user') and m.user and hasattr(m.user, 'id') and m.user.id:
+                            valid_moments.append(m)
+                    except Exception:
+                        # 跳过无效对象
+                        pass
+                moments = valid_moments
+            else:
+                # 如果不是列表，重置为空列表
+                moments = []
+        except Exception as e:
+            print(f"缓存数据校验失败: {e}")
+            moments = []
     
-    # 保存图片到内存
-    buffer = BytesIO()
-    image.save(buffer, 'PNG')
-    buffer.seek(0)
+    # 最后再次校验，确保只传递有效的moments给模板
+    try:
+        final_valid_moments = []
+        for m in moments:
+            try:
+                if hasattr(m, 'user') and m.user and hasattr(m.user, 'id') and m.user.id:
+                    final_valid_moments.append(m)
+            except Exception:
+                # 跳过无效对象
+                pass
+        moments = final_valid_moments
+    except Exception as e:
+        print(f"最终数据校验失败: {e}")
+        moments = []
     
-    # 返回图片响应
-    return HttpResponse(buffer.getvalue(), content_type='image/png')
+    # 获取未读消息计数
+    try:
+        from message.models import Message, PrivateChat
+        
+        # 计算系统消息未读数
+        unread_system_messages = Message.objects.filter(user=request.user, type='system', is_read=False).count()
+        
+        # 计算业务提醒未读数
+        unread_business_messages = Message.objects.filter(user=request.user, type='business', is_read=False).count()
+        
+        # 计算私信未读数
+        unread_private_chats = PrivateChat.objects.filter(recipient=request.user, message__is_read=False).count()
+        
+        # 总未读消息数
+        total_unread_messages = unread_system_messages + unread_business_messages + unread_private_chats
+    except Exception as e:
+        print(f"Error calculating unread messages: {e}")
+        total_unread_messages = 0
+    
+    return render(request, 'community.html', {
+        'moments': moments,
+        'user': request.user,
+        'unread_message_count': total_unread_messages
+    })

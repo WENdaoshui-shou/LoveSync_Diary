@@ -127,24 +127,26 @@
 
     <!-- 导航栏 -->
     <header class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="#" class="flex items-center space-x-2">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-4">
+            <a href="{% url 'index' %}" class="flex items-center space-x-2 flex-shrink-0">
                 <div class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
                     <i class="fa-solid fa-heart text-xl"></i>
                 </div>
                 <span class="text-xl font-bold text-neutral-800">LoveSync</span>
             </a>
 
-            <nav class="hidden md:flex items-center space-x-8">
-                <div class="hidden md:block text-neutral-600 font-medium">欢迎来到 LoveSync，请登录您的账号</div>
+            <nav class="hidden md:flex items-center space-x-8 flex-shrink-0">
+                <div class="text-neutral-600 font-medium">欢迎来到 LoveSync，请登录您的账号</div>
             </nav>
 
-            <div class="flex items-center space-x-4">
-
+            <div class="flex items-center space-x-4 flex-shrink-0">
                 <div class="flex items-center space-x-4">
                     <a href="{% url 'index' %}" id="logoutBtn"
                         class="hidden md:block px-5 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom">
                         返回首页
+                    </a>
+                    <a href="{% url 'index' %}" class="md:hidden px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary/5 transition-custom text-sm">
+                        首页
                     </a>
                     <button class="md:hidden text-neutral-700" id="menu-toggle">
                         <i class="fa-solid fa-bars text-xl"></i>
@@ -153,9 +155,9 @@
             </div>
 
             <!-- 移动端菜单 -->
-            <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+            <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full top-full left-0 right-0 border-t border-neutral-200">
                 <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
-                    <a href="#home" class="text-neutral-600 hover:text-primary py-2 transition-custom">首页</a>
+                    <a href="{% url 'index' %}" class="text-neutral-600 hover:text-primary py-2 transition-custom">首页</a>
                     <a href="#features" class="text-neutral-600 hover:text-primary py-2 transition-custom">功能</a>
                     <a href="#download" class="text-neutral-600 hover:text-primary py-2 transition-custom">下载</a>
                 </div>
@@ -214,19 +216,19 @@
                 <div
                     class="relative z-20 w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale transform transition-all duration-500">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-love"></div>
-                    <div class="p-8">
+                    <div class="p-6 sm:p-8">
                         <div class="text-center mb-8">
                             <div
                                 class="w-20 h-20 bg-gradient-love rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
                                 <i class="fa-solid fa-heart text-white text-3xl"></i>
                             </div>
-                            <h2 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-neutral-900 tracking-tight">欢迎回来
+                            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-bold text-neutral-900 tracking-tight">欢迎回来
                             </h2>
                             <p class="text-neutral-600 mt-2">登录您的账号，继续记录爱情故事</p>
                         </div>
 
                         <!-- 登录表单 -->
-                        <form id="loginForm" class="space-y-6" method="POST" action="{% url 'login' %}">
+                        <form id="loginForm" class="space-y-5 sm:space-y-6" method="POST" action="{% url 'login' %}">
                             {% csrf_token %}
                             {% if messages %}
                             <div class="mt-2">
@@ -245,7 +247,7 @@
                                         <i class="fa-solid fa-phone text-neutral-400"></i>
                                     </div>
                                     <input type="text" id="email" name="username"
-                                        class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                        class="block w-full pl-10 pr-3 py-3 sm:py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
                                         placeholder="请输入手机号">
                                 </div>
                                 <p id="emailError" class="error-message text-red-600 hidden">
@@ -261,7 +263,7 @@
                                         <i class="fa-solid fa-lock text-neutral-400"></i>
                                     </div>
                                     <input type="password" id="password" name="password"
-                                        class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                        class="block w-full pl-10 pr-3 py-3 sm:py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
                                         placeholder="请输入密码">
                                 </div>
                                 <!-- 错误提示默认隐藏 -->
@@ -273,16 +275,16 @@
                             <!-- 验证码输入框：添加点击刷新逻辑 -->
                             <div>
                                 <label for="verify_code" class="block text-sm font-medium text-neutral-700 mb-1">验证码</label>
-                                <div class="flex items-center space-x-3">
+                                <div class="flex items-center space-x-2 sm:space-x-3">
                                     <div class="relative flex-grow">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fa-solid fa-shield text-neutral-400"></i>
                                         </div>
                                         <input type="text" id="verify_code" name="verify_code"
-                                            class="block w-full pl-10 pr-3 py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
+                                            class="block w-full pl-10 pr-3 py-3 sm:py-4 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom form-input-focus"
                                             placeholder="请输入验证码" maxlength="4">
                                     </div>
-                                    <div class="w-32 h-12">
+                                    <div class="w-28 sm:w-32 h-10 sm:h-12">
                                         <img src="{% url 'verify_code' %}" alt="验证码"
                                             class="w-full h-full object-cover rounded-lg cursor-pointer"
                                             id="verifyCodeImg">
@@ -294,28 +296,28 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <input id="remember-me" name="remember-me" type="checkbox"
-                                        class="h-5 w-5 text-primary focus:ring-primary/50 border-neutral-300 rounded">
+                                        class="h-4 w-4 sm:h-5 sm:w-5 text-primary focus:ring-primary/50 border-neutral-300 rounded">
                                     <label for="remember-me" class="ml-2 block text-sm text-neutral-600">记住我</label>
                                 </div>
-                                <a href=""
+                                <a href="" 
                                     class="text-sm font-medium text-primary hover:text-primary/80 transition-custom">忘记密码？</a>
                             </div>
 
                             <!-- 登录按钮 -->
                             <button type="submit"
-                                class="w-full bg-gradient-love text-white py-4 px-4 rounded-lg font-medium hover:opacity-90 shadow-xl hover:shadow-primary/20 transition-custom flex items-center justify-center btn-pulse">
+                                class="w-full bg-gradient-love text-white py-3 sm:py-4 px-4 rounded-lg font-medium hover:opacity-90 shadow-xl hover:shadow-primary/20 transition-custom flex items-center justify-center btn-pulse">
                                 <i class="fa-solid fa-sign-in mr-2"></i> 登录
                             </button>
                         </form>
 
-                        <div class="mt-8 text-center">
+                        <div class="mt-6 sm:mt-8 text-center">
                             <p class="text-neutral-600">
                                 还没有账号？ <a href="{% url 'register' %}" id="registerLink"
                                     class="font-medium text-primary hover:text-primary/80 transition-custom">立即注册</a>
                             </p>
                         </div>
 
-                        <div class="mt-8">
+                        <div class="mt-6 sm:mt-8">
                             <div class="relative">
                                 <div class="absolute inset-0 flex items-center">
                                     <div class="w-full border-t border-neutral-200"></div>
@@ -325,17 +327,17 @@
                                 </div>
                             </div>
 
-                            <div class="mt-6 grid grid-cols-3 gap-3">
+                            <div class="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-3">
                                 <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
+                                    class="relative inline-flex items-center justify-center p-3 sm:p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
                                     <i class="fa-brands fa-weixin text-xl"></i>
                                 </button>
                                 <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
+                                    class="relative inline-flex items-center justify-center p-3 sm:p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
                                     <i class="fa-brands fa-github text-xl"></i>
                                 </button>
                                 <button
-                                    class="relative inline-flex items-center justify-center p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
+                                    class="relative inline-flex items-center justify-center p-3 sm:p-4 rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 transition-custom hover-scale">
                                     <i class="fa-brands fa-tiktok text-xl"></i>
                                 </button>
                             </div>
@@ -444,21 +446,21 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-neutral-800 text-white py-12 relative z-10">
+    <footer class="bg-neutral-800 text-white py-8 sm:py-12 relative z-10">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
                 <div>
-                    <div class="flex items-center space-x-2 mb-6">
+                    <div class="flex items-center space-x-2 mb-4 sm:mb-6">
                         <div
-                            class="w-10 h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
-                            <i class="fa-solid fa-heart text-xl"></i>
+                            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-love flex items-center justify-center text-white">
+                            <i class="fa-solid fa-heart text-base sm:text-xl"></i>
                         </div>
-                        <span class="text-xl font-bold">LoveSync</span>
+                        <span class="text-lg sm:text-xl font-bold">LoveSync</span>
                     </div>
-                    <p class="text-neutral-400 mb-6">
+                    <p class="text-neutral-400 mb-4 sm:mb-6 text-sm sm:text-base">
                         记录属于你们的爱情故事，创造永恒的回忆。
                     </p>
-                    <div class="flex space-x-4">
+                    <div class="flex space-x-3 sm:space-x-4">
                         <a href="#" class="text-neutral-400 hover:text-white transition-custom">
                             <i class="fa-brands fa-facebook"></i>
                         </a>
@@ -481,46 +483,46 @@
                 </div>
 
                 <div>
-                    <h4 class="text-lg font-semibold mb-6">快速链接</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#home" class="text-neutral-400 hover:text-white transition-custom">首页</a></li>
-                        <li><a href="#features" class="text-neutral-400 hover:text-white transition-custom">功能</a></li>
-                        <li><a href="#gallery" class="text-neutral-400 hover:text-white transition-custom">日记展示</a></li>
-                        <li><a href="#download" class="text-neutral-400 hover:text-white transition-custom">下载</a></li>
+                    <h4 class="text-base sm:text-lg font-semibold mb-4 sm:mb-6">快速链接</h4>
+                    <ul class="space-y-2 sm:space-y-3">
+                        <li><a href="{% url 'index' %}" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">首页</a></li>
+                        <li><a href="#features" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">功能</a></li>
+                        <li><a href="#gallery" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">日记展示</a></li>
+                        <li><a href="#download" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">下载</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="text-lg font-semibold mb-6">支持</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">帮助中心</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">常见问题</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">联系我们</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom">隐私政策</a></li>
+                    <h4 class="text-base sm:text-lg font-semibold mb-4 sm:mb-6">支持</h4>
+                    <ul class="space-y-2 sm:space-y-3">
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">帮助中心</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">常见问题</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">联系我们</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-custom text-sm sm:text-base">隐私政策</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="text-lg font-semibold mb-6">联系我们</h4>
-                    <ul class="space-y-3">
+                    <h4 class="text-base sm:text-lg font-semibold mb-4 sm:mb-6">联系我们</h4>
+                    <ul class="space-y-2 sm:space-y-3">
                         <li class="flex items-start">
-                            <i class="fa-solid fa-envelope text-primary mt-1 mr-3"></i>
-                            <span class="text-neutral-400">18700222185@163.com</span>
+                            <i class="fa-solid fa-envelope text-primary mt-1 mr-2 sm:mr-3"></i>
+                            <span class="text-neutral-400 text-sm sm:text-base">18700222185@163.com</span>
                         </li>
                         <li class="flex items-start">
-                            <i class="fa-solid fa-phone text-primary mt-1 mr-3"></i>
-                            <span class="text-neutral-400">187-0022-2185</span>
+                            <i class="fa-solid fa-phone text-primary mt-1 mr-2 sm:mr-3"></i>
+                            <span class="text-neutral-400 text-sm sm:text-base">187-0022-2185</span>
                         </li>
                         <li class="flex items-start">
-                            <i class="fa-solid fa-map-marker-alt text-primary mt-1 mr-3"></i>
-                            <span class="text-neutral-400">陕西理工大学#13B-324</span>
+                            <i class="fa-solid fa-map-marker-alt text-primary mt-1 mr-2 sm:mr-3"></i>
+                            <span class="text-neutral-400 text-sm sm:text-base">陕西理工大学#13B-324</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-neutral-700 mt-12 pt-8 text-center text-neutral-400">
-                <p>&copy; 2025 LoveSync. 保留所有权利。</p>
+            <div class="border-t border-neutral-700 mt-8 sm:mt-12 pt-6 sm:pt-8 text-center text-neutral-400">
+                <p class="text-sm sm:text-base">&copy; 2025 LoveSync. 保留所有权利。</p>
             </div>
         </div>
     </footer>

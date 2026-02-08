@@ -566,66 +566,6 @@ class LikeViewSet(viewsets.ModelViewSet):
         """只返回当前用户的点赞记录"""
         return self.queryset.filter(user=self.request.user)
 
-
-
-
-
-# 社区视图（Web）
-@login_required
-def community_view(request):
-    """社区页面"""
-    # 生成缓存键
-    cache_key = 'community:latest:1'
-    moments = None
-    
-    # 尝试从缓存获取
-    try:
-        from django.core.cache import caches
-        master_cache = caches['master_cache']
-        cached_moments = master_cache.get(cache_key)
-        if cached_moments:
-            moments = cached_moments
-    except Exception as e:
-        print(f"缓存读取失败: {e}")
-    
-    # 从数据库查询
-    if moments is None:
-        # 获取所有分享的动态，按时间倒序排列，限制初始加载数量为10条
-        moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[:10]
-        # 缓存结果，有效期5分钟
-        try:
-            from django.core.cache import caches
-            master_cache = caches['master_cache']
-            master_cache.set(cache_key, moments, 300)
-        except Exception as e:
-            print(f"缓存写入失败: {e}")
-    
-    # 获取未读消息计数
-    try:
-        from message.models import Message, PrivateChat
-        
-        # 计算系统消息未读数
-        unread_system_messages = Message.objects.filter(user=request.user, type='system', is_read=False).count()
-        
-        # 计算业务提醒未读数
-        unread_business_messages = Message.objects.filter(user=request.user, type='business', is_read=False).count()
-        
-        # 计算私信未读数
-        unread_private_chats = PrivateChat.objects.filter(recipient=request.user, message__is_read=False).count()
-        
-        # 总未读消息数
-        total_unread_messages = unread_system_messages + unread_business_messages + unread_private_chats
-    except Exception as e:
-        print(f"Error calculating unread messages: {e}")
-        total_unread_messages = 0
-    
-    return render(request, 'community.html', {
-        'moments': moments,
-        'user': request.user,
-        'unread_message_count': total_unread_messages
-    })
-
-
 # 动态视图（Web）
 @login_required
 def moments_view(request):
@@ -674,6 +614,17 @@ def moments_view(request):
                 # 处理图片
                 for image in images:
                     MomentImage.objects.create(moment=moment, image=image)
+                
+                # 清除相关缓存，确保社区页面能及时显示新动态
+                try:
+                    from django.core.cache import caches
+                    master_cache = caches['master_cache']
+                    # 清除社区页面缓存
+                    master_cache.delete('community:latest:1')
+                    # 清除热门动态缓存
+                    master_cache.delete_pattern('hot:moments:*')
+                except Exception as e:
+                    print(f"清除缓存失败: {e}")
                 
                 messages.success(request, '动态发布成功')
                 return redirect('moments')

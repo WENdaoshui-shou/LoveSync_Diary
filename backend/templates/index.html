@@ -7,7 +7,8 @@
     <title>LoveSync - 双人日记</title>
     {% load static %}
     <!-- 网页图标 -->
-    <link rel="icon" type="image/jpg" href="https://wendaoshuishou.oss-cn-chengdu.aliyuncs.com/static/images/favicon.ico">
+    <link rel="icon" type="image/jpg"
+        href="https://wendaoshuishou.oss-cn-chengdu.aliyuncs.com/static/images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
@@ -81,6 +82,129 @@
             }
         }
     </style>
+
+    <!-- 热门话题样式 -->
+    <style>
+        .hot-topics-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: rgba(255, 250, 251, 0.5);
+        }
+
+        .hot-topic {
+            position: absolute;
+            top: calc(var(--top, 50%));
+            left: 100%;
+            transform: translateY(-50%);
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            white-space: nowrap;
+            background: var(--color, #FF6B8B);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            /* 核心：使用随机的动画时长和延迟 */
+            animation: floatAndMove var(--duration, 15s) linear infinite;
+            animation-delay: var(--delay, 0s);
+            z-index: 1;
+            transition: all 0.3s ease;
+            opacity: 0.95;
+        }
+
+        @keyframes floatAndMove {
+            0% {
+                left: 100%;
+                transform: translateY(-50%) scale(0.85);
+                opacity: 0;
+            }
+            5% {
+                left: 95%;
+                transform: translateY(-50%) scale(0.9);
+                opacity: 0.8;
+            }
+            10% {
+                left: 90%;
+                transform: translateY(calc(-50% - 5px)) scale(0.95);
+                opacity: 1;
+            }
+            20% {
+                left: 80%;
+                transform: translateY(calc(-50% + 3px)) scale(1);
+                opacity: 1;
+            }
+            30% {
+                left: 70%;
+                transform: translateY(calc(-50% - 2px)) scale(1.02);
+                opacity: 1;
+            }
+            40% {
+                left: 60%;
+                transform: translateY(calc(-50% + 1px)) scale(1);
+                opacity: 1;
+            }
+            50% {
+                left: 50%;
+                transform: translateY(calc(-50% - 1px)) scale(0.98);
+                opacity: 1;
+            }
+            60% {
+                left: 40%;
+                transform: translateY(calc(-50% + 2px)) scale(0.95);
+                opacity: 1;
+            }
+            70% {
+                left: 30%;
+                transform: translateY(calc(-50% - 3px)) scale(0.9);
+                opacity: 0.9;
+            }
+            80% {
+                left: 20%;
+                transform: translateY(calc(-50% + 2px)) scale(0.85);
+                opacity: 0.8;
+            }
+            90% {
+                left: 10%;
+                transform: translateY(-50%) scale(0.8);
+                opacity: 0.5;
+            }
+            100% {
+                left: -150px;
+                transform: translateY(-50%) scale(0.7);
+                opacity: 0;
+            }
+        }
+
+        .hot-topic:hover {
+            animation-play-state: paused;
+            transform: translateY(-50%) scale(1.15) rotate(1deg);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            z-index: 10;
+            opacity: 1 !important;
+            background: var(--color, #FF6B8B) !important;
+        }
+
+        /* 响应式：小屏也保持随机速度 */
+        @media (max-width: 768px) {
+            .hot-topics-container {
+                height: 180px;
+            }
+
+            .hot-topic {
+                padding: 8px 14px;
+                font-size: 13px;
+                /* 小屏按比例缩短时长，保持随机感 */
+                animation-duration: calc(var(--duration, 12s) * 0.7);
+            }
+        }
+
+        .transition-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
 </head>
 
 <body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col">
@@ -141,10 +265,10 @@
                         LoveSync是一款专为情侣设计的私密日记应用，让你们随时随地记录生活中的每一个美好瞬间，共同创造永恒的回忆。
                     </p>
                     <div class="flex flex-wrap gap-4">
-                        <button
-                            class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom flex items-center">
+                        <a href="{% url 'community' %}"
+                            class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom flex items-center inline-block">
                             <i class="fa-solid fa-heart mr-2"></i> 立即开始
-                        </button>
+                        </a>
                         <button
                             class="px-8 py-3 border border-neutral-300 rounded-full text-neutral-700 hover:bg-neutral-50 transition-custom flex items-center">
                             <i class="fa-solid fa-play-circle mr-2"></i> 观看演示
@@ -250,7 +374,7 @@
                         <p class="text-neutral-600 mb-4">
                             两个人可以同时编辑同一篇日记，共同创作属于你们的故事，实时看到对方的输入内容。
                         </p>
-                        <a href="#" class="text-primary font-medium flex items-center">
+                        <a href="{% url 'community' %}" class="text-primary font-medium flex items-center">
                             了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
                         </a>
                     </div>
@@ -270,7 +394,7 @@
                         <p class="text-neutral-600 mb-4">
                             设置重要的纪念日，系统会提前提醒，让你不会错过任何一个重要的日子，为TA准备惊喜。
                         </p>
-                        <a href="#" class="text-secondary font-medium flex items-center">
+                        <a href="{% url 'community' %}" class="text-secondary font-medium flex items-center">
                             了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
                         </a>
                     </div>
@@ -290,7 +414,7 @@
                         <p class="text-neutral-600 mb-4">
                             上传和整理你们的照片，添加文字描述，创建专属的回忆相册，随时回味美好瞬间。
                         </p>
-                        <a href="#" class="text-green-600 font-medium flex items-center">
+                        <a href="{% url 'community' %}" class="text-green-600 font-medium flex items-center">
                             了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
                         </a>
                     </div>
@@ -310,7 +434,7 @@
                         <p class="text-neutral-600 mb-4">
                             加入我们的情侣社区，分享你们的爱情故事，获取恋爱建议，结交志同道合的情侣朋友。
                         </p>
-                        <a href="#" class="text-blue-600 font-medium flex items-center">
+                        <a href="{% url 'community' %}" class="text-blue-600 font-medium flex items-center">
                             了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
                         </a>
                     </div>
@@ -330,7 +454,7 @@
                         <p class="text-neutral-600 mb-4">
                             采用银行级加密技术，确保你们的日记内容只有彼此可见，保护你们的私密空间不被外界打扰。
                         </p>
-                        <a href="#" class="text-purple-600 font-medium flex items-center">
+                        <a href="{% url 'community' %}" class="text-purple-600 font-medium flex items-center">
                             了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
                         </a>
                     </div>
@@ -350,7 +474,7 @@
                         <p class="text-neutral-600 mb-4">
                             分析你们的互动数据，生成爱情报告，了解你们的相处模式，发现爱情中的小确幸。
                         </p>
-                        <a href="#" class="text-amber-600 font-medium flex items-center">
+                        <a href="{% url 'community' %}" class="text-amber-600 font-medium flex items-center">
                             了解更多 <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
                         </a>
                     </div>
@@ -403,10 +527,6 @@
                             </div>
                         </li>
                     </ul>
-                    <button
-                        class="px-8 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-custom">
-                        体验实时编辑
-                    </button>
                 </div>
                 <div class="lg:w-1/2 relative">
                     <div class="relative z-10 bg-white rounded-2xl shadow-2xl overflow-hidden hover-scale">
@@ -445,10 +565,6 @@
                                         rows="4" placeholder="写下你的感受..."></textarea>
                                 </div>
                                 <div class="mt-3 flex justify-end">
-                                    <button
-                                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
-                                        发送
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -513,9 +629,6 @@
                             <i class="fa-solid fa-language text-primary text-lg"></i>
                             <span class="text-sm text-neutral-600">基于日记内容提取高频词汇</span>
                         </div>
-                        <button class="text-primary font-medium flex items-center">
-                            查看分析报告 <i class="fa-solid fa-arrow-right ml-1 text-sm"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -614,7 +727,7 @@
                                     <i class="fa-solid fa-comment mr-1"></i> 32
                                 </button>
                             </div>
-                            <button class="text-primary font-medium">阅读更多</button>
+                            <a href="{% url 'community' %}" class="text-primary font-medium">阅读更多</a>
                         </div>
                     </div>
                 </div>
@@ -650,7 +763,7 @@
                                     <i class="fa-solid fa-comment mr-1"></i> 47
                                 </button>
                             </div>
-                            <button class="text-primary font-medium">阅读更多</button>
+                            <a href="{% url 'community' %}" class="text-primary font-medium">阅读更多</a>
                         </div>
                     </div>
                 </div>
@@ -686,17 +799,17 @@
                                     <i class="fa-solid fa-comment mr-1"></i> 53
                                 </button>
                             </div>
-                            <button class="text-primary font-medium">阅读更多</button>
+                            <a href="{% url 'community' %}" class="text-primary font-medium">阅读更多</a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="text-center mt-12">
-                <button
-                    class="px-8 py-3 border border-primary text-primary rounded-full hover:bg-primary/5 transition-custom">
+                <a href="{% url 'community' %}"
+                    class="px-8 py-3 border border-primary text-primary rounded-full hover:bg-primary/5 transition-custom inline-block">
                     查看更多故事
-                </button>
+                </a>
             </div>
         </div>
     </section>
@@ -780,83 +893,55 @@
         </div>
     </section>
 
-    <!-- 动态内容 -->
-    {% if has_dynamic_content %}
-    <section class="py-20 bg-white">
+    <!-- 热门话题展示 -->
+    {% if has_dynamic_content and popular_tags %}
+    <section class="py-20 bg-gradient-to-b from-neutral-50 to-white">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
-                    社区动态
+                    热门话题
                 </h2>
                 <p class="text-neutral-600 text-lg">
-                    看看其他情侣分享的美好瞬间，获取更多爱情灵感
+                    看看情侣们都在讨论什么，获取更多爱情灵感
                 </p>
             </div>
 
-            <!-- 热门标签 -->
-            <div class="flex flex-wrap justify-center gap-3 mb-12">
-                {% for tag in popular_tags %}
-                <span
-                    class="px-4 py-2 bg-neutral-100 rounded-full text-neutral-700 hover:bg-primary/10 hover:text-primary transition-custom cursor-pointer">
-                    #{{ tag.name }}
-                </span>
-                {% endfor %}
-            </div>
-
-            <!-- 动态列表 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {% for moment in moments %}
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-scale">
-                    <!-- 用户信息 -->
-                    <div class="p-4 flex items-center">
-                        <img src="{% if moment.user.avatar %}{{ moment.user.avatar.url }}{% else %}https://picsum.photos/seed/{{ moment.user.username }}/60/60{% endif %}"
-                            alt="{{ moment.user.name }}" class="w-10 h-10 rounded-full object-cover">
-                        <div class="ml-3">
-                            <h4 class="font-medium text-neutral-800">{{ moment.user.name }}</h4>
-                            <p class="text-xs text-neutral-500">{{ moment.created_at|date:"Y-m-d H:i" }}</p>
-                        </div>
-                    </div>
-
-                    <!-- 动态内容 -->
-                    <div class="p-4">
-                        <p class="text-neutral-700 mb-4">{{ moment.content|truncatechars:150 }}</p>
-
-                        <!-- 图片 -->
-                        {% if moment.images %}
-                        <div class="grid grid-cols-3 gap-1 mb-4">
-                            {% for image in moment.images %}
-                            <img src="{{ image }}" alt="动态图片" class="w-full h-24 object-cover rounded-lg">
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                        <!-- 互动数据 -->
-                        <div class="flex items-center justify-between text-sm text-neutral-500">
-                            <div class="flex items-center space-x-4">
-                                <span class="flex items-center">
-                                    <i class="fa-solid fa-heart mr-1"></i> {{ moment.likes }}
-                                </span>
-                                <span class="flex items-center">
-                                    <i class="fa-solid fa-comment mr-1"></i> {{ moment.comments }}
-                                </span>
-                                <span class="flex items-center">
-                                    <i class="fa-solid fa-star mr-1"></i> {{ moment.favorites }}
-                                </span>
-                            </div>
-                            <button class="text-primary hover:text-primary/80 transition-custom">
-                                查看详情
-                            </button>
-                        </div>
-                    </div>
+            <!-- 热门话题流动效果 -->
+            <div class="relative overflow-hidden py-12">
+                <div class="hot-topics-container">
+                    <!-- 第一组热门话题：纯add实现随机速度+多颜色 -->
+                    {% for tag in popular_tags %}
+                        {% with loop_idx=forloop.counter0 %}
+                        <!-- 随机延迟：0/1/2/3...秒（用add模拟，无div） -->
+                            {% with random_delay=loop_idx %}
+                                <!-- 随机时长：10/12/14/16...秒（每次+2，实现速度差异） -->
+                                {% with random_duration=10|add:loop_idx|add:loop_idx %}
+                                <div class="hot-topic"style="--delay: {{ random_delay }}s;
+                                        --duration: {{ random_duration }}s;
+                                        --top: {{ 15|add:loop_idx|add:loop_idx|add:loop_idx|add:loop_idx|add:loop_idx|add:loop_idx|add:loop_idx|add:loop_idx|add:loop_idx|add:loop_idx }}%;
+                                        {% if loop_idx|divisibleby:4 %}
+                                        --color: #FF6B8B;
+                                        {% elif loop_idx|divisibleby:3 %}
+                                        --color: #722ED1;
+                                        {% elif loop_idx|divisibleby:2 %}
+                                        --color: #13C2C2;
+                                        {% else %}
+                                        --color: #FAAD14;
+                                        {% endif %}">
+                                    #{{ tag.name }}
+                                </div>
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
 
             <div class="text-center mt-12">
-                <button
-                    class="px-8 py-3 border border-primary text-primary rounded-full hover:bg-primary/5 transition-custom">
-                    查看更多动态
-                </button>
+                <a href="{% url 'community' %}"
+                    class="px-8 py-3 border border-primary text-primary rounded-full hover:bg-primary/5 transition-custom inline-block">
+                    查看更多话题
+                </a>
             </div>
         </div>
     </section>
@@ -884,12 +969,12 @@
                 </div>
                 <div class="mt-12 flex items-center justify-center">
                     <div class="w-24 h-px bg-white/30 mr-4"></div>
-                    <span class="text-white/70">或直接扫码下载</span>
+                    <span class="text-white/70">官方微信公众号</span>
                     <div class="w-24 h-px bg-white/30 ml-4"></div>
                 </div>
                 <div class="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-6 inline-block">
-                    <img src="https://wendaoshuishou.oss-cn-chengdu.aliyuncs.com/static/images/erweima.png" alt="下载二维码"
-                        class="w-48 h-48">
+                    <img src="https://wendaoshuishou.oss-cn-chengdu.aliyuncs.com/static/images/gongzhonghao.jpg"
+                        alt="下载二维码" class="w-48 h-48">
                 </div>
             </div>
         </div>
@@ -983,7 +1068,7 @@
                     </button>
                     <div class="px-6 pb-4 hidden" id="faq-content-5">
                         <p class="text-neutral-600">
-                            LoveSync提供免费和高级两种版本。免费版包含基本的日记功能和部分社区功能。高级版则解锁更多个性化选项、云存储、无广告等特权。你可以在应用内的"会员中心"查看详细的功能对比和订阅价格。
+                            LoveSync提供免费和高级两种版本。免费版包含基本的日记功能和部分社区功能。高级版则解锁更多个性化选项、情侣功能、无广告等特权。你可以在应用内的"会员中心"查看详细的功能对比和订阅价格。
                         </p>
                     </div>
                 </div>
