@@ -31,7 +31,7 @@
             /* 导航栏收缩样式 */
             #sidebar.sidebar-collapsed {
                 width: 72px;
-                top: 73px;
+                top: 72px;
                 background: linear-gradient(to bottom, #ffffff, #f8f9fa);
                 transition: width 0.3s ease, background 0.3s ease;
             }
@@ -104,11 +104,11 @@
             
             @media (max-width: 767px) {
                 #sidebar {
-                    transform: translateX(0);
+                    transform: translateX(-100%);
                     position: fixed;
                     left: 0;
-                    top: 60px;
-                    height: calc(100vh - 60px);
+                    top: 73px;
+                    height: calc(100vh - 73px);
                     width: 256px;
                     z-index: 49;
                     transition: transform 0.3s ease, width 0.3s ease, background 0.3s ease;
@@ -118,8 +118,8 @@
                 /* 移动端侧边栏打开样式 */
                 #sidebar.mobile-open {
                     left: 0;
-                    top: 60px;
-                    height: calc(100vh - 60px);
+                    top: 73px;
+                    height: calc(100vh - 73px);
                     width: 256px;
                     transform: translateX(0);
                     transition: transform 0.3s ease;
@@ -128,8 +128,8 @@
                 /* 移动端侧边栏收缩样式 - 与桌面端保持一致 */
                 #sidebar.sidebar-collapsed {
                     width: 72px;
-                    top: 60px;
-                    height: calc(100vh - 60px);
+                    top: 73px;
+                    height: calc(100vh - 73px);
                     background: linear-gradient(to bottom, #ffffff, #f8f9fa);
                     transform: translateX(0);
                     transition: width 0.3s ease, background 0.3s ease;
@@ -199,7 +199,6 @@
                 margin-right: 0;
                 width: 24px;
                 text-align: center;
-                display: block;
             }
 
             #sidebar.sidebar-collapsed .space-x-3 {
@@ -213,11 +212,6 @@
             #sidebar .border-b {
                 margin-left: 16px;
                 margin-right: 16px;
-            }
-            
-            /* 底部logo样式 */
-            #sidebar .border-t .w-24 div {
-                border-radius: 50%;
             }
             
             /* 底部logo在收缩状态下的样式 */
@@ -234,13 +228,11 @@
             #sidebar.sidebar-collapsed .border-t .w-24 {
                 width: 48px;
                 height: 48px;
-                border-radius: 50%;
             }
             
             #sidebar.sidebar-collapsed .border-t .w-24 div {
                 width: 48px;
                 height: 48px;
-                border-radius: 50%;
             }
             
             #sidebar.sidebar-collapsed .border-t .w-24 i {
@@ -266,7 +258,7 @@
             
             @media (max-width: 767px) {
                 .main-content {
-                    padding-left: 256px;
+                    padding-left: 0;
                     padding-right: 0;
                 }
                 
@@ -922,8 +914,7 @@
                                         {% if moment.user.vip and moment.user.vip.is_active %}
                                         <!-- 使用后端提供的VIP等级对应颜色 -->
                                         <a href="{% url 'vip_web:index' %}"
-                                            class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium"
-                                            .get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                            class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium"style="background: {{ moment.user.vip.get_level_color }}; color: {{ moment.user.vip.get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                                             <i class="fa-solid fa-crown text-xs mr-0.5"></i>
                                             {{ moment.user.vip.get_level_display }}
                                         </a>
@@ -1277,44 +1268,45 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const toggleSidebarButton = document.getElementById('toggleSidebar');
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
         const sidebar = document.getElementById('sidebar');
 
         // 切换导航栏展开/收缩
         if (toggleSidebarButton) {
             toggleSidebarButton.addEventListener('click', function () {
-                // 检查屏幕宽度，在移动端切换mobile-open类，在桌面端切换sidebar-collapsed类
-                if (window.innerWidth <= 767) {
-                    // 移动端：如果侧边栏是关闭的，先打开它
-                    if (!sidebar.classList.contains('mobile-open') && !sidebar.classList.contains('sidebar-collapsed')) {
-                        sidebar.classList.add('mobile-open');
-                    } else {
-                        // 如果侧边栏是打开的，切换收缩状态
-                        sidebar.classList.toggle('sidebar-collapsed');
-                        // 如果侧边栏从收缩状态变为展开状态，确保添加mobile-open类
-                        if (!sidebar.classList.contains('sidebar-collapsed')) {
-                            sidebar.classList.add('mobile-open');
-                        }
-                        const mainContent = document.querySelector('.main-content');
-                        if (mainContent) {
-                            mainContent.classList.toggle('sidebar-collapsed');
-                        }
-                    }
+                sidebar.classList.toggle('sidebar-collapsed');
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.classList.toggle('sidebar-collapsed');
+                }
+            });
+        }
+
+        // 移动端菜单按钮点击事件
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', function () {
+                sidebar.classList.toggle('mobile-open');
+
+                // 切换图标
+                const icon = mobileMenuButton.querySelector('i');
+                if (sidebar.classList.contains('mobile-open')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
                 } else {
-                    // 桌面端：切换侧边栏的展开/收缩
-                    sidebar.classList.toggle('sidebar-collapsed');
-                    const mainContent = document.querySelector('.main-content');
-                    if (mainContent) {
-                        mainContent.classList.toggle('sidebar-collapsed');
-                    }
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
                 }
             });
         }
 
         // 点击侧边栏外部关闭侧边栏（仅移动端）
         document.addEventListener('click', function (event) {
-            if (window.innerWidth <= 767 && sidebar.classList.contains('mobile-open') && !sidebar.classList.contains('sidebar-collapsed')) {
-                if (!sidebar.contains(event.target)) {
+            if (window.innerWidth <= 767 && sidebar.classList.contains('mobile-open')) {
+                if (!sidebar.contains(event.target) && !mobileMenuButton.contains(event.target)) {
                     sidebar.classList.remove('mobile-open');
+                    const icon = mobileMenuButton.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
                 }
             }
         });

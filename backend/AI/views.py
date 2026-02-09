@@ -11,12 +11,14 @@ from openai import OpenAI, APIError, AuthenticationError, RateLimitError
 import time
 from .PROMPT import *
 from .models import *
-import configparser
+from dotenv import dotenv_values
 
+
+config = dotenv_values(".env")
 # 阿里云百炼API配置
-DASHSCOPE_API_KEY = os.environ.get('DASHSCOPE_API_KEY')
-DASHSCOPE_BASE_URL = os.environ.get('DASHSCOPE_BASE_URL')
-DASHSCOPE_MODEL = os.environ.get('DASHSCOPE_MODEL') 
+DASHSCOPE_API_KEY = config.get('DASHSCOPE_API_KEY') or os.environ.get('DASHSCOPE_API_KEY')
+DASHSCOPE_BASE_URL = config.get('DASHSCOPE_BASE_URL') or os.environ.get('DASHSCOPE_BASE_URL')
+DASHSCOPE_MODEL = config.get('DASHSCOPE_MODEL') or os.environ.get('DASHSCOPE_MODEL') 
 
 # 会话配置
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -242,7 +244,7 @@ def get_ai_response(messages, max_retries=2):
     while retry_count < max_retries:
         try:
             completion = client.chat.completions.create(
-                model=DASHSCOPE_MODEL,  # 已修正模型名称
+                model=DASHSCOPE_MODEL, 
                 messages=messages,
                 timeout=10
             )
