@@ -296,13 +296,7 @@
             /* 聊天窗口响应式样式 */
             @media (max-width: 767px) {
                 .chat-widget {
-                    max-width: 90%;
-                    right: 5%;
-                    left: 5%;
-                }
-                
-                .chat-messages {
-                    height: 300px;
+                    display: none;
                 }
             }
             
@@ -922,8 +916,7 @@
                                         {% if moment.user.vip and moment.user.vip.is_active %}
                                         <!-- 使用后端提供的VIP等级对应颜色 -->
                                         <a href="{% url 'vip_web:index' %}"
-                                            class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium"
-                                            .get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                            class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium"style="background: {{ moment.user.vip.get_level_color }}; color: {{ moment.user.vip.get_level_text_color }}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                                             <i class="fa-solid fa-crown text-xs mr-0.5"></i>
                                             {{ moment.user.vip.get_level_display }}
                                         </a>

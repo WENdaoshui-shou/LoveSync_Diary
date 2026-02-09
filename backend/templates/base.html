@@ -62,6 +62,7 @@
             }
             
             /* 确保移动端品牌标识显示为圆形 */
+            .md\:hidden .w-6.h-6,
             .md\:hidden .w-8.h-8 {
                 border-radius: 50% !important;
             }
@@ -262,12 +263,12 @@
             <!-- 2. 移动端导航栏 (md以下屏幕显示) -->
             <div class="flex md:hidden items-center justify-between gap-4 w-full">
                 <!-- 移动端品牌标识 -->
-                <a href="{% url 'index' %}" class="flex items-center space-x-2 flex-shrink-0">
+                <a href="{% url 'index' %}" class="flex items-center space-x-1.5 flex-shrink-0">
                     <div
                         class="w-6 h-6 rounded-full bg-gradient-love flex items-center justify-center text-white shadow-md">
                         <i class="fa-solid fa-heart text-sm"></i>
                     </div>
-                    <span class="text-sm font-bold text-neutral-800 tracking-tight">LoveSync</span>
+                    <span class="text-base font-bold text-neutral-800 tracking-tight">LoveSync</span>
                 </a>
                 <!-- 移动端主导航 -->
                 <nav class="flex space-x-4 flex-shrink-0">
