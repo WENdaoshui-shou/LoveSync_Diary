@@ -21,20 +21,35 @@ class NoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-            """获取日记列表，支持按用户筛选，默认返回当前用户的所有日记和对方用户的已分享日记"""
-            queryset = self.queryset.order_by('-created_at')
-            user_id = self.request.query_params.get('user_id')
-            
-            if user_id:
-                # 如果指定了用户ID，只返回该用户的日记
-                queryset = queryset.filter(user_id=user_id)
-            else:
-                # 默认返回当前用户的所有日记和对方用户的已分享日记
-                current_user = self.request.user
-                queryset = queryset.filter(
-                    Q(user=current_user) | 
-                    Q(is_shared=True)  # 只显示已分享的日记
+        """获取日记列表，支持按用户筛选，默认返回当前用户的所有日记和对方用户的已分享日记"""
+        queryset = self.queryset.order_by('-created_at')
+        user_id = self.request.query_params.get('user_id')
+        
+        if user_id:
+            # 如果指定了用户ID，只返回该用户的日记
+            queryset = queryset.filter(user_id=user_id)
+        else:
+            # 默认返回当前用户的所有日记和对方用户的已分享日记
+            current_user = self.request.user
+            queryset = queryset.filter(
+                Q(user=current_user) | 
+                Q(is_shared=True)  # 只显示已分享的日记
             )
+        
+        return queryset
+    
+    def get_object(self):
+        """获取日记对象，确保能够正确处理共享日记"""
+        try:
+            # 使用get_queryset方法获取查询集，然后从中查找指定的对象
+            queryset = self.get_queryset()
+            obj = queryset.get(pk=self.kwargs.get('pk'))
+            self.check_object_permissions(self.request, obj)
+            return obj
+        except Exception as e:
+            # 如果找不到对象，返回404错误
+            from django.http import Http404
+            raise Http404(f"日记不存在或无权限访问: {str(e)}")
     
     def perform_create(self, serializer):
         """创建日记"""
@@ -204,6 +219,46 @@ class NoteViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({
                 'message': f'删除评论失败: {str(e)}'
+            }, status=500)
+    
+    @action(detail=True, methods=['post'], url_path='comment/(?P<comment_id>\d+)/like/')
+    def comment_like(self, request, pk=None, comment_id=None):
+        """评论/回复点赞"""
+        note = self.get_object()
+        
+        try:
+            # 查询要点赞的评论/回复
+            target_comment = Comment.objects.get(id=comment_id, note=note)
+            
+            # 检查用户是否已点赞
+            like, created = CommentLike.objects.get_or_create(user=request.user, comment=target_comment)
+            
+            if created:
+                # 点赞
+                target_comment.likes = target_comment.likes + 1
+                target_comment.save()
+                return Response({
+                    'message': '点赞成功',
+                    'likes': target_comment.likes,
+                    'is_liked': True
+                }, status=200)
+            else:
+                # 取消点赞
+                like.delete()
+                target_comment.likes = target_comment.likes - 1 if target_comment.likes > 0 else 0
+                target_comment.save()
+                return Response({
+                    'message': '取消点赞成功',
+                    'likes': target_comment.likes,
+                    'is_liked': False
+                }, status=200)
+        except Comment.DoesNotExist:
+            return Response({
+                'message': '评论不存在'
+            }, status=404)
+        except Exception as e:
+            return Response({
+                'message': f'点赞失败: {str(e)}'
             }, status=500)
 
 

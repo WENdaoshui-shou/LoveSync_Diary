@@ -82,6 +82,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='note_comments')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     content = models.TextField(max_length=500, verbose_name='评论内容')
+    likes = models.IntegerField(default=0, verbose_name='点赞数')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     class Meta:
@@ -106,3 +107,18 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} 点赞了日记 #{self.note.id}"
+
+
+# 评论点赞
+class CommentLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_likes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_likes')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='点赞时间')
+
+    class Meta:
+        unique_together = ('user', 'comment')  # 确保每个用户只能对同一个评论点赞一次
+        verbose_name = '评论点赞'
+        verbose_name_plural = '评论点赞'
+
+    def __str__(self):
+        return f"{self.user.username} 点赞了评论 #{self.comment.id}"

@@ -691,8 +691,7 @@
                 <i class="fa-solid fa-envelope w-5 text-center group-hover:scale-110 transition-transform"></i>
                 <span class="sidebar-text">消息</span>{% if unread_message_count > 0 %}
                 <span
-                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center sidebar-badge">{{
-                    unread_message_count }}</span>
+                    class="absolute -top-1 right-2 w-5 h-5 bg-primary text-white rounded-full text-xs flex items-center justify-center sidebar-badge">{{ unread_message_count }}</span>
                 {% endif %}
             </a>
             <a href="{% url 'moment_web:hot_ranking' %}"

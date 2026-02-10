@@ -190,12 +190,10 @@ class IndexView(TemplateView):
         
         context = super().get_context_data(**kwargs)
         
-        # 添加动态内容
         try:
             from moment.models import Tag
             from django.db.models import Count
             
-            # 只获取热门标签，不获取动态数据
             popular_tags = Tag.objects.annotate(
                 moment_count=Count('moments')
             ).order_by('-moment_count')[:10]
