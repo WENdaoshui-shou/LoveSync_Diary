@@ -70,8 +70,8 @@ class AliyunOSSStorage(Storage):
         """获取文件URL"""
         # 统一路径分隔符为正斜杠
         name = name.replace('\\', '/')
-        # 直接返回 OSS 公共访问 URL
-        return f"https://{self.bucket_name}.{self.endpoint}/{name}"
+        # 返回 CDN 路径
+        return f"https://static.lovesync-diary.top/{name}"
     
     def get_available_name(self, name, max_length=None):
         """获取可用的文件名"""

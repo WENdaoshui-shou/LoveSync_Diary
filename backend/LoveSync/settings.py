@@ -300,7 +300,7 @@ USE_TZ = True
 # 配置 ASGI 应用
 ASGI_APPLICATION = 'LoveSync.asgi.application'
 
-STATIC_URL = '/static/'
+STATIC_URL = 'https://static.lovesync-diary.top/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # 全局静态文件目录
 ]
@@ -368,5 +368,5 @@ if not DEBUG:  # 仅在生产环境使用 OSS
     ALIYUN_OSS_ENDPOINT = os.environ.get('ALIYUN_OSS_ENDPOINT', 'oss-cn-chengdu.aliyuncs.com')
     
     # 使用 OSS 域名作为媒体文件和静态文件的基础 URL
-    MEDIA_URL = f'https://{ALIYUN_OSS_BUCKET_NAME}.{ALIYUN_OSS_ENDPOINT}/'
-    STATIC_URL = f'https://{ALIYUN_OSS_BUCKET_NAME}.{ALIYUN_OSS_ENDPOINT}/'
+    MEDIA_URL = f'https://static.lovesync-diary.top/'
+    STATIC_URL = f'https://static.lovesync-diary.top/'

@@ -192,41 +192,18 @@ class IndexView(TemplateView):
         
         # 添加动态内容
         try:
-            from moment.models import Moment, MomentImage
-            from core.models import User, Profile
-            
-            # 获取最新的动态（包含图片）
-            latest_moments = Moment.objects.filter(is_shared=True).order_by('-created_at')[:6]
-            
-            # 构建动态数据列表
-            moments_data = []
-            for moment in latest_moments:
-                moment_dict = {
-                    'id': moment.id,
-                    'user': {
-                        'username': moment.user.username,
-                        'name': moment.user.name or moment.user.username,
-                        'avatar': getattr(moment.user.profile, 'userAvatar', None) if hasattr(moment.user, 'profile') else None
-                    },
-                    'content': moment.content,
-                    'likes': moment.likes,
-                    'comments': moment.comments,
-                    'favorites': moment.favorites,
-                    'created_at': moment.created_at,
-                    'images': [img.image.url for img in moment.moment_images.all()[:3]]
-                }
-                moments_data.append(moment_dict)
-            
-            # 获取热门标签
             from moment.models import Tag
             from django.db.models import Count
-            popular_tags = Tag.objects.annotate(moment_count=Count('moments')).order_by('-moment_count')[:10]
+            
+            # 只获取热门标签，不获取动态数据
+            popular_tags = Tag.objects.annotate(
+                moment_count=Count('moments')
+            ).order_by('-moment_count')[:10]
             
             # 添加到上下文
-            context['moments'] = moments_data
             context['popular_tags'] = popular_tags
-            # 只要有标签或动态，就显示动态内容部分
-            context['has_dynamic_content'] = bool(moments_data) or bool(popular_tags)
+            # 只要有标签，就显示动态内容部分
+            context['has_dynamic_content'] = bool(popular_tags)
             
         except Exception as e:
             print(f"Error loading dynamic content: {e}")
