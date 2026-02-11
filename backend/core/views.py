@@ -73,14 +73,6 @@ class RegisterViewSet(viewsets.GenericViewSet):
             expires_at=expires_at
         )
         
-        # 发送验证码（这里使用模拟发送，实际项目中需要集成真实的短信/邮件服务）
-        if type == 'phone':
-            # 模拟发送短信
-            print(f"向手机号 {target} 发送验证码: {code}")
-        else:
-            # 模拟发送邮件
-            print(f"向邮箱 {target} 发送验证码: {code}")
-        
         return Response({'message': '验证码发送成功'}, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['post'])
@@ -628,7 +620,6 @@ def community_view(request):
                 pass
         moments = final_valid_moments
     except Exception as e:
-        print(f"最终数据校验失败: {e}")
         moments = []
     
     # 获取未读消息计数
@@ -647,7 +638,6 @@ def community_view(request):
         # 总未读消息数
         total_unread_messages = unread_system_messages + unread_business_messages + unread_private_chats
     except Exception as e:
-        print(f"Error calculating unread messages: {e}")
         total_unread_messages = 0
     
     return render(request, 'community.html', {

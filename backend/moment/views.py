@@ -20,18 +20,11 @@ class MomentViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         """根据不同的action设置不同的权限"""
-        print(f"[DEBUG] get_permissions called, action: {self.action}")
         if self.action in ['list', 'retrieve', 'hot_moments', 'hot_favorites']:
             # 查看动态列表和详情时允许匿名访问
-            print(f"[DEBUG] AllowAny for action: {self.action}")
             return [AllowAny()]
-        elif self.action in ['comment_like']:
-            # 评论点赞需要登录
-            print(f"[DEBUG] IsAuthenticated for comment_like action")
-            return [IsAuthenticated()]
         else:
             # 其他操作需要登录
-            print(f"[DEBUG] Default permission for action: {self.action}")
             return super().get_permissions()
     
     def list(self, request, *args, **kwargs):
@@ -371,16 +364,12 @@ class MomentViewSet(viewsets.ModelViewSet):
         cache_key = f'user:favorites:{user_id}'
         cached_result = None
         
-        print(f"[DEBUG] 调用 user_favorites 方法，用户ID: {user_id}, 缓存键: {cache_key}")
-        
         # 尝试从缓存获取
         try:
             from django.core.cache import caches
             master_cache = caches['master_cache']
-            print(f"[DEBUG] 尝试从缓存获取数据，缓存后端: master_cache")
             cached_result = master_cache.get(cache_key)
             if cached_result:
-                print(f"[DEBUG] 缓存命中，返回缓存数据")
                 return Response(cached_result)
             else:
                 print(f"[DEBUG] 缓存未命中，从数据库查询")
@@ -388,11 +377,9 @@ class MomentViewSet(viewsets.ModelViewSet):
             print(f"[ERROR] 缓存读取失败: {e}")
         
         # 从数据库查询
-        print(f"[DEBUG] 从数据库查询收藏动态")
         user_collections = Collection.objects.filter(user=request.user, content_type='moment').order_by('-created_at')
         moment_ids = [collection.object_id for collection in user_collections]
         moments = Moment.objects.filter(id__in=moment_ids).order_by('-created_at')
-        print(f"[DEBUG] 查询到 {len(moments)} 条收藏动态")
         serializer = MomentSerializer(moments, many=True)
         
         # 构建响应数据
@@ -401,17 +388,10 @@ class MomentViewSet(viewsets.ModelViewSet):
             'favorites': serializer.data
         }
         
-        # 缓存结果，有效期5分钟
-        try:
-            from django.core.cache import caches
-            master_cache = caches['master_cache']
-            print(f"[DEBUG] 尝试写入缓存，缓存键: {cache_key}, 有效期: 300秒")
-            result = master_cache.set(cache_key, response_data, 300)
-            print(f"[DEBUG] 缓存写入结果: {result}")
-        except Exception as e:
-            print(f"[ERROR] 缓存写入失败: {e}")
+        from django.core.cache import caches
+        master_cache = caches['master_cache']
+        result = master_cache.set(cache_key, response_data, 600)
         
-        print(f"[DEBUG] 返回响应数据")
         return Response(response_data, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['post'])
@@ -559,13 +539,9 @@ class MomentViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='comment/(?P<comment_id>\d+)/like')
     def comment_like(self, request, pk=None, comment_id=None):
         """点赞评论"""
-        print(f"[DEBUG] 评论点赞请求 - 方法: {request.method}, 用户: {request.user}, moment_id: {pk}, comment_id: {comment_id}")
-        print(f"[DEBUG] 请求头: {dict(request.headers)}")
-        print(f"[DEBUG] 请求体: {request.body}")
-        
+    
         # 检查请求方法
         if request.method != 'POST':
-            print(f"[ERROR] 错误的请求方法: {request.method}")
             return Response({
                 'message': f'方法 "{request.method}" 不被允许。'
             }, status=status.HTTP_405_METHOD_NOT_ALLOWED)

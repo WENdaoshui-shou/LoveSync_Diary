@@ -2906,7 +2906,6 @@
     function copyShareLink(momentId) {
         // 生成完整的分享链接
         const shareUrl = `${window.location.origin}/moment/web/community/moment/${momentId}/`;
-        console.log('复制的分享链接:', shareUrl);
 
         navigator.clipboard.writeText(shareUrl)
             .then(() => {
@@ -3121,7 +3120,6 @@
                         countSpan.textContent = data.likes;
                     })
                     .catch(error => {
-                        console.error('点赞失败:', error);
                         showNotification('点赞失败，请重试');
                     });
             });
@@ -3189,7 +3187,6 @@
                 });
             })
             .catch(error => {
-                console.error('加载评论失败:', error);
                 commentsList.innerHTML = '<div class="text-center text-red-500 py-2">加载评论失败，请重试</div>';
             });
     }
@@ -3230,27 +3227,15 @@
                     }
                 })
                 .catch(error => {
-                    console.error('删除评论失败:', error);
                     showNotification(`删除失败：${error.message}`);
                 });
         }
     }
 
-    // 拦截所有 fetch 请求以进行调试
-    const originalFetch = window.fetch;
-    window.fetch = function (...args) {
-        console.log('Fetch 请求:', args[0], args[1]);
-        return originalFetch.apply(this, args);
-    };
-
     // 点赞评论
     function likeComment(element, momentId, commentId) {
         const icon = element.querySelector('i');
         const countSpan = element.querySelector('span') || element.textContent.split(' ')[1];
-
-        console.log('点赞评论:', momentId, commentId);
-        console.log('请求URL:', `/moment/moments/${momentId}/comment/${commentId}/like`);
-        console.log('CSRF Token:', getCookie('csrftoken'));
 
         fetch(`/moment/moments/${momentId}/comment/${commentId}/like/`, {
             method: 'POST',
@@ -3478,12 +3463,11 @@
         const commentLikeBtn = div.querySelector('.comment-like-btn');
         if (commentLikeBtn) {
             commentLikeBtn.addEventListener('click', function (e) {
-                console.log('评论点赞按钮被点击');
+
                 e.preventDefault();
                 e.stopPropagation();
                 const momentId = this.closest('.post-card').getAttribute('data-moment-id');
                 const commentId = this.getAttribute('data-comment-id');
-                console.log('准备调用 likeComment:', momentId, commentId);
                 likeComment(this, momentId, commentId);
             });
         }

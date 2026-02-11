@@ -115,16 +115,23 @@
               <div class="md:col-span-1">
                 <div class="bg-neutral-50 rounded-xl p-4 text-center">
                   <div class="relative w-32 h-32 mx-auto mb-4 cursor-pointer" id="avatar-container">
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full opacity-20 animate-pulse"></div>
-                    <div class="absolute inset-1 bg-white rounded-full overflow-hidden border-2 border-primary">
-                      <img src="{{ user.profile.userAvatar.url|default:'' }}" alt="用户头像" class="w-full h-full object-cover" id="avatar-image">
+                    <div
+                      class="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full opacity-20 animate-pulse">
                     </div>
-                    <button class="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-custom" id="camera-button">
+                    <div class="absolute inset-1 bg-white rounded-full overflow-hidden border-2 border-primary">
+                      <img src="{{ user.profile.userAvatar.url|default:'' }}" alt="用户头像"
+                        class="w-full h-full object-cover" id="avatar-image">
+                    </div>
+                    <button
+                      class="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-custom"
+                      id="camera-button">
                       <i class="fa-solid fa-camera"></i>
                     </button>
                   </div>
                   <input type="file" id="avatarInput" name="userAvatar" accept="image/*" class="hidden">
-                  <button class="w-full py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom" id="change-avatar-button">
+                  <button
+                    class="w-full py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-custom"
+                    id="change-avatar-button">
                     更换头像
                   </button>
                   <p class="text-xs text-neutral-500 mt-2">支持 JPG, PNG 格式</p>
@@ -144,18 +151,21 @@
                     <div class="flex space-x-4 mt-2">
                       <!-- 优先取user.profile的性别，没有则取user的，默认保密 -->
                       {% with gender=user.profile.gender %}
-                        <label class="inline-flex items-center">
-                          <input type="radio" name="gender" value="female" {% if gender == 'female' %}checked{% endif %} class="form-radio h-4 w-4 text-primary">
-                          <span class="ml-2 text-neutral-700">女</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                          <input type="radio" name="gender" value="male" {% if gender == 'male' %}checked{% endif %} class="form-radio h-4 w-4 text-primary">
-                          <span class="ml-2 text-neutral-700">男</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                          <input type="radio" name="gender" value="other" {% if gender == 'other' %}checked{% endif %} class="form-radio h-4 w-4 text-primary">
-                          <span class="ml-2 text-neutral-700">保密</span>
-                        </label>
+                      <label class="inline-flex items-center">
+                        <input type="radio" name="gender" value="female" {% if gender=='female' %}checked{% endif %}
+                          class="form-radio h-4 w-4 text-primary">
+                        <span class="ml-2 text-neutral-700">女</span>
+                      </label>
+                      <label class="inline-flex items-center">
+                        <input type="radio" name="gender" value="male" {% if gender=='male' %}checked{% endif %}
+                          class="form-radio h-4 w-4 text-primary">
+                        <span class="ml-2 text-neutral-700">男</span>
+                      </label>
+                      <label class="inline-flex items-center">
+                        <input type="radio" name="gender" value="other" {% if gender=='other' %}checked{% endif %}
+                          class="form-radio h-4 w-4 text-primary">
+                        <span class="ml-2 text-neutral-700">保密</span>
+                      </label>
                       {% endwith %}
                       <label class="inline-flex items-center">
                         <span class="ml-2 text-neutral-700 text-xs">(默认为保密)</span>
@@ -171,52 +181,55 @@
                   <div>
                     <label class="block text-sm font-medium text-neutral-700 mb-1">所在地</label>
                     {% with location=user.profile.location %}
-                      <select name="location" class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
-                        <option value="" {% if location == '' %}selected{% endif %}>请选择所在地</option>
-                        <option value="北京市" {% if location == '北京市' %}selected{% endif %}>北京市</option>
-                        <option value="上海市" {% if location == '上海市' %}selected{% endif %}>上海市</option>
-                        <option value="重庆市" {% if location == '重庆市' %}selected{% endif %}>重庆市</option>
-                        <option value="天津市" {% if location == '天津市' %}selected{% endif %}>天津市</option>
-                        <option value="河北省" {% if location == '河北省' %}selected{% endif %}>河北省</option>
-                        <option value="山西省" {% if location == '山西省' %}selected{% endif %}>山西省</option>
-                        <option value="辽宁省" {% if location == '辽宁省' %}selected{% endif %}>辽宁省</option>
-                        <option value="吉林省" {% if location == '吉林省' %}selected{% endif %}>吉林省</option>
-                        <option value="黑龙江省" {% if location == '黑龙江省' %}selected{% endif %}>黑龙江省</option>
-                        <option value="江苏省" {% if location == '江苏省' %}selected{% endif %}>江苏省</option>
-                        <option value="浙江省" {% if location == '浙江省' %}selected{% endif %}>浙江省</option>
-                        <option value="安徽省" {% if location == '安徽省' %}selected{% endif %}>安徽省</option>
-                        <option value="福建省" {% if location == '福建省' %}selected{% endif %}>福建省</option>
-                        <option value="江西省" {% if location == '江西省' %}selected{% endif %}>江西省</option>
-                        <option value="山东省" {% if location == '山东省' %}selected{% endif %}>山东省</option>
-                        <option value="河南省" {% if location == '河南省' %}selected{% endif %}>河南省</option>
-                        <option value="湖北省" {% if location == '湖北省' %}selected{% endif %}>湖北省</option>
-                        <option value="湖南省" {% if location == '湖南省' %}selected{% endif %}>湖南省</option>
-                        <option value="广东省" {% if location == '广东省' %}selected{% endif %}>广东省</option>
-                        <option value="海南省" {% if location == '海南省' %}selected{% endif %}>海南省</option>
-                        <option value="四川省" {% if location == '四川省' %}selected{% endif %}>四川省</option>
-                        <option value="贵州省" {% if location == '贵州省' %}selected{% endif %}>贵州省</option>
-                        <option value="云南省" {% if location == '云南省' %}selected{% endif %}>云南省</option>
-                        <option value="陕西省" {% if location == '陕西省' %}selected{% endif %}>陕西省</option>
-                        <option value="甘肃省" {% if location == '甘肃省' %}selected{% endif %}>甘肃省</option>
-                        <option value="青海省" {% if location == '青海省' %}selected{% endif %}>青海省</option>
-                        <option value="台湾省" {% if location == '台湾省' %}selected{% endif %}>台湾省</option>
-                        <option value="内蒙古自治区" {% if location == '内蒙古自治区' %}selected{% endif %}>内蒙古自治区</option>
-                        <option value="广西壮族自治区" {% if location == '广西壮族自治区' %}selected{% endif %}>广西壮族自治区</option>
-                        <option value="西藏自治区" {% if location == '西藏自治区' %}selected{% endif %}>西藏自治区</option>
-                        <option value="宁夏回族自治区" {% if location == '宁夏回族自治区' %}selected{% endif %}>宁夏回族自治区</option>
-                        <option value="新疆维吾尔自治区" {% if location == '新疆维吾尔自治区' %}selected{% endif %}>新疆维吾尔自治区</option>
-                        <option value="香港特别行政区" {% if location == '香港特别行政区' %}selected{% endif %}>香港特别行政区</option>
-                        <option value="澳门特别行政区" {% if location == '澳门特别行政区' %}selected{% endif %}>澳门特别行政区</option>
-                      </select>
+                    <select name="location"
+                      class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">
+                      <option value="" {% if location=='' %}selected{% endif %}>请选择所在地</option>
+                      <option value="北京市" {% if location=='北京市' %}selected{% endif %}>北京市</option>
+                      <option value="上海市" {% if location=='上海市' %}selected{% endif %}>上海市</option>
+                      <option value="重庆市" {% if location=='重庆市' %}selected{% endif %}>重庆市</option>
+                      <option value="天津市" {% if location=='天津市' %}selected{% endif %}>天津市</option>
+                      <option value="河北省" {% if location=='河北省' %}selected{% endif %}>河北省</option>
+                      <option value="山西省" {% if location=='山西省' %}selected{% endif %}>山西省</option>
+                      <option value="辽宁省" {% if location=='辽宁省' %}selected{% endif %}>辽宁省</option>
+                      <option value="吉林省" {% if location=='吉林省' %}selected{% endif %}>吉林省</option>
+                      <option value="黑龙江省" {% if location=='黑龙江省' %}selected{% endif %}>黑龙江省</option>
+                      <option value="江苏省" {% if location=='江苏省' %}selected{% endif %}>江苏省</option>
+                      <option value="浙江省" {% if location=='浙江省' %}selected{% endif %}>浙江省</option>
+                      <option value="安徽省" {% if location=='安徽省' %}selected{% endif %}>安徽省</option>
+                      <option value="福建省" {% if location=='福建省' %}selected{% endif %}>福建省</option>
+                      <option value="江西省" {% if location=='江西省' %}selected{% endif %}>江西省</option>
+                      <option value="山东省" {% if location=='山东省' %}selected{% endif %}>山东省</option>
+                      <option value="河南省" {% if location=='河南省' %}selected{% endif %}>河南省</option>
+                      <option value="湖北省" {% if location=='湖北省' %}selected{% endif %}>湖北省</option>
+                      <option value="湖南省" {% if location=='湖南省' %}selected{% endif %}>湖南省</option>
+                      <option value="广东省" {% if location=='广东省' %}selected{% endif %}>广东省</option>
+                      <option value="海南省" {% if location=='海南省' %}selected{% endif %}>海南省</option>
+                      <option value="四川省" {% if location=='四川省' %}selected{% endif %}>四川省</option>
+                      <option value="贵州省" {% if location=='贵州省' %}selected{% endif %}>贵州省</option>
+                      <option value="云南省" {% if location=='云南省' %}selected{% endif %}>云南省</option>
+                      <option value="陕西省" {% if location=='陕西省' %}selected{% endif %}>陕西省</option>
+                      <option value="甘肃省" {% if location=='甘肃省' %}selected{% endif %}>甘肃省</option>
+                      <option value="青海省" {% if location=='青海省' %}selected{% endif %}>青海省</option>
+                      <option value="台湾省" {% if location=='台湾省' %}selected{% endif %}>台湾省</option>
+                      <option value="内蒙古自治区" {% if location=='内蒙古自治区' %}selected{% endif %}>内蒙古自治区</option>
+                      <option value="广西壮族自治区" {% if location=='广西壮族自治区' %}selected{% endif %}>广西壮族自治区</option>
+                      <option value="西藏自治区" {% if location=='西藏自治区' %}selected{% endif %}>西藏自治区</option>
+                      <option value="宁夏回族自治区" {% if location=='宁夏回族自治区' %}selected{% endif %}>宁夏回族自治区</option>
+                      <option value="新疆维吾尔自治区" {% if location=='新疆维吾尔自治区' %}selected{% endif %}>新疆维吾尔自治区</option>
+                      <option value="香港特别行政区" {% if location=='香港特别行政区' %}selected{% endif %}>香港特别行政区</option>
+                      <option value="澳门特别行政区" {% if location=='澳门特别行政区' %}selected{% endif %}>澳门特别行政区</option>
+                    </select>
                     {% endwith %}
                   </div>
                   <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-neutral-700 mb-1">个人简介</label>
-                    <textarea name="bio" rows="3" class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">{{ user.profile.bio|default:'' }}
+                    <textarea name="bio" rows="3"
+                      class="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus">{{ user.profile.bio|default:'' }}
                     </textarea>
                   </div>
                   <div class="pt-4">
-                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm">
+                    <button type="submit"
+                      class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom shadow-sm">
                       保存设置
                     </button>
                   </div>
