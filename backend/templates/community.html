@@ -1313,8 +1313,8 @@
             }
         });
 
-        // 点赞动效
-        const likeButtons = document.querySelectorAll('.like-btn');
+        // 点赞动效（仅适用于动态点赞按钮，不包括评论点赞）
+        const likeButtons = document.querySelectorAll('.like-btn:not(.comment-like-btn):not(.reply-like-btn)');
         likeButtons.forEach(button => {
             button.addEventListener('click', function () {
                 const icon = this.querySelector('i');
@@ -3076,7 +3076,7 @@
             const icon = btn.querySelector('i');
 
             // 调用is_liked API检查是否已点赞
-            fetch(`/api/moment/moments/${momentId}/is_liked/`, {
+            fetch(`/moment/moments/${momentId}/is_liked/`, {
                 credentials: 'same-origin',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken')
@@ -3101,7 +3101,7 @@
                 const icon = this.querySelector('i');
                 const countSpan = this.querySelector('span');
 
-                fetch(`/api/moment/moments/${momentId}/like/`, {
+                fetch(`/moment/moments/${momentId}/like/`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {
@@ -3167,7 +3167,7 @@
         // 显示加载状态
         commentsList.innerHTML = '<div class="text-center text-neutral-500 py-2">加载评论中...</div>';
 
-        fetch(`/api/moment/moments/${momentId}/comments/`, {
+        fetch(`/moment/moments/${momentId}/comments/`, {
             credentials: 'same-origin',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')
@@ -3184,58 +3184,8 @@
 
                 // 渲染一级评论，二级回复嵌套在对应一级评论下
                 data.comments.forEach(comment => {
-                    if (comment.parent_id === null) { // 只渲染一级评论
-                        const commentElement = document.createElement('div');
-                        commentElement.className = 'flex space-x-3 comment-item';
-                        commentElement.setAttribute('data-comment-id', comment.id);
-
-                        // 构建头像
-                        let avatarHtml = '';
-                        if (comment.avatar) {
-                            avatarHtml = `<img src="${comment.avatar}" alt="用户头像" class="w-8 h-8 rounded-full object-cover">`;
-                        } else {
-                            avatarHtml = `<div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center"><i class="fa fa-user text-neutral-400"></i></div>`;
-                        }
-
-                        // 构建评论内容
-                        commentElement.innerHTML = `
-                            <div class="flex-shrink-0">
-                                ${avatarHtml}
-                            </div>
-                            <div class="flex-1">
-                                <div class="bg-neutral-100 rounded-2xl px-4 py-2">
-                                    <div class="flex justify-between items-start">
-                                        <div class="font-medium text-neutral-900 text-sm">
-                                            ${comment.user}
-                                            ${comment.vip && comment.vip.is_active ? `<a href="/vip/" class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium" style="background: ${comment.vip.level_color}; color: ${comment.vip.level_text_color}; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-                                                <i class="fa-solid fa-crown text-xs mr-0.5"></i>
-                                                ${comment.vip.level_display}
-                                            </a>` : ''}
-                                        </div>
-                                    </div>
-                                    <p class="text-neutral-800 mt-1 break-words">${comment.content}</p>
-                                    <div class="flex justify-between items-center mt-2">
-                                        <span class="text-xs text-neutral-500">${new Date(comment.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
-                                        <div class="flex space-x-3">
-                                            <button class="text-neutral-400 hover:text-primary transition-colors text-xs flex items-center space-x-1 reply-btn" data-comment-id="${comment.id}">
-                                                <i class="fa-regular fa-comment"></i>
-                                                <span>回复</span>
-                                            </button>
-                                            {%if comment.like_count > 0%}
-                                                <button class="text-neutral-400 hover:text-primary transition-colors text-xs flex items-center space-x-1 like-comment-btn" data-comment-id="${comment.id}">
-                                                    <i class="fa-regular fa-heart"></i>
-                                                    <span>${comment.likes}</span>
-                                                </button>
-                                            {%endif%}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-
-                        // 添加到评论列表
-                        commentsList.appendChild(commentElement);
-                    }
+                    const commentElement = renderComment(comment);
+                    commentsList.appendChild(commentElement);
                 });
             })
             .catch(error => {
@@ -3247,7 +3197,7 @@
     // 删除评论
     function deleteComment(element, momentId, commentId) {
         {
-            fetch(`/api/moment/moments/${momentId}/delete_comment/${commentId}/`, {
+            fetch(`/moment/moments/${momentId}/delete_comment/${commentId}/`, {
                 method: 'DELETE',
                 credentials: 'same-origin',
                 headers: {
@@ -3286,18 +3236,30 @@
         }
     }
 
-    // 评论点赞功能
+    // 拦截所有 fetch 请求以进行调试
+    const originalFetch = window.fetch;
+    window.fetch = function (...args) {
+        console.log('Fetch 请求:', args[0], args[1]);
+        return originalFetch.apply(this, args);
+    };
+
+    // 点赞评论
     function likeComment(element, momentId, commentId) {
         const icon = element.querySelector('i');
         const countSpan = element.querySelector('span') || element.textContent.split(' ')[1];
 
-        fetch(`/api/moment/moments/${momentId}/comment/${commentId}/like/`, {
+        console.log('点赞评论:', momentId, commentId);
+        console.log('请求URL:', `/moment/moments/${momentId}/comment/${commentId}/like`);
+        console.log('CSRF Token:', getCookie('csrftoken'));
+
+        fetch(`/moment/moments/${momentId}/comment/${commentId}/like/`, {
             method: 'POST',
-            credentials: 'same-origin',
+            credentials: 'same-origin',  // 确保发送 cookies
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
-            }
+            },
+            redirect: 'manual'  // 防止自动重定向
         })
             .then(response => response.json())
             .then(data => {
@@ -3329,7 +3291,7 @@
         const countSpan = element.querySelector('span') || element.textContent.split(' ')[1];
         const momentId = element.closest('.post-card').getAttribute('data-moment-id');
 
-        fetch(`/api/moment/moments/${momentId}/comment/${replyId}/like/`, {
+        fetch(`/moment/moments/${momentId}/comment/${replyId}/like/`, {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
@@ -3363,7 +3325,7 @@
 
     // 删除回复功能
     function deleteReply(element, momentId, replyId) {
-        fetch(`/api/moment/moments/${momentId}/delete_comment/${replyId}/`, {
+        fetch(`/moment/moments/${momentId}/delete_comment/${replyId}/`, {
             method: 'DELETE',
             credentials: 'same-origin',
             headers: {
@@ -3418,8 +3380,8 @@
                     <p class="text-neutral-700 text-sm mt-1">${comment.content}</p>
                 </div>
                 <div class="flex space-x-3 mt-2">
-                    <button class="text-neutral-500 hover:text-primary text-xs transition-custom comment-like" data-comment-id="${comment.id}">
-                        <i class="fa-regular fa-heart"></i> ${comment.likes || 0}
+                    <button type="button" class="text-neutral-500 hover:text-pink-500 text-xs transition-custom comment-like-btn" data-comment-id="${comment.id}">
+                        <i class="${comment.is_liked ? 'fa-solid' : 'fa-regular'} fa-heart" style="${comment.is_liked ? 'color: #FF6B8B' : ''}"></i> ${comment.likes || 0}
                     </button>
                     <button class="reply-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-comment-id="${comment.id}">
                         回复
@@ -3450,7 +3412,7 @@
                 </div>
                 
                 <!-- 回复列表 -->
-                ${comment.replies.length > 0 ? `
+                ${comment.replies && comment.replies.length > 0 ? `
                     <div class="ml-10 mt-2 space-y-2">
                         ${comment.replies.map(reply => `
                             <div class="flex space-x-2 reply-item" data-reply-id="${reply.id}">
@@ -3466,8 +3428,8 @@
                                         <p class="text-neutral-700 text-xs mt-1">${reply.content}</p>
                                     </div>
                                     <div class="flex space-x-3 mt-2">
-                                        <button class="reply-like-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-reply-id="${reply.id}">
-                                            <i class="fa-regular fa-heart"></i> ${reply.likes || 0}
+                                        <button type="button" class="reply-like-btn text-neutral-500 hover:text-pink-500 text-xs transition-custom" data-reply-id="${reply.id}">
+                                            <i class="${reply.is_liked ? 'fa-solid' : 'fa-regular'} fa-heart" style="${reply.is_liked ? 'color: #FF6B8B' : ''}"></i> ${reply.likes || 0}
                                         </button>
                                         <button class="reply-reply-btn text-neutral-500 hover:text-primary text-xs transition-custom" data-reply-id="${reply.id}">
                                             回复
@@ -3513,11 +3475,15 @@
         }
 
         // 添加评论点赞事件监听
-        const commentLikeBtn = div.querySelector('.comment-like');
+        const commentLikeBtn = div.querySelector('.comment-like-btn');
         if (commentLikeBtn) {
-            commentLikeBtn.addEventListener('click', function () {
+            commentLikeBtn.addEventListener('click', function (e) {
+                console.log('评论点赞按钮被点击');
+                e.preventDefault();
+                e.stopPropagation();
                 const momentId = this.closest('.post-card').getAttribute('data-moment-id');
                 const commentId = this.getAttribute('data-comment-id');
+                console.log('准备调用 likeComment:', momentId, commentId);
                 likeComment(this, momentId, commentId);
             });
         }
@@ -3603,7 +3569,9 @@
         // 添加回复点赞事件监听
         const replyLikeBtns = div.querySelectorAll('.reply-like-btn');
         replyLikeBtns.forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
                 const replyId = this.getAttribute('data-reply-id');
                 likeReply(this, replyId);
             });
@@ -3686,9 +3654,8 @@
 
         const postCard = input.closest('.post-card');
         const momentId = postCard.getAttribute('data-moment-id');
-        const commentsList = postCard.querySelector('.comments-list');
 
-        fetch(`/api/moment/moments/${momentId}/comment/`, {
+        fetch(`/moment/moments/${momentId}/comment/`, {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
@@ -3707,14 +3674,8 @@
                     const commentBtn = postCard.querySelector('.comment-btn span');
                     commentBtn.textContent = data.comments;
 
-                    // 如果评论列表不为空，添加新评论到顶部
-                    if (!commentsList.innerHTML.includes('暂无评论')) {
-                        const commentElement = renderComment(data.comment);
-                        commentsList.insertBefore(commentElement, commentsList.firstChild);
-                    } else {
-                        // 否则重新加载评论
-                        loadComments(momentId, postCard);
-                    }
+                    // 重新加载评论以显示最新的评论
+                    loadComments(momentId, postCard);
                 }
             })
             .catch(error => {
@@ -3727,7 +3688,7 @@
     function submitReply(momentId, parentId, content, postCard) {
         const commentsList = postCard.querySelector('.comments-list');
 
-        fetch(`/api/moment/moments/${momentId}/comment/`, {
+        fetch(`/moment/moments/${momentId}/comment/`, {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
@@ -3934,9 +3895,9 @@
                         </div>
                         <div class="flex-1 relative">
                             <input type="text" placeholder="写下你的评论..."
-                                class="w-full border border-neutral-200 rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
+                                class="w-full border border-neutral-200 rounded-full text-primary pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 form-input-focus text-sm comment-input">
                             <button
-                                class="absolute right-2 top-1/2 -translate-y-1/2 text-primary comment-submit">
+                                class="absolute right-2 top-1/2 -translate-y-1/2 houber:text-primary comment-submit">
                                 <i class="fa-solid fa-paper-plane"></i>
                             </button>
                         </div>
@@ -3963,7 +3924,7 @@
                 const icon = this.querySelector('i');
                 const countSpan = this.querySelector('span');
 
-                fetch(`/api/moment/moments/${momentId}/like/`, {
+                fetch(`/moment/moments/${momentId}/like/`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {

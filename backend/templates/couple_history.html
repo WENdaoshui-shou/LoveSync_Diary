@@ -138,13 +138,10 @@
                                 }
                             }, 300);
                         }
-                    } else {
-                        alert('删除失败: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('删除记录时发生错误:', error);
-                    alert('删除失败，请稍后重试。');
                 });
         }
     }

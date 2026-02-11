@@ -49,6 +49,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_comments')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     content = models.TextField(max_length=500)
+    likes = models.IntegerField(default=0, verbose_name='点赞数')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -56,6 +57,19 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} 对 {self.parent.user.username if self.parent else '动态'} 的评论: {self.content[:20]}"
+
+
+# 评论点赞
+class CommentLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='moment_comment_likes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'comment')  # 确保每个用户只能点赞一次评论
+
+    def __str__(self):
+        return f'{self.user.username} 点赞了评论 {self.comment.id}'
 
 
 # 点赞

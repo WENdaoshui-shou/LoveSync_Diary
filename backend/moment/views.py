@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, F
 from django.utils import timezone
-from .models import Moment, Tag, Like, Comment
+from .models import Moment, Tag, Like, Comment, CommentLike
 from .serializers import MomentSerializer, TagSerializer, LikeSerializer
 from user.models import Collection
 
@@ -20,11 +20,18 @@ class MomentViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         """根据不同的action设置不同的权限"""
+        print(f"[DEBUG] get_permissions called, action: {self.action}")
         if self.action in ['list', 'retrieve', 'hot_moments', 'hot_favorites']:
             # 查看动态列表和详情时允许匿名访问
+            print(f"[DEBUG] AllowAny for action: {self.action}")
             return [AllowAny()]
+        elif self.action in ['comment_like']:
+            # 评论点赞需要登录
+            print(f"[DEBUG] IsAuthenticated for comment_like action")
+            return [IsAuthenticated()]
         else:
             # 其他操作需要登录
+            print(f"[DEBUG] Default permission for action: {self.action}")
             return super().get_permissions()
     
     def list(self, request, *args, **kwargs):
@@ -449,6 +456,8 @@ class MomentViewSet(viewsets.ModelViewSet):
                     'content': comment.content,
                     'created_at': comment.created_at,
                     'parent_id': comment.parent_id,
+                    'likes': comment.likes,
+                    'is_author': True,
                     'replies': []
                 }
             }, status=status.HTTP_201_CREATED)
@@ -457,10 +466,26 @@ class MomentViewSet(viewsets.ModelViewSet):
     def comments(self, request, pk=None):
         """获取动态的评论列表"""
         moment = self.get_object()
-        comments = moment.comment_set.all()
+        # 只获取一级评论（parent_id 为 null 的评论）
+        comments = moment.comment_set.filter(parent_id__isnull=True)
         
         comments_list = []
         for comment in comments:
+            # 获取该评论的二级回复
+            replies = comment.replies.all()
+            replies_list = []
+            for reply in replies:
+                replies_list.append({
+                    'id': reply.id,
+                    'user': reply.user.name,
+                    'avatar': reply.user.profile.userAvatar.url,
+                    'content': reply.content,
+                    'created_at': reply.created_at,
+                    'is_author': reply.user == request.user,
+                    'likes': reply.likes,
+                    'is_liked': CommentLike.objects.filter(user=request.user, comment=reply).exists() if request.user.is_authenticated else False
+                })
+            
             comments_list.append({
                 'id': comment.id,
                 'user': comment.user.name,
@@ -469,14 +494,9 @@ class MomentViewSet(viewsets.ModelViewSet):
                 'created_at': comment.created_at,
                 'parent_id': comment.parent_id,
                 'is_author': comment.user == request.user,
-                'replies': [{
-                    'id': reply.id,
-                    'user': reply.user.name,
-                    'avatar': reply.user.profile.userAvatar.url,
-                    'content': reply.content,
-                    'created_at': reply.created_at,
-                    'is_author': reply.user == request.user
-                } for reply in comment.replies.all()]
+                'likes': comment.likes,
+                'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists() if request.user.is_authenticated else False,
+                'replies': replies_list
             })
         
         return Response({
@@ -511,6 +531,18 @@ class MomentViewSet(viewsets.ModelViewSet):
             moment.save()
             moment.refresh_from_db()  # 刷新数据
             
+            # 清除相关缓存
+            try:
+                from django.core.cache import caches
+                master_cache = caches['master_cache']
+                # 清除社区动态列表缓存
+                master_cache.delete_pattern('community:*')
+                master_cache.delete_pattern('moment:list:*')
+                # 清除动态详情缓存
+                master_cache.delete(f'moment:detail:{pk}')
+            except Exception as e:
+                print(f"缓存清除失败: {e}")
+            
             return Response({
                 'message': '评论删除成功',
                 'comments': moment.comments  # 返回所有评论数
@@ -522,6 +554,86 @@ class MomentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({
                 'message': f'删除评论失败: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=True, methods=['post'], url_path='comment/(?P<comment_id>\d+)/like')
+    def comment_like(self, request, pk=None, comment_id=None):
+        """点赞评论"""
+        print(f"[DEBUG] 评论点赞请求 - 方法: {request.method}, 用户: {request.user}, moment_id: {pk}, comment_id: {comment_id}")
+        print(f"[DEBUG] 请求头: {dict(request.headers)}")
+        print(f"[DEBUG] 请求体: {request.body}")
+        
+        # 检查请求方法
+        if request.method != 'POST':
+            print(f"[ERROR] 错误的请求方法: {request.method}")
+            return Response({
+                'message': f'方法 "{request.method}" 不被允许。'
+            }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+        moment = self.get_object()
+        
+        try:
+            comment = Comment.objects.get(id=comment_id, moment=moment)
+            
+            # 检查是否已经点赞
+            like, created = CommentLike.objects.get_or_create(user=request.user, comment=comment)
+            
+            if created:
+                # 增加点赞数
+                comment.likes = F('likes') + 1
+                comment.save()
+                comment.refresh_from_db()  # 刷新数据
+                
+                # 清除相关缓存
+                try:
+                    from django.core.cache import caches
+                    master_cache = caches['master_cache']
+                    # 清除社区动态列表缓存
+                    master_cache.delete_pattern('community:*')
+                    master_cache.delete_pattern('moment:list:*')
+                    # 清除动态详情缓存
+                    master_cache.delete(f'moment:detail:{pk}')
+                except Exception as e:
+                    print(f"缓存清除失败: {e}")
+                
+                return Response({
+                    'message': '点赞成功',
+                    'likes': comment.likes,
+                    'is_liked': True
+                }, status=status.HTTP_200_OK)
+            else:
+                # 已点赞，取消点赞
+                like.delete()
+                # 减少点赞数
+                comment.likes = F('likes') - 1 if comment.likes > 0 else 0
+                comment.save()
+                comment.refresh_from_db()  # 刷新数据
+                
+                # 清除相关缓存
+                try:
+                    from django.core.cache import caches
+                    master_cache = caches['master_cache']
+                    # 清除社区动态列表缓存
+                    master_cache.delete_pattern('community:*')
+                    master_cache.delete_pattern('moment:list:*')
+                    # 清除动态详情缓存
+                    master_cache.delete(f'moment:detail:{pk}')
+                except Exception as e:
+                    print(f"缓存清除失败: {e}")
+                
+                return Response({
+                    'message': '取消点赞成功',
+                    'likes': comment.likes,
+                    'is_liked': False
+                }, status=status.HTTP_200_OK)
+                
+        except Comment.DoesNotExist:
+            return Response({
+                'message': '评论不存在'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                'message': f'点赞失败: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
