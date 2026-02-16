@@ -5,6 +5,7 @@ from .views import (
     settings_view, message_view
 )
 from core.views import community_view
+
 app_name = 'core'
 
 # API路由
@@ -12,6 +13,7 @@ api_router = DefaultRouter()
 api_router.register(r'register', RegisterViewSet, basename='register')
 api_router.register(r'profile', ProfileViewSet, basename='profile')
 api_router.register(r'login', LoginViewSet, basename='login')
+
 
 # Web视图路由
 urlpatterns = [

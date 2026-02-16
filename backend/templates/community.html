@@ -1265,8 +1265,7 @@
         // 初始调用一次更新图片地址
         updateImage();
 
-        // 设置定时器，每 5 秒更新一次图片地址，可根据需要调整时间间隔
-        setInterval(updateImage, 1000);
+        setInterval(updateImage, 2000);
     });
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -1933,7 +1932,7 @@
         if (!eventsList) return;
 
         // 发送请求获取社区活动
-        fetch('/api/community/events/', {
+        fetch('/user/api/community/events/', {
             credentials: 'same-origin',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')

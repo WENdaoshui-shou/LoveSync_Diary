@@ -1,7 +1,14 @@
-from django.urls import path
+from django.urls import path, include
 from user import views
+from .views import (
+    CommunityEventViewSet,
+)
+from rest_framework.routers import DefaultRouter
 
+api_router = DefaultRouter()
 app_name = 'user'  # URL命名空间
+
+api_router.register(r'community/events', CommunityEventViewSet, basename='community-events')
 
 urlpatterns = [
     path('profile/<int:user_id>/', views.profile, name='profile'),  # 用户主页
@@ -27,4 +34,10 @@ urlpatterns = [
     path('user/<str:username>/', views.user_profile, name='user_profile'),  # 用户主页
     path('api/recommended-users/', views.get_recommended_users, name='get_recommended_users'),  # 获取推荐用户
     path('api/hot-couples/', views.get_hot_couples, name='get_hot_couples'),  # 获取热门情侣
+
+]
+
+# 添加API路由器
+urlpatterns += [
+    path('api/', include(api_router.urls)),
 ]

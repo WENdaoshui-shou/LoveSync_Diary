@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'user',
     'articles',
     'history',  # 添加历史应用
-    'sys_community',  # 社区活动管理应用
     # 其他应用
     'channels',
     'AI',

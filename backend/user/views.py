@@ -3,12 +3,17 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from core.models import User
 from couple.models import CouplePlace as Place
-from .models import Follow, Collection
+from .models import Follow, Collection, CommunityEvent
 from moment.models import Moment
 from photo.models import Photo
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from .serializers import CommunityEventSerializer
+from rest_framework.decorators import action
 
 @login_required
 def profile(request, user_id):
@@ -46,7 +51,6 @@ def profile(request, user_id):
         'following_count': following_count,
         'moments': moments,
         'photos': photos,
-        'unread_count': 0,  # 可根据实际情况添加未读消息数
     }
 
     return render(request, 'user/profile.html', context)
@@ -953,3 +957,74 @@ def get_hot_couples(request):
     hot_couples = couples_data[:10]
     
     return JsonResponse({'success': True, 'hot_couples': hot_couples})
+
+
+
+class CommunityEventViewSet(viewsets.ReadOnlyModelViewSet):
+    """社区活动只读视图集 - 用户端接口"""
+    queryset = CommunityEvent.objects.all()
+    serializer_class = CommunityEventSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        """获取公开的活动"""
+        queryset = CommunityEvent.objects.all()
+        
+        # 根据状态筛选
+        status = self.request.query_params.get('status', None)
+        if status:
+            queryset = queryset.filter(status=status)
+        
+        # 置顶优先，然后按创建时间排序
+        queryset = queryset.order_by('-is_pinned', '-created_at')
+        
+        return queryset
+    
+    def list(self, request):
+        """获取社区活动列表 - 重写以返回前端期望的格式"""
+        events = self.get_queryset()
+        serializer = self.get_serializer(events, many=True)
+        return Response({
+            'success': True,
+            'message': '获取社区活动成功',
+            'events': serializer.data
+        })
+    
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        """获取进行中的活动"""
+        events = self.get_queryset().filter(status='active')
+        serializer = self.get_serializer(events, many=True)
+        return Response({
+            'success': True,
+            'message': '获取进行中的活动成功',
+            'events': serializer.data
+        })
+    
+    @action(detail=False, methods=['get'])
+    def upcoming(self, request):
+        """获取即将开始的活动"""
+        events = self.get_queryset().filter(status='upcoming')
+        serializer = self.get_serializer(events, many=True)
+        return Response({
+            'success': True,
+            'message': '获取即将开始的活动成功',
+            'events': serializer.data
+        })
+    
+    @action(detail=False, methods=['get'])
+    def featured(self, request):
+        """获取推荐活动（置顶或热门）"""
+        # 获取置顶活动或参与人数最多的活动
+        pinned_events = self.get_queryset().filter(is_pinned=True)
+        if pinned_events.exists():
+            events = pinned_events
+        else:
+            events = self.get_queryset().order_by('-participant_count')[:5]
+        
+        serializer = self.get_serializer(events, many=True)
+        return Response({
+            'success': True,
+            'message': '获取推荐活动成功',
+            'events': serializer.data
+        })

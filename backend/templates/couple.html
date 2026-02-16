@@ -208,8 +208,7 @@
                         {% if couple_relation and couple_relation.relationship_start_date %}
                         <div>
                             <p class="text-sm text-neutral-500 mb-1">恋爱纪念日</p>
-                            <p class="font-medium text-neutral-700">{{ couple_relation.relationship_start_date|date:'Y年m月d日'
-                                }}</p>
+                            <p class="font-medium text-neutral-700">{{ couple_relation.relationship_start_date|date:'Y年m月d日' }}</p>
                         </div>
                         {% elif user.profile.couple_joined_at %}
                         <div>

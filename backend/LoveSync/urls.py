@@ -4,8 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core.views import (
     IndexView, login_view, register_view, logout_view,
-    settings_view, verify_code,
-    share_place_view
+    settings_view, verify_code, share_place_view
 )
 
 from core.views import community_view
@@ -17,6 +16,11 @@ from mall.views import (
     mall, product_detail, add_to_cart, cart_count, 
     mallcart, update_cart, mallmark, checkout
 )
+
+# API路由
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
 
 urlpatterns = [
     # 核心路由
@@ -91,7 +95,6 @@ api_urlpatterns = [
     path('api/note/', include('note.urls', namespace='note_api')),
     path('api/game/', include('game.urls', namespace='game_api')),
     path('api/articles/', include('articles.urls')),
-    path('api/community/', include('sys_community.urls', namespace='sys_community_api')),
 ]
 
 # Web视图路由 - 单独定义，使用不同的命名空间
@@ -108,7 +111,13 @@ web_urlpatterns = [
     path('articles/', include('articles.urls')),
     path('history/', include('history.urls', namespace='history')),  
     path('collab/', include('collab.urls', namespace='collab')),  
+    path('community/', include('community.urls', namespace='community')),  
 ]
 
 # 将API路由和Web视图路由添加到主URL列表中
 urlpatterns += api_urlpatterns + web_urlpatterns
+
+# 添加新的API路由
+urlpatterns += [
+    path('api/', include(router.urls)),
+]

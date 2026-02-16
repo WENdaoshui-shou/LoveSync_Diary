@@ -20,8 +20,6 @@ from .models import User, Profile, VerificationCode
 from .serializers import UserSerializer, ProfileSerializer, CustomTokenObtainPairSerializer, RegisterSerializer
 from moment.models import Moment
 
-
-
 class CustomTokenObtainPairView(TokenObtainPairView):
     """自定义JWT令牌获取视图"""
     serializer_class = CustomTokenObtainPairSerializer
@@ -167,7 +165,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         """获取当前用户的资料"""
         return self.queryset.filter(user=self.request.user)
 
-
 # 首页视图
 class IndexView(TemplateView):
     
@@ -200,7 +197,6 @@ class IndexView(TemplateView):
             context['has_dynamic_content'] = False
         
         return context
-
 
 # 登录视图
 def login_view(request):
@@ -645,3 +641,4 @@ def community_view(request):
         'user': request.user,
         'unread_message_count': total_unread_messages
     })
+
