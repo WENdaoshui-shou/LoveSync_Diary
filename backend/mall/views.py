@@ -856,8 +856,8 @@ def recommend_view(func):
         # 构建推荐商品列表
         recommended_products = []
         if visited_ids:
-            # 从用户访问过的商品中推荐前5个
-            recommended_products = Product.objects.filter(id__in=visited_ids[:5])
+            # 从用户访问过的商品中推荐前5个（只推荐已上架的商品）
+            recommended_products = Product.objects.filter(id__in=visited_ids[:5], is_active=True)
 
         # 将推荐商品添加到请求对象中
         request.recommended_products = recommended_products
@@ -889,7 +889,7 @@ def mall(request):
     # 获取推荐商品
     recommended_products = getattr(request, 'recommended_products', [])
     if not recommended_products:
-        recommended_products = Product.objects.order_by('?')[:5]
+        recommended_products = Product.objects.filter(is_active=True).order_by('?')[:5]
 
     # 获取热卖商品类型参数
     hot_type = request.GET.get('hot_type', '30d')
@@ -1044,7 +1044,7 @@ def mall(request):
             pass
 
     # 获取情侣款商品
-    couple_products = Product.objects.filter(is_couple_product=True).order_by('-created_at')[:6]
+    couple_products = Product.objects.filter(is_couple_product=True, is_active=True).order_by('-created_at')[:6]
 
     # 获取当前秒杀活动
     now = timezone.now()
@@ -1125,7 +1125,7 @@ def mall(request):
 @recommend_view
 def product_detail(request, product_id):
     """商品详情页面"""
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, id=product_id, is_active=True)
 
     # 记录用户浏览行为
     UserBehavior.objects.create(
@@ -1183,8 +1183,8 @@ def add_to_cart(request):
         if not product_id or quantity <= 0:
             return JsonResponse({'status': 'error', 'message': '无效的商品ID或数量'})
 
-        # 获取商品
-        product = get_object_or_404(Product, id=product_id)
+        # 获取商品（只获取已上架的商品）
+        product = get_object_or_404(Product, id=product_id, is_active=True)
 
         # 获取SKU（如果有）
         sku = None
@@ -1238,8 +1238,8 @@ def add_to_cart(request):
 @login_required
 def mallcart(request):
     """购物车页面"""
-    # 获取用户购物车项
-    cart_items = CartItem.objects.filter(user=request.user).select_related('product', 'sku')
+    # 获取用户购物车项（只显示已上架商品的购物车项）
+    cart_items = CartItem.objects.filter(user=request.user, product__is_active=True).select_related('product', 'sku')
 
     # 计算总价
     total_price = 0
@@ -1372,7 +1372,7 @@ def delete_cart_item(request):
 def refresh_recommended(request):
     """刷新推荐商品"""
     try:
-        # 随机获取5个商品作为新的推荐
+        # 随机获取5个已上架商品作为新的推荐
         recommended_products = Product.objects.filter(is_active=True).order_by('?')[:5]
 
         # 获取用户收藏的商品

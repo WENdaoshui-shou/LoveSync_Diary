@@ -140,6 +140,29 @@ export function getReportStatistics() {
 	});
 }
 
+export function startReviewReport(id) {
+	return request({
+		url: `/admin-api/community/reports/${id}/start_review/`,
+		method: "post",
+	});
+}
+
+export function resolveReport(id, data) {
+	return request({
+		url: `/admin-api/community/reports/${id}/resolve/`,
+		method: "post",
+		data,
+	});
+}
+
+export function dismissReport(id, data) {
+	return request({
+		url: `/admin-api/community/reports/${id}/dismiss/`,
+		method: "post",
+		data,
+	});
+}
+
 // 话题管理API
 export function getTopicList(params) {
 	return request({

@@ -151,15 +151,14 @@ class UserViewSet(viewsets.ViewSet):
             data = request.data
             
             sql = """
-                UPDATE user_user SET
+                UPDATE core_user SET
                     email = %s,
                     name = %s,
                     phone = %s,
                     gender = %s,
                     birthday = %s,
                     location = %s,
-                    bio = %s,
-                    updated_at = NOW()
+                    bio = %s
                 WHERE id = %s
             """
             
@@ -188,12 +187,26 @@ class UserViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         """删除用户"""
         try:
-            # 首先删除相关的数据（软删除）
-            # 更新用户状态为不活跃
-            sql = "UPDATE core_user SET is_active = 0, updated_at = NOW() WHERE id = %s"
-            
+            # 先删除关联的记录
+            # 1. 删除用户成就记录
+            achievement_sql = "DELETE FROM user_userachievement WHERE user_id = %s"
             with connection.cursor() as cursor:
-                cursor.execute(sql, [pk])
+                cursor.execute(achievement_sql, [pk])
+            
+            # 2. 删除用户VIP会员记录
+            vip_sql = "DELETE FROM vip_vipmember WHERE user_id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(vip_sql, [pk])
+            
+            # 3. 删除用户个人资料记录
+            profile_sql = "DELETE FROM core_profile WHERE user_id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(profile_sql, [pk])
+            
+            # 4. 再硬删除用户
+            user_sql = "DELETE FROM core_user WHERE id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(user_sql, [pk])
             
             return Response(status=status.HTTP_204_NO_CONTENT)
             
@@ -218,14 +231,15 @@ class UserViewSet(viewsets.ViewSet):
                 }, status=status.HTTP_404_NOT_FOUND)
             
             current_active = result[0]
-            new_active = not current_active
+            new_active = 0 if current_active else 1
             
             # 更新状态
-            update_sql = "UPDATE core_user SET is_active = %s, updated_at = NOW() WHERE id = %s"
+            update_sql = "UPDATE core_user SET is_active = %s WHERE id = %s"
             with connection.cursor() as cursor:
                 cursor.execute(update_sql, [new_active, pk])
             
             return Response({
+                'success': True,
                 'is_active': new_active,
                 'message': '用户状态已更新'
             })
@@ -254,7 +268,7 @@ class UserViewSet(viewsets.ViewSet):
             new_staff = not current_staff
             
             # 更新状态
-            update_sql = "UPDATE core_user SET is_staff = %s, updated_at = NOW() WHERE id = %s"
+            update_sql = "UPDATE core_user SET is_staff = %s WHERE id = %s"
             with connection.cursor() as cursor:
                 cursor.execute(update_sql, [new_staff, pk])
             
@@ -356,6 +370,39 @@ class UserViewSet(viewsets.ViewSet):
                     'error': '用户不存在'
                 }, status=status.HTTP_404_NOT_FOUND)
                 
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['get'])
+    def system_status(self, request):
+        """获取系统状态数据"""
+        try:
+            # 在线用户（最近1小时内活跃的用户）
+            online_users_sql = "SELECT COUNT(*) FROM core_user WHERE last_login >= DATE_SUB(NOW(), INTERVAL 1 HOUR)"
+            
+            # 今日访问（这里假设使用用户登录次数作为访问量的近似）
+            today_visits_sql = "SELECT COUNT(*) FROM core_user WHERE DATE(last_login) = CURDATE()"
+            
+            with connection.cursor() as cursor:
+                # 获取在线用户数
+                cursor.execute(online_users_sql)
+                online_users = cursor.fetchone()[0] or 0
+                
+                # 获取今日访问数
+                cursor.execute(today_visits_sql)
+                today_visits = cursor.fetchone()[0] or 0
+            
+            # 系统版本（硬编码或从配置中读取）
+            system_version = "v1.0.0"
+            
+            return Response({
+                'onlineUsers': online_users,
+                'todayVisits': today_visits,
+                'systemVersion': system_version
+            })
+            
         except Exception as e:
             return Response({
                 'error': str(e)

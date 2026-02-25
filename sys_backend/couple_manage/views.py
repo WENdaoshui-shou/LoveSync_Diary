@@ -2,6 +2,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import connection
+from rest_framework.decorators import action
+from datetime import datetime
 
 class RecommendedCouplesViewSet(viewsets.ViewSet):
     """推荐情侣管理视图集 - 使用SQL操作"""
@@ -186,20 +188,20 @@ class RecommendedCouplesViewSet(viewsets.ViewSet):
             params = [
                 data.get('user1_id'),
                 data.get('user2_id'),
-                data.get('love_vow'),
+                data.get('love_vow', ''),
                 data.get('relationship_start_date'),
-                data.get('couple_name'),
-                data.get('love_story'),
-                data.get('theme'),
-                data.get('primary_color'),
-                data.get('secondary_color'),
-                data.get('visibility'),
-                data.get('show_couple_dynamics'),
-                data.get('show_anniversary'),
-                data.get('show_gifts'),
-                data.get('notify_partner_messages'),
-                data.get('notify_dynamics'),
-                data.get('notify_anniversary'),
+                data.get('couple_name', ''),
+                data.get('love_story', ''),
+                data.get('theme', 'light_love'),
+                data.get('primary_color', '#FF6B8B'),
+                data.get('secondary_color', '#722ED1'),
+                data.get('visibility', 'only_me'),
+                data.get('show_couple_dynamics', True),
+                data.get('show_anniversary', True),
+                data.get('show_gifts', False),
+                data.get('notify_partner_messages', True),
+                data.get('notify_dynamics', True),
+                data.get('notify_anniversary', True),
                 pk
             ]
             
@@ -231,6 +233,49 @@ class RecommendedCouplesViewSet(viewsets.ViewSet):
             
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['get'])
+    def statistics(self, request):
+        """获取情侣统计数据"""
+        try:
+            # 总情侣数
+            total_couples_sql = "SELECT COUNT(*) FROM couple_couplerelation"
+            
+            # 总推荐数（这里假设推荐数据存储在某个表中，需要根据实际情况调整）
+            total_recommendations_sql = "SELECT COUNT(*) FROM couple_couplerecommendation"
+            
+            # 总测试参与数
+            total_tests_sql = "SELECT COUNT(*) FROM couple_quizrecord"
+            
+            with connection.cursor() as cursor:
+                # 获取总情侣数
+                cursor.execute(total_couples_sql)
+                total_couples = cursor.fetchone()[0] or 0
+                
+                # 获取总推荐数
+                try:
+                    cursor.execute(total_recommendations_sql)
+                    total_recommendations = cursor.fetchone()[0] or 0
+                except:
+                    total_recommendations = 0
+                
+                # 获取总测试参与数
+                try:
+                    cursor.execute(total_tests_sql)
+                    total_tests = cursor.fetchone()[0] or 0
+                except:
+                    total_tests = 0
+            
+            return Response({
+                'totalCouples': total_couples,
+                'totalRecommendations': total_recommendations,
+                'totalTests': total_tests
+            })
+            
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PlaceManagementViewSet(viewsets.ViewSet):
@@ -269,7 +314,7 @@ class PlaceManagementViewSet(viewsets.ViewSet):
                 sql += " WHERE " + " AND ".join(where_clauses)
             
             # 添加排序
-            sql += " ORDER BY rating DESC, review_count DESC"
+            sql += " ORDER BY id DESC"
             
             with connection.cursor() as cursor:
                 cursor.execute(sql, params)
@@ -450,7 +495,7 @@ class LoveTestManagementViewSet(viewsets.ViewSet):
                 sql += " WHERE " + " AND ".join(where_clauses)
             
             # 添加排序
-            sql += " ORDER BY cq.created_at DESC"
+            sql += " ORDER BY cq.id DESC"
             
             with connection.cursor() as cursor:
                 cursor.execute(sql, params)
@@ -469,14 +514,14 @@ class LoveTestManagementViewSet(viewsets.ViewSet):
             
             sql = """
                 INSERT INTO couple_quizquestion (
-                    question, options, category_id, created_at, updated_at
-                ) VALUES (%s, %s, %s, NOW(), NOW())
+                    question, options, category_id, created_at
+                ) VALUES (%s, %s, %s, NOW())
             """
             
             params = [
                 data.get('question'),
                 data.get('options'),
-                data.get('category_id')
+                data.get('category_id', 1)  # 提供默认值
             ]
             
             with connection.cursor() as cursor:
@@ -524,15 +569,14 @@ class LoveTestManagementViewSet(viewsets.ViewSet):
                 UPDATE couple_quizquestion SET
                     question = %s,
                     options = %s,
-                    category_id = %s,
-                    updated_at = NOW()
+                    category_id = %s
                 WHERE id = %s
             """
             
             params = [
                 data.get('question'),
                 data.get('options'),
-                data.get('category_id'),
+                data.get('category_id', 1),  # 提供默认值
                 pk
             ]
             
@@ -619,9 +663,16 @@ class CoupleGameManagementViewSet(viewsets.ViewSet):
                 columns = [col[0] for col in cursor.description]
                 games = [dict(zip(columns, row)) for row in cursor.fetchall()]
             
-            # 转换status字段格式
+            # 转换status字段格式和时间格式
             for game in games:
                 game['status'] = 'active' if game['status'] else 'inactive'
+                # 转换时间格式为年月日时分
+                if game.get('created_at'):
+                    if isinstance(game['created_at'], datetime):
+                        game['created_at'] = game['created_at'].strftime('%Y-%m-%d %H:%M')
+                if game.get('updated_at'):
+                    if isinstance(game['updated_at'], datetime):
+                        game['updated_at'] = game['updated_at'].strftime('%Y-%m-%d %H:%M')
             
             return Response(games)
             
@@ -687,8 +738,15 @@ class CoupleGameManagementViewSet(viewsets.ViewSet):
                 columns = [col[0] for col in cursor.description]
                 game = dict(zip(columns, row))
             
-            # 转换status字段格式
+            # 转换status字段格式和时间格式
             game['status'] = 'active' if game['status'] else 'inactive'
+            # 转换时间格式为年月日时分
+            if game.get('created_at'):
+                if isinstance(game['created_at'], datetime):
+                    game['created_at'] = game['created_at'].strftime('%Y-%m-%d %H:%M')
+            if game.get('updated_at'):
+                if isinstance(game['updated_at'], datetime):
+                    game['updated_at'] = game['updated_at'].strftime('%Y-%m-%d %H:%M')
             
             return Response(game)
             

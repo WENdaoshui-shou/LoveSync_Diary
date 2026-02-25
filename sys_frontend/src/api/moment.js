@@ -27,7 +27,7 @@ export function toggleMomentShare(id) {
 
 export function deleteMoment(id) {
 	return request({
-		url: `/admin-api/moment/moments/${id}/delete_moment/`,
+		url: `/admin-api/moment/moments/${id}/`,
 		method: "delete",
 	});
 }
@@ -58,7 +58,7 @@ export function getCommentList(params) {
 
 export function deleteComment(id) {
 	return request({
-		url: `/admin-api/moment/comments/${id}/delete_comment/`,
+		url: `/admin-api/moment/comments/${id}/`,
 		method: "delete",
 	});
 }

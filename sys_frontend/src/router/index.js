@@ -38,11 +38,6 @@ const routes = [
 				component: () => import("@/views/community/CommunityEvents.vue"),
 			},
 			{
-				path: "/community/achievements",
-				name: "CommunityAchievements",
-				component: () => import("@/views/community/CommunityAchievements.vue"),
-			},
-			{
 				path: "/community/topics",
 				name: "CommunityTopics",
 				component: () => import("@/views/community/CommunityTopics.vue"),
@@ -56,6 +51,11 @@ const routes = [
 				path: "/community/articles",
 				name: "CommunityArticles",
 				component: () => import("@/views/community/CommunityArticles.vue"),
+			},
+			{
+				path: "/community/articles/list",
+				name: "ArticleList",
+				component: () => import("@/views/community/ArticleList.vue"),
 			},
 			// 情侣管理相关页面
 			{
@@ -134,15 +134,31 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
 	const token = localStorage.getItem("admin_token");
 
+	// 避免导航重复
+	if (to.path === from.path) {
+		next();
+		return;
+	}
+
 	// 如果用户已登录且尝试访问登录页，跳转到首页
 	if (to.path === "/login" && token) {
-		next("/");
+		// 确保只有在当前不在首页时才跳转
+		if (from.path !== "/") {
+			next("/");
+		} else {
+			next();
+		}
 		return;
 	}
 
 	// 如果用户未登录且尝试访问非登录页，跳转到登录页
 	if (to.path !== "/login" && !token) {
-		next("/login");
+		// 确保只有在当前不在登录页时才跳转
+		if (from.path !== "/login") {
+			next("/login");
+		} else {
+			next();
+		}
 	} else {
 		next();
 	}

@@ -1,10 +1,8 @@
 <template>
   <div class="order-management">
-    <el-card shadow="never">
-      <div slot="header" class="card-header">
-        <span>订单管理</span>
-      </div>
-      
+
+    <!-- 搜索和筛选 -->
+    <el-card class="filter-card">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="订单号">
           <el-input v-model="searchForm.order_number" placeholder="请输入订单号" clearable />
@@ -33,7 +31,10 @@
           </el-button>
         </el-form-item>
       </el-form>
-      
+    </el-card>
+
+    <!-- 订单列表 -->
+    <el-card class="list-card">
       <el-table v-loading="loading" :data="orders" style="width: 100%">
         <el-table-column prop="order_number" label="订单号" />
         <el-table-column prop="user_id" label="用户ID" width="100" />
@@ -50,33 +51,30 @@
           </template>
         </el-table-column>
         <el-table-column prop="created_at" label="创建时间" width="180" />
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="small" @click="handleView(scope.row)">
-              <i class="el-icon-view"></i> 查看
-            </el-button>
-            <el-button type="success" size="small" @click="handleUpdateStatus(scope.row)" v-if="!['completed', 'cancelled', 'refunded'].includes(scope.row.status)">
-              <i class="el-icon-edit"></i> 更新状态
-            </el-button>
+            <div class="operation-buttons">
+              <el-button type="primary" size="small" @click="handleView(scope.row)">
+                <i class="el-icon-view"></i> 查看
+              </el-button>
+              <el-button type="success" size="small" @click="handleUpdateStatus(scope.row)"
+                v-if="!['completed', 'cancelled', 'refunded'].includes(scope.row.status)">
+                <i class="el-icon-edit"></i> 更新状态
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
-      
+
       <div class="pagination-container">
-        <el-pagination
-          :current-page="pagination.current"
-          :page-size="pagination.size"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="pagination.total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
+        <el-pagination :current-page="pagination.current" :page-size="pagination.size" :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper" :total="pagination.total" @size-change="handleSizeChange"
+          @current-change="handleCurrentChange" />
       </div>
     </el-card>
-    
+
     <!-- 订单详情对话框 -->
-    <el-dialog title="订单详情" v-model="detailVisible" width="800px">
+    <el-dialog title="订单详情" :visible.sync="detailVisible" width="800px" :modal="false">
       <div v-if="currentOrder" class="order-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="订单号">{{ currentOrder.order_number }}</el-descriptions-item>
@@ -93,7 +91,7 @@
           <el-descriptions-item label="发货时间">{{ currentOrder.shipped_at || '未发货' }}</el-descriptions-item>
           <el-descriptions-item label="收货时间" :span="2">{{ currentOrder.delivered_at || '未收货' }}</el-descriptions-item>
         </el-descriptions>
-        
+
         <h4 style="margin-top: 20px; margin-bottom: 10px;">订单商品</h4>
         <el-table :data="currentOrder.order_items || []" style="width: 100%">
           <el-table-column prop="product_id" label="商品ID" width="100" />
@@ -112,9 +110,9 @@
         </el-table>
       </div>
     </el-dialog>
-    
+
     <!-- 更新状态对话框 -->
-    <el-dialog title="更新订单状态" v-model="statusDialogVisible" width="400px">
+    <el-dialog title="更新订单状态" :visible.sync="statusDialogVisible" width="400px" :modal="false">
       <el-form :model="statusForm" label-width="100px">
         <el-form-item label="当前状态">
           <el-input :value="getStatusText(statusForm.currentStatus)" disabled />
@@ -186,9 +184,9 @@ export default {
       }
       getOrders(params)
         .then(response => {
-          // 后端直接返回数组格式，不是 { results: [...], count: number } 格式
-          this.orders = response.data
-          this.pagination.total = response.data.length
+          // 后端返回 { results: [...], count: number } 格式
+          this.orders = response.data.results
+          this.pagination.total = response.data.count
         })
         .catch(error => {
           this.$message.error('获取订单列表失败: ' + error.message)
@@ -198,19 +196,36 @@ export default {
         })
     },
     handleView(order) {
+      console.log('handleView called with order:', order)
       this.loading = true
-      // 由于后端返回的数据中没有id字段，且order_number是唯一标识符，我们直接使用当前订单数据作为详情
-      // 实际项目中，如果需要从后端获取更详细的订单信息，应该使用order_number作为参数
-      this.currentOrder = order
-      this.detailVisible = true
-      this.loading = false
+      // 使用order_number作为参数从后端获取完整的订单详情
+      getOrder(order.order_number)
+        .then(response => {
+          console.log('getOrder response:', response)
+          this.currentOrder = response.data
+          // 为订单项添加order_items属性，以便在模板中使用
+          if (response.data.items) {
+            this.currentOrder.order_items = response.data.items
+          }
+          console.log('Setting detailVisible to true')
+          this.detailVisible = true
+        })
+        .catch(error => {
+          console.error('Error in getOrder:', error)
+          this.$message.error('获取订单详情失败: ' + error.message)
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
     handleUpdateStatus(order) {
+      console.log('handleUpdateStatus called with order:', order)
       this.statusForm = {
         orderId: order.order_number, // 使用order_number作为唯一标识符
         currentStatus: order.status,
         newStatus: ''
       }
+      console.log('Setting statusDialogVisible to true')
       this.statusDialogVisible = true
     },
     submitStatusUpdate() {
@@ -218,9 +233,9 @@ export default {
         this.$message.error('请选择新状态')
         return
       }
-      
+
       updateOrderStatus(this.statusForm.orderId, { status: this.statusForm.newStatus })
-        .then(response => {
+        .then(() => {
           this.$message.success('订单状态更新成功')
           this.statusDialogVisible = false
           this.fetchOrders()
@@ -287,16 +302,44 @@ export default {
   padding: 20px;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: #303133;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .search-form {
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #f5f7fa;
+  width: 100%;
+}
+
+.list-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* 操作按钮容器 */
+.operation-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 按钮样式优化 */
+.el-button--small {
+  padding: 6px 12px;
+  font-size: 12px;
   border-radius: 4px;
 }
 

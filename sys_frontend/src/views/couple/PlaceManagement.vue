@@ -1,16 +1,11 @@
 <template>
   <div class="place-management">
-    <div class="page-header">
-      <h1>地点管理</h1>
-      <el-button type="primary" @click="addPlace">
-        <i class="el-icon-plus"></i> 添加地点
-      </el-button>
-    </div>
 
     <el-card class="filter-card">
       <el-form :inline="true" :model="filterForm" class="filter-form">
         <el-form-item label="搜索">
-          <el-input v-model="filterForm.search" placeholder="搜索地点名称" clearable @clear="handleSearch" @keyup.enter="handleSearch" style="width: 200px"></el-input>
+          <el-input v-model="filterForm.search" placeholder="搜索地点名称" clearable @clear="handleSearch"
+            @keyup.enter="handleSearch" style="width: 200px"></el-input>
         </el-form-item>
         <el-form-item label="类型">
           <el-select v-model="filterForm.type" placeholder="选择类型" clearable>
@@ -27,18 +22,18 @@
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="resetFilter">重置</el-button>
+          <el-button type="primary" @click="addPlace">
+            <i class="el-icon-plus"></i> 添加地点
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card class="list-card">
-      <div slot="header" class="card-header">
-        <span>地点列表</span>
-      </div>
 
       <el-table :data="places" v-loading="loading" border style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" align="center"></el-table-column>
-        <el-table-column label="地点信息" min-width="300">
+        <el-table-column label="地点信息" min-width="350">
           <template slot-scope="scope">
             <div class="place-info">
               <div class="place-name">{{ scope.row.name }}</div>
@@ -47,31 +42,34 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="评分" width="80" align="center">
+        <el-table-column label="评分" width="200" align="center">
           <template slot-scope="scope">
             <div class="rating">
-              <el-rate v-model="scope.row.rating" disabled show-score :score-template="scope.row.rating"></el-rate>
+              <el-rate v-model="scope.row.rating" disabled show-score></el-rate>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="review_count" label="评价数" width="100" align="center"></el-table-column>
-        <el-table-column prop="price_range" label="价格范围" width="120"></el-table-column>
-        <el-table-column label="操作" width="120" align="center">
+        <el-table-column prop="review_count" label="评价数" width="90" align="center"></el-table-column>
+        <el-table-column prop="price_range" label="价格范围" width="100"></el-table-column>
+        <el-table-column label="操作" width="140" align="center">
           <template slot-scope="scope">
-            <el-button type="text" size="mini" @click="viewPlace(scope.row)">详情</el-button>
-            <el-button type="text" size="mini" @click="editPlace(scope.row)">编辑</el-button>
-            <el-button type="text" size="mini" @click="deletePlace(scope.row)" style="color: #F56C6C">删除</el-button>
+            <div class="action-buttons">
+              <el-button type="primary" size="mini" @click="editPlace(scope.row)" class="edit-button">编辑</el-button>
+              <el-button type="danger" size="mini" @click="deletePlace(scope.row)" class="delete-button">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
 
       <div class="pagination-container">
-        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 50, 100]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+          :page-sizes="[10, 20, 50, 100]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+          :total="total"></el-pagination>
       </div>
     </el-card>
 
     <!-- 添加/编辑对话框 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px" :modal="false">
       <el-form :model="form" label-width="100px">
         <el-form-item label="地点名称" required>
           <el-input v-model="form.name" placeholder="请输入地点名称"></el-input>
@@ -117,7 +115,8 @@
           <el-input v-model="form.price_range" placeholder="请输入价格范围"></el-input>
         </el-form-item>
         <el-form-item label="图片">
-          <el-upload class="upload-demo" action="#" :on-preview="handlePreview" :on-remove="handleRemove" :file-list="fileList" :auto-upload="false">
+          <el-upload class="upload-demo" action="#" :on-preview="handlePreview" :on-remove="handleRemove"
+            :file-list="fileList" :auto-upload="false">
             <el-button size="small" type="primary">点击上传</el-button>
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
@@ -182,7 +181,11 @@ export default {
           type: this.filterForm.type
         }
         const response = await getPlaces(params)
-        this.places = response.data
+        // 确保评分数据是数字类型
+        this.places = response.data.map(place => ({
+          ...place,
+          rating: Number(place.rating) || 0
+        }))
         this.total = this.places.length
       } catch (error) {
         this.$message.error('加载失败')
@@ -234,10 +237,6 @@ export default {
       this.fileList = []
       this.dialogVisible = true
     },
-    viewPlace(place) {
-      // 查看详情
-      this.$message.info('查看详情功能开发中')
-    },
     async savePlace() {
       try {
         if (this.form.id) {
@@ -265,7 +264,7 @@ export default {
         } catch (error) {
           this.$message.error('删除失败')
         }
-      }).catch(() => {})
+      }).catch(() => { })
     },
     handlePreview(file) {
       console.log('预览文件:', file)
@@ -322,21 +321,33 @@ export default {
 
 .place-info {
   line-height: 1.5;
+  width: 100%;
 }
 
 .place-name {
   font-weight: bold;
   color: #303133;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
 }
 
 .place-address {
   font-size: 12px;
   color: #606266;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
 }
 
 .place-type {
   font-size: 12px;
   color: #909399;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rating {
@@ -347,5 +358,19 @@ export default {
 .pagination-container {
   margin-top: 20px;
   text-align: right;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-button,
+.delete-button {
+  transition: all 0.3s ease;
+  font-size: 12px;
+  padding: 4px 12px;
 }
 </style>

@@ -20,6 +20,9 @@ class MomentViewSet(viewsets.ViewSet):
             search = request.query_params.get('search', '')
             user_id = request.query_params.get('user_id', '')
             is_shared = request.query_params.get('is_shared', '')
+            status = request.query_params.get('status', '')
+            date_range = request.query_params.get('date_range', '')
+            hot = request.query_params.get('hot', '')
             page = int(request.query_params.get('page', 1))
             page_size = int(request.query_params.get('page_size', 10))
             
@@ -60,10 +63,13 @@ class MomentViewSet(viewsets.ViewSet):
                 params.append(is_shared == 'true')
             
             # 添加排序
-            sql += " ORDER BY m.created_at DESC"
+            if hot:
+                sql += " ORDER BY m.likes DESC, m.created_at DESC"
+            else:
+                sql += " ORDER BY m.created_at DESC"
             
             # 获取总数
-            count_sql = sql.replace("SELECT m.id, m.content, m.likes, m.comments, m.favorites, m.view_count, m.created_at, m.is_shared, u.username, u.email", "SELECT COUNT(*)")
+            count_sql = sql.replace("SELECT m.id, m.content, m.likes, m.comments, m.favorites, m.view_count, m.created_at, m.is_shared, u.name, u.email", "SELECT COUNT(*)")
             with connection.cursor() as cursor:
                 cursor.execute(count_sql, params)
                 total = cursor.fetchone()[0]
@@ -145,18 +151,29 @@ class MomentViewSet(viewsets.ViewSet):
             with connection.cursor() as cursor:
                 cursor.execute(delete_likes_sql, [pk])
             
-            # 删除相关的评论点赞
-            delete_comment_likes_sql = """
+            # 先删除所有评论点赞（避免外键约束）
+            delete_all_comment_likes_sql = """
                 DELETE FROM moment_commentlike 
                 WHERE comment_id IN (SELECT id FROM moment_comment WHERE moment_id = %s)
             """
             with connection.cursor() as cursor:
-                cursor.execute(delete_comment_likes_sql, [pk])
+                cursor.execute(delete_all_comment_likes_sql, [pk])
             
-            # 删除相关的评论
-            delete_comments_sql = "DELETE FROM moment_comment WHERE moment_id = %s"
+            # 先删除所有子评论（parent_id不为NULL的评论）
+            delete_child_comments_sql = """
+                DELETE FROM moment_comment 
+                WHERE moment_id = %s AND parent_id IS NOT NULL
+            """
             with connection.cursor() as cursor:
-                cursor.execute(delete_comments_sql, [pk])
+                cursor.execute(delete_child_comments_sql, [pk])
+            
+            # 再删除所有主评论（parent_id为NULL的评论）
+            delete_parent_comments_sql = """
+                DELETE FROM moment_comment 
+                WHERE moment_id = %s AND parent_id IS NULL
+            """
+            with connection.cursor() as cursor:
+                cursor.execute(delete_parent_comments_sql, [pk])
             
             # 最后删除动态
             delete_moment_sql = "DELETE FROM moment_moment WHERE id = %s"

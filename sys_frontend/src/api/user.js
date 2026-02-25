@@ -22,8 +22,8 @@ export function getUserDetail(id) {
 // 更新用户状态
 export function updateUserStatus(id, data) {
 	return request({
-		url: `/admin-api/user/users/${id}/update_status/`,
-		method: "put",
+		url: `/admin-api/user/users/${id}/toggle_active/`,
+		method: "post",
 		data,
 	});
 }

@@ -86,6 +86,12 @@ class CommunityEventViewSet(viewsets.ViewSet):
                     # 格式化状态显示
                     status_map = {'active': '进行中', 'upcoming': '即将开始', 'ended': '已结束'}
                     event['status_display'] = status_map.get(event['status'], '未知')
+                    # 生成完整的图片URL
+                    from sys_LoveSync.storage import AliyunOSSStorage
+                    storage = AliyunOSSStorage()
+                    image = event.get('image')
+                    if image:
+                        event['image'] = storage.url(image)
                     events.append(event)
             
             return Response({
@@ -94,6 +100,253 @@ class CommunityEventViewSet(viewsets.ViewSet):
                 'next': None if page * page_size >= total else f'?page={page + 1}',
                 'previous': None if page <= 1 else f'?page={page - 1}'
             })
+            
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['get'])
+    def statistics(self, request):
+        """获取活动统计数据"""
+        try:
+            # 总活动数
+            total_sql = "SELECT COUNT(*) FROM community_event"
+            
+            # 进行中的活动数
+            active_sql = "SELECT COUNT(*) FROM community_event WHERE status = 'active'"
+            
+            # 即将开始的活动数
+            upcoming_sql = "SELECT COUNT(*) FROM community_event WHERE status = 'upcoming'"
+            
+            # 已结束的活动数
+            ended_sql = "SELECT COUNT(*) FROM community_event WHERE status = 'ended'"
+            
+            # 总参与人数
+            total_participants_sql = "SELECT SUM(participant_count) FROM community_event"
+            
+            with connection.cursor() as cursor:
+                # 获取总活动数
+                cursor.execute(total_sql)
+                total_events = cursor.fetchone()[0] or 0
+                
+                # 获取进行中的活动数
+                cursor.execute(active_sql)
+                active_events = cursor.fetchone()[0] or 0
+                
+                # 获取即将开始的活动数
+                cursor.execute(upcoming_sql)
+                upcoming_events = cursor.fetchone()[0] or 0
+                
+                # 获取已结束的活动数
+                cursor.execute(ended_sql)
+                ended_events = cursor.fetchone()[0] or 0
+                
+                # 获取总参与人数
+                cursor.execute(total_participants_sql)
+                total_participants = cursor.fetchone()[0] or 0
+            
+            return Response({
+                'total_events': total_events,
+                'activeEvents': active_events,
+                'upcomingEvents': upcoming_events,
+                'ended_events': ended_events,
+                'totalParticipants': total_participants
+            })
+            
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def create(self, request):
+        """创建活动"""
+        try:
+            data = request.data
+            
+            # 处理日期时间格式，将ISO格式转换为MySQL接受的格式
+            def format_datetime(datetime_str):
+                if not datetime_str:
+                    return None
+                try:
+                    import datetime
+                    # 解析ISO格式的日期时间字符串
+                    dt = datetime.datetime.fromisoformat(datetime_str.replace('Z', '+00:00'))
+                    # 转换为MySQL接受的格式
+                    return dt.strftime('%Y-%m-%d %H:%M:%S')
+                except:
+                    return None
+            
+            # 插入新活动
+            sql = """
+                INSERT INTO community_event (
+                    title, description, status, image, 
+                    start_date, end_date, location, participant_count, 
+                    prize_info, is_pinned, created_at, updated_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            """
+            
+            params = [
+                data.get('title', ''),
+                data.get('description', ''),
+                data.get('status', 'upcoming'),
+                data.get('image', ''),
+                format_datetime(data.get('start_date')),
+                format_datetime(data.get('end_date')),
+                data.get('location', ''),
+                0,  # participant_count
+                data.get('prize_info', ''),
+                data.get('is_pinned', False)
+            ]
+            
+            with connection.cursor() as cursor:
+                cursor.execute(sql, params)
+                event_id = cursor.lastrowid
+            
+            # 返回新创建的活动
+            return self.retrieve(request, event_id)
+            
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def retrieve(self, request, pk=None):
+        """获取单个活动详情"""
+        try:
+            sql = """
+                SELECT 
+                    id,
+                    title,
+                    description,
+                    status,
+                    image,
+                    start_date,
+                    end_date,
+                    location,
+                    participant_count,
+                    prize_info,
+                    is_pinned,
+                    created_at,
+                    updated_at
+                FROM community_event
+                WHERE id = %s
+            """
+            
+            with connection.cursor() as cursor:
+                cursor.execute(sql, [pk])
+                result = cursor.fetchone()
+                
+            if result:
+                columns = ['id', 'title', 'description', 'status', 'image', 'start_date', 'end_date', 
+                          'location', 'participant_count', 'prize_info', 'is_pinned', 'created_at', 'updated_at']
+                event = dict(zip(columns, result))
+                # 格式化状态显示
+                status_map = {'active': '进行中', 'upcoming': '即将开始', 'ended': '已结束'}
+                event['status_display'] = status_map.get(event['status'], '未知')
+                # 生成完整的图片URL
+                from sys_LoveSync.storage import AliyunOSSStorage
+                storage = AliyunOSSStorage()
+                image = event.get('image')
+                if image:
+                    event['image'] = storage.url(image)
+                return Response(event)
+            else:
+                return Response({
+                    'error': '活动不存在'
+                }, status=status.HTTP_404_NOT_FOUND)
+                
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def destroy(self, request, pk=None):
+        """删除活动"""
+        try:
+            # 执行删除操作
+            sql = "DELETE FROM community_event WHERE id = %s"
+            
+            with connection.cursor() as cursor:
+                cursor.execute(sql, [pk])
+                affected_rows = cursor.rowcount
+            
+            if affected_rows > 0:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({
+                    'error': '活动不存在'
+                }, status=status.HTTP_404_NOT_FOUND)
+                
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=True, methods=['post'])
+    def toggle_status(self, request, pk=None):
+        """切换活动状态"""
+        try:
+            # 先获取当前状态
+            sql = "SELECT status FROM community_event WHERE id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(sql, [pk])
+                result = cursor.fetchone()
+                
+            if not result:
+                return Response({
+                    'error': '活动不存在'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            current_status = result[0]
+            
+            # 状态转换逻辑
+            status_transitions = {
+                'active': 'ended',      # 进行中 -> 已结束
+                'upcoming': 'active',   # 即将开始 -> 进行中
+                'ended': 'upcoming'     # 已结束 -> 即将开始
+            }
+            
+            new_status = status_transitions.get(current_status, 'upcoming')
+            
+            # 更新状态
+            update_sql = "UPDATE community_event SET status = %s, updated_at = NOW() WHERE id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(update_sql, [new_status, pk])
+            
+            # 返回更新后的活动
+            return self.retrieve(request, pk)
+            
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=True, methods=['post'])
+    def toggle_pin(self, request, pk=None):
+        """切换活动置顶状态"""
+        try:
+            # 先获取当前置顶状态
+            sql = "SELECT is_pinned FROM community_event WHERE id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(sql, [pk])
+                result = cursor.fetchone()
+                
+            if not result:
+                return Response({
+                    'error': '活动不存在'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            current_pinned = result[0]
+            new_pinned = not current_pinned
+            
+            # 更新置顶状态
+            update_sql = "UPDATE community_event SET is_pinned = %s, updated_at = NOW() WHERE id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(update_sql, [new_pinned, pk])
+            
+            # 返回更新后的活动
+            return self.retrieve(request, pk)
             
         except Exception as e:
             return Response({
@@ -502,14 +755,19 @@ class ReportViewSet(viewsets.ViewSet):
                     reporter.username as reporter_username,
                     reporter.name as reporter_name,
                     reporter.id as reporter_id,
+                    reporter_profile.userAvatar as reporter_avatar,
                     reported_user.name as reported_user_name,
                     reported_user.username as reported_user_username,
-                    reported_user.id as reported_user_id
+                    reported_user.id as reported_user_id,
+                    reported_user_profile.userAvatar as reported_user_avatar
                 FROM community_report r
                 INNER JOIN core_user reporter ON r.reporter_id = reporter.id
+                LEFT JOIN core_profile reporter_profile ON reporter.id = reporter_profile.user_id
                 INNER JOIN core_user reported_user ON r.reported_user_id = reported_user.id
+                LEFT JOIN core_profile reported_user_profile ON reported_user.id = reported_user_profile.user_id
                 WHERE 1=1
             """
+
             
             params = []
             
@@ -543,28 +801,27 @@ class ReportViewSet(viewsets.ViewSet):
             sql += " ORDER BY r.priority DESC, r.created_at DESC"
             
             # 获取总数
-            count_sql = sql.replace("""
-                SELECT 
-                    r.id,
-                    r.title,
-                    r.description,
-                    r.report_type,
-                    r.status,
-                    r.priority,
-                    r.is_urgent,
-                    r.created_at,
-                    r.reviewed_at,
-                    r.resolved_at,
-                    r.action_taken,
-                    r.content_type,
-                    r.content_id,
-                    r.content_title,
-                    reporter.name as reporter_name,
-                    reporter.id as reporter_id,
-                    reported_user.name as reported_user_name,
-                    reported_user.username as reported_user_username,
-                    reported_user.id as reported_user_id
-            """, "SELECT COUNT(*)")
+            count_sql = "SELECT COUNT(*) FROM community_report r INNER JOIN core_user reporter ON r.reporter_id = reporter.id LEFT JOIN core_profile reporter_profile ON reporter.id = reporter_profile.user_id INNER JOIN core_user reported_user ON r.reported_user_id = reported_user.id LEFT JOIN core_profile reported_user_profile ON reported_user.id = reported_user_profile.user_id WHERE 1=1"
+            
+            # 添加搜索条件
+            if search:
+                count_sql += " AND (r.title LIKE %s OR r.description LIKE %s OR reporter.username LIKE %s OR reported_user.username LIKE %s)"
+            
+            # 添加状态筛选
+            if status_filter:
+                count_sql += " AND r.status = %s"
+            
+            # 添加类型筛选
+            if report_type:
+                count_sql += " AND r.report_type = %s"
+            
+            # 添加优先级筛选
+            if priority:
+                count_sql += " AND r.priority = %s"
+            
+            # 添加紧急筛选
+            if is_urgent in ['true', 'false']:
+                count_sql += " AND r.is_urgent = %s"
             
             with connection.cursor() as cursor:
                 cursor.execute(count_sql, params)
@@ -903,6 +1160,7 @@ class ReportViewSet(viewsets.ViewSet):
     def statistics(self, request):
         """获取举报统计数据"""
         try:
+            # 获取总举报数、待处理举报数、已处理举报数和处理率
             sql = """
                 SELECT 
                     COUNT(*) as total_reports,
@@ -912,23 +1170,37 @@ class ReportViewSet(viewsets.ViewSet):
                 FROM community_report
             """
             
+            # 获取今日新增举报数
+            today_sql = """
+                SELECT COUNT(*) as today_reports
+                FROM community_report
+                WHERE DATE(created_at) = CURDATE()
+            """
+            
             with connection.cursor() as cursor:
                 cursor.execute(sql)
                 result = cursor.fetchone()
+                
+                cursor.execute(today_sql)
+                today_result = cursor.fetchone()
             
             if result:
+                pending_reports = result[1] or 0
+                resolution_rate = result[3] or 0
                 statistics = {
-                    'total_reports': result[0] or 0,
-                    'pending_reports': result[1] or 0,
-                    'resolved_reports': result[2] or 0,
-                    'resolution_rate': result[3] or 0
+                    'totalReports': result[0] or 0,
+                    'pendingReports': pending_reports,
+                    'resolvedReports': result[2] or 0,
+                    'todayReports': today_result[0] or 0,
+                    'reportResolutionRate': f'{resolution_rate}%'
                 }
             else:
                 statistics = {
-                    'total_reports': 0,
-                    'pending_reports': 0,
-                    'resolved_reports': 0,
-                    'resolution_rate': 0
+                    'totalReports': 0,
+                    'pendingReports': 0,
+                    'resolvedReports': 0,
+                    'todayReports': 0,
+                    'reportResolutionRate': '0%'
                 }
             
             return Response(statistics)
@@ -960,13 +1232,18 @@ class ReportViewSet(viewsets.ViewSet):
                     r.review_notes,
                     reporter.username as reporter_name,
                     reporter.id as reporter_id,
+                    reporter_profile.userAvatar as reporter_avatar,
                     reported_user.username as reported_user_name,
-                    reported_user.id as reported_user_id
+                    reported_user.id as reported_user_id,
+                    reported_user_profile.userAvatar as reported_user_avatar
                 FROM community_report r
                 INNER JOIN core_user reporter ON r.reporter_id = reporter.id
+                LEFT JOIN core_profile reporter_profile ON reporter.id = reporter_profile.user_id
                 INNER JOIN core_user reported_user ON r.reported_user_id = reported_user.id
+                LEFT JOIN core_profile reported_user_profile ON reported_user.id = reported_user_profile.user_id
                 WHERE r.id = %s
             """
+
             
             with connection.cursor() as cursor:
                 cursor.execute(sql, [report_id])
@@ -976,7 +1253,7 @@ class ReportViewSet(viewsets.ViewSet):
                 columns = ['id', 'title', 'description', 'report_type', 'status', 'priority', 'is_urgent',
                           'created_at', 'reviewed_at', 'resolved_at', 'action_taken', 'content_type',
                           'content_id', 'content_title', 'review_notes', 'reporter_name', 'reporter_id',
-                          'reported_user_name', 'reported_user_id']
+                          'reporter_avatar', 'reported_user_name', 'reported_user_id', 'reported_user_avatar']
                 report = dict(zip(columns, result))
                 # 格式化状态显示
                 status_map = {'pending': '待处理', 'reviewing': '审核中', 'resolved': '已处理', 'dismissed': '已驳回'}

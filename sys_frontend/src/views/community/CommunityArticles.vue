@@ -1,12 +1,5 @@
 <template>
   <div class="community-articles">
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <h1>文章专栏管理</h1>
-      <el-button type="primary" @click="handleCreate" icon="el-icon-plus">
-        创建专栏
-      </el-button>
-    </div>
 
     <!-- 统计卡片 -->
     <el-row :gutter="20" class="statistics-row">
@@ -45,87 +38,94 @@
     </el-row>
 
     <!-- 筛选条件 -->
-    <el-form :inline="true" :model="filterForm" class="filter-form">
-      <el-form-item label="搜索">
-        <el-input v-model="filterForm.search" placeholder="专栏名称/描述" clearable />
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="filterForm.is_active" placeholder="状态" clearable>
-          <el-option label="启用" value="true" />
-          <el-option label="禁用" value="false" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleSearch" icon="el-icon-search">
-          查询
-        </el-button>
-        <el-button @click="resetFilter" icon="el-icon-refresh">
-          重置
-        </el-button>
-      </el-form-item>
-    </el-form>
+    <el-card class="filter-card">
+      <el-form :inline="true" :model="filterForm" class="filter-form">
+        <el-form-item label="搜索">
+          <el-input v-model="filterForm.search" placeholder="专栏名称/描述" clearable />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="filterForm.is_active" placeholder="状态" clearable>
+            <el-option label="启用" value="true" />
+            <el-option label="禁用" value="false" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch" icon="el-icon-search">
+            查询
+          </el-button>
+          <el-button @click="resetFilter" icon="el-icon-refresh">
+            重置
+          </el-button>
+          <el-button type="primary" @click="handleCreate" icon="el-icon-plus">
+            创建专栏
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
     <!-- 专栏列表 -->
-    <el-table :data="columnList" v-loading="loading" border style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" align="center" />
-      <el-table-column label="专栏信息" min-width="300">
-        <template slot-scope="scope">
-          <div class="column-info" v-if="scope.row">
-            <div class="column-name">{{ scope.row.name }}</div>
-            <div class="column-slug">{{ scope.row.slug }}</div>
-            <div class="column-description">{{ scope.row.description || '无描述' }}</div>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="分类" width="120" align="center">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row" type="info" size="small">
-            {{ scope.row.category_display }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="数据统计" width="180" align="center">
-        <template slot-scope="scope">
-          <div class="column-stats" v-if="scope.row">
-            <div>订阅: {{ scope.row.subscriber_count || 0 }}</div>
-            <div>浏览: {{ scope.row.view_count || 0 }}</div>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" width="80" align="center">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row" :type="scope.row.is_active ? 'success' : 'info'" size="small">
-            {{ scope.row.status_display }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" width="160" align="center">
-        <template slot-scope="scope">
-          <span v-if="scope.row">{{ scope.row.updated_at }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="150" align="center">
-        <template slot-scope="scope">
-          <el-button v-if="scope.row" size="mini" @click="handleEdit(scope.row)" icon="el-icon-edit">
-            编辑
-          </el-button>
-          <el-button v-if="scope.row" size="mini" type="danger" @click="handleDelete(scope.row.id)"
-            icon="el-icon-delete">
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <el-card class="list-card">
+      <el-table :data="columnList" v-loading="loading" border style="width: 100%">
+        <el-table-column prop="id" label="ID" width="80" align="center" />
+        <el-table-column label="专栏信息" min-width="300">
+          <template slot-scope="scope">
+            <div class="column-info" v-if="scope.row">
+              <div class="column-name">{{ scope.row.name }}</div>
+              <div class="column-slug">{{ scope.row.slug }}</div>
+              <div class="column-description">{{ scope.row.description || '无描述' }}</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="分类" width="120" align="center">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row" type="info" size="small">
+              {{ scope.row.category_display }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="数据统计" width="180" align="center">
+          <template slot-scope="scope">
+            <div class="column-stats" v-if="scope.row">
+              <div>订阅: {{ scope.row.subscriber_count || 0 }}</div>
+              <div>浏览: {{ scope.row.view_count || 0 }}</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="80" align="center">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row" :type="scope.row.is_active ? 'success' : 'info'" size="small">
+              {{ scope.row.status_display }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="更新时间" width="160" align="center">
+          <template slot-scope="scope">
+            <span v-if="scope.row">{{ scope.row.updated_at }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" align="center">
+          <template slot-scope="scope">
+            <el-button v-if="scope.row" size="mini" @click="handleEdit(scope.row)" icon="el-icon-edit">
+              编辑
+            </el-button>
+            <el-button v-if="scope.row" size="mini" type="danger" @click="handleDelete(scope.row.id)"
+              icon="el-icon-delete">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination :current-page="currentPage" :page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
-        @current-change="handleCurrentChange" />
-    </div>
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination :current-page="currentPage" :page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
+          @current-change="handleCurrentChange" />
+      </div>
+    </el-card>
 
     <!-- 创建/编辑对话框 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" width="600px" :modal="false">
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="专栏名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入专栏名称" />
@@ -303,10 +303,15 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          await deleteColumn(id)
-          this.$message.success('删除成功')
-          this.loadData()
-          this.loadStatistics()
+          const response = await deleteColumn(id)
+          // 204 No Content 表示删除成功
+          if (response.status === 204 || response.data) {
+            this.$message.success('删除成功')
+            this.loadData()
+            this.loadStatistics()
+          } else {
+            this.$message.error('删除失败')
+          }
         } catch (error) {
           this.$message.error('删除失败')
           console.error('删除专栏失败:', error)
@@ -323,12 +328,20 @@ export default {
           try {
             if (this.form.id) {
               // 更新专栏
-              await updateColumn(this.form.id, this.form)
-              this.$message.success('更新成功')
+              const updateResponse = await updateColumn(this.form.id, this.form)
+              if (updateResponse.data) {
+                this.$message.success('更新成功')
+              } else {
+                this.$message.error('更新失败')
+              }
             } else {
               // 创建专栏
-              await createColumn(this.form)
-              this.$message.success('创建成功')
+              const createResponse = await createColumn(this.form)
+              if (createResponse.data) {
+                this.$message.success('创建成功')
+              } else {
+                this.$message.error('创建失败')
+              }
             }
             this.dialogVisible = false
             this.loadData()
@@ -346,6 +359,21 @@ export default {
       // 这里可以添加图片上传逻辑
       // 暂时直接设置为文件路径
       this.form.cover_image = URL.createObjectURL(file.raw)
+    },
+
+    // 获取专栏详情
+    getColumnDetail(columnId) {
+      getColumnDetail(columnId)
+        .then(response => {
+          // 这里可以添加获取专栏详情后的处理逻辑
+          console.log('获取专栏详情成功:', response.data)
+          // 例如：显示专栏详情对话框
+          // this.columnDetail = response.data
+          // this.columnDialogVisible = true
+        })
+        .catch(error => {
+          this.$message.error('获取专栏详情失败: ' + error.message)
+        })
     }
   }
 }
@@ -395,11 +423,19 @@ export default {
   color: #333;
 }
 
-.filter-form {
-  background: #f5f7fa;
-  padding: 15px;
-  border-radius: 8px;
+.filter-card {
   margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.filter-form {
+  width: 100%;
+}
+
+.list-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .column-info {

@@ -2,6 +2,10 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
+# 加载环境变量
+from dotenv import load_dotenv
+load_dotenv()
+
 # 添加主应用路径
 import sys
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -139,6 +143,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# 媒体文件配置
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -179,6 +187,21 @@ AUTH_USER_MODEL = 'core.User'
 # 管理员API配置
 ADMIN_API_TOKEN = 'your-admin-api-token-here'
 
+DEBUG = False
+
 # CORS 配置
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+# 阿里云 OSS 存储配置
+if not DEBUG:  # 仅在生产环境使用 OSS
+    DEFAULT_FILE_STORAGE = 'sys_LoveSync.storage.AliyunOSSStorage'
+    STATICFILES_STORAGE = 'sys_LoveSync.storage.AliyunOSSStorage'
+    
+    # OSS URL 配置
+    ALIYUN_OSS_BUCKET_NAME = os.environ.get('ALIYUN_OSS_BUCKET_NAME', 'wendaoshuishou')
+    ALIYUN_OSS_ENDPOINT = os.environ.get('ALIYUN_OSS_ENDPOINT', 'oss-cn-chengdu.aliyuncs.com')
+    
+    # 使用 OSS 域名作为媒体文件和静态文件的基础 URL
+    MEDIA_URL = f'https://static.lovesync-diary.top/'
+    STATIC_URL = f'https://static.lovesync-diary.top/static/'

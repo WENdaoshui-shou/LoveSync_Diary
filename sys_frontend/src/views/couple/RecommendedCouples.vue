@@ -1,11 +1,5 @@
 <template>
   <div class="recommended-couples">
-    <div class="page-header">
-      <h1>推荐情侣管理</h1>
-      <el-button type="primary" @click="refreshData">
-        <i class="el-icon-refresh"></i> 刷新数据
-      </el-button>
-    </div>
 
     <el-card class="filter-card">
       <el-form :inline="true" :model="filterForm" class="filter-form">
@@ -24,16 +18,15 @@
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="resetFilter">重置</el-button>
         </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="refreshData">
+            <i class="el-icon-refresh"></i> 刷新数据
+          </el-button>
+        </el-form-item>
       </el-form>
     </el-card>
 
     <el-card class="list-card">
-      <div slot="header" class="card-header">
-        <span>绑定情侣关系的用户列表</span>
-        <div class="header-info">
-          <el-tag size="small">总计: {{ total }} 对情侣</el-tag>
-        </div>
-      </div>
 
       <el-table :data="couples" v-loading="loading" border style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" align="center"></el-table-column>
@@ -62,9 +55,11 @@
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
           <template slot-scope="scope">
-            <el-button type="text" size="mini" @click="viewCouple(scope.row)">查看详情</el-button>
-            <el-button type="text" size="mini" @click="editCouple(scope.row)">编辑</el-button>
-            <el-button type="text" size="mini" @click="deleteCouple(scope.row)" style="color: #F56C6C">解除关系</el-button>
+            <div class="action-buttons">
+              <el-button type="primary" size="mini" @click="editCouple(scope.row)" class="edit-button">编辑</el-button>
+              <el-button type="danger" size="mini" @click="deleteCouple(scope.row)"
+                class="delete-button">解除关系</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -77,7 +72,7 @@
     </el-card>
 
     <!-- 查看/编辑对话框 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px" :modal="false">
       <el-form :model="form" label-width="120px">
         <el-form-item label="用户1 ID" required>
           <el-input v-model="form.user1_id" type="number" placeholder="请输入用户1 ID"></el-input>
@@ -187,11 +182,6 @@ export default {
       this.loadData()
       this.$message.success('数据已刷新')
     },
-    viewCouple(couple) {
-      this.dialogTitle = '查看情侣详情'
-      this.form = { ...couple }
-      this.dialogVisible = true
-    },
     editCouple(couple) {
       this.dialogTitle = '编辑情侣信息'
       this.form = { ...couple }
@@ -288,5 +278,20 @@ export default {
 .pagination-container {
   margin-top: 20px;
   text-align: right;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-button,
+.delete-button {
+  transition: all 0.3s ease;
+  font-size: 12px;
+  padding: 4px 12px;
+
 }
 </style>

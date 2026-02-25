@@ -1,15 +1,9 @@
 <template>
   <div class="game-management">
-    <el-card shadow="hover">
-      <template slot="header">
-        <div class="card-header">
-          <span>情侣游戏管理</span>
-          <el-button type="primary" @click="handleAddGame" icon="el-icon-plus">添加游戏</el-button>
-        </div>
-      </template>
+    <div class="content-wrapper">
 
       <!-- 搜索和筛选 -->
-      <div class="filter-section">
+      <el-card class="filter-card">
         <el-form :inline="true" :model="filterForm" class="filter-form">
           <el-form-item label="游戏名称">
             <el-input v-model="filterForm.name" placeholder="请输入游戏名称" clearable />
@@ -31,59 +25,60 @@
             <el-button type="primary" @click="getGames">搜索</el-button>
             <el-button @click="resetFilter">重置</el-button>
           </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="handleAddGame" icon="el-icon-plus">添加游戏</el-button>
+          </el-form-item>
         </el-form>
-      </div>
+      </el-card>
 
       <!-- 游戏列表 -->
-      <el-table :data="gamesList" style="width: 100%" stripe>
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="游戏名称" min-width="150" />
-        <el-table-column prop="description" label="游戏描述" min-width="200">
-          <template slot-scope="scope">
-            <span>{{ scope.row.description }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="type" label="游戏类型" width="120">
-          <template slot-scope="scope">
-            <el-tag :type="getTypeTagType(scope.row.type)">{{ getTypeText(scope.row.type) }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="difficulty" label="难度" width="100">
-          <template slot-scope="scope">
-            <el-tag size="small">{{ getDifficultyText(scope.row.difficulty) }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="duration" label="预计时长" width="120">
-          <template slot-scope="scope">
-            <span>{{ scope.row.duration }}分钟</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
-          <template slot-scope="scope">
-            <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
-              {{ scope.row.status === 'active' ? '启用' : '禁用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" width="180" />
-        <el-table-column label="操作" width="150" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="small" @click="handleEditGame(scope.row)">编辑</el-button>
-            <el-button type="danger" size="small" @click="handleDeleteGame(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-card class="list-card">
+        <el-table :data="gamesList" style="width: 100%" stripe>
+          <el-table-column prop="id" label="ID" width="80" />
+          <el-table-column prop="name" label="游戏名称" min-width="150" />
+          <el-table-column prop="description" label="游戏描述" min-width="200">
+            <template slot-scope="scope">
+              <span>{{ scope.row.description }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="type" label="游戏类型" width="120">
+            <template slot-scope="scope">
+              <el-tag :type="getTypeTagType(scope.row.type)">{{ getTypeText(scope.row.type) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="difficulty" label="难度" width="100">
+            <template slot-scope="scope">
+              <el-tag size="small">{{ getDifficultyText(scope.row.difficulty) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="100">
+            <template slot-scope="scope">
+              <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
+                {{ scope.row.status === 'active' ? '启用' : '禁用' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="created_at" label="创建时间" width="180" />
+          <el-table-column label="操作" width="150" fixed="right">
+            <template slot-scope="scope">
+              <el-button type="primary" size="small" @click="handleEditGame(scope.row)">编辑</el-button>
+              <el-button type="danger" size="small" @click="handleDeleteGame(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
 
-      <!-- 分页 -->
-      <div class="pagination-section">
-        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-          :current-page="pagination.currentPage" :page-sizes="[10, 20, 50, 100]" :page-size="pagination.pageSize"
-          layout="total, sizes, prev, pager, next, jumper" :total="pagination.total" />
-      </div>
-    </el-card>
+        <!-- 分页 -->
+        <div class="pagination-section">
+          <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+            :current-page="pagination.currentPage" :page-sizes="[10, 20, 50, 100]" :page-size="pagination.pageSize"
+            layout="total, sizes, prev, pager, next, jumper" :total="pagination.total" />
+        </div>
+      </el-card>
+    </div>
 
     <!-- 添加/编辑游戏弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" :close-on-click-modal="false"
+      :modal="false">
       <el-form :model="gameForm" :rules="rules" ref="gameForm" label-width="120px">
         <el-form-item label="游戏名称" prop="name">
           <el-input v-model="gameForm.name" placeholder="请输入游戏名称" />
@@ -104,9 +99,6 @@
             <el-option label="中等" value="medium" />
             <el-option label="困难" value="hard" />
           </el-select>
-        </el-form-item>
-        <el-form-item label="预计时长" prop="duration">
-          <el-input-number v-model="gameForm.duration" :min="1" :max="300" label="分钟" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-switch v-model="gameForm.status" active-value="active" inactive-value="inactive" />
@@ -159,7 +151,6 @@ export default {
         description: '',
         type: '',
         difficulty: '',
-        duration: 30,
         status: 'active',
         rules: ''
       },
@@ -177,9 +168,6 @@ export default {
         ],
         difficulty: [
           { required: true, message: '请选择难度', trigger: 'change' }
-        ],
-        duration: [
-          { required: true, message: '请输入预计时长', trigger: 'blur' }
         ]
       }
     }
@@ -233,7 +221,6 @@ export default {
         description: '',
         type: '',
         difficulty: '',
-        duration: 30,
         status: 'active',
         rules: ''
       }
@@ -326,30 +313,46 @@ export default {
   padding: 20px;
 }
 
-.card-header {
+.content-wrapper {
+  width: 100%;
+}
+
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
-.filter-section {
+.page-header h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: #303133;
+}
+
+.filter-card {
   margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .filter-form {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  width: 100%;
+}
+
+.list-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .pagination-section {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-}
-
-.el-table {
-  margin-top: 20px;
 }
 
 .dialog-footer {

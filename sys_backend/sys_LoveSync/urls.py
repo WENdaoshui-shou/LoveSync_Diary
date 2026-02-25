@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +26,9 @@ urlpatterns = [
     path('admin-api/community/', include('community_manage.urls')),
     path('admin-api/couple/', include('couple_manage.urls')),
     path('admin-api/mall/', include('mall_manage.urls')),
+    path('api/articles_manage/', include('articles_manage.urls')),
 ]
+
+# 添加媒体文件静态路由
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
