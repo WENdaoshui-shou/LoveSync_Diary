@@ -16,7 +16,6 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://6a10c670.r7.cpolar.top",
 ]
 
 # Application definition

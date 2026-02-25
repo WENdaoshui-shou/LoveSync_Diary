@@ -4,14 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LoveSync是一款专为情侣设计的私密日记应用，让你们随时随地记录生活中的每一个美好瞬间">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#FF6B8B">
+    <!-- 缓存控制 -->
+    <meta http-equiv="Cache-Control" content="public, max-age=3600">
+    <meta http-equiv="Expires" content="3600">
     <title>LoveSync - 双人日记</title>
     {% load static %}
     <!-- 网页图标 -->
     <link rel="icon" type="image/jpg"
         href="https://static.lovesync-diary.top/static/images/favicon.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js" defer></script>
     <script>
         tailwind.config = {
             theme: {
@@ -42,6 +48,11 @@
         @layer utilities {
             .content-auto {
                 content-visibility: auto;
+            }
+
+            .content-visible {
+                content-visibility: auto;
+                contain-intrinsic-size: 1000px;
             }
 
             .text-shadow {
@@ -113,6 +124,8 @@
             z-index: 1;
             transition: all 0.3s ease;
             opacity: 0.95;
+            /* 性能优化：启用GPU加速 */
+            will-change: transform, left, opacity;
         }
 
         @keyframes floatAndMove {
@@ -254,7 +267,7 @@
     </header>
 
     <!-- 英雄区域 -->
-    <section id="home" class="pt-32 pb-20 bg-gradient-to-b from-neutral-100 to-white">
+    <section id="home" class="pt-32 pb-20 bg-gradient-to-b from-neutral-100 to-white content-visible">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row items-center">
                 <div class="md:w-1/2 mb-10 md:mb-0">
@@ -295,7 +308,7 @@
                 <div class="md:w-1/2 relative">
                     <div class="relative z-10 bg-white rounded-3xl shadow-2xl overflow-hidden hover-scale">
                         <img src="{% static 'static/images/1.jpg' %}" alt="情侣日记应用截图"
-                            class="w-full h-auto">
+                            class="w-full h-auto" loading="lazy">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end">
                             <div class="p-6 text-white">
                                 <h3 class="text-xl font-semibold mb-2">我们的一周年纪念</h3>
@@ -319,7 +332,7 @@
     </section>
 
     <!-- 统计数据 -->
-    <section class="py-16 bg-white">
+    <section class="py-16 bg-white content-visible">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="bg-neutral-50 p-8 rounded-2xl shadow-sm hover:shadow-md transition-custom">
@@ -348,7 +361,7 @@
     </section>
 
     <!-- 功能介绍 -->
-    <section id="features" class="py-20 bg-neutral-50">
+    <section id="features" class="py-20 bg-neutral-50 content-visible">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
@@ -484,7 +497,7 @@
     </section>
 
     <!-- 实时编辑演示 -->
-    <section class="py-20 bg-white">
+    <section class="py-20 bg-white content-visible">
         <div class="container mx-auto px-4">
             <div class="flex flex-col lg:flex-row items-center gap-12">
                 <div class="lg:w-1/2">
@@ -578,7 +591,7 @@
     </section>
 
     <!-- 数据统计与分析 -->
-    <section class="py-20 bg-neutral-50">
+    <section class="py-20 bg-neutral-50 content-visible">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
@@ -684,7 +697,7 @@
     </section>
 
     <!-- 日记展示 -->
-    <section id="gallery" class="py-20 bg-white">
+    <section id="gallery" class="py-20 bg-white content-visible">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
@@ -705,9 +718,9 @@
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <img src="https://static.lovesync-diary.top/static/images/112-40x40.jpg"
-                                alt="男生头像" class="w-8 h-8 rounded-full">
+                                alt="男生头像" class="w-8 h-8 rounded-full" loading="lazy">
                             <img src="https://static.lovesync-diary.top/static/images/308-40x40.jpg"
-                                alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                                alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white" loading="lazy">
                             <div class="ml-2">
                                 <div class="font-medium text-sm">小李 & 小王</div>
                                 <div class="text-xs text-neutral-500">2025年4月15日</div>
@@ -741,9 +754,9 @@
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <img src="https://static.lovesync-diary.top/static/images/308-40x40.jpg"
-                                alt="男生头像" class="w-8 h-8 rounded-full">
+                                alt="男生头像" class="w-8 h-8 rounded-full" loading="lazy">
                             <img src="https://static.lovesync-diary.top/static/images/395-40x40.jpg"
-                                alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                                alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white" loading="lazy">
                             <div class="ml-2">
                                 <div class="font-medium text-sm">小张 & 小周</div>
                                 <div class="text-xs text-neutral-500">2025年3月28日</div>
@@ -777,9 +790,9 @@
                     <div class="p-6">
                         <div class="flex items-center mb-4">
                             <img src="https://static.lovesync-diary.top/static/images/476-40x40.jpg"
-                                alt="男生头像" class="w-8 h-8 rounded-full">
+                                alt="男生头像" class="w-8 h-8 rounded-full" loading="lazy">
                             <img src="https://static.lovesync-diary.top/static/images/896-40x40.jpg"
-                                alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white">
+                                alt="女生头像" class="w-8 h-8 rounded-full -ml-2 border-2 border-white" loading="lazy">
                             <div class="ml-2">
                                 <div class="font-medium text-sm">小陈 & 小吴</div>
                                 <div class="text-xs text-neutral-500">2025年2月14日</div>
@@ -815,7 +828,7 @@
     </section>
 
     <!-- 用户评价 -->
-    <section class="py-20 bg-neutral-50">
+    <section class="py-20 bg-neutral-50 content-visible">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
@@ -895,7 +908,7 @@
 
     <!-- 热门话题展示 -->
     {% if has_dynamic_content and popular_tags %}
-    <section class="py-20 bg-gradient-to-b from-neutral-50 to-white">
+    <section class="py-20 bg-gradient-to-b from-neutral-50 to-white content-visible">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-900 mb-4">
