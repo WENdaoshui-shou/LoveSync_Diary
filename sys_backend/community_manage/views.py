@@ -69,7 +69,8 @@ class CommunityEventViewSet(viewsets.ViewSet):
             count_sql = sql.replace("SELECT id, title, description, status, image, start_date, end_date, location, participant_count, prize_info, is_pinned, created_at, updated_at", "SELECT COUNT(*)")
             with connection.cursor() as cursor:
                 cursor.execute(count_sql, params)
-                total = cursor.fetchone()[0]
+                result = cursor.fetchone()
+                total = result[0] if result else 0
             
             # 添加分页
             offset = (page - 1) * page_size

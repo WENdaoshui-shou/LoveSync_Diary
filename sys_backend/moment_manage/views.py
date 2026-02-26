@@ -146,6 +146,11 @@ class MomentViewSet(viewsets.ViewSet):
             with connection.cursor() as cursor:
                 cursor.execute(delete_images_sql, [pk])
             
+            # 删除相关的标签关联
+            delete_tags_sql = "DELETE FROM moment_moment_tags WHERE moment_id = %s"
+            with connection.cursor() as cursor:
+                cursor.execute(delete_tags_sql, [pk])
+            
             # 删除相关的点赞
             delete_likes_sql = "DELETE FROM moment_like WHERE moment_id = %s"
             with connection.cursor() as cursor:

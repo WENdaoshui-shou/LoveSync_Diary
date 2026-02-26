@@ -289,7 +289,7 @@ export default {
 
         // 获取文章统计数据
         try {
-          const articleStatsResponse = await this.$axios.get('/api/articles_manage/statistics/')
+          const articleStatsResponse = await this.$axios.get('/admin-api/articles_manage/statistics/')
           if (articleStatsResponse && articleStatsResponse.data && articleStatsResponse.data.data) {
             this.stats.totalArticles = articleStatsResponse.data.data.total_articles || 0
             this.stats.totalColumns = articleStatsResponse.data.data.total_columns || 0

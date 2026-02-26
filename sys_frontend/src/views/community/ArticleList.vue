@@ -135,7 +135,7 @@ export default {
         title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
         content: [{ required: true, message: '请输入文章内容', trigger: 'blur' }]
       },
-      uploadUrl: '/api/upload/' // 上传图片的接口
+      uploadUrl: '/admin-api/upload/' // 上传图片的接口
     }
   },
   created() {
@@ -145,7 +145,7 @@ export default {
   methods: {
     async loadColumns() {
       try {
-        const response = await this.$axios.get('/api/articles_manage/columns/')
+        const response = await this.$axios.get('/admin-api/articles_manage/columns/')
         if (response.data.success) {
           this.columns = response.data.data
         }
@@ -163,7 +163,7 @@ export default {
           column_id: this.filter.column_id,
           search: this.filter.search
         }
-        const response = await this.$axios.get('/api/articles_manage/articles/', { params })
+        const response = await this.$axios.get('/admin-api/articles_manage/articles/', { params })
         if (response.data.success) {
           // 处理文章数据，添加专栏名称
           this.articles = response.data.data.map(article => {
@@ -216,10 +216,10 @@ export default {
             let response
             if (this.form.id) {
               // 更新文章
-              response = await this.$axios.put(`/api/articles_manage/articles/${this.form.id}/update/`, this.form)
+              response = await this.$axios.put(`/admin-api/articles_manage/articles/${this.form.id}/update/`, this.form)
             } else {
               // 创建文章
-              response = await this.$axios.post('/api/articles_manage/articles/create/', this.form)
+              response = await this.$axios.post('/admin-api/articles_manage/articles/create/', this.form)
             }
             if (response.data.success) {
               this.$message.success(this.form.id ? '更新成功' : '创建成功')
@@ -240,7 +240,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const response = await this.$axios.delete(`/api/articles_manage/articles/${article.id}/delete/`)
+          const response = await this.$axios.delete(`/admin-api/articles_manage/articles/${article.id}/delete/`)
           if (response.data.success) {
             this.$message.success('删除成功')
             this.loadArticles()

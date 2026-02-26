@@ -47,6 +47,9 @@ temp/
 
 # 配置文件
 backend/LoveSync/settings.py
+sys_backend/sys_LoveSync/settings.py
+sys_frontend/src/main.js
+sys_frontend/src/utils/request.js
 newenv/
 
 
