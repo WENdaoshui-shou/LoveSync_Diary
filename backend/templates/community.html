@@ -880,7 +880,7 @@
                 {% for moment in moments %}
                 <!-- 动态1 -->
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden post-card w-full"
-                    data-moment-id="{{ moment.id }}">
+                    data-moment-id="{{ moment.id }}" data-user-id="{{ moment.user.id }}">
                     <div class="p-8">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
@@ -2746,6 +2746,200 @@
         });
     }
 
+    // 初始化举报功能
+    function initReportFunctionality() {
+        // 为所有举报按钮添加点击事件
+        document.querySelectorAll('button:has(.fa-flag)').forEach(button => {
+            button.addEventListener('click', function () {
+                const postCard = this.closest('.post-card');
+                const momentId = postCard.getAttribute('data-moment-id');
+
+                // 获取动态内容
+                let momentContent = '';
+                let contentElement = postCard.querySelector('.mt-4 p.text-neutral-800');
+                if (!contentElement) {
+                    contentElement = postCard.querySelector('.mt-4 p');
+                }
+                if (!contentElement) {
+                    contentElement = postCard.querySelector('p.text-neutral-800');
+                }
+                if (contentElement) {
+                    momentContent = contentElement.textContent.trim();
+                }
+
+                // 获取作者信息
+                let momentAuthor = '';
+                let authorElement = postCard.querySelector('a.font-semibold');
+                if (!authorElement) {
+                    authorElement = postCard.querySelector('.flex.items-center div a');
+                }
+                if (!authorElement) {
+                    authorElement = postCard.querySelector('div a');
+                }
+                if (authorElement) {
+                    momentAuthor = authorElement.textContent.trim();
+                }
+
+                openReportModal(momentId, momentContent, momentAuthor);
+
+                // 关闭下拉菜单
+                const menu = this.closest('.dropdown-menu');
+                if (menu) {
+                    menu.classList.add('hidden');
+                }
+            });
+        });
+    }
+
+    // 打开举报模态框
+    function openReportModal(momentId, content, author) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+        modal.id = 'reportModal';
+
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">举报动态</h3>
+                    <p class="text-gray-600 mb-4">请选择举报原因：</p>
+                    <form id="reportForm">
+                        <input type="hidden" name="moment_id" value="${momentId}">
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center">
+                                <input type="radio" id="report-spam" name="report_type" value="spam" class="mr-2">
+                                <label for="report-spam">垃圾信息/广告</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="report-inappropriate" name="report_type" value="inappropriate" class="mr-2">
+                                <label for="report-inappropriate">不适当内容</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="report-harassment" name="report_type" value="harassment" class="mr-2">
+                                <label for="report-harassment">骚扰/欺凌</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="report-illegal" name="report_type" value="illegal" class="mr-2">
+                                <label for="report-illegal">违法内容</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="report-other" name="report_type" value="other" class="mr-2">
+                                <label for="report-other">其他原因</label>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 mb-2">优先级：</label>
+                            <div class="flex space-x-4">
+                                <div class="flex items-center">
+                                    <input type="radio" id="priority-low" name="priority" value="1" class="mr-2" checked>
+                                    <label for="priority-low">低</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="priority-medium" name="priority" value="2" class="mr-2">
+                                    <label for="priority-medium">中</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="priority-high" name="priority" value="3" class="mr-2">
+                                    <label for="priority-high">高</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label for="report-description" class="block text-gray-700 mb-2">详细说明（可选）：</label>
+                            <textarea id="report-description" name="description" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="请详细描述举报原因..."></textarea>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelReportBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">取消</button>
+                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">提交举报</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // 取消按钮事件
+        document.getElementById('cancelReportBtn').addEventListener('click', function () {
+            closeReportModal();
+        });
+
+        // 提交举报表单
+        document.getElementById('reportForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitReport();
+        });
+
+        // 点击模态框外部关闭
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeReportModal();
+            }
+        });
+    }
+
+    // 关闭举报模态框
+    function closeReportModal() {
+        const modal = document.getElementById('reportModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    // 提交举报
+    function submitReport() {
+        const form = document.getElementById('reportForm');
+        const formData = new FormData(form);
+        const momentId = formData.get('moment_id');
+        const reportType = formData.get('report_type');
+        const description = formData.get('description');
+        const priority = formData.get('priority') || 1;
+
+        if (!reportType) {
+            showNotification('请选择举报原因', 'error');
+            return;
+        }
+
+        // 获取被举报人ID（从动态卡片中获取）
+        const postCard = document.querySelector(`[data-moment-id="${momentId}"]`);
+        const reportedUserId = postCard.getAttribute('data-user-id') || null;
+
+        if (!reportedUserId) {
+            showNotification('无法获取被举报人信息', 'error');
+            return;
+        }
+
+        fetch('/community/api/reports/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                reported_user: reportedUserId,
+                report_type: reportType,
+                title: '举报动态',
+                description: description,
+                priority: parseInt(priority),
+                content_type: 'moment',
+                content_id: momentId,
+                content_title: '动态内容'
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.id) {
+                    showNotification('举报成功，我们会尽快处理', 'success');
+                    closeReportModal();
+                } else {
+                    showNotification(data.error || '举报失败，请稍后重试', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('举报失败:', error);
+                showNotification('举报失败，请稍后重试', 'error');
+            });
+    }
+
     // 打开分享模态框
     function openShareModal(momentId, content, author) {
         // 创建分享模态框
@@ -4071,6 +4265,8 @@
         }
         // 初始化分享功能
         initShareFunctionality();
+        // 初始化举报功能
+        initReportFunctionality();
     });
 </script>
 

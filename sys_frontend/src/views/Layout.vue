@@ -25,7 +25,7 @@
 
           <!-- 系统描述 -->
           <div class="header-description">
-            <p class="description-text">一站式管理平台，轻松掌控系统各项功能</p>
+            <p class="description-text">一站式管理平台</p>
           </div>
 
           <!-- 用户信息 -->
