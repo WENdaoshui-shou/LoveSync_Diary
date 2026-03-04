@@ -40,7 +40,7 @@
                   <i class="el-icon-arrow-down user-arrow"></i>
                 </div>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item @click="handleCommand('logout')">
+                  <el-dropdown-item @click.native="handleCommand('logout')">
                     <i class="el-icon-switch-button"></i>
                     <span>退出登录</span>
                   </el-dropdown-item>

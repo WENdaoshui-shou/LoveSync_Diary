@@ -45,6 +45,6 @@ def create_document(request):
             'id': document.id,
             'title': document.title,
             'content': document.content,
-            'url': reverse('collaborative_editor', args=[document.id])
+            'url': reverse('collab:collaborative_editor', args=[document.id])
         }, status=201)
     return JsonResponse({'error': 'Method not allowed'}, status=405)
