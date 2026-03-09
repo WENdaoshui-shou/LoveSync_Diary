@@ -24,6 +24,11 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
         # 1. 校验用户登录状态
         if not self.user.is_authenticated:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'code': 4001,
+                'message': '连接失败: Authentication required.'
+            }))
             await self.close(code=4001)  # 未认证
             return
 

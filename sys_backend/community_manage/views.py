@@ -1316,7 +1316,7 @@ class ArticleColumnViewSet(viewsets.ViewSet):
                 params.append(is_active == 'true')
             
             # 添加排序
-            sql += " ORDER BY updated_at DESC"
+            sql += " ORDER BY id DESC"
             
             # 获取总数
             count_sql = sql.replace("SELECT \n                    id,\n                    name,\n                    slug,\n                    description,\n                    cover_image,\n                    category,\n                    subscriber_count,\n                    view_count,\n                    is_active,\n                    updated_at", "SELECT COUNT(*)")
@@ -1346,6 +1346,9 @@ class ArticleColumnViewSet(viewsets.ViewSet):
                     }
                     column['category_display'] = category_map.get(column['category'], '其他')
                     column['status_display'] = '启用' if column['is_active'] else '禁用'
+                    # 格式化时间
+                    if 'updated_at' in column and column['updated_at']:
+                        column['updated_at'] = column['updated_at'].strftime('%Y-%m-%d %H:%M:%S')
                     columns_list.append(column)
             
             return Response({
@@ -1397,6 +1400,9 @@ class ArticleColumnViewSet(viewsets.ViewSet):
                 }
                 column['category_display'] = category_map.get(column['category'], '其他')
                 column['status_display'] = '启用' if column['is_active'] else '禁用'
+                # 格式化时间
+                if 'updated_at' in column and column['updated_at']:
+                    column['updated_at'] = column['updated_at'].strftime('%Y-%m-%d %H:%M:%S')
                 return Response(column)
             else:
                 return Response({

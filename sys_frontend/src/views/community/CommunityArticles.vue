@@ -83,7 +83,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="数据统计" width="180" align="center">
+        <el-table-column label="数据统计" width="120" align="center">
           <template slot-scope="scope">
             <div class="column-stats" v-if="scope.row">
               <div>订阅: {{ scope.row.subscriber_count || 0 }}</div>
@@ -98,7 +98,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="更新时间" width="160" align="center">
+        <el-table-column label="更新时间" width="170" align="center">
           <template slot-scope="scope">
             <span v-if="scope.row">{{ scope.row.updated_at }}</span>
           </template>

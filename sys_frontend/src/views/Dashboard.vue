@@ -412,7 +412,8 @@ export default {
         'content': '内容举报',
         'harassment': '骚扰举报',
         'spam': '垃圾信息',
-        'other': '其他举报'
+        'illegal': '违法内容',
+        'other': '其他举报',
       }
       return texts[type] || type
     },

@@ -90,6 +90,7 @@
             <el-option label="内容举报" value="content"></el-option>
             <el-option label="骚扰举报" value="harassment"></el-option>
             <el-option label="垃圾信息" value="spam"></el-option>
+            <el-option label="违法内容" value="illegal"></el-option>
             <el-option label="不当行为" value="inappropriate"></el-option>
             <el-option label="其他举报" value="other"></el-option>
           </el-select>
@@ -155,7 +156,8 @@
               <div class="user-avatar">
                 <el-avatar size="small" :src="getAvatarUrl(scope.row.reporter_avatar)"
                   :icon="scope.row.reporter_avatar ? '' : 'el-icon-user'">
-                  {{ !scope.row.reporter_avatar ? (scope.row.reporter_name ? scope.row.reporter_name.charAt(0) : '?') : '' }}
+                  {{ !scope.row.reporter_avatar ? (scope.row.reporter_name ? scope.row.reporter_name.charAt(0) : '?') :
+                    '' }}
                 </el-avatar>
               </div>
               <div class="user-details">
@@ -738,6 +740,7 @@ export default {
         'content': 'danger',
         'harassment': 'warning',
         'spam': 'info',
+        'illegal': 'danger',
         'inappropriate': 'warning',
         'other': 'info'
       }
@@ -749,6 +752,7 @@ export default {
         'content': '内容举报',
         'harassment': '骚扰举报',
         'spam': '垃圾信息',
+        'illegal': '违法内容',
         'inappropriate': '不当行为',
         'other': '其他举报'
       }

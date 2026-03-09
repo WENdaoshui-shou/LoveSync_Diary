@@ -312,7 +312,7 @@ class CategoryManagementViewSet(viewsets.ViewSet):
                 sql += " WHERE " + " AND ".join(where_clauses)
             
             # 添加排序
-            sql += " ORDER BY sort, created_at DESC"
+            sql += " ORDER BY id DESC"
             
             with connection.cursor() as cursor:
                 cursor.execute(sql, params)

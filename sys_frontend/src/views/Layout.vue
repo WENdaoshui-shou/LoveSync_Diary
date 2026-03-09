@@ -33,9 +33,6 @@
             <div class="user-info" v-if="userInfo">
               <el-dropdown trigger="click" class="user-dropdown">
                 <div class="user-avatar">
-                  <img
-                    :src="userInfo.avatar || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20user%20avatar%20icon%20minimal%20design&image_size=square'"
-                    :alt="userInfo.username" class="avatar-img" />
                   <span class="user-name">{{ userInfo.username }}</span>
                   <i class="el-icon-arrow-down user-arrow"></i>
                 </div>
@@ -434,7 +431,7 @@ export default {
   box-shadow: 0 4px 12px rgba(255, 107, 139, 0.2);
   background: linear-gradient(135deg, #FF6B8B 0%, #722ED1 100%);
   border-radius: 50%;
-  margin-right: 30px;
+  margin-right: 5px;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
@@ -480,11 +477,11 @@ export default {
 }
 
 .logo-main {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #424242;
+  color: #1f2937;
   transition: all 0.3s ease;
-  letter-spacing: 0;
+  letter-spacing: -0.025em;
 }
 
 .logo-sub {
