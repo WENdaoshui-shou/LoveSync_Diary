@@ -17,13 +17,41 @@ SUPPORTED_OP_TYPES = ['insert', 'delete']
 class DiarySyncConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         """建立WebSocket连接（适配CollaborativeDocument模型）"""
-        self.user = self.scope['user']
+        # 先从scope中获取用户
+        self.user = self.scope.get('user')
         self.room_name = None
         self.document = None  # 协作文档对象
         self.heartbeat_timer = None
 
+        # 尝试从URL参数中获取token
+        if not self.user or not self.user.is_authenticated:
+            # 从查询参数中获取token
+            query_string = self.scope.get('query_string', b'').decode()
+            from urllib.parse import parse_qs
+            query_params = parse_qs(query_string)
+            token = query_params.get('token', [''])[0]
+            
+            if token:
+                # 使用token进行认证
+                from rest_framework_simplejwt.authentication import JWTAuthentication
+                from rest_framework.exceptions import AuthenticationFailed
+                
+                try:
+                    jwt_auth = JWTAuthentication()
+                    # 模拟请求对象
+                    class MockRequest:
+                        def __init__(self, token):
+                            self.META = {'HTTP_AUTHORIZATION': f'Bearer {token}'}
+                    
+                    request = MockRequest(token)
+                    user, _ = jwt_auth.authenticate(request)
+                    if user:
+                        self.user = user
+                except Exception as e:
+                    print(f"token认证失败: {e}")
+
         # 1. 校验用户登录状态
-        if not self.user.is_authenticated:
+        if not self.user or not self.user.is_authenticated:
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'code': 4001,
