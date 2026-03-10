@@ -467,7 +467,7 @@ export default {
 
     async loadStatistics() {
       try {
-        const response = await axios.get('admin-api/community/events/statistics/')
+        const response = await axios.get('/admin-api/community/events/statistics/')
 
         if (response.data) {
           // 处理可能的认证错误或数据格式
