@@ -112,7 +112,7 @@ def photo_album_api(request):
             photo_data.append({
                 'id': photo.id,
                 'image_url': photo.image.url,
-                'title': photo.description or '无描述',
+                'title': photo.description or '',
                 'created_at': photo.uploaded_at.strftime('%Y年%m月%d日'),
                 'is_shared': False  # 根据实际情况设置
             })
