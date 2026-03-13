@@ -48,62 +48,65 @@
             </a>
         </div>
         {% else %}
-            <!-- 替换用户列表的循环部分 -->
-            <div class="grid grid-cols-1 gap-4">
-                {% for item in user_list %}
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
-                        <div class="p-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <a href="{% url 'user:user_profile' item.user.username %}" class="block w-12 h-12 rounded-full overflow-hidden">
-                                        {% if item.user.profile.userAvatar %}
-                                        <img src="{{ item.user.profile.userAvatar.url }}" alt="{{ item.user.name }}的头像" class="w-full h-full object-cover">
-                                        {% else %}
-                                        <div class="w-full h-full bg-neutral-200 flex items-center justify-center text-neutral-500">
-                                            <i class="fa-solid fa-user text-xl"></i>
-                                        </div>
-                                        {% endif %}
-                                    </a>
-                                    <div>
-                                        <a href="{% url 'user:user_profile' item.user.username %}" class="font-medium text-neutral-800 hover:text-primary transition-colors">{{ item.user.name }}
-                                        </a>
-                                        <p class="text-neutral-500 text-xs">@{{ item.user.username }}</p>
-                                        <p class="text-neutral-400 text-xs mt-1">
-                                            {% if list_type == 'following' %}
-                                            关注于 {{ item.follow_time|date:"Y-m-d H:i" }}
-                                            {% else %}
-                                            关注你于 {{ item.follow_time|date:"Y-m-d H:i" }}
-                                            {% endif %}
-                                        </p>
-                                    </div>
+        <!-- 替换用户列表的循环部分 -->
+        <div class="grid grid-cols-1 gap-4">
+            {% for item in user_list %}
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
+                <div class="p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <a href="{% url 'user:user_profile' item.user.username %}"
+                                class="block w-12 h-12 rounded-full overflow-hidden">
+                                {% if item.user.profile.userAvatar %}
+                                <img src="{{ item.user.profile.userAvatar.url }}" alt="{{ item.user.name }}的头像" class="w-full h-full object-cover">
+                                {% else %}
+                                <div
+                                    class="w-full h-full bg-neutral-200 flex items-center justify-center text-neutral-500">
+                                    <i class="fa-solid fa-user text-xl"></i>
                                 </div>
-
-                                <!-- 操作按钮 -->
-                                {% if list_type == 'following' %}
-                                <button data-follow-action data-user-id="{{ item.user.id }}"
-                                    class="text-sm bg-neutral-200 text-neutral-700 rounded-full px-3 py-1 hover:bg-neutral-300 transition-all duration-300 flex items-center gap-1">
-                                    </i> 取消关注
-                                </button>
-                                {% else %}
-                                {% if item.user != request.user %}
-                                {% if item.is_following %}
-                                <button data-follow-action data-user-id="{{ item.user.id }}"
-                                    class="text-sm bg-neutral-200 text-neutral-700 rounded-full px-3 py-1 hover:bg-neutral-300 transition-all duration-300 flex items-center gap-1">
-                                    <i class="fa-solid fa-check text-xs"></i> 已关注
-                                </button>
-                                {% else %}
-                                <button data-follow-action data-user-id="{{ item.user.id }}"
-                                    class="text-sm bg-primary text-white rounded-full px-3 py-1 hover:bg-primary/90 transition-all duration-300 flex items-center gap-1">
-                                    <i class="fa-solid fa-plus text-xs"></i> 关注
-                                </button>
                                 {% endif %}
-                                {% endif %}
-                                {% endif %}
+                            </a>
+                            <div>
+                                <a href="{% url 'user:user_profile' item.user.username %}"
+                                    class="font-medium text-neutral-800 hover:text-primary transition-colors">{{ item.user.name }}
+                                </a>
+                                <p class="text-neutral-500 text-xs">@{{ item.user.username }}</p>
+                                <p class="text-neutral-400 text-xs mt-1">
+                                    {% if list_type == 'following' %}
+                                    关注于 {{ item.follow_time|date:"Y-m-d H:i" }}
+                                    {% else %}
+                                    关注你于 {{ item.follow_time|date:"Y-m-d H:i" }}
+                                    {% endif %}
+                                </p>
                             </div>
                         </div>
+
+                        <!-- 操作按钮 -->
+                        {% if list_type == 'following' %}
+                        <button data-follow-action data-user-id="{{ item.user.id }}"
+                            class="text-sm bg-neutral-200 text-neutral-700 rounded-full px-3 py-1 hover:bg-neutral-300 transition-all duration-300 flex items-center gap-1">
+                            </i> 取消关注
+                        </button>
+                        {% else %}
+                        {% if item.user != request.user %}
+                        {% if item.is_following %}
+                        <button data-follow-action data-user-id="{{ item.user.id }}"
+                            class="text-sm bg-neutral-200 text-neutral-700 rounded-full px-3 py-1 hover:bg-neutral-300 transition-all duration-300 flex items-center gap-1">
+                            <i class="fa-solid fa-check text-xs"></i> 已关注
+                        </button>
+                        {% else %}
+                        <button data-follow-action data-user-id="{{ item.user.id }}"
+                            class="text-sm bg-primary text-white rounded-full px-3 py-1 hover:bg-primary/90 transition-all duration-300 flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-xs"></i> 关注
+                        </button>
+                        {% endif %}
+                        {% endif %}
+                        {% endif %}
                     </div>
-                {% endfor %}
+                </div>
             </div>
+            {% endfor %}
+        </div>
         {% endif %}
     </div>
 </div>
@@ -145,7 +148,7 @@
         // 保存原始状态
         const originalContent = button.innerHTML;
         const originalClass = button.className;
-        
+
         // 显示加载状态
         button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         button.disabled = true;
@@ -155,62 +158,63 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: `followed_id=${userId}`
         })
-        .then(response => {
-            // 处理非200状态码
-            if (!response.ok) {
-                throw new Error(`请求失败：${response.status} ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                if (data.status === 'followed') {
-                    // 关注成功
-                    button.innerHTML = '<i class="fa-solid fa-check"></i> 已关注';
-                    button.className = 'text-sm bg-neutral-200 text-neutral-700 rounded-full px-3 py-1 hover:bg-neutral-300 transition-all duration-300';
-                } else {
-                    // 取消关注成功
-                    if (CURRENT_LIST_TYPE === 'following') {
-                        // 在关注列表中，移除当前用户项
-                        const userItem = button.closest('.bg-white');
-                        if (userItem) {
-                            userItem.classList.add('opacity-0', 'scale-95');
-                            setTimeout(() => {
-                                userItem.remove();
-                                // 更新关注数显示
-                                const countElement = document.querySelector('#followingTab');
-                                if (countElement) {
-                                    const currentCount = parseInt(countElement.textContent.match(/\((\d+)\)/)[1]);
-                                    countElement.textContent = countElement.textContent.replace(/\(\d+\)/, `(${currentCount - 1})`);
-                                }
-                            }, 300);
-                        }
-                    } else {
-                        // 在粉丝列表中，更新按钮状态
-                        button.innerHTML = '<i class="fa-solid fa-plus"></i> 关注';
-                        button.className = 'text-sm bg-primary text-white rounded-full px-3 py-1 hover:bg-primary/90 transition-all duration-300';
-                    }
+            .then(response => {
+                // 处理非200状态码
+                if (!response.ok) {
+                    throw new Error(`请求失败：${response.status} ${response.statusText}`);
                 }
-            } else {
-                // 操作失败，抛出错误触发catch
-                throw new Error(data.message || '操作失败，请重试');
-            }
-        })
-        .catch(error => {
-            console.error('操作失败:', error);
-            // 恢复原始状态
-            button.innerHTML = originalContent;
-            button.className = originalClass;
-            alert(error.message || '网络错误，请重试');
-        })
-        .finally(() => {
-            // 确保按钮始终恢复可用
-            button.disabled = false;
-        });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (data.status === 'followed') {
+                        // 关注成功
+                        button.innerHTML = '<i class="fa-solid fa-check"></i> 已关注';
+                        button.className = 'text-sm bg-neutral-200 text-neutral-700 rounded-full px-3 py-1 hover:bg-neutral-300 transition-all duration-300';
+                    } else {
+                        // 取消关注成功
+                        if (CURRENT_LIST_TYPE === 'following') {
+                            // 在关注列表中，移除当前用户项
+                            const userItem = button.closest('.bg-white');
+                            if (userItem) {
+                                userItem.classList.add('opacity-0', 'scale-95');
+                                setTimeout(() => {
+                                    userItem.remove();
+                                    // 更新关注数显示
+                                    const countElement = document.querySelector('#followingTab');
+                                    if (countElement) {
+                                        const currentCount = parseInt(countElement.textContent.match(/\((\d+)\)/)[1]);
+                                        countElement.textContent = countElement.textContent.replace(/\(\d+\)/, `(${currentCount - 1})`);
+                                    }
+                                }, 300);
+                            }
+                        } else {
+                            // 在粉丝列表中，更新按钮状态
+                            button.innerHTML = '<i class="fa-solid fa-plus"></i> 关注';
+                            button.className = 'text-sm bg-primary text-white rounded-full px-3 py-1 hover:bg-primary/90 transition-all duration-300';
+                        }
+                    }
+                } else {
+                    // 操作失败，抛出错误触发catch
+                    throw new Error(data.message || '操作失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('操作失败:', error);
+                // 恢复原始状态
+                button.innerHTML = originalContent;
+                button.className = originalClass;
+                alert(error.message || '网络错误，请重试');
+            })
+            .finally(() => {
+                // 确保按钮始终恢复可用
+                button.disabled = false;
+            });
     }
 
     // 页面加载完成后初始化

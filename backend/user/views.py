@@ -1,8 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.urls import reverse
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from core.models import User
@@ -579,49 +580,59 @@ def follow_toggle(request):
         if followed == request.user:
             return JsonResponse({'success': False, 'message': '不能关注自己'}, status=400)
         
-        # 使用 get_or_create 判断关注状态，考虑软删除
-        follow_obj, created = Follow.objects.get_or_create(
-            follower=request.user,
-            following=followed,
-            defaults={'is_deleted': False}
-        )
-        
-        if created or follow_obj.is_deleted:
-            # 关注成功
-            follow_obj.is_deleted = False
-            follow_obj.save()
+        try:
+            # 使用 get_or_create 判断关注状态，考虑软删除
+            follow_obj, created = Follow.objects.get_or_create(
+                follower=request.user,
+                following=followed,
+                defaults={'is_deleted': False}
+            )
             
-            # 获取更新后的粉丝数
-            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
-            
+            if created or follow_obj.is_deleted:
+                # 关注成功
+                follow_obj.is_deleted = False
+                follow_obj.save()
+                
+                # 获取更新后的粉丝数
+                followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': '关注成功',
+                        'is_following': True,
+                        'status': 'followed',  # 添加前端期望的status字段
+                        'followers_count': followers_count
+                    })
+                messages.success(request, '关注成功')
+                return redirect(reverse('user:profile', args=[followed.id]))
+            else:
+                # 取消关注
+                follow_obj.is_deleted = True
+                follow_obj.save()
+                
+                # 获取更新后的粉丝数
+                followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': '取消关注成功',
+                        'is_following': False,
+                        'status': 'unfollowed',  # 添加前端期望的status字段
+                        'followers_count': followers_count
+                    })
+                messages.success(request, '取消关注成功')
+                return redirect(reverse('user:profile', args=[followed.id]))
+        except Exception as e:
+            print(f"关注/取消关注失败: {str(e)}")
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': '关注成功',
-                    'is_following': True,
-                    'followers_count': followers_count
-                })
-            messages.success(request, '关注成功')
-        else:
-            # 取消关注
-            follow_obj.is_deleted = True
-            follow_obj.save()
-            
-            # 获取更新后的粉丝数
-            followers_count = Follow.objects.filter(following=followed, is_deleted=False).count()
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': '取消关注成功',
-                    'is_following': False,
-                    'followers_count': followers_count
-                })
-            messages.success(request, '取消关注成功')
-    
+                return JsonResponse({'success': False, 'message': f'操作失败：{str(e)}'}, status=500)
+            messages.error(request, f'操作失败：{str(e)}')
+            return redirect(reverse('user:profile', args=[followed.id]))
+
     # 如果不是POST请求，重定向到个人主页
-    from django.urls import reverse
-    return redirect(reverse('core:personal_center'))
+    return redirect(reverse('user:profile', args=[request.user.id]))
 
 # 关注列表页面
 @login_required
