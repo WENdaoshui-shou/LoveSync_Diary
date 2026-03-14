@@ -232,7 +232,7 @@
                         </div>
 
                         <!-- 登录表单 -->
-                        <form id="loginForm" class="space-y-5 sm:space-y-6" method="POST" action="{% url 'login' %}">
+                        <form id="loginForm" class="space-y-5 sm:space-y-6">
                             {% csrf_token %}
                             {% if messages %}
                             <div class="mt-2">
@@ -654,8 +654,51 @@
                 const isPasswordValid = validatePassword();
 
                 if (isEmailValid && isPasswordValid) {
-                    // 所有验证通过，提交表单
-                    this.submit();
+                    // 所有验证通过，使用AJAX提交登录请求
+                    const formData = new FormData(this);
+                    const data = {
+                        username: formData.get('username'),
+                        password: formData.get('password'),
+                        'verify_code': formData.get('verify_code'),
+                        'remember-me': formData.get('remember-me')
+                    };
+
+                    fetch('/login/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new URLSearchParams(data)
+                    })
+                        .then(response => {
+                            if (response.redirected) {
+                                // 如果是重定向，说明是传统表单提交，直接跳转
+                                window.location.href = response.url;
+                            } else {
+                                // 否则是AJAX响应，解析JSON
+                                return response.json();
+                            }
+                        })
+                        .then(data => {
+                            if (data && data.success) {
+                                // 存储token到localStorage
+                                localStorage.setItem('access_token', data.tokens.access);
+                                localStorage.setItem('refresh_token', data.tokens.refresh);
+                                localStorage.setItem('user', JSON.stringify(data.user));
+                                
+                                // 登录成功，跳转到社区页面
+                                window.location.href = '/community/';
+                            } else if (data && !data.success) {
+                                // 登录失败，显示错误信息
+                                alert('登录失败: ' + (data.message || '未知错误'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('登录失败:', error);
+                            alert('登录失败，请检查网络连接');
+                        });
                 } else {
                     // 验证失败，显示错误信息
                     if (!isEmailValid) {

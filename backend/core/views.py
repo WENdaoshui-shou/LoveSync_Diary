@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.generic import TemplateView
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.cache import cache
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -16,6 +16,7 @@ import random
 import string
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Profile, VerificationCode
 from .serializers import UserSerializer, ProfileSerializer, CustomTokenObtainPairSerializer, RegisterSerializer
 from moment.models import Moment
@@ -221,8 +222,6 @@ def login_view(request):
             
             # 清除session中的验证码
             del request.session['verify_code']
-        
-        # 直接使用User模型和check_password进行调试
         try:
             # 先检查用户是否存在
             all_users = User.objects.all()
@@ -242,6 +241,22 @@ def login_view(request):
                 else:
                     # 关闭浏览器后失效
                     request.session.set_expiry(0)
+                
+                # 生成JWT token
+                refresh = RefreshToken.for_user(user_obj)
+                tokens = {
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh)
+                }
+                
+                # 检查是否是AJAX请求
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': '登录成功',
+                        'tokens': tokens,
+                        'user': UserSerializer(user_obj).data
+                    })
                 
                 messages.success(request, '登录成功')
                 return redirect('community')

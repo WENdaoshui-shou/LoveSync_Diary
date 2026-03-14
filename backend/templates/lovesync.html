@@ -732,7 +732,6 @@
         const wsUrl = `${wsProtocol}//${window.location.host}/ws/diary/sync/?token=${token}`;
 
         ws = new WebSocket(wsUrl);
-
         ws.onopen = function () {
             console.log('WebSocket连接已打开');
             isConnected = true;
