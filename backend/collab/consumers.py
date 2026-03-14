@@ -1,10 +1,12 @@
 import json
 import uuid
+import asyncio
 from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from core.models import User, Profile
+from django.contrib.auth import get_user_model
+from core.models import Profile
 from .models import CollaborativeDocument, DocumentOperation
 from .ot_engine import OTEngine, Insert, Delete
 
@@ -13,44 +15,18 @@ MAX_MESSAGE_SIZE = 1024 * 10  # 10KB
 HEARTBEAT_INTERVAL = 30
 SUPPORTED_OP_TYPES = ['insert', 'delete']
 
+# 获取自定义用户模型
+User = get_user_model()
 
 class DiarySyncConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        """建立WebSocket连接（适配CollaborativeDocument模型）"""
-        # 先从scope中获取用户
+        """建立WebSocket连接（修复：删除冗余Token解析，仅用中间件认证）"""
         self.user = self.scope.get('user')
         self.room_name = None
         self.document = None  # 协作文档对象
-        self.heartbeat_timer = None
+        self.heartbeat_task = None  # 替换timer为task，避免内存泄漏
 
-        # 尝试从URL参数中获取token
-        if not self.user or not self.user.is_authenticated:
-            # 从查询参数中获取token
-            query_string = self.scope.get('query_string', b'').decode()
-            from urllib.parse import parse_qs
-            query_params = parse_qs(query_string)
-            token = query_params.get('token', [''])[0]
-            
-            if token:
-                # 使用token进行认证
-                from rest_framework_simplejwt.authentication import JWTAuthentication
-                from rest_framework.exceptions import AuthenticationFailed
-                
-                try:
-                    jwt_auth = JWTAuthentication()
-                    # 模拟请求对象
-                    class MockRequest:
-                        def __init__(self, token):
-                            self.META = {'HTTP_AUTHORIZATION': f'Bearer {token}'}
-                    
-                    request = MockRequest(token)
-                    user, _ = jwt_auth.authenticate(request)
-                    if user:
-                        self.user = user
-                except Exception as e:
-                    print(f"token认证失败: {e}")
-
-        # 1. 校验用户登录状态
+        # 1. 校验用户登录状态（仅保留核心认证逻辑）
         if not self.user or not self.user.is_authenticated:
             await self.send(text_data=json.dumps({
                 'type': 'error',
@@ -61,56 +37,8 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
             return
 
         try:
-            # 2. 获取用户情侣信息 + 协作文档
-            @database_sync_to_async
-            def get_couple_and_document():
-                """获取情侣ID和对应的协作文档"""
-                try:
-                    # 获取用户profile和情侣ID
-                    user_profile = Profile.objects.get(user=self.user)
-                    if not user_profile.couple:
-                        return None, None
-
-                    couple_profile = user_profile.couple
-                    couple_user = couple_profile.user
-
-                    # 生成唯一房间名（排序确保情侣双方房间名一致）
-                    user_ids = sorted([self.user.id, couple_user.id])
-                    room_name = f'diary_{user_ids[0]}_{user_ids[1]}'
-
-                    # 确保情侣双方使用同一个协作文档，避免版本冲突
-                    # 逻辑：优先使用已存在的文档，如无则创建新文档，内容为空
-                    try:
-                        # 先找情侣关联的文档（按创建时间倒序，取最新的）
-                        document = CollaborativeDocument.objects.filter(
-                            couple__in=[user_profile, couple_profile]
-                        ).order_by('-id').first()
-                        if not document:
-                            # 都没有则创建新文档
-                            document = CollaborativeDocument.objects.create(
-                                title=f'情侣日记_{user_ids[0]}_{user_ids[1]}_{datetime.now().strftime("%Y%m%d_%H%M%S")}',
-                                content='',  # 确保每次都是空内容
-                                owner=self.user,
-                                couple=user_profile
-                            )
-                        else:
-                            # 如果文档已存在，重置内容为空
-                            document.content = ''
-                            document.save()
-                    except Exception as e:
-                        print(f'获取/创建文档失败: {e}')
-                        return None, None
-                    return room_name, document
-
-                except ObjectDoesNotExist as e:
-                    print(f'未找到用户/profile: {e}')
-                    return None, None
-                except Exception as e:
-                    print(f'获取情侣/文档失败: {e}')
-                    return None, None
-
-            # 执行数据库操作
-            self.room_name, self.document = await get_couple_and_document()
+            # 2. 获取用户情侣信息 + 协作文档（修复：异步DB操作+保留文档内容）
+            self.room_name, self.document = await self._get_couple_and_document()
             if not self.room_name or not self.document:
                 await self.send(text_data=json.dumps({
                     'type': 'error',
@@ -122,10 +50,9 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
             # 3. 初始化核心状态（从数据库加载）
             self.document_content = self.document.content
-            # 获取最新版本号（取操作历史的最大revision，无则为0）
             self.current_revision = await self._get_latest_revision()
             self.collaborative_status = False
-            self.executed_operation_ids = set()  # 用于记录已执行的操作ID，确保幂等性
+            self.executed_operation_ids = set()  # 幂等性操作ID记录
 
             # 4. 接受连接（校验通过后）
             await self.accept()
@@ -133,8 +60,8 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
             # 5. 加入房间
             await self.channel_layer.group_add(self.room_name, self.channel_name)
 
-            # 6. 启动心跳检测
-            await self._start_heartbeat()
+            # 6. 启动心跳检测（修复：安全的异步心跳）
+            self.heartbeat_task = asyncio.create_task(self._start_heartbeat())
 
             # 7. 发送连接成功消息
             await self.send(text_data=json.dumps({
@@ -160,9 +87,9 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         """断开连接（清理资源+持久化）"""
-        # 1. 停止心跳
-        if self.heartbeat_timer:
-            self.heartbeat_timer.cancel()
+        # 1. 停止心跳（修复：取消异步任务）
+        if self.heartbeat_task and not self.heartbeat_task.done():
+            self.heartbeat_task.cancel()
 
         # 2. 退出房间
         if self.room_name:
@@ -207,6 +134,116 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
             await self._send_error(4005, '无效的JSON格式')
         except Exception as e:
             await self._send_error(5002, f'消息处理失败: {str(e)}')
+
+    # ========== 核心辅助方法（修复异步DB+文档逻辑） ==========
+    @database_sync_to_async
+    def _get_couple_and_document(self):
+        """获取情侣ID和对应的协作文档（修复：保留已有文档内容）"""
+        try:
+            # 获取用户profile和情侣ID
+            user_profile = Profile.objects.get(user=self.user)
+            if not user_profile.couple:
+                return None, None
+
+            couple_profile = user_profile.couple
+            couple_user = couple_profile.user
+
+            # 生成唯一房间名（排序确保情侣双方房间名一致）
+            user_ids = sorted([self.user.id, couple_user.id])
+            room_name = f'diary_{user_ids[0]}_{user_ids[1]}'
+
+            # 确保情侣双方使用同一个协作文档（修复：不重置已有内容）
+            try:
+                # 先找情侣关联的文档（按创建时间倒序，取最新的）
+                document = CollaborativeDocument.objects.filter(
+                    couple__in=[user_profile, couple_profile]
+                ).order_by('-id').first()
+                if not document:
+                    # 都没有则创建新文档
+                    document = CollaborativeDocument.objects.create(
+                        title=f'情侣日记_{user_ids[0]}_{user_ids[1]}_{datetime.now().strftime("%Y%m%d_%H%M%S")}',
+                        content='',  # 新文档内容为空
+                        owner=self.user,
+                        couple=user_profile
+                    )
+                # 移除else分支：不再重置已有文档内容
+            except Exception as e:
+                print(f'获取/创建文档失败: {e}')
+                return None, None
+            return room_name, document
+
+        except ObjectDoesNotExist as e:
+            print(f'未找到用户/profile: {e}')
+            return None, None
+        except Exception as e:
+            print(f'获取情侣/文档失败: {e}')
+            return None, None
+
+    @database_sync_to_async
+    def _get_latest_revision(self):
+        """获取文档的最新版本号"""
+        try:
+            latest_op = DocumentOperation.objects.filter(
+                document=self.document
+            ).order_by('-revision').first()
+            return latest_op.revision if latest_op else 0
+        except Exception:
+            return 0
+
+    @database_sync_to_async
+    def _save_operation_to_db(self, ot_operation, revision, op_id):
+        """保存操作到DocumentOperation模型（添加op_id幂等性记录）"""
+        try:
+            # 确定操作类型
+            operation_type = 'insert' if isinstance(ot_operation, Insert) else 'delete'
+            
+            DocumentOperation.objects.create(
+                document=self.document,
+                user=self.user,
+                operation_type=operation_type,
+                position=ot_operation.position,
+                text=getattr(ot_operation, 'text', ''),
+                revision=revision,
+                operation_id=op_id  # 新增：存储op_id用于幂等性校验
+            )
+            return True
+        except Exception as e:
+            print(f'保存操作失败: {e}')
+            return False
+
+    @database_sync_to_async
+    def _persist_document_content(self):
+        """持久化文档内容到数据库（添加乐观锁，避免并发覆盖）"""
+        try:
+            from django.db import transaction
+            with transaction.atomic():
+                # 乐观锁：仅当版本号匹配时更新
+                doc = CollaborativeDocument.objects.select_for_update().get(
+                    id=self.document.id,
+                    last_updated=self.document.last_updated
+                )
+                doc.content = self.document_content
+                doc.save(update_fields=['content', 'last_updated'])
+                self.document = doc  # 更新内存中的文档
+            return True
+        except Exception as e:
+            print(f'持久化文档失败: {e}')
+            return False
+
+    async def _refresh_document_from_db(self):
+        """从数据库刷新文档状态（防止内存与数据库不一致）"""
+        try:
+            @database_sync_to_async
+            def get_fresh_doc():
+                return CollaborativeDocument.objects.get(id=self.document.id)
+            
+            fresh_doc = await get_fresh_doc()
+            self.document = fresh_doc
+            self.document_content = fresh_doc.content
+            # 重新获取最新版本号
+            self.current_revision = await self._get_latest_revision()
+        except Exception as e:
+            print(f'刷新文档失败: {e}')
 
     # ========== 消息处理子方法 ==========
     async def _handle_heartbeat(self, data):
@@ -390,82 +427,23 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
             'new_revision': new_revision
         }))
 
-    # ========== 数据库操作辅助方法 ==========
-    @database_sync_to_async
-    def _get_latest_revision(self):
-        """获取文档的最新版本号"""
-        try:
-            latest_op = DocumentOperation.objects.filter(
-                document=self.document
-            ).order_by('-revision').first()
-            return latest_op.revision if latest_op else 0
-        except Exception:
-            return 0
-
-    @database_sync_to_async
-    def _save_operation_to_db(self, ot_operation, revision, op_id):
-        """保存操作到DocumentOperation模型"""
-        try:
-            # 确定操作类型
-            operation_type = 'insert' if isinstance(ot_operation, Insert) else 'delete'
-            
-            DocumentOperation.objects.create(
-                document=self.document,
-                user=self.user,
-                operation_type=operation_type,
-                position=ot_operation.position,
-                text=getattr(ot_operation, 'text', ''),
-                revision=revision,
-                # 可额外存储op_id用于幂等性
-            )
-            return True
-        except Exception as e:
-            print(f'保存操作失败: {e}')
-            return False
-
-    @database_sync_to_async
-    def _persist_document_content(self):
-        """持久化文档内容到数据库"""
-        try:
-            self.document.content = self.document_content
-            self.document.save(update_fields=['content', 'last_updated'])
-            return True
-        except Exception as e:
-            print(f'持久化文档失败: {e}')
-            return False
-
-    async def _refresh_document_from_db(self):
-        """从数据库刷新文档状态（防止内存与数据库不一致）"""
-        try:
-            @database_sync_to_async
-            def get_fresh_doc():
-                return CollaborativeDocument.objects.get(id=self.document.id)
-            
-            fresh_doc = await get_fresh_doc()
-            self.document = fresh_doc
-            self.document_content = fresh_doc.content
-            # 重新获取最新版本号
-            self.current_revision = await self._get_latest_revision()
-        except Exception as e:
-            print(f'刷新文档失败: {e}')
-
     # ========== 工具方法 ==========
     async def _start_heartbeat(self):
-        """启动心跳检测"""
-        try:
-            await self.send(text_data=json.dumps({
-                'type': 'heartbeat',
-                'timestamp': datetime.now().timestamp(),
-                'revision': self.current_revision
-            }))
-            import asyncio
-            loop = asyncio.get_event_loop()
-            self.heartbeat_timer = loop.call_later(
-                HEARTBEAT_INTERVAL,
-                lambda: loop.create_task(self._start_heartbeat())
-            )
-        except Exception as e:
-            print(f'心跳发送失败: {e}')
+        """启动心跳检测（修复：安全的异步任务，无内存泄漏）"""
+        while True:
+            try:
+                await self.send(text_data=json.dumps({
+                    'type': 'heartbeat',
+                    'timestamp': datetime.now().timestamp(),
+                    'revision': self.current_revision
+                }))
+                await asyncio.sleep(HEARTBEAT_INTERVAL)
+            except asyncio.CancelledError:
+                # 任务被取消（断开连接），正常退出
+                break
+            except Exception as e:
+                print(f'心跳发送失败: {e}')
+                await asyncio.sleep(HEARTBEAT_INTERVAL)
 
     async def _send_error(self, code, message, extra_data=None):
         """统一发送错误消息"""
