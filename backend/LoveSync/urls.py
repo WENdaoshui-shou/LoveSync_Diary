@@ -4,7 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core.views import (
     IndexView, login_view, register_view, logout_view,
-    settings_view, verify_code, share_place_view
+    settings_view, verify_code, share_place_view,
+    LoginViewSet
 )
 
 from core.views import community_view
@@ -26,6 +27,7 @@ urlpatterns = [
     # 核心路由
     path('', IndexView.as_view(), name='index'),
     path('login/', login_view, name='login'),
+    path('api/login/', LoginViewSet.as_view({'post': 'login'}), name='api_login'),
     path('register/', register_view, name='register'),
     path('logout/', logout_view, name='logout'),
     path('verify_code/', verify_code, name='verify_code'),

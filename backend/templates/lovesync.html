@@ -727,8 +727,7 @@
 
         // 构建WebSocket URL
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        // 获取本地存储的token（使用admin_token键名）
-        const token = localStorage.getItem('admin_token') || '';
+        const token = localStorage.getItem('access_token') || '';
         // 在URL中添加token参数
         const wsUrl = `${wsProtocol}//${window.location.host}/ws/diary/sync/?token=${token}`;
 
