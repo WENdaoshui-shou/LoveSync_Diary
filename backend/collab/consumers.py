@@ -1,5 +1,6 @@
 import json
 import uuid
+import logging
 import asyncio
 from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -10,34 +11,59 @@ from core.models import Profile
 from .models import CollaborativeDocument, DocumentOperation
 from .ot_engine import OTEngine, Insert, Delete
 
-# 配置项（集中管理，便于修改）
-MAX_MESSAGE_SIZE = 1024 * 10  # 10KB
+# JWT 相关导入
+from urllib.parse import parse_qs
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+logger = logging.getLogger(__name__)
+
+# 配置项
+MAX_MESSAGE_SIZE = 1024 * 10
 HEARTBEAT_INTERVAL = 30
 SUPPORTED_OP_TYPES = ['insert', 'delete']
 
-# 获取自定义用户模型
 User = get_user_model()
 
 class DiarySyncConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        """建立WebSocket连接（修复：删除冗余Token解析，仅用中间件认证）"""
-        self.user = self.scope.get('user')
+        self.user = None
         self.room_name = None
-        self.document = None  # 协作文档对象
-        self.heartbeat_task = None  # 替换timer为task，避免内存泄漏
+        self.document = None
+        self.heartbeat_task = None
 
-        # 1. 校验用户登录状态（仅保留核心认证逻辑）
-        if not self.user or not self.user.is_authenticated:
+        # 1. 解析 Token
+        try:
+            query_string = self.scope.get('query_string', b'').decode('utf-8')
+            params = parse_qs(query_string)
+            token = params.get('token', [None])[0]
+            
+            if not token:
+                raise ValueError("未提供 Token")
+            
+            logger.info(f"[WebSocket] 解析到 Token: {token[:50]}...")
+            access_token = AccessToken(token)
+            user_id = access_token['user_id']
+            
+            @database_sync_to_async
+            def get_user():
+                return User.objects.get(id=user_id)
+            
+            self.user = await get_user()
+            logger.info(f"[WebSocket] ✅ Token 认证成功，用户: {self.user.username}")
+            
+        except Exception as e:
+            logger.error(f"[WebSocket] ❌ Token 认证失败: {e}", exc_info=True)
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'code': 4001,
-                'message': '连接失败: Authentication required.'
+                'message': f'连接失败: Authentication required. {str(e)}'
             }))
-            await self.close(code=4001)  # 未认证
+            await self.close(code=4001)
             return
 
+
+        # 2. 获取用户情侣信息 + 协作文档
         try:
-            # 2. 获取用户情侣信息 + 协作文档（修复：异步DB操作+保留文档内容）
             self.room_name, self.document = await self._get_couple_and_document()
             if not self.room_name or not self.document:
                 await self.send(text_data=json.dumps({
@@ -48,22 +74,24 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
                 await self.close(code=4002)
                 return
 
-            # 3. 初始化核心状态（从数据库加载）
+            # 3. 初始化核心状态
             self.document_content = self.document.content
             self.current_revision = await self._get_latest_revision()
             self.collaborative_status = False
-            self.executed_operation_ids = set()  # 幂等性操作ID记录
+            self.executed_operation_ids = set()
 
-            # 4. 接受连接（校验通过后）
+            # 4. 接受连接
             await self.accept()
+            logger.info(f'[WebSocket] 用户 {self.user.id} 成功连接 | 文档ID: {self.document.id} | 情侣关系: {self.room_name}')
 
-            # 5. 加入房间
-            await self.channel_layer.group_add(self.room_name, self.channel_name)
+            # 5. 加入房间（临时注释掉，先测试核心逻辑）
+            # await self.channel_layer.group_add(self.room_name, self.channel_name)
 
-            # 6. 启动心跳检测（修复：安全的异步心跳）
-            self.heartbeat_task = asyncio.create_task(self._start_heartbeat())
+            # 6. 启动心跳（临时注释掉，先测试核心逻辑）
+            # self.heartbeat_task = asyncio.create_task(self._start_heartbeat())
 
             # 7. 发送连接成功消息
+            logger.info(f'[WebSocket] 🔥🔥🔥 准备发送连接成功消息！')
             await self.send(text_data=json.dumps({
                 'type': 'connection_established',
                 'message': '协作连接已建立',
@@ -74,9 +102,11 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
                 'title': self.document.title,
                 'room_name': self.room_name
             }))
+            logger.info(f'[WebSocket] ✅ 连接成功消息已发送！')
 
         except Exception as e:
             error_msg = f'连接失败: {str(e)}'
+            logger.error(f"[WebSocket] ❌ 连接过程出错: {e}", exc_info=True)
             print(error_msg)
             await self.send(text_data=json.dumps({
                 'type': 'error',
@@ -87,6 +117,8 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         """断开连接（清理资源+持久化）"""
+        logger.info(f"[WebSocket] 🔌 收到断开连接请求，关闭码: {close_code}")
+        
         # 1. 停止心跳（修复：取消异步任务）
         if self.heartbeat_task and not self.heartbeat_task.done():
             self.heartbeat_task.cancel()
@@ -106,6 +138,8 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         """处理客户端消息（适配模型+增强校验）"""
+        logger.info(f"[WebSocket] 📨 收到消息: {text_data[:100]}...")
+        
         # 1. 消息大小限制
         if len(text_data) > MAX_MESSAGE_SIZE:
             await self._send_error(4003, '消息大小超出限制（最大10KB）')
@@ -115,6 +149,7 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
             # 2. 解析JSON
             data = json.loads(text_data)
             msg_type = data.get('type')
+            logger.info(f"[WebSocket] 📨 消息类型: {msg_type}")
 
             # 3. 处理不同类型消息
             handlers = {
@@ -131,8 +166,10 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
                 await self._send_error(4004, f'不支持的消息类型: {msg_type}')
 
         except json.JSONDecodeError:
+            logger.error(f"[WebSocket] ❌ JSON解析失败", exc_info=True)
             await self._send_error(4005, '无效的JSON格式')
         except Exception as e:
+            logger.error(f"[WebSocket] ❌ 消息处理失败: {e}", exc_info=True)
             await self._send_error(5002, f'消息处理失败: {str(e)}')
 
     # ========== 核心辅助方法（修复异步DB+文档逻辑） ==========
@@ -248,6 +285,7 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
     # ========== 消息处理子方法 ==========
     async def _handle_heartbeat(self, data):
         """处理心跳检测"""
+        logger.info(f"[WebSocket] 💓 处理心跳")
         await self.send(text_data=json.dumps({
             'type': 'heartbeat',
             'timestamp': datetime.now().timestamp(),
@@ -256,17 +294,22 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
     async def _handle_collaborative_status(self, data):
         """处理协作状态同步"""
-        self.collaborative_status = data.get('status', False)
+        status = data.get('status', False)
+        self.collaborative_status = status
+        logger.info(f"[WebSocket] 🤝 收到协作状态: {status}")
+        logger.info(f"[WebSocket] 📢 准备广播协作状态到房间: {self.room_name}")
         # 广播状态给情侣
         await self.channel_layer.group_send(self.room_name, {
             'type': 'broadcast_collaborative_status',
-            'status': self.collaborative_status,
+            'status': status,
             'user_id': self.user.id,
             'timestamp': datetime.now().timestamp()
         })
+        logger.info(f"[WebSocket] 📢 协作状态广播完成")
 
     async def _handle_document_sync(self, data):
         """处理全量文档同步请求"""
+        logger.info(f"[WebSocket] 📄 处理文档同步请求")
         # 重新从数据库加载最新内容（防止内存状态不一致）
         await self._refresh_document_from_db()
         await self.send(text_data=json.dumps({
@@ -280,6 +323,7 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
     async def _handle_update_title(self, data):
         """处理标题更新"""
+        logger.info(f"[WebSocket] 📝 处理标题更新")
         new_title = data.get('title', '').strip()
         if not new_title:
             await self._send_error(4008, '标题不能为空')
@@ -294,13 +338,13 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
         try:
             updated_title = await update_title()
-            # 广播标题更新
-            await self.channel_layer.group_send(self.room_name, {
-                'type': 'broadcast_title_update',
-                'document_id': self.document.id,
-                'title': updated_title,
-                'user_id': self.user.id
-            })
+            # 广播标题更新（临时注释掉）
+            # await self.channel_layer.group_send(self.room_name, {
+            #     'type': 'broadcast_title_update',
+            #     'document_id': self.document.id,
+            #     'title': updated_title,
+            #     'user_id': self.user.id
+            # })
             # 响应客户端
             await self.send(text_data=json.dumps({
                 'type': 'title_updated',
@@ -312,6 +356,7 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
     async def _handle_ot_operation(self, data):
         """处理OT操作（核心：关联DocumentOperation模型）"""
+        logger.info(f"[WebSocket] 🔧 处理OT操作")
         # 1. 提取参数
         op_data = data.get('operation', {})
         client_revision = int(data.get('revision', 0))
@@ -401,20 +446,20 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
         # 8. 更新内存状态
         self.current_revision = new_revision
 
-        # 9. 广播操作给情侣
-        await self.channel_layer.group_send(self.room_name, {
-            'type': 'broadcast_ot_operation',
-            'document_id': self.document.id,
-            'operation': {
-                'type': op_type,
-                'position': ot_operation.position,
-                'text': getattr(ot_operation, 'text', ''),
-                'length': getattr(ot_operation, 'length', 0)
-            },
-            'user_id': self.user.id,
-            'revision': new_revision,
-            'operation_id': op_id
-        })
+        # 9. 广播操作给情侣（临时注释掉）
+        # await self.channel_layer.group_send(self.room_name, {
+        #     'type': 'broadcast_ot_operation',
+        #     'document_id': self.document.id,
+        #     'operation': {
+        #         'type': op_type,
+        #         'position': ot_operation.position,
+        #         'text': getattr(ot_operation, 'text', ''),
+        #         'length': getattr(ot_operation, 'length', 0)
+        #     },
+        #     'user_id': self.user.id,
+        #     'revision': new_revision,
+        #     'operation_id': op_id
+        # })
 
         # 记录操作ID，确保幂等性
         self.executed_operation_ids.add(op_id)
@@ -447,6 +492,7 @@ class DiarySyncConsumer(AsyncWebsocketConsumer):
 
     async def _send_error(self, code, message, extra_data=None):
         """统一发送错误消息"""
+        logger.error(f"[WebSocket] ❌ 发送错误: code={code}, message={message}")
         error_data = {
             'type': 'error',
             'code': code,

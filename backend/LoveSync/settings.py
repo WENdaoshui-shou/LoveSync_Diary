@@ -143,10 +143,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-        # 新增：记录自己代码的错误（比如verify_code视图）
-        '': {
-            'handlers': ['console', 'file'],
-            'level': 'ERROR',
+        # 记录collab应用的日志
+        'collab': {
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': False,
         },
     },
