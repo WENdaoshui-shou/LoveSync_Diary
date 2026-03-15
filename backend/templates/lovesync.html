@@ -768,13 +768,12 @@
             }
         };
 
-        ws.onclose = function () {
-            console.log('WebSocket连接已关闭');
-            isConnected = false;
-            stopHeartbeat();
-            document.getElementById('sync-status').textContent = '未连接';
-            document.getElementById('sync-status').classList.remove('text-green-500');
-            document.getElementById('sync-status').classList.add('text-neutral-500');
+        ws.onclose = (e) => {
+            console.log('🔌 WebSocket连接已关闭');
+            console.log('  - 关闭码 (code):', e.code);
+            console.log('  - 关闭原因 (reason):', e.reason);
+            console.log('  - 是否被清理 (wasClean):', e.wasClean);
+            console.trace('📌 关闭调用栈：');  // 关键：看是谁调用了 close
         };
 
         ws.onerror = function (error) {
@@ -1094,6 +1093,7 @@
         diaryForm.addEventListener('submit', function (e) {
             if (collaborativeEditCheckbox.checked) {
                 e.preventDefault();
+                createCollaborativeDocument();
             }
         });
 
@@ -1170,6 +1170,33 @@
         saveButton.addEventListener('click', function () {
             this.classList.add('bg-gradient-love');
         });
+    }
+
+    // 创建协作文档并跳转到协作编辑器
+    function createCollaborativeDocument() {
+        const title = '共同日记';
+        const content = document.getElementById('context').value;
+
+        fetch('/collab/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ title: title, content: content })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('创建协作文档失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('创建协作文档失败:', error);
+                alert('网络错误，请重试');
+            });
     }
 
     // 打开日记模态框
