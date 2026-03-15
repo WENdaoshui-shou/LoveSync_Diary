@@ -1094,7 +1094,6 @@
         diaryForm.addEventListener('submit', function (e) {
             if (collaborativeEditCheckbox.checked) {
                 e.preventDefault();
-                createCollaborativeDocument();
             }
         });
 
@@ -1171,33 +1170,6 @@
         saveButton.addEventListener('click', function () {
             this.classList.add('bg-gradient-love');
         });
-    }
-
-    // 创建协作文档并跳转到协作编辑器
-    function createCollaborativeDocument() {
-        const title = '共同日记';
-        const content = document.getElementById('context').value;
-
-        fetch('/collab/create/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            },
-            body: JSON.stringify({ title: title, content: content })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    alert('创建协作文档失败，请重试');
-                }
-            })
-            .catch(error => {
-                console.error('创建协作文档失败:', error);
-                alert('网络错误，请重试');
-            });
     }
 
     // 打开日记模态框

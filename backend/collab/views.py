@@ -6,20 +6,6 @@ from django.urls import reverse
 from .models import CollaborativeDocument
 
 
-# 协作编辑器页面
-@login_required
-def collaborative_editor(request, document_id):
-    document = get_object_or_404(CollaborativeDocument, id=document_id)
-
-    # 检查权限：只有文档所有者或其情侣可以访问
-    if request.user != document.owner and (document.couple is None or request.user != document.couple.user):
-        return HttpResponseForbidden("你无权访问此文档")
-
-    return render(request, 'collaborative_editor.html', {
-        'document': document
-    })
-
-
 # 创建文档
 @csrf_exempt
 @login_required
